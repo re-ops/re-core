@@ -9,7 +9,7 @@
                  [clj-config "0.2.0"]
                  [cheshire "5.0.1"]
                  [com.taoensso/timbre "1.4.0"]
-                 [bigml/closchema "0.3.0-SNAPSHOT"]
+                 [narkisr/closchema "0.3.0-SNAPSHOT"]
                  [org.clojure/core.incubator "0.1.2"]
                  [clj-http "0.6.4"]]
   
