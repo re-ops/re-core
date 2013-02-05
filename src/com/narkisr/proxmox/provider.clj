@@ -34,8 +34,7 @@
     (let [errors (validate spec)]
       (if (empty? errors) 
         (try (prox-post (str "/nodes/" node "/openvz") spec)
-          (catch Exception e (error e))
-          ) 
+          (catch Exception e (error e))) 
         (throw (RuntimeException. (str errors))))))
   (delete [this]
     (use 'com.narkisr.proxmox.remote)
