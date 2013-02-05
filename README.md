@@ -1,6 +1,5 @@
-# Multistage
+# Celestial
 
-A staging engine
 
 ## Usage
 

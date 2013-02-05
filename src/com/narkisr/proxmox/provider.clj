@@ -4,7 +4,7 @@
   (:use 
     [taoensso.timbre :only (debug info error)]
     clojure.core.strint
-    [com.narkisr.multistage.core]
+    [com.narkisr.celestial.core]
     [com.narkisr.proxmox.remote :only (prox-post prox-delete)])
   )
 

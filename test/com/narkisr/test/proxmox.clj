@@ -1,4 +1,4 @@
-(ns com.narkisr.multistage.test.proxmox
+(ns com.narkisr.test.proxmox
   (:use 
     clojure.test
     com.narkisr.proxmox.provider 
@@ -14,6 +14,6 @@
 
 (deftest ^:integration creation 
   (let [ct (Container. "takadu" spec)]
-    ;(.delete ct)
+    (.delete ct)
     (.create ct)))
 

@@ -1,4 +1,4 @@
-(ns com.narkisr.multistage.core)
+(ns com.narkisr.celestial.core)
 
 (defprotocol Vm
   (create [this])  

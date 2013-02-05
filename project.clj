@@ -1,4 +1,4 @@
-(defproject multistage "0.1.0-SNAPSHOT"
+(defproject celestial "0.1.0-SNAPSHOT"
   :description "A launching pad for virtualized applications"
   :url ""
   :license {:name "Eclipse Public License" :url "http://www.eclipse.org/legal/epl-v10.html"}
