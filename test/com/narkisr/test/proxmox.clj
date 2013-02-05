@@ -1,11 +1,7 @@
 (ns com.narkisr.test.proxmox
-  (:use 
-    clojure.test
-    com.narkisr.proxmox.provider 
-    )
+  (:use clojure.test com.narkisr.proxmox.provider)
   (:import 
-    [com.narkisr.proxmox.provider Container])
-  )
+    [com.narkisr.proxmox.provider Container]))
 
 (def spec 
   {:vmid 203 :ostemplate  "local:vztmpl/ubuntu-12.04-takadu-amd64.tar.gz"
@@ -15,5 +11,6 @@
 (deftest ^:integration creation 
   (let [ct (Container. "takadu" spec)]
     (.delete ct)
-    (.create ct)))
+    (.create ct) 
+    (.start ct)))
 

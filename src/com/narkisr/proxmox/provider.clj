@@ -36,14 +36,23 @@
         (try (prox-post (str "/nodes/" node "/openvz") spec)
           (catch Exception e (error e))
           ) 
-        (throw (RuntimeException. (str errors)))
-        )))
+        (throw (RuntimeException. (str errors))))))
   (delete [this]
     (use 'com.narkisr.proxmox.remote)
     (try 
       (prox-delete (str "/nodes/" node "/openvz/" (:vmid spec)))
-      (catch Exception e (error e))
-      ))) 
+      (catch Exception e (error e))))
+  (start [this]
+    (use 'com.narkisr.proxmox.remote)
+    (try 
+      (prox-post (str "/nodes/" node "/openvz/" (:vmid spec) "/status/start"))
+      (catch Exception e (error e)))) 
+  (stop [this]
+    (use 'com.narkisr.proxmox.remote)
+    (try 
+      (prox-post (str "/nodes/" node "/openvz/" (:vmid spec) "/status/stop"))
+      (catch Exception e (error e))))
+  ) 
 
 
 
