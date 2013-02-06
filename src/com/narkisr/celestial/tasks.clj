@@ -22,7 +22,7 @@
     (assert (= (.status ct) "running"))))
 
 (defn puppetize [{:keys [server module]}]
-  (.apply (Standalone. server module)))
+  (.apply- (Standalone. server module)))
 
 (defn -main [t spec & args]
   (let [{:keys [system provision]} (slurp-edn spec)]
