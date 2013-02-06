@@ -41,7 +41,7 @@
   (wait-for upid)  
   (let [{:keys [exitstatus] :as res} (task-status upid)]
     (when (not= exitstatus "OK")
-      (throw (ExceptionInfo. "Task failed" res)))))
+      (throw+ (assoc res :type ::task-failed)))))
 
 (defn use-ns []
   (use 'com.narkisr.proxmox.remote);TODO this is ugly http://tinyurl.com/avotufx fix with macro
@@ -52,8 +52,7 @@
          (catch [:status 500] e# (warn  "Container does not exist"))))
 
 (defprotocol Openvz
-  (unmount [this])  
-  )
+  (unmount [this]))
 
 (deftype Container [node spec]
   Vm
@@ -95,9 +94,11 @@
   Openvz
   (unmount [this]
     (use-ns)
-    (safe 
-      (prox-post (str "/nodes/" node "/openvz/" (:vmid spec) "/status/umount")))
-    ) 
+    (try+
+      (safe 
+        (prox-post (str "/nodes/" node "/openvz/" (:vmid spec) "/status/umount")))
+      (catch [:type :com.narkisr.proxmox.provider/task-failed] e 
+        (debug "no container to unmount")))) 
 
   ) 
 
