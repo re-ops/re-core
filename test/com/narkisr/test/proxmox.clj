@@ -14,5 +14,6 @@
     (.delete ct) 
     (.create ct) 
     (.start ct)
+    (is (= (.status ct) "running"))
     ))
 

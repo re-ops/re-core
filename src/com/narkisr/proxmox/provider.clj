@@ -2,7 +2,7 @@
   (:require 
     [closchema.core :as schema])
   (:use 
-    [taoensso.timbre :only (debug info error)]
+    [taoensso.timbre :only (debug info error warn)]
     clojure.core.strint
     [com.narkisr.celestial.core]
     [com.narkisr.proxmox.remote :only (prox-post prox-delete prox-get)]
@@ -51,6 +51,10 @@
   `(try+ (check-task ~f)
          (catch [:status 500] e# (warn  "Container does not exist"))))
 
+(defprotocol Openvz
+  (unmount [this])  
+  )
+
 (deftype Container [node spec]
   Vm
   (create [this] 
@@ -61,12 +65,12 @@
       (try+ 
         (check-task (prox-post (str "/nodes/" node "/openvz") spec))
         (catch [:status 500] e 
-          (throw (ExceptionInfo. "Machine already exists" e)))
-        )
-      ))
+          (warn "Container already exists" e))
+        )))
 
   (delete [this]
     (use-ns)
+    (.unmount this)
     (safe
       (prox-delete (str "/nodes/" node "/openvz/" (:vmid spec)))))
 
@@ -86,5 +90,14 @@
       (:status 
         (prox-get 
           (str "/nodes/" node "/openvz/" (:vmid spec) "/status/current")))
-      (catch [:status 500] e "missing")))) 
+      (catch [:status 500] e "missing-container")))
+  
+  Openvz
+  (unmount [this]
+    (use-ns)
+    (safe 
+      (prox-post (str "/nodes/" node "/openvz/" (:vmid spec) "/status/umount")))
+    ) 
+
+  ) 
 
