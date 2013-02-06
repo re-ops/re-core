@@ -4,6 +4,5 @@
     :ip_address "192.168.5.203" :password "foobar1"}
  :provision
   {:module  {:name "puppet-base-env" :src "/home/ronen/code/"}
-   :server {:host "192.168.5.203"} 
-   }
- }
+   :server {:host "192.168.5.203"}}
+}
