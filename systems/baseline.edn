@@ -1,0 +1,9 @@
+{:system
+ {:vmid 203 :cpus  4 :memory  4096 :hostname  "foobar" :disk 30
+   :ostemplate  "local:vztmpl/ubuntu-12.04-puppet_3-x86_64.tar.gz"
+    :ip_address "192.168.5.203" :password "foobar1"}
+ :provision
+  {:module  {:name "puppet-base-env" :src "/home/ronen/code/"}
+   :server {:host "192.168.5.203"} 
+   }
+ }

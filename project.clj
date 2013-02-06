@@ -16,10 +16,13 @@
   
   :plugins  [[lein-tarsier "0.10.0"]]
 
-  :aot [com.narkisr.proxmox.provider]
+  :aot [com.narkisr.proxmox.provider com.narkisr.celestial.puppet-standalone]
 
   :test-selectors {:default (complement :integration)
                    :integration :integration
                    :all (constantly true)}
 
+  :aliases  {"reload"  ["run" "-m" "com.narkisr.celestial.tasks" "reload" "systems/baseline.edn"]
+             "puppetize"  ["run" "-m" "com.narkisr.celestial.tasks" "puppetize" "systems/baseline.edn"]}
+  
 )
