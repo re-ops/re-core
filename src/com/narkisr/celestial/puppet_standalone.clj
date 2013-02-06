@@ -27,7 +27,7 @@
 
 
 (defn extract [server module]
-  (execute server "cd /tmp" (<< "tar -xvzf ~(:name module).tar.gz"))) 
+  (execute server "cd /tmp" (<< "tar -xzf ~(:name module).tar.gz"))) 
 
 (defn cleanup [server module]
   (execute server "cd /tmp" (<< "rm -rf ~(:name module)*")))
