@@ -4,7 +4,12 @@
   (create [this])  
   (delete [this])  
   (start [this])  
-  (stop [this])  
-  )
+  (stop [this])
+  (status [this]))
 
+#_(defprotocol Provision
+  (apply [this]))
 
+(defprotocol Registry 
+  (register [this machine])
+  (un-register [this machine]))

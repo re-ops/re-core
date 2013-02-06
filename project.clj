@@ -11,6 +11,7 @@
                  [com.taoensso/timbre "1.4.0"]
                  [narkisr/closchema "0.3.0-SNAPSHOT"]
                  [org.clojure/core.incubator "0.1.2"]
+                 [slingshot "0.10.3"]
                  [clj-http "0.6.4"]]
   
   :plugins  [[lein-tarsier "0.10.0"]]
