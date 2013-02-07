@@ -63,5 +63,4 @@
 
 (defn prox-get [api] (call client/get api {:headers auth-headers}))
 
-;{:data "UPID:proxmox:00001C47:0014B777:51119562:vzdestroy:203:root@pam:"}
 
