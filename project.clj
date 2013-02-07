@@ -12,9 +12,14 @@
                  [narkisr/closchema "0.3.0-SNAPSHOT"]
                  [org.clojure/core.incubator "0.1.2"]
                  [slingshot "0.10.3"]
-                 [clj-http "0.6.4"]]
+                 [clj-http "0.6.4"]
+                 [compojure "1.1.1"]
+                 [ring "1.0.2"]
+                 [fogus/ring-edn "0.1.0"] ]
   
-  :plugins  [[lein-tarsier "0.10.0"]]
+  :plugins  [[lein-tarsier "0.10.0"]  [lein-ring "0.7.3"]]
+
+  :ring {:handler com.narkisr.celestial.api/app}
 
   :aot [com.narkisr.proxmox.provider com.narkisr.celestial.puppet-standalone]
 
@@ -22,7 +27,7 @@
                    :integration :integration
                    :all (constantly true)}
 
-  :aliases  {"reload"  ["run" "-m" "com.narkisr.celestial.tasks" "reload" "systems/baseline.edn"]
+  :aliases  {"reload"  ["run" "-m" "com.narkisr.celestial.tasks" "reload" "systems/baseline.edn" "proxmox"]
              "puppetize"  ["run" "-m" "com.narkisr.celestial.tasks" "puppetize" "systems/baseline.edn"]}
   
 )

@@ -12,9 +12,9 @@
 
 (defn slurp-edn [file] (read-string (slurp file)))
 
-(defn reload [system]
+(defn reload [system hypervisor]
   "Sets up a clean machine from scratch"
-  (let [ct (Container. "proxmox" system)]
+  (let [ct (Container. hypervisor system)]
     (.stop ct)
     (.delete ct) 
     (.create ct) 
@@ -28,6 +28,6 @@
   (let [{:keys [system provision]} (slurp-edn spec)]
     (case t
       "reload" (reload system)
-      "puppetize" (puppetize provision))))
+      "puppetize" (puppetize provision (first args)))))
 
 
