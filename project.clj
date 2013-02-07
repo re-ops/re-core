@@ -19,7 +19,7 @@
   
   :plugins  [[lein-tarsier "0.10.0"]  [lein-ring "0.7.3"]]
 
-  :ring {:handler com.narkisr.celestial.api/app}
+  :ring {:handler com.narkisr.celestial.api/app :auto-reload? true}
 
   :aot [com.narkisr.proxmox.provider com.narkisr.celestial.puppet-standalone]
 
