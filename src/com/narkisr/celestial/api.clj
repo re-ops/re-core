@@ -8,13 +8,18 @@
 (defroutes app-routes
   (context "/provision" [] 
            (defroutes provision-routes
-             (POST "/" {body :body} 
-                   (let [{:keys [provision]} body] (puppetize provision)))))
+             (POST "/" [provision] 
+                   (debug "provisioning" provision)
+                   (puppetize provision)
+                   "Provision done"
+                   )))
   (context "/system" [] 
            (defroutes system-routes
              (POST "/:hypervisor" [hypervisor system]
                   (debug "setting up system" system "on" hypervisor)
-                  (reload system hypervisor))))
+                  (reload system hypervisor)
+                   "System reloaded"
+                   )))
   (route/not-found "Not Found"))
 
 (def app
