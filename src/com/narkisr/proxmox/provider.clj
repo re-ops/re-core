@@ -4,7 +4,7 @@
   (:use 
     [taoensso.timbre :only (debug info error warn)]
     clojure.core.strint
-    [com.narkisr.celestial.core]
+    com.narkisr.celestial.core
     [com.narkisr.proxmox.remote :only (prox-post prox-delete prox-get)]
     [slingshot.slingshot :only  [throw+ try+]]
     )
@@ -27,19 +27,19 @@
 (defn validate [spec]
   (schema/report-errors (schema/validate ct-schema spec)))
 
-(defn task-status [upid]
-  (prox-get (str "/nodes/proxmox/tasks/" upid "/status")))
+(defn task-status [node upid]
+  (prox-get (str "/nodes/" node  "/tasks/" upid "/status")))
 
-(defn wait-for [upid]
-  (while (= "running" (:status (task-status upid)))
+(defn wait-for [node upid]
+  (while (= "running" (:status (task-status node upid)))
     (Thread/sleep 200)
     (debug "Waiting for task" upid "to end")) )
 
 (defn check-task
   "Checking that a proxmox task has succeeded"
-  [upid]
-  (wait-for upid)  
-  (let [{:keys [exitstatus] :as res} (task-status upid)]
+  [node upid]
+  (wait-for node upid)  
+  (let [{:keys [exitstatus] :as res} (task-status node upid)]
     (when (not= exitstatus "OK")
       (throw+ (assoc res :type ::task-failed)))))
 
@@ -48,38 +48,42 @@
   (use 'com.narkisr.proxmox.provider))
 
 (defmacro safe [f]
-  `(try+ (check-task ~f)
+  `(try+ 
+       (check-task ~'node ~f) 
          (catch [:status 500] e# (warn  "Container does not exist"))))
 
-(defprotocol Openvz
-  (unmount [this]))
+(defprotocol Openvz (unmount [this]))
 
 (deftype Container [node spec]
   Vm
   (create [this] 
     (use-ns)
+    (debug "creating" (:vmid spec))
     (let [errors (validate spec)]
       (when-not (empty? errors) 
         (throw (ExceptionInfo. "Failed to validate spec" errors)))
       (try+ 
-        (check-task (prox-post (str "/nodes/" node "/openvz") spec))
+        (check-task node (prox-post (str "/nodes/" node "/openvz") spec))
         (catch [:status 500] e 
           (warn "Container already exists" e))
         )))
 
   (delete [this]
     (use-ns)
+    (debug "deleting" (:vmid spec))
     (.unmount this)
     (safe
       (prox-delete (str "/nodes/" node "/openvz/" (:vmid spec)))))
 
   (start [this]
     (use-ns)
+    (debug "starting" (:vmid spec))
     (safe
       (prox-post (str "/nodes/" node "/openvz/" (:vmid spec) "/status/start"))))
 
   (stop [this]
     (use-ns)
+    (debug "stopping" (:vmid spec))
     (safe 
       (prox-post (str "/nodes/" node "/openvz/" (:vmid spec) "/status/stop"))))
 
@@ -94,6 +98,7 @@
   Openvz
   (unmount [this]
     (use-ns)
+    (debug "unmounting" (:vmid spec))
     (try+
       (safe 
         (prox-post (str "/nodes/" node "/openvz/" (:vmid spec) "/status/umount")))
