@@ -4,6 +4,8 @@
     clojure.core.strint
     com.narkisr.celestial.core
     clj-ssh.ssh
+    [slingshot.slingshot :only  [throw+ try+]]
+    [taoensso.timbre :only (debug info error warn)]
     [clojure.string :only (join)]
     ))
 
@@ -19,33 +21,29 @@
 (defn copy [server module]
   (put (:host server) (str (module :src) (module :name) ".tar.gz")  "/tmp"))
 
-(defn execute [server & batch]
+(defn execute [server & batches]
   (let [agent (ssh-agent {}) session (session agent (server :host) {:username "root"}) ]
     (with-connection session
-      (let [result (ssh session {:in  (join "\n" batch ) })]
-        (println result)))))
+      (doseq [b batches]
+        (let [{:keys [exit out] :as res} (ssh session {:in  (join "\n" b) })]
+          (if (= exit 0)
+            (debug out) 
+            (throw+ (merge res {:type ::provision-failed} (meta b)))
+            ))))))
 
-
-(defn extract [server module]
-  (execute server "cd /tmp" (<< "tar -xzf ~(:name module).tar.gz"))) 
-
-(defn cleanup [server module]
-  (execute server "cd /tmp" (<< "rm -rf ~(:name module)*")))
-
-(defn run [server module]
-  (execute server (<< "cd /tmp/~(:name module)") "./run.sh"))
+(defn step [n & steps] ^{:step n} steps)
 
 (deftype Standalone [server module]
   Provision
   (apply- [this]
     (use 'com.narkisr.celestial.puppet-standalone)
     (use 'com.narkisr.celestial.core)
-    (copy server module)
-    (extract server module)
-    (run server module)
-    (cleanup server module)
-    ))
+    (copy server module) 
+    (execute server 
+       (step :extract "cd /tmp" (<< "tar -xzf ~(:name module).tar.gz")) 
+       (step :run (<< "cd /tmp/~(:name module)") "./run.sh")
+       (step :cleanup "cd /tmp" (<< "rm -rf ~(:name module)*")))))
 
-#_(.apply 
-  (Standalone. {:host "192.168.5.203"} {:name "puppet-base-env" :src "/home/ronen/code/"}))
+(.apply-
+    (Standalone. {:host "192.168.5.203"} {:name "puppet-base-env" :src "/home/ronen/code/"}))
 
