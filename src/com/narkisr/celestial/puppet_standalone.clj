@@ -31,11 +31,14 @@
 (defn copy [server module]
   (put (:host server) (str (module :src) (module :name) ".tar.gz")  "/tmp"))
 
-(defn execute [server & batch]
-  (let [agent (ssh-agent {}) session (session agent (server :host) ssh-opts) ]
-    (with-connection session
-      (let [result (ssh session {:in  (join "\n" batch ) })]
-        (println result)))))
+(defn execute [{:keys [host]} & batch]
+  (with-session host 
+    (fn [session]
+      (with-connection session
+        (let [{:keys [out exit] :as result} (ssh session {:in  (join "\n" batch ) })]
+          (if (= exit 0)
+            (debug out)
+            (throw+ (assoc result :type ::exec) "Failed to execute remotly")))))))
 
 
 (defn extract [server module]
