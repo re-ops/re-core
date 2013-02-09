@@ -1,4 +1,4 @@
-(ns com.narkisr.celestial.core)
+(ns celestial.core)
 
 (defprotocol Vm
   (create [this])  

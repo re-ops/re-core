@@ -1,7 +1,7 @@
-(ns com.narkisr.test.proxmox
-  (:use clojure.test com.narkisr.proxmox.provider)
+(ns celestial.proxmox
+  (:use clojure.test proxmox.provider)
   (:import 
-    [com.narkisr.proxmox.provider Container]))
+    [proxmox.provider Container]))
 
 (def spec 
   {:vmid 203 :ostemplate  "local:vztmpl/ubuntu-12.04-puppet_3-x86_64.tar.gz"

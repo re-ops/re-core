@@ -1,11 +1,11 @@
-(ns com.narkisr.proxmox.provider
+(ns proxmox.provider
   (:require 
     [closchema.core :as schema])
   (:use 
     [taoensso.timbre :only (debug info error warn)]
     clojure.core.strint
-    com.narkisr.celestial.core
-    [com.narkisr.proxmox.remote :only (prox-post prox-delete prox-get)]
+    celestial.core
+    [proxmox.remote :only (prox-post prox-delete prox-get)]
     [slingshot.slingshot :only  [throw+ try+]]
     )
   (:import clojure.lang.ExceptionInfo)
@@ -44,8 +44,8 @@
       (throw+ (assoc res :type ::task-failed)))))
 
 (defn use-ns []
-  (use 'com.narkisr.proxmox.remote);TODO this is ugly http://tinyurl.com/avotufx fix with macro
-  (use 'com.narkisr.proxmox.provider))
+  (use 'proxmox.remote);TODO this is ugly http://tinyurl.com/avotufx fix with macro
+  (use 'proxmox.provider))
 
 (defmacro safe [f]
   `(try+ 
@@ -102,7 +102,7 @@
     (try+
       (safe 
         (prox-post (str "/nodes/" node "/openvz/" (:vmid spec) "/status/umount")))
-      (catch [:type :com.narkisr.proxmox.provider/task-failed] e 
+      (catch [:type :proxmox.provider/task-failed] e 
         (debug "no container to unmount")))) 
 
   ) 

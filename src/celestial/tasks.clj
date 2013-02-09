@@ -1,9 +1,9 @@
-(ns com.narkisr.celestial.tasks
+(ns celestial.tasks
   "misc development tasks"
-  (:use com.narkisr.proxmox.provider)
+  (:use proxmox.provider)
   (:import 
-    [com.narkisr.celestial.puppet_standalone Standalone ]
-    [com.narkisr.proxmox.provider Container]))
+    [celestial.puppet_standalone Standalone ]
+    [proxmox.provider Container]))
 
 (def spec 
   {:vmid 203 :ostemplate  "local:vztmpl/ubuntu-12.04-puppet_3-x86_64.tar.gz"

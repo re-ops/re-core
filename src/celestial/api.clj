@@ -1,7 +1,7 @@
-(ns com.narkisr.celestial.api
+(ns celestial.api
   (:use compojure.core ring.middleware.edn
         [taoensso.timbre :only (debug info error warn)]
-        [com.narkisr.celestial.tasks :only (reload puppetize)])
+        [celestial.tasks :only (reload puppetize)])
   (:require [compojure.handler :as handler]
             [compojure.route :as route]))
 

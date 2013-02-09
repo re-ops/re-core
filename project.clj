@@ -15,21 +15,22 @@
                  [clj-http "0.6.4"]
                  [compojure "1.1.1"]
                  [ring "1.0.2"]
+                 ;[prismatic/plumbing "0.0.2-SNAPSHOT"]
                  [fogus/ring-edn "0.1.0"] ]
   
   :plugins  [[lein-tarsier "0.10.0"]  [lein-ring "0.7.3"]]
 
   :ring {:handler com.narkisr.celestial.api/app :auto-reload? true}
 
-  :aot [com.narkisr.proxmox.provider 
-        com.narkisr.celestial.puppet-standalone]
+  :aot [proxmox.provider 
+        celestial.puppet-standalone]
 
   :test-selectors {:default (complement :integration)
                    :integration :integration
                    :all (constantly true)}
 
   :aliases  
-  {"reload"  ["run" "-m" "com.narkisr.celestial.tasks" "reload" "systems/baseline.edn" "proxmox"]
-   "puppetize"  ["run" "-m" "com.narkisr.celestial.tasks" "puppetize" "systems/baseline.edn"]}
+  {"reload"  ["run" "-m" "celestial.tasks" "reload" "systems/baseline.edn" "proxmox"]
+   "puppetize"  ["run" "-m" "celestial.tasks" "puppetize" "systems/baseline.edn"]}
   
 )

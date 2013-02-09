@@ -1,9 +1,9 @@
-(ns com.narkisr.celestial.puppet-standalone
+(ns celestial.puppet-standalone
   "A standalone puppet provisioner"
   (:import com.jcraft.jsch.JSchException)
   (:use 
     clojure.core.strint
-    com.narkisr.celestial.core
+    celestial.core
     clj-ssh.ssh
     [taoensso.timbre :only (debug info error warn)]
     [clojure.string :only (join)]
@@ -44,8 +44,8 @@
 (deftype Standalone [server module]
   Provision
   (apply- [this]
-    (use 'com.narkisr.celestial.puppet-standalone)
-    (use 'com.narkisr.celestial.core)
+    (use 'celestial.puppet-standalone)
+    (use 'celestial.core)
     (copy server module) 
     (execute server 
              (step :extract "cd /tmp" (<< "tar -xzf ~(:name module).tar.gz")) 

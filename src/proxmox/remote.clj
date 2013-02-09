@@ -1,4 +1,4 @@
-(ns com.narkisr.proxmox.remote
+(ns proxmox.remote
   (:require 
     [cheshire.core :refer :all]
     [clj-http.client :as client]
