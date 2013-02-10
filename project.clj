@@ -15,12 +15,14 @@
                  [clj-http "0.6.4"]
                  [compojure "1.1.1"]
                  [ring "1.0.2"]
+                 [org.clojure/data.json "0.2.1"]
+                 [com.taoensso/carmine "1.5.0"]
                  ;[prismatic/plumbing "0.0.2-SNAPSHOT"]
                  [fogus/ring-edn "0.1.0"] ]
   
   :plugins  [[lein-tarsier "0.10.0"]  [lein-ring "0.7.3"]]
 
-  :ring {:handler com.narkisr.celestial.api/app :auto-reload? true}
+  :ring {:handler celestial.api/app :auto-reload? true}
 
   :aot [proxmox.provider 
         celestial.puppet-standalone]

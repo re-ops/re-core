@@ -16,7 +16,7 @@
   (let [session (session (ssh-agent {}) host ssh-opts)] 
     (try+
       (with-connection session (f session))
-      (catch #(= (.getMessage %) "Auth fail") e
+      (catch #(= (:message %) "Auth fail") e
         (throw+ {:type ::auth :host host} 
                 "Failed to login make sure to ssh-copy-id to the remote host")))))
 
