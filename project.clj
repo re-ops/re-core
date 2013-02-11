@@ -18,13 +18,17 @@
                  [org.clojure/data.json "0.2.1"]
                  [com.taoensso/carmine "1.5.0"]
                  ;[prismatic/plumbing "0.0.2-SNAPSHOT"]
+                 [metrics-clojure "0.9.2"]
+                 [metrics-clojure-ring "0.9.2"]
+                 [ring/ring-jetty-adapter "1.1.6"]
                  [fogus/ring-edn "0.1.0"] ]
-  
+
   :plugins  [[lein-tarsier "0.10.0"]  [lein-ring "0.7.3"]]
 
   :ring {:handler celestial.api/app :auto-reload? true}
 
   :aot [proxmox.provider 
+        celestial.api
         celestial.puppet-standalone]
 
   :test-selectors {:default (complement :integration)
@@ -34,5 +38,6 @@
   :aliases  
   {"reload"  ["run" "-m" "celestial.tasks" "reload" "systems/baseline.edn" "proxmox"]
    "puppetize"  ["run" "-m" "celestial.tasks" "puppetize" "systems/baseline.edn"]}
-  
-)
+
+  :main celestial.api
+  )
