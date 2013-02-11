@@ -1,33 +1,43 @@
 (ns celestial.tasks
   "misc development tasks"
-  (:use proxmox.provider)
+  (:use proxmox.provider
+        [taoensso.timbre :only (debug info error warn)]) 
   (:import 
     [celestial.puppet_standalone Standalone ]
     [proxmox.provider Container]))
 
-(def spec 
-  {:vmid 203 :ostemplate  "local:vztmpl/ubuntu-12.04-puppet_3-x86_64.tar.gz"
-   :cpus  4 :memory  4096 :hostname  "foobar" :disk 30
-   :ip_address  "192.168.5.203" :password "foobar1"})
 
 (defn slurp-edn [file] (read-string (slurp file)))
 
-(defn reload [system hypervisor]
-  "Sets up a clean machine from scratch"
-  (let [ct (Container. hypervisor system)]
-    (.stop ct)
-    (.delete ct) 
-    (.create ct) 
-    (.start ct)
-    (assert (= (.status ct) "running"))))
+(defn reload 
+  ([{:keys [system hypervisor]}]
+   (reload system hypervisor)) 
+  ([system hypervisor]
+   "Sets up a clean machine from scratch"
+   (let [ct (Container. hypervisor system)]
+     (info "setting up" system "on" hypervisor)
+     (.stop ct)
+     (.delete ct) 
+     (.create ct) 
+     (.start ct)
+     ;(assert (= (.status ct) "running"))
+     (info "done system setup"))))
 
-(defn puppetize [{:keys [server module]}]
-  (.apply- (Standalone. server module)))
+(defn puppetize [{:keys [server module] :as spec} ]
+  (info "starting to provision" spec)
+  (.apply- (Standalone. server module) )
+  (info "done provisioning" spec))
+
+(defn full-setup 
+  ([{:keys [system hypervisor]}] (full-setup system hypervisor))
+  ([system provision]
+   (reload system) 
+   (puppetize provision)))
 
 (defn -main [t spec & args]
   (let [{:keys [system provision]} (slurp-edn spec)]
     (case t
       "reload" (reload system)
-      "puppetize" (puppetize provision (first args)))))
+      "puppetize" (puppetize provision))))
 
 

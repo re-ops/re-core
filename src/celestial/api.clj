@@ -5,7 +5,7 @@
         ring.middleware.edn
         ring.adapter.jetty 
         [taoensso.timbre :only (debug info error warn set-config!)]
-        [celestial.jobs :only (enqueue)])
+        [celestial.jobs :only (enqueue initialize-workers clear-all)])
   (:require 
     [compojure.handler :as handler]
     [compojure.route :as route]))
@@ -39,4 +39,6 @@
 
 
 (defn -main []
-  (run-jetty app  {:port 8080 :join? false}))
+  (clear-all)
+  (initialize-workers)
+  (run-jetty app  {:port 8080 :join? true}))

@@ -9,27 +9,23 @@
     [taoensso.carmine.message-queue :as carmine-mq]))
 
 (def pool (car/make-conn-pool)) 
-(def spec-server1 (car/make-conn-spec :host "192.168.5.5"))
 
-(def provision-worker
-  (carmine-mq/make-dequeue-worker
-    pool spec-server1 "provision"
-    :handler-fn 
-    (fn [provision] 
-      (info "starting to provision" provision)
-      (puppetize provision)
-      (info "done provisioning" provision))))
+; TODO move to config file
+(def spec-server1 (car/make-conn-spec :host "localhost"))
 
-(def system-worker
-  (carmine-mq/make-dequeue-worker
-    pool spec-server1 "system"
-    :handler-fn 
-    (fn [{:keys [system hypervisor]}] 
-      (debug "setting up" system "on" hypervisor)
-      (reload system hypervisor)
-      (debug "done system setup" ))))
+(def workers (atom {}))
+
+(defn initialize-workers []
+  (dosync 
+    (doseq [[q f] {:system reload :provision puppetize}]
+      (swap! workers assoc q
+         (carmine-mq/make-dequeue-worker pool spec-server1 (name q) :handler-fn f)))))
 
 (defmacro wcar [& body] `(car/with-conn pool spec-server1 ~@body))
+
+(defn clear-all []
+  (let [queues (wcar (car/keys ((car/make-keyfn "mqueue") "*")))]
+    (when (seq queues) (wcar (apply car/del queues)))))
 
 (defn enqueue [queue payload] 
   (debug "submitting" payload "to" queue) 
