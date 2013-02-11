@@ -28,7 +28,7 @@
            (defroutes system-routes
              (POST "/:hypervisor" [hypervisor system]
                    (enqueue "system" {:hypervisor hypervisor :system system})
-                   (generate-response {:status "system is up"}))))
+                   (generate-response {:status "submited system creation"}))))
   (route/not-found "Not Found"))
 
 (def app
