@@ -17,6 +17,7 @@
                  [ring "1.0.2"]
                  [org.clojure/data.json "0.2.1"]
                  [com.taoensso/carmine "1.5.0"]
+                 [org.clojure/core.memoize "0.5.2"]
                  ;[prismatic/plumbing "0.0.2-SNAPSHOT"]
                  [metrics-clojure "0.9.2"]
                  [metrics-clojure-ring "0.9.2"]

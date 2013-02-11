@@ -2,6 +2,7 @@
   (:require 
     [closchema.core :as schema])
   (:use 
+    [clojure.core.memoize :only (memo-ttl)]
     [taoensso.timbre :only (debug info error warn)]
     clojure.core.strint
     celestial.core
@@ -27,6 +28,16 @@
 (defn validate [spec]
   (schema/report-errors (schema/validate ct-schema spec)))
 
+(def node-available? 
+  "Node availability check, result is cached for one minute"
+  (memo-ttl  
+    (fn [node] 
+      (try+ 
+        (prox-get (str "/nodes/" node "/status" ))
+        true
+        (catch [:status 500] e false))) (* 60 1000)))
+
+
 (defn task-status [node upid]
   (prox-get (str "/nodes/" node  "/tasks/" upid "/status")))
 
@@ -49,8 +60,10 @@
 
 (defmacro safe [f]
   `(try+ 
-       (check-task ~'node ~f) 
-         (catch [:status 500] e# (warn  "Container does not exist"))))
+     (when-not (node-available? ~'node)
+       (throw+ {:type ::missing-node :node ~'node :message "No matching proxmox hypervisor node found"}))
+     (check-task ~'node ~f) 
+     (catch [:status 500] e# (warn  "Container does not exist"))))
 
 (defprotocol Openvz (unmount [this]))
 
@@ -94,7 +107,7 @@
         (prox-get 
           (str "/nodes/" node "/openvz/" (:vmid spec) "/status/current")))
       (catch [:status 500] e "missing-container")))
-  
+
   Openvz
   (unmount [this]
     (use-ns)
