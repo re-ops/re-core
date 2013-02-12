@@ -1,8 +1,7 @@
 (ns celestial.jobs
   (:use  
     [taoensso.timbre :only (debug info error warn)]
-    [celestial.tasks :only (reload puppetize)]
-    ) 
+    [celestial.tasks :only (reload puppetize)]) 
   (:require  
     [celestial.tasks :only (reload puppetize)]
     [taoensso.carmine :as car]
