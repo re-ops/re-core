@@ -2,11 +2,13 @@
   (:require 
     [closchema.core :as schema])
   (:use 
+    clojure.core.strint
     [clojure.core.memoize :only (memo-ttl)]
     [taoensso.timbre :only (debug info error warn)]
     clojure.core.strint
     celestial.core
-    [proxmox.remote :only (prox-post prox-delete prox-get)]
+    [celestial.ssh :only (execute)]
+    [proxmox.remote :only (prox-post prox-delete prox-get config)]
     [slingshot.slingshot :only  [throw+ try+]]
     )
   (:import clojure.lang.ExceptionInfo)
@@ -26,7 +28,9 @@
     }})
 
 (defn validate [spec]
-  (schema/report-errors (schema/validate ct-schema spec)))
+  (let [errors (schema/report-errors (schema/validate ct-schema spec))]
+    (when-not (empty? errors) 
+      (throw (ExceptionInfo. "Failed to validate spec" errors)))))
 
 (def node-available? 
   "Node availability check, result is cached for one minute"
@@ -37,6 +41,7 @@
         true
         (catch [:status 500] e false))) (* 60 1000)))
 
+(prox-get (str "/nodes/" "takadu" "/status" ))
 
 (defn task-status [node upid]
   (prox-get (str "/nodes/" node  "/tasks/" upid "/status")))
@@ -65,21 +70,28 @@
      (check-task ~'node ~f) 
      (catch [:status 500] e# (warn  "Container does not exist"))))
 
-(defprotocol Openvz (unmount [this]))
+(defprotocol Openvz 
+  (vzctl [this action] "executing vzctl actions on hypervisor") 
+  (unmount [this]))
+
+(defn enable-features [this {:keys [vmid] :as spec}]
+  (when-let [features (:features spec)] 
+    ;vzctl set 170 --features "nfs:on" --save 
+    (doseq [f features] 
+      (.vzctl this (<< "set ~{vmid} --features \"~{f}\" --save")))) )
 
 (deftype Container [node spec]
   Vm
   (create [this] 
     (use-ns)
     (debug "creating" (:vmid spec))
-    (let [errors (validate spec)]
-      (when-not (empty? errors) 
-        (throw (ExceptionInfo. "Failed to validate spec" errors)))
-      (try+ 
-        (check-task node (prox-post (str "/nodes/" node "/openvz") spec))
-        (catch [:status 500] e 
-          (warn "Container already exists" e))
-        )))
+    (validate spec)
+    (try+ 
+      (check-task node (prox-post (str "/nodes/" node "/openvz") (dissoc spec :features)))
+      (enable-features this spec)
+      (catch [:status 500] e 
+        (warn "Container already exists" e)))
+    )
 
   (delete [this]
     (use-ns)
@@ -117,6 +129,8 @@
         (prox-post (str "/nodes/" node "/openvz/" (:vmid spec) "/status/umount")))
       (catch [:type :proxmox.provider/task-failed] e 
         (debug "no container to unmount")))) 
-
+  (vzctl [this action] 
+    (execute (config :hypervisor) [(<< "vzctl ~{action}")])
+    )
   ) 
 

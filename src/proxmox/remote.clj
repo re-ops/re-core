@@ -51,7 +51,6 @@
         (assoc 
           (assoc {} "Cookie" (str "PVEAuthCookie=" ticket)) "CSRFPreventionToken" CSRFPreventionToken)))))
 
-(auth-headers)
 (defn prox-post 
   "A post against a proxmox instance with provided params"
   ([api] (prox-post api nil))
