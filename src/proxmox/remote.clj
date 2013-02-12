@@ -41,7 +41,7 @@
   (try+
     (let [res (call- client/post "/access/ticket" {:form-params login-creds})]
       (select-keys res [:CSRFPreventionToken :ticket]))
-    (catch [:status 401 ] e
+    (catch #(#{401 500} (:status %)) e
       (throw (ExceptionInfo. "Failed to login" config)))))
 
 (def auth-headers
@@ -51,6 +51,7 @@
         (assoc 
           (assoc {} "Cookie" (str "PVEAuthCookie=" ticket)) "CSRFPreventionToken" CSRFPreventionToken)))))
 
+(auth-headers)
 (defn prox-post 
   "A post against a proxmox instance with provided params"
   ([api] (prox-post api nil))
