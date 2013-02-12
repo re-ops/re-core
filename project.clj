@@ -29,8 +29,8 @@
   :ring {:handler celestial.api/app :auto-reload? true}
 
   :aot [proxmox.provider 
-        celestial.api
-        celestial.puppet-standalone]
+        celestial.puppet-standalone 
+        celestial.api]
 
   :test-selectors {:default (complement :integration)
                    :integration :integration
