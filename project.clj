@@ -26,7 +26,7 @@
 
   :plugins  [[lein-tarsier "0.10.0"]  [lein-ring "0.7.3"]]
 
-  :ring {:handler celestial.api/app :auto-reload? true}
+  ;:ring {:handler celestial.api/app :auto-reload? true}
 
   :aot [proxmox.provider 
         celestial.puppet-standalone 
