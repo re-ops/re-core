@@ -1,5 +1,7 @@
 (ns celestial.proxmox
-  (:use clojure.test proxmox.provider)
+  (:use
+    clojure.test 
+    proxmox.provider)
   (:import 
     [proxmox.provider Container]))
 
@@ -9,7 +11,7 @@
    :ip_address  "192.168.5.203" :password "foobar1"})
 
 (deftest ^:integration non-existing 
- (let [ct (Container. "proxmox" (update-in spec [:vmid] (fn [v] 204)))]
+  (let [ct (Container. "proxmox" (update-in spec [:vmid] (fn [v] 204)))]
     (.stop ct)
     (.delete ct)))
 
@@ -21,3 +23,10 @@
     (.start ct)
     (is (= (.status ct) "running"))))
 
+(deftest feature-enable 
+  (let [action (atom "")
+        prox (reify Openvz
+               (vzctl [this a] (reset! action a)) 
+               (unmount [this]))]
+    (enable-features prox {:vmid 1 :features ["nfs:on"]})
+    (is (= @action "set 1 --features \"nfs:on\" --save"))))

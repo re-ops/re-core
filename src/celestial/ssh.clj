@@ -30,7 +30,7 @@
   (doseq [line (line-seq (clojure.java.io/reader out))] (debug line) )) 
 
 (defn execute [{:keys [host]} & batches]
-  {:pre [(some (comp not seq?) batches)]}
+  {:pre [(every? seq? batches)]}
   "Executes remotly using ssh for example: (execute {:host \"192.168.20.171\"} [\"ls\"])"
   (with-session host
     (fn [session]
