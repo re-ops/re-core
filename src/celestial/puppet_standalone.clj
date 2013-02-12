@@ -10,6 +10,7 @@
     [slingshot.slingshot :only  [throw+ try+]]))
 
 
+
 (def ssh-opts {:username "root" :strict-host-key-checking :no})
 
 (defn with-session [host f]
@@ -30,14 +31,24 @@
 (defn copy [server module]
   (put (:host server) (str (module :src) (module :name) ".tar.gz")  "/tmp"))
 
+(def os  (java.io.ByteArrayOutputStream.))
+
+(defn log-output [out]
+  (doseq [line (line-seq (clojure.java.io/reader out))] (debug line) )) 
+
 (defn execute [{:keys [host]} & batches]
+  "Executes remotly using ssh for example:
+    (execute {:host \"192.168.20.171\"} [\"ls\"])
+  "
   (with-session host
     (fn [session]
       (doseq [b batches]
-        (let [{:keys [exit out] :as res} (ssh session {:in  (join "\n" b) })]
-          (if (= exit 0)
-            (debug out) 
-            (throw+ (merge res {:type ::provision-failed} (meta b)))))))))
+        (let [{:keys [channel out-stream] :as res} (ssh session {:in  (join "\n" b)  :out :stream})]
+          (log-output out-stream)
+          (let [exit (.getExitStatus channel)]
+            (when-not (= exit 0) 
+              (throw+ (merge res {:type ::provision-failed :exit exit} (meta b))))))))))
+
 
 (defn step [n & steps] ^{:step n} steps)
 
@@ -48,9 +59,9 @@
     (use 'celestial.core)
     (copy server module) 
     (execute server 
-             (step :extract "cd /tmp" (<< "tar -xzf ~(:name module).tar.gz")) 
-             (step :run (<< "cd /tmp/~(:name module)") "./run.sh")
-             (step :cleanup "cd /tmp" (<< "rm -rf ~(:name module)*"))) ))
+      (step :extract "cd /tmp" (<< "tar -xzf ~(:name module).tar.gz")) 
+      (step :run (<< "cd /tmp/~(:name module)") "./run.sh")
+      (step :cleanup "cd /tmp" (<< "rm -rf ~(:name module)*"))) ))
 
 
 #_(.apply-
