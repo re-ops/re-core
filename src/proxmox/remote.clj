@@ -4,7 +4,7 @@
     [clj-http.client :as client]
     [clj-config.core :as conf])
   (:use clojure.core.strint
-        [slingshot.slingshot :only  [throw+ try+]]
+        [slingshot.slingshot :only  [try+]]
         [taoensso.timbre :only (debug info error) :as timbre])
   (:import clojure.lang.ExceptionInfo)) 
 

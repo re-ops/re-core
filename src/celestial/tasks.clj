@@ -3,7 +3,7 @@
   (:use proxmox.provider
         [taoensso.timbre :only (debug info error warn)]) 
   (:import 
-    [celestial.puppet_standalone Standalone ]
+    [celestial.puppet_standalone Standalone]
     [proxmox.provider Container]))
 
 

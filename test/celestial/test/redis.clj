@@ -1,6 +1,6 @@
 (ns celestial.test.redis
   "Redis test assume a redis sandbox on localhost, use https://github.com/narkisr/redis-sandbox"
-  (:use clojure.test 
+  (:use clojure.test slingshot.test
     [celestial.redis :only (acquire release get- with-lock)])
   (:import clojure.lang.ExceptionInfo)
   )
@@ -27,5 +27,9 @@
   (try 
     (with-lock 5 #(throw (Exception.)))
     (catch Exception e nil))
-  (is (not (get- 5)))
+  (is (not (get- 5))))
+
+(deftest ^:redis locking-failure 
+  (acquire 6 {:expiry 3}) 
+  (is (thrown+? [:type :celestial.redis/lock-fail] (with-lock 6 #())))
   )

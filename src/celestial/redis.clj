@@ -1,11 +1,11 @@
 (ns celestial.redis
   (:use  
     clojure.core.strint
+    [slingshot.slingshot :only  [throw+]]
     [taoensso.timbre :only (debug info error warn)])
   (:require  
     [taoensso.carmine :as car])
-  (:import java.util.Date) 
-  )
+  (:import java.util.Date))
 
 (def pool (car/make-conn-pool)) 
 
@@ -51,7 +51,9 @@
       (do (wcar (car/unwatch)) false))))
 
 (defn with-lock [id f]
+  "Try to to obtain lock for id and execute f, throw exception if fails"
   (if-let [uuid (acquire id)]
     (try
       (f) 
-      (finally (release id uuid)))))
+      (finally (release id uuid)))
+    (throw+ {:type ::lock-fail :id id} "Failed to obtain lock")))
