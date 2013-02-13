@@ -1,8 +1,9 @@
 (ns celestial.test.redis
   "Redis test assume a redis sandbox on localhost, use https://github.com/narkisr/redis-sandbox"
-  (:use 
-    clojure.test 
-    [celestial.redis :only (acquire release)]))
+  (:use clojure.test 
+    [celestial.redis :only (acquire release get- with-lock)])
+  (:import clojure.lang.ExceptionInfo)
+  )
 
 
 (deftest ^:redis basic-locking 
@@ -21,3 +22,10 @@
   (let [uuid (acquire 4 {:wait-time 2000}) f1 (future (release 4 uuid))]
      (Thread/sleep 200); letting future run 
      (is (not (release 4 uuid)))))
+
+(deftest ^:redis locking-scope
+  (try 
+    (with-lock 5 #(throw (Exception.)))
+    (catch Exception e nil))
+  (is (not (get- 5)))
+  )

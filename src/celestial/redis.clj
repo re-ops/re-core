@@ -24,10 +24,10 @@
   (wcar (car/expire lid expiry)))
 
 (defn acquire [id & [{:keys [wait-time expiry] :or {wait-time 2000 expiry 2}} & _]]
-  "Acquires lock, returns lock unique id if successful 
-   wait-time (mili) wait time for lock,
-   expiry (sec) how long the lock is valid 
-   see http://dr-josiah.blogspot.co.il/2012/01/creating-lock-with-redis.html "
+  "Acquires lock, returns uuid if successful 
+  wait-time (mili) wait time for lock,
+  expiry (sec) how long the lock is valid 
+  see http://dr-josiah.blogspot.co.il/2012/01/creating-lock-with-redis.html "
   (let [lid (lock-id id) uuid (gen-uuid)
         wait (+ (curr-time) wait-time)]
     (loop []
@@ -40,12 +40,18 @@
             (recur))) 
         false)))) 
 
+(defn get- [k]
+  (wcar (car/get k)))
 
 (defn release [id uuid] 
   (let [lid (lock-id id)]
     (wcar (car/watch lid)) 
-    (if (= (wcar (car/get lid)) uuid)
+    (if (= (get- lid)  uuid)
       (do (wcar (car/del lid)) true)
       (do (wcar (car/unwatch)) false))))
 
-;(wcar (car/get (lock-id 5)))
+(defn with-lock [id f]
+  (if-let [uuid (acquire id)]
+    (try
+      (f) 
+      (finally (release id uuid)))))
