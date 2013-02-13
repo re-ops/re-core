@@ -41,8 +41,6 @@
         true
         (catch [:status 500] e false))) (* 60 1000)))
 
-(prox-get (str "/nodes/" "takadu" "/status" ))
-
 (defn task-status [node upid]
   (prox-get (str "/nodes/" node  "/tasks/" upid "/status")))
 
