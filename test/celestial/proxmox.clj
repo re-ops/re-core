@@ -1,5 +1,5 @@
 (ns celestial.proxmox
-  "Integration tests assume a proxmox vm with local address"
+  "Integration tests assume a proxmox vm with local address make sure to configure it"
   (:use
     clojure.test 
     proxmox.provider)
