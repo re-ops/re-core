@@ -20,5 +20,4 @@
 (deftest ^:redis aleady-released
   (let [uuid (acquire 4 {:wait-time 2000}) f1 (future (release 4 uuid))]
      (Thread/sleep 200); letting future run 
-     (is (not (release 4 uuid)))
-    ))
+     (is (not (release 4 uuid)))))
