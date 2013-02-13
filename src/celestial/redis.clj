@@ -51,6 +51,7 @@
       (do (wcar (car/unwatch)) false))))
 
 (defn with-lock [id f]
+  ; TODO add expiry and wait options
   "Try to to obtain lock for id and execute f, throw exception if fails"
   (if-let [uuid (acquire id)]
     (try
