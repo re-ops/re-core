@@ -20,7 +20,7 @@
      (.delete ct) 
      (.create ct) 
      (.start ct)
-     ;(assert (= (.status ct) "running"))
+     (assert (= (.status ct) "running"))
      (info "done system setup"))))
 
 (defn puppetize [{:keys [server module] :as spec} ]
