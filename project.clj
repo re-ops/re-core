@@ -32,7 +32,9 @@
         celestial.puppet-standalone 
         celestial.api]
 
-  :test-selectors {:default (complement :integration)
+  :test-selectors {:default #(not-any? % [:proxmox :redis :integration]) 
+                   :redis :redis
+                   :proxmox :proxmox
                    :integration :integration
                    :all (constantly true)}
 

@@ -33,7 +33,8 @@
       (try-aquire lid timeout) false )))
 
 (defn lock [k timeout]
-  "see http://redis.io/commands/setnx"
+  "Locks a key k with expiry of timeout (mili), return true if lock successful
+   see http://redis.io/commands/setnx"
   (let [lid (lock-id k)  res (wcar (car/setnx lid (timestamp timeout)))]
     (if (= res 1) 
       true

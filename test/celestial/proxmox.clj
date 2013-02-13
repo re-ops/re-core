@@ -1,4 +1,5 @@
 (ns celestial.proxmox
+  "Integration tests assume a proxmox vm with local address"
   (:use
     clojure.test 
     proxmox.provider)
@@ -10,12 +11,12 @@
    :cpus  4 :memory  4096 :hostname  "foobar" :disk 30
    :ip_address  "192.168.5.203" :password "foobar1"})
 
-(deftest ^:integration non-existing 
+(deftest ^:proxmox non-existing 
   (let [ct (Container. "proxmox" (update-in spec [:vmid] (fn [v] 204)))]
     (.stop ct)
     (.delete ct)))
 
-(deftest ^:integration full-cycle
+(deftest ^:proxmox full-cycle
   (let [ct (Container. "proxmox" spec)]
     (.stop ct)
     (.delete ct) 
