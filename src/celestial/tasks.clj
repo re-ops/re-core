@@ -9,27 +9,24 @@
 
 (defn slurp-edn [file] (read-string (slurp file)))
 
-(defn reload 
-  ([{:keys [system hypervisor]}]
-   (reload system hypervisor)) 
-  ([system hypervisor]
+(defn reload [{:keys [system]}]
    "Sets up a clean machine from scratch"
-   (let [ct (Container. hypervisor system)]
+   (let [{:keys [hypervisor]} system ct (Container. hypervisor system)]
      (info "setting up" system "on" hypervisor)
      (.stop ct)
      (.delete ct) 
      (.create ct) 
      (.start ct)
      (assert (= (.status ct) "running"))
-     (info "done system setup"))))
+     (info "done system setup")))
 
 (defn puppetize [{:keys [server module] :as spec} ]
   (info "starting to provision" spec)
   (.apply- (Standalone. server module) )
   (info "done provisioning" spec))
 
-(defn full-setup 
-  ([{:keys [system hypervisor]}] (full-setup system hypervisor))
+(defn full-cycle
+  ([{:keys [system hypervisor provision]}] (full-cycle system hypervisor))
   ([system provision]
    (reload system) 
    (puppetize provision)))

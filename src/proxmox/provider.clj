@@ -47,7 +47,7 @@
 (defn wait-for [node upid]
   (while (= "running" (:status (task-status node upid)))
     (Thread/sleep 200)
-    (debug "Waiting for task" upid "to end")) )
+    (debug "Waiting for task" upid "to end")))
 
 (defn check-task
   "Checking that a proxmox task has succeeded"
@@ -85,11 +85,11 @@
     (debug "creating" (:vmid spec))
     (validate spec)
     (try+ 
-      (check-task node (prox-post (str "/nodes/" node "/openvz") (dissoc spec :features)))
+      (check-task node (prox-post (str "/nodes/" node "/openvz") 
+                            (apply dissoc spec [:features :hypervisor])))
       (enable-features this spec)
       (catch [:status 500] e 
-        (warn "Container already exists" e)))
-    )
+        (warn "Container already exists" e))))
 
   (delete [this]
     (use-ns)

@@ -19,15 +19,21 @@
    :body (pr-str data)})
 
 (defroutes app-routes
+  (context "/stage" []
+           (defroutes stage-routes
+             (POST "/" [system] 
+                   (enqueue "stage" system)
+                   (generate-response {:status "submitted staging"})))   
+           )
   (context "/provision" [] 
            (defroutes provision-routes
              (POST "/" [provision] 
                    (enqueue "provision" provision)
                    (generate-response {:status "submitted pupptization"}))))
-  (context "/system" [] 
-           (defroutes system-routes
-             (POST "/:hypervisor" [hypervisor system]
-                   (enqueue "system" {:hypervisor hypervisor :system system})
+  (context "/machine" [] 
+           (defroutes machine-routes
+             (POST "/" [& spec]
+                   (enqueue "machine" spec)
                    (generate-response {:status "submited system creation"}))))
   (route/not-found "Not Found"))
 

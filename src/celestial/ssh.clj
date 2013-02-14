@@ -36,8 +36,9 @@
     (fn [session]
       (doseq [b batches]
         (let [{:keys [channel out-stream] :as res} (ssh session {:in  (join "\n" b)  :out :stream})]
+          (println (bean channel))
           (log-output out-stream)
           (let [exit (.getExitStatus channel)]
             (when-not (= exit 0) 
-              (throw+ (merge res {:type ::provision-failed :exit exit} (meta b))))))))))
+              (throw+ (merge res {:type ::execute-failed :exit exit} (meta b))))))))))
 

@@ -4,6 +4,7 @@
     [slingshot.slingshot :only  [throw+]]
     [taoensso.timbre :only (debug info error warn)])
   (:require  
+    [taoensso.carmine.message-queue :as carmine-mq]
     [taoensso.carmine :as car])
   (:import java.util.Date))
 
@@ -58,3 +59,6 @@
       (f) 
       (finally (release id uuid)))
     (throw+ {:type ::lock-fail :id id} "Failed to obtain lock")))
+
+(defn create-worker [name f]
+  (carmine-mq/make-dequeue-worker pool spec-server1 name :handler-fn f))

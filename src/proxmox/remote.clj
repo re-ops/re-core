@@ -22,7 +22,7 @@
   (if (> try-count 1) false true))
 
 (def http-opts 
-  {:insecure? true :retry-handler retry})
+  {:insecure? true :retry-handler retry })
 
 (declare auth-headers)
 
