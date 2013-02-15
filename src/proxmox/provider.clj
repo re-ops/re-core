@@ -2,7 +2,6 @@
   (:require 
     [closchema.core :as schema])
   (:use 
-    clojure.core.strint
     [clojure.core.memoize :only (memo-ttl)]
     [taoensso.timbre :only (debug info error warn)]
     clojure.core.strint
@@ -57,9 +56,7 @@
     (when (not= exitstatus "OK")
       (throw+ (assoc res :type ::task-failed)))))
 
-(defn use-ns []
-  (use 'proxmox.remote);TODO this is ugly http://tinyurl.com/avotufx fix with macro
-  (use 'proxmox.provider))
+
 
 (defmacro safe [f]
   `(try+ 
@@ -76,12 +73,13 @@
   (when-let [features (:features spec)] 
     ;vzctl set 170 --features "nfs:on" --save 
     (doseq [f features] 
-      (.vzctl this (<< "set ~{vmid} --features \"~{f}\" --save")))) )
+      (vzctl this (<< "set ~{vmid} --features \"~{f}\" --save")))) )
 
-(deftype Container [node spec]
+(defmacro action [aname dm & ])
+
+(defrecord Container [node spec]
   Vm
   (create [this] 
-    (use-ns)
     (debug "creating" (:vmid spec))
     (validate spec)
     (try+ 
@@ -92,26 +90,22 @@
         (warn "Container already exists" e))))
 
   (delete [this]
-    (use-ns)
     (debug "deleting" (:vmid spec))
-    (.unmount this)
+    (unmount this)
     (safe
       (prox-delete (str "/nodes/" node "/openvz/" (:vmid spec)))))
 
   (start [this]
-    (use-ns)
     (debug "starting" (:vmid spec))
     (safe
       (prox-post (str "/nodes/" node "/openvz/" (:vmid spec) "/status/start"))))
 
   (stop [this]
-    (use-ns)
     (debug "stopping" (:vmid spec))
     (safe 
       (prox-post (str "/nodes/" node "/openvz/" (:vmid spec) "/status/stop"))))
 
   (status [this] 
-    (use-ns)
     (try+ 
       (:status 
         (prox-get 
@@ -120,15 +114,16 @@
 
   Openvz
   (unmount [this]
-    (use-ns)
     (debug "unmounting" (:vmid spec))
     (try+
       (safe 
         (prox-post (str "/nodes/" node "/openvz/" (:vmid spec) "/status/umount")))
       (catch [:type :proxmox.provider/task-failed] e 
         (debug "no container to unmount")))) 
+
   (vzctl [this action] 
     (execute (config :hypervisor) [(<< "vzctl ~{action}")])
     )
   ) 
+
 
