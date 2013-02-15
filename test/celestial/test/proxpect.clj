@@ -1,7 +1,7 @@
 (ns celestial.test.proxpect
   (:use 
     [proxmox.remote :only (prox-get)]
-    [proxmox.provider :only (vzctl)]
+    [proxmox.provider :only (vzctl enable-features)]
     expectations.scenarios) 
   (:import 
     [proxmox.provider Container])
@@ -18,12 +18,8 @@
   (stubbing [prox-get "stopped"]
     (expect java.lang.AssertionError (vzctl ct "nfs:on"))))
 
-
-; TODO move to expectations
-#_(deftest feature-enable 
-  (let [action (atom "")
-        prox (reify Openvz
-               (vzctl [this a] (reset! action a)) 
-               (unmount [this]))]
-    (enable-features prox {:vmid 1 :features ["nfs:on"]})
-    (is (= @action "set 1 --features \"nfs:on\" --save"))))
+(scenario 
+   (enable-features ct {:vmid 1 :features ["nfs:on"]}) 
+   (expect 
+     (interaction (vzctl ct "set 1 --features \"nfs:on\" --save"))))
+ 
