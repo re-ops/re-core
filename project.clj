@@ -7,6 +7,7 @@
                  [org.clojure/tools.cli "0.2.1"]
                  [clj-ssh "0.5.0"]
                  [clj-config "0.2.0"]
+                 [prismatic/plumbing "0.0.1"]
                  [cheshire "5.0.1"]
                  [com.taoensso/timbre "1.4.0"]
                  [narkisr/closchema "0.3.0-SNAPSHOT"]
