@@ -59,15 +59,16 @@
 
 
 (defmacro safe [f]
+  "Making sure that the hypervisor exists and that the task succeeded"
   `(try+ 
      (when-not (node-available? ~'node)
        (throw+ {:type ::missing-node :node ~'node :message "No matching proxmox hypervisor node found"}))
      (check-task ~'node ~f) 
-     (catch [:status 500] e# (warn  "Container does not exist"))))
+     (catch [:status 500] e# (warn  "container does not exist"))))
 
-(defprotocol Openvz 
-  (vzctl [this action] "executing vzctl actions on hypervisor") 
-  (unmount [this]))
+
+
+(declare vzctl unmount)
 
 (defn enable-features [this {:keys [vmid] :as spec}]
   (when-let [features (:features spec)] 
@@ -75,7 +76,6 @@
     (doseq [f features] 
       (vzctl this (<< "set ~{vmid} --features \"~{f}\" --save")))) )
 
-(defmacro action [aname dm & ])
 
 (defrecord Container [node spec]
   Vm
@@ -111,19 +111,18 @@
         (prox-get 
           (str "/nodes/" node "/openvz/" (:vmid spec) "/status/current")))
       (catch [:status 500] e "missing-container")))
-
-  Openvz
-  (unmount [this]
-    (debug "unmounting" (:vmid spec))
-    (try+
-      (safe 
-        (prox-post (str "/nodes/" node "/openvz/" (:vmid spec) "/status/umount")))
-      (catch [:type :proxmox.provider/task-failed] e 
-        (debug "no container to unmount")))) 
-
-  (vzctl [this action] 
-    (execute (config :hypervisor) [(<< "vzctl ~{action}")])
-    )
   ) 
 
+(defn unmount [{:keys [spec node]}]
+  (let [{:keys [vmid]} spec]
+    (debug "unmounting" vmid) 
+    (try+
+      (safe 
+        (prox-post (str "/nodes/" node "/openvz/" vmid "/status/umount")))
+      (catch [:type :proxmox.provider/task-failed] e 
+        (debug "no container to unmount")))))
 
+(defn vzctl [this action] 
+    {:pre [(= (status this) "running")]}
+    (execute (config :hypervisor) [(<< "vzctl ~{action}")]))
+ 
