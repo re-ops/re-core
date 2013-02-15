@@ -19,14 +19,16 @@
                  [org.clojure/data.json "0.2.1"]
                  [com.taoensso/carmine "1.5.0"]
                  [org.clojure/core.memoize "0.5.2"]
-                 ;[prismatic/plumbing "0.0.2-SNAPSHOT"]
                  [metrics-clojure "0.9.2"]
                  [metrics-clojure-ring "0.9.2"]
                  [ring/ring-jetty-adapter "1.1.6"]
                  [fogus/ring-edn "0.1.0"] ]
 
-  :plugins  [[lein-tarsier "0.10.0"]  [lein-ring "0.7.3"]]
+  :plugins  [[lein-tarsier "0.10.0"]  [lein-ring "0.7.3"] [lein-expectations "0.0.7"]]
 
+  :profiles {:dev {:dependencies [ [expectations "1.4.24"] [junit/junit "4.8.1"] ]}
+                     
+             }
   ;:ring {:handler celestial.api/app :auto-reload? true}
 
   :aot [proxmox.provider 
