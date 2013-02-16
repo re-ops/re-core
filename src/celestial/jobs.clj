@@ -23,4 +23,7 @@
   (debug "submitting" payload "to" queue) 
   (wcar (carmine-mq/enqueue queue payload)))
 
-;(carmine-mq/stop my-worker)
+(defn shutdown-workers []
+  (doseq [[k w] @workers]
+    (debug "shutting down" w)
+    (carmine-mq/stop w)))

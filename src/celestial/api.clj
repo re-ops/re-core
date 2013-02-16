@@ -7,6 +7,7 @@
         [taoensso.timbre :only (debug info error warn set-config!)]
         [celestial.jobs :only (enqueue initialize-workers clear-all)])
   (:require 
+    [celestial.jobs :as jobs]
     [compojure.handler :as handler]
     [compojure.route :as route]))
 
@@ -22,18 +23,18 @@
   (context "/stage" []
            (defroutes stage-routes
              (POST "/" [system] 
-                   (enqueue "stage" system)
+                   (jobs/enqueue "stage" system)
                    (generate-response {:status "submitted staging"})))   
            )
   (context "/provision" [] 
            (defroutes provision-routes
              (POST "/" [provision] 
-                   (enqueue "provision" provision)
+                   (jobs/enqueue "provision" provision)
                    (generate-response {:status "submitted pupptization"}))))
   (context "/machine" [] 
            (defroutes machine-routes
              (POST "/" [& spec]
-                   (enqueue "machine" spec)
+                   (jobs/enqueue "machine" spec)
                    (generate-response {:status "submited system creation"}))))
   (route/not-found "Not Found"))
 
@@ -44,7 +45,15 @@
     (wrap-edn-params)))
 
 
+(defn add-shutdown []
+  (.addShutdownHook (Runtime/getRuntime) 
+       (Thread. 
+         (fn [] 
+           (debug "Shutting down...")
+           (jobs/shutdown-workers)))) )
+
 (defn -main []
-  (clear-all)
-  (initialize-workers)
+  (add-shutdown)
+  (jobs/clear-all)
+  (jobs/initialize-workers)
   (run-jetty app  {:port 8080 :join? true}))
