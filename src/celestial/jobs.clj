@@ -7,7 +7,6 @@
     [taoensso.carmine :as car]
     [taoensso.carmine.message-queue :as carmine-mq]))
 
-
 (def workers (atom {}))
 
 (defn initialize-workers []
