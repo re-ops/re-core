@@ -1,5 +1,7 @@
 (ns celestial.ssh
   (:use 
+    clojure.core.strint
+    [clojure.string :only (split)]
     [celestial.common :only (config)]
     [taoensso.timbre :only (debug info error warn)]
     [clojure.string :only (join)]
@@ -26,9 +28,6 @@
         (with-channel-connection channel
           (sftp channel {} :put file dest))))))
 
-(defn copy [server module]
-  "Copy puppet module into server"
-  (put (:host server) (str (module :src) (module :name) ".tar.gz")  "/tmp"))
 
 (defn log-output [out]
   "Output log stream"
@@ -47,3 +46,15 @@
             (when-not (= exit 0) 
               (throw+ (merge res {:type ::execute-failed :exit exit} (meta b))))))))))
 
+(defn fname [uri] (-> uri (split '#"/") last))
+
+(defmulti copy 
+  "A general remote copy" 
+  (fn [host uri dest] 
+    (keyword (first (split uri '#":")))))
+
+(defmethod copy :git  [host uri dest] (debug "do remote clone"))
+(defmethod copy :http [host uri dest] (execute {:host host} [(<< "wget -O ~{dest}/~(fname uri) ~{uri}")]))
+(defmethod copy :file [host uri dest] (put host (fname uri)  dest))
+(defmethod copy :default [host uri dest] (copy host (<< "file:/~{uri}") dest))
+ 

@@ -1,11 +1,10 @@
-(ns celestial.test.proxpect
+(ns celestial.test.proxmox
   (:use 
     [proxmox.remote :only (prox-get)]
     [proxmox.provider :only (vzctl enable-features)]
     expectations.scenarios) 
   (:import 
-    [proxmox.provider Container])
-  )
+    [proxmox.provider Container]))
 
 (def spec 
   {:vmid 203 :ostemplate  "local:vztmpl/ubuntu-12.04-puppet_3-x86_64.tar.gz"
