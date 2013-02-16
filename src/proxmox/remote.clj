@@ -9,7 +9,7 @@
   (:import clojure.lang.ExceptionInfo)) 
 
 
-(def root (<< "https://~(-> config :hypervisor :host):8006/api2/json"))
+(defn root [] (<< "https://~(-> config :hypervisor :host):8006/api2/json"))
 
 (defn retry
   "A retry for http calls against proxmox, some operations lock machine even after completion"
@@ -25,11 +25,11 @@
 
 (defn call [verb api args]
   (:data (parse-string 
-    (:body (verb (str root api) (merge args http-opts {:headers (auth-headers)}))) true)))
+    (:body (verb (<< "~(root)~{api}") (merge args http-opts {:headers (auth-headers)}))) true)))
 
 (defn call- [verb api args]
   "Calling without auth headers"
-  (:data (parse-string (:body (verb (str root api) (merge args http-opts))) true)))
+  (:data (parse-string (:body (verb (<< "~(root)~{api}") (merge args http-opts))) true)))
 
 (defn login-creds []
   (select-keys 
