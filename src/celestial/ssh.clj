@@ -1,13 +1,16 @@
 (ns celestial.ssh
   (:use 
+    [celestial.common :only (config)]
     [taoensso.timbre :only (debug info error warn)]
     [clojure.string :only (join)]
     [slingshot.slingshot :only  [throw+ try+]]
     clj-ssh.ssh))
 
-(def ssh-opts {:username "root" :strict-host-key-checking :no})
+(def #^ { :doc "SSH session options"}
+  ssh-opts {:username "root" :strict-host-key-checking :no :port (config :ssh-port)})
 
 (defn with-session [host f]
+  "Executes f on host with an ssh session"
   (let [session (session (ssh-agent {}) host ssh-opts)] 
     (try+
       (with-connection session (f session))
@@ -15,8 +18,8 @@
         (throw+ {:type ::auth :host host} 
                 "Failed to login make sure to ssh-copy-id to the remote host")))))
 
-
 (defn put [host file dest]
+  "Copies a file into host under dest"
   (with-session host
     (fn [session]
       (let [channel (ssh-sftp session)]
@@ -24,9 +27,11 @@
           (sftp channel {} :put file dest))))))
 
 (defn copy [server module]
+  "Copy puppet module into server"
   (put (:host server) (str (module :src) (module :name) ".tar.gz")  "/tmp"))
 
 (defn log-output [out]
+  "Output log stream"
   (doseq [line (line-seq (clojure.java.io/reader out))] (debug line) )) 
 
 (defn execute [{:keys [host]} & batches]

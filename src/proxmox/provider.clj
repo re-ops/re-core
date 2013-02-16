@@ -7,7 +7,8 @@
     clojure.core.strint
     celestial.core
     [celestial.ssh :only (execute)]
-    [proxmox.remote :only (prox-post prox-delete prox-get config)]
+    [celestial.common :only (config)]
+    [proxmox.remote :only (prox-post prox-delete prox-get)]
     [slingshot.slingshot :only  [throw+ try+]]
     )
   (:import clojure.lang.ExceptionInfo)

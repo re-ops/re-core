@@ -1,16 +1,13 @@
 (ns proxmox.remote
   (:require 
     [cheshire.core :refer :all]
-    [clj-http.client :as client]
-    [clj-config.core :as conf])
+    [clj-http.client :as client])
   (:use clojure.core.strint
+        [celestial.common :only (config)]
         [slingshot.slingshot :only  [try+]]
         [taoensso.timbre :only (debug info error) :as timbre])
   (:import clojure.lang.ExceptionInfo)) 
 
-;(timbre/set-level! :debug)
-
-(def config (conf/read-config (<<  "~(System/getProperty \"user.home\")/.multistage.edn")))
 
 (def root (<< "https://~(-> config :hypervisor :host):8006/api2/json"))
 
@@ -34,15 +31,19 @@
   "Calling without auth headers"
   (:data (parse-string (:body (verb (str root api) (merge args http-opts))) true)))
 
-(def login-creds (dissoc (assoc (config :hypervisor) :realm "pam") :host))
+(defn login-creds []
+  (select-keys 
+    (assoc (config :hypervisor) :realm "pam") [:username :password :realm]))
 
 (defn login []
   {:post [(not (nil? (% :CSRFPreventionToken))) (not (nil? (% :ticket)))]}
   (try+
-    (let [res (call- client/post "/access/ticket" {:form-params login-creds})]
+    (let [res (call- client/post "/access/ticket" {:form-params (login-creds)})]
       (select-keys res [:CSRFPreventionToken :ticket]))
     (catch #(#{401 500} (:status %)) e
-      (throw (ExceptionInfo. "Failed to login" config)))))
+      (throw (ExceptionInfo. "Failed to login" config)))
+    (catch #(#{400} (:status %)) e
+      (throw (ExceptionInfo. "Illegal request, check query params" config)))))
 
 (def auth-headers
   (memoize 
