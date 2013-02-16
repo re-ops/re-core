@@ -2,7 +2,7 @@
   (:require 
     [cheshire.core :refer :all]
     [clj-http.client :as client])
-  (:use clojure.core.strint
+  (:use [clojure.core.strint :only (<<)]
         [celestial.common :only (config)]
         [slingshot.slingshot :only  [try+]]
         [taoensso.timbre :only (debug info error) :as timbre])
@@ -13,7 +13,7 @@
 
 (defn retry
   "A retry for http calls against proxmox, some operations lock machine even after completion"
-  [ex try-count http-context]
+  [ex try-count _]
   (debug "re-trying due to" ex "attempt" try-count)
   (Thread/sleep 1000) 
   (if (> try-count 1) false true))
@@ -27,8 +27,9 @@
   (:data (parse-string 
     (:body (verb (<< "~(root)~{api}") (merge args http-opts {:headers (auth-headers)}))) true)))
 
-(defn call- [verb api args]
+(defn call- 
   "Calling without auth headers"
+  [verb api args]
   (:data (parse-string (:body (verb (<< "~(root)~{api}") (merge args http-opts))) true)))
 
 (defn login-creds []

@@ -4,8 +4,8 @@
   (:use 
     [clojure.core.memoize :only (memo-ttl)]
     [taoensso.timbre :only (debug info error warn)]
-    clojure.core.strint
-    celestial.core
+    [clojure.core.strint :only (<<)]
+    [celestial.core :only (Vm status)]
     [celestial.ssh :only (execute)]
     [celestial.common :only (config)]
     [proxmox.remote :only (prox-post prox-delete prox-get)]
@@ -59,8 +59,9 @@
 
 
 
-(defmacro safe [f]
+(defmacro safe 
   "Making sure that the hypervisor exists and that the task succeeded"
+  [f]
   `(try+ 
      (when-not (node-available? ~'node)
        (throw+ {:type ::missing-node :node ~'node :message "No matching proxmox hypervisor node found"}))

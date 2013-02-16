@@ -1,18 +1,20 @@
 (ns celestial.ssh
   (:use 
-    clojure.core.strint
+    [clojure.core.strint :only (<<)]
     [clojure.string :only (split)]
     [celestial.common :only (config)]
     [taoensso.timbre :only (debug info error warn)]
     [clojure.string :only (join)]
     [slingshot.slingshot :only  [throw+ try+]]
-    clj-ssh.ssh))
+    [clj-ssh.ssh :only 
+      (session ssh-agent with-connection sftp ssh-sftp with-channel-connection ssh)]))
 
 (def #^ { :doc "SSH session options"}
   ssh-opts {:username "root" :strict-host-key-checking :no :port (config :ssh-port)})
 
-(defn with-session [host f]
+(defn with-session 
   "Executes f on host with an ssh session"
+  [host f]
   (let [session (session (ssh-agent {}) host ssh-opts)] 
     (try+
       (with-connection session (f session))
@@ -20,17 +22,18 @@
         (throw+ {:type ::auth :host host} 
                 "Failed to login make sure to ssh-copy-id to the remote host")))))
 
-(defn put [host file dest]
+(defn put 
   "Copies a file into host under dest"
+  [host file dest]
   (with-session host
     (fn [session]
       (let [channel (ssh-sftp session)]
         (with-channel-connection channel
           (sftp channel {} :put file dest))))))
 
-
-(defn log-output [out]
-  "Output log stream"
+(defn log-output 
+  "Output log stream" 
+  [out]
   (doseq [line (line-seq (clojure.java.io/reader out))] (debug line) )) 
 
 (defn execute [{:keys [host]} & batches]
@@ -50,11 +53,11 @@
 
 (defmulti copy 
   "A general remote copy" 
-  (fn [host uri dest] 
+  (fn [_ uri _] 
     (keyword (first (split uri '#":")))))
 
 (defmethod copy :git  [host uri dest] (debug "do remote clone"))
 (defmethod copy :http [host uri dest] (execute {:host host} [(<< "wget -O ~{dest}/~(fname uri) ~{uri}")]))
 (defmethod copy :file [host uri dest] (put host (fname uri)  dest))
 (defmethod copy :default [host uri dest] (copy host (<< "file:/~{uri}") dest))
- 
+

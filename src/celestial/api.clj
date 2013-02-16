@@ -1,9 +1,9 @@
 (ns celestial.api
-  (:use compojure.core 
+  (:use [compojure.core :only (defroutes context POST GET)] 
         [metrics.ring.expose :only  (expose-metrics-as-json)]
         [metrics.ring.instrument :only  (instrument)]
-        ring.middleware.edn
-        ring.adapter.jetty 
+        [ring.middleware.edn :only (wrap-edn-params)]
+        [ring.adapter.jetty :only (run-jetty)] 
         [taoensso.timbre :only (debug info error warn set-config!)]
         [celestial.jobs :only (enqueue initialize-workers clear-all)])
   (:require 
@@ -19,23 +19,25 @@
    :headers {"Content-Type" "application/edn"}
    :body (pr-str data)})
 
-(defroutes app-routes
-  (context "/stage" []
-           (defroutes stage-routes
-             (POST "/" [system] 
-                   (jobs/enqueue "stage" system)
-                   (generate-response {:status "submitted staging"})))   
-           )
-  (context "/provision" [] 
-           (defroutes provision-routes
+(defroutes provision-routes
              (POST "/" [provision] 
                    (jobs/enqueue "provision" provision)
-                   (generate-response {:status "submitted pupptization"}))))
-  (context "/machine" [] 
-           (defroutes machine-routes
+                   (generate-response {:status "submitted pupptization"})))
+
+(defroutes stage-routes
+             (POST "/" [system] 
+                   (jobs/enqueue "stage" system)
+                   (generate-response {:status "submitted staging"})))
+
+(defroutes machine-routes
              (POST "/" [& spec]
                    (jobs/enqueue "machine" spec)
-                   (generate-response {:status "submited system creation"}))))
+                   (generate-response {:status "submited system creation"})))
+
+(defroutes app-routes
+  (context "/stage" [] stage-routes)
+  (context "/provision" [] provision-routes)
+  (context "/machine" [] machine-routes)
   (route/not-found "Not Found"))
 
 (def app

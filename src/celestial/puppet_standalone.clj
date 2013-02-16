@@ -2,23 +2,21 @@
   "A standalone puppet provisioner"
   (:import com.jcraft.jsch.JSchException)
   (:use 
-     clojure.core.strint
-     celestial.core
+    [clojure.core.strint :only (<<)]
+    [celestial.core :only (Provision)]
     [celestial.ssh :only (copy execute)]
     [taoensso.timbre :only (debug info error warn)]
     [slingshot.slingshot :only  [throw+ try+]]))
 
-(defn step [n & steps] ^{:step n} steps)
+(defn step [n & steps] (with-meta steps {:step n}))
 
 (defn copy-module [{:keys [host]} {:keys [src name]}]
   "Copy a puppet module into server"
   (copy host (<< "file:/~{src}~{name}.tar.gz")  "/tmp"))
 
-(deftype Standalone [server module]
+(defrecord Standalone [server module]
   Provision
   (apply- [this]
-    (use 'celestial.puppet-standalone)
-    (use 'celestial.core)
     (copy-module server module) 
     (execute server 
       (step :extract "cd /tmp" (<< "tar -xzf ~(:name module).tar.gz")) 

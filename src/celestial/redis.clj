@@ -1,6 +1,6 @@
 (ns celestial.redis
   (:use  
-    clojure.core.strint
+    [clojure.core.strint :only (<<)]
     [slingshot.slingshot :only  [throw+]]
     [taoensso.timbre :only (debug info error warn)])
   (:require  
@@ -24,11 +24,12 @@
 (defn- expire [lid expiry]
   (wcar (car/expire lid expiry)))
 
-(defn acquire [id & [{:keys [wait-time expiry] :or {wait-time 2000 expiry 2}} & _]]
+(defn acquire 
   "Acquires lock, returns uuid if successful 
   wait-time (mili) wait time for lock,
   expiry (sec) how long the lock is valid 
   see http://dr-josiah.blogspot.co.il/2012/01/creating-lock-with-redis.html "
+  [id & [{:keys [wait-time expiry] :or {wait-time 2000 expiry 2}} & _]]
   (let [lid (lock-id id) uuid (gen-uuid)
         wait (+ (curr-time) wait-time)]
     (loop []
@@ -51,9 +52,10 @@
       (do (wcar (car/del lid)) true)
       (do (wcar (car/unwatch)) false))))
 
-(defn with-lock [id f]
+(defn with-lock 
   ; TODO add expiry and wait options
   "Try to to obtain lock for id and execute f, throw exception if fails"
+  [id f]
   (if-let [uuid (acquire id)]
     (try
       (f) 

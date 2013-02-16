@@ -1,6 +1,6 @@
 (ns celestial.common
   (:use 
-    clojure.core.strint
+    [clojure.core.strint :only (<<)]
     [clojure.java.io :only (file)]
     [taoensso.timbre :only (warn)]
     [clj-config.core :as conf]))
