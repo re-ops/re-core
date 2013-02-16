@@ -1,9 +1,8 @@
 (ns celestial.test.ssh
   (:use 
-    clojure.test 
+    expectations.scenarios  
     [celestial.ssh :only (execute)]))
 
-(deftest batch-check 
-  (is (thrown? AssertionError (execute {:host "bla"} "one two"))))
-
+(scenario 
+  (expect java.lang.AssertionError (execute {:host "bla"} "one two")))
 
