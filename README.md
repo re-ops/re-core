@@ -1,9 +1,8 @@
 # Celestial
 
+[![Build Status](https://secure.travis-ci.org/narkisr/celestial.png)](http://travis-ci.org/narkisr/celetial)
 
 ## Usage
-
-TBD 
 
 ## Tests
 
