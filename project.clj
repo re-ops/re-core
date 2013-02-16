@@ -24,7 +24,8 @@
                  [ring/ring-jetty-adapter "1.1.6"]
                  [fogus/ring-edn "0.1.0"] ]
 
-  :plugins  [[lein-tarsier "0.10.0"]  [lein-ring "0.7.3"] [lein-expectations "0.0.7"]]
+  :plugins  [[jonase/eastwood "0.0.2"] [lein-tarsier "0.10.0"]
+             [lein-ring "0.7.3"] [lein-expectations "0.0.7"]]
 
   :profiles {:dev {:dependencies [ [expectations "1.4.24"] [junit/junit "4.8.1"] ]}
                      
