@@ -17,3 +17,10 @@
     (copy host uri dest)
     (expect 
       (interaction (execute {:host host} [(<< "wget -O /tmp/redis-sandbox.tar.gz ~{uri}")])))))
+
+(scenario
+  (let [uri "git://github.com/narkisr/celestial.git"
+        host "localhost" dest "/tmp"]
+    (copy host uri dest)
+    (expect 
+      (interaction (execute {:host host} [(<< "git clone ~{uri} ~{dest}/celestial")])))))

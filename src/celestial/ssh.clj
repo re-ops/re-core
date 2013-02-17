@@ -51,13 +51,22 @@
 
 (defn fname [uri] (-> uri (split '#"/") last))
 
+(defn ^{:test #(assert (= (no-ext "celestial.git") "celestial"))}
+  no-ext 
+  "file name without extension"
+  [name]
+  (-> name (split '#"\.") first))
+
 (defmulti copy 
   "A general remote copy" 
   (fn [_ uri _] 
     (keyword (first (split uri '#":")))))
 
-(defmethod copy :git  [host uri dest] (debug "do remote clone"))
-(defmethod copy :http [host uri dest] (execute {:host host} [(<< "wget -O ~{dest}/~(fname uri) ~{uri}")]))
+(defmethod copy :git  [host uri dest] 
+  (execute {:host host} [(<< "git clone ~{uri} ~{dest}/~(no-ext (fname uri))")]))
+(defmethod copy :http [host uri dest] 
+  (execute {:host host} [(<< "wget -O ~{dest}/~(fname uri) ~{uri}")]))
 (defmethod copy :file [host uri dest] (put host (fname uri)  dest))
 (defmethod copy :default [host uri dest] (copy host (<< "file:/~{uri}") dest))
 
+(test #'no-ext)
