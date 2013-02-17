@@ -1,11 +1,11 @@
 # Celestial
 
-[![Build Status](https://secure.travis-ci.org/narkisr/celestial.png)](http://travis-ci.org/narkisr/celetial)
+[![Build Status](https://secure.travis-ci.org/narkisr/celestial.png)](http://travis-ci.org/narkisr/celestial)
 
 ## Usage
 
 TBD
-
+ 
 ## Tests
 
 ```clojure
