@@ -9,13 +9,14 @@
     [clj-ssh.ssh :only 
       (session ssh-agent with-connection sftp ssh-sftp with-channel-connection ssh)]))
 
-(def #^ { :doc "SSH session options"}
-  ssh-opts {:username "root" :strict-host-key-checking :no :port (config :ssh-port)})
+(defn ssh-opts 
+  "SSH session options" [port]
+  {:username "root" :strict-host-key-checking :no :port port})
 
 (defn with-session 
   "Executes f on host with an ssh session"
-  [host f]
-  (let [session (session (ssh-agent {}) host ssh-opts)] 
+  [host port f]
+  (let [session (session (ssh-agent {}) host (ssh-opts port))] 
     (try+
       (with-connection session (f session))
       (catch #(= (:message %) "Auth fail") e
@@ -36,14 +37,13 @@
   [out]
   (doseq [line (line-seq (clojure.java.io/reader out))] (debug line) )) 
 
-(defn execute [{:keys [host]} & batches]
+(defn execute [{:keys [host port] :or {port 22}} & batches]
   {:pre [(every? sequential? batches)]}
   "Executes remotly using ssh for example: (execute {:host \"192.168.20.171\"} [\"ls\"])"
-  (with-session host
+  (with-session host port
     (fn [session]
       (doseq [b batches]
         (let [{:keys [channel out-stream] :as res} (ssh session {:in  (join "\n" b)  :out :stream})]
-          (println (bean channel))
           (log-output out-stream)
           (let [exit (.getExitStatus channel)]
             (when-not (= exit 0) 
