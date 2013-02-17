@@ -1,6 +1,7 @@
 # Celestial
 
-[![Build Status](https://secure.travis-ci.org/narkisr/celestial.png)](http://travis-ci.org/narkisr/celestial)
+
+[![Build Status](https://travis-ci.org/narkisr/celestial.png)](https://travis-ci.org/narkisr/celestial)
 
 ## Usage
 
