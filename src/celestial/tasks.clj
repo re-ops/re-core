@@ -20,10 +20,10 @@
     (assert (= (.status ct) "running"))
     (info "done system setup")))
 
-(defn puppetize [{:keys [server module] :as spec} ]
-  (info "starting to provision" spec)
+(defn puppetize [{:keys [server module] :as provision} ]
+  (info "starting to provision" provision)
   (.apply- (Standalone. server module) )
-  (info "done provisioning" spec))
+  (info "done provisioning" provision))
 
 (defn full-cycle
   ([{:keys [system hypervisor provision]}] (full-cycle system hypervisor))
