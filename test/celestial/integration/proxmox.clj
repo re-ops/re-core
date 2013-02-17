@@ -13,7 +13,7 @@
    :ip_address  "192.168.1.30" :password "foobar1" :hypervisor "proxmox"})
 
 (def local-prox 
-  {:hypervisor  {:username "root" :password "foobar" :host "localhost" :ssh-port 2222}})
+  {:hypervisor  {:username "root" :password "foobar" :host "localhost" :ssh-port 22222}})
 
 (def fake-id (assoc spec :vmid 190))
 
