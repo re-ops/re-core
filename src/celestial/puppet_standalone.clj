@@ -12,7 +12,7 @@
 
 (defn copy-module [{:keys [host]} {:keys [src name]}]
   "Copy a puppet module into server"
-  (copy host (<< "file:/~{src}~{name}.tar.gz")  "/tmp"))
+  (copy host src  "/tmp"))
 
 (defrecord Standalone [server module]
   Provision
