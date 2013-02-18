@@ -9,7 +9,7 @@
 
 (scenario
   (copy "localhost" "file://home/ronen/redis-sandbox.tar.gz" "/tmp")
-  (expect (interaction (put "localhost" "redis-sandbox.tar.gz" "/tmp"))))
+  (expect (interaction (put "localhost" "/home/ronen/redis-sandbox.tar.gz" "/tmp"))))
 
 (scenario
   (let [uri "http://dl.bintray.com/content/narkisr/boxes/redis-sandbox.tar.gz"
