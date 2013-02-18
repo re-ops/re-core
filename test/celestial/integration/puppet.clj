@@ -1,10 +1,12 @@
 (ns celestial.integration.puppet
+  "Requires both proxmox redis and a celetial instance to reply to puppet ext queries"
   (:use 
     clojure.test    
+    [celestial.api :only (app)]
+    [ring.adapter.jetty :only (run-jetty)] 
     [celestial.tasks :only (reload puppetize)]
     [celestial.common :only (config)]
-    [celestial.puppet-standalone :only (copy-module)])
- )
+    [celestial.puppet-standalone :only (copy-module)]))
 
 (def baseline
   {:system
@@ -14,8 +16,8 @@
     :hypervisor "proxmox"
     }
    :provision
-   {:module  {:name "redis-sandbox" 
-              :src "http://dl.bintray.com/content/narkisr/boxes/redis-sandbox.tar.gz"}
+   {:module  {:name "redis-sandbox-0.3.0" 
+              :src "http://dl.bintray.com/content/narkisr/boxes/redis-sandbox-0.3.0.tar.gz"}
     :server {:host "192.168.5.33"}}
    }
   )
@@ -26,5 +28,6 @@
 (alter-var-root (var config) (fn [old] local-prox))
 
 (deftest ^:puppet redis-provision
-  (reload baseline) 
+  ;(run-jetty app  {:port 8080 :join? true})
+  ;(reload baseline) 
   (puppetize (:provision baseline)))

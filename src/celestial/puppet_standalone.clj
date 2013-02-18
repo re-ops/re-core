@@ -20,9 +20,8 @@
     (copy-module server module) 
     (execute server 
       (step :extract "cd /tmp" (<< "tar -xzf ~(:name module).tar.gz")) 
-      (step :run (<< "cd /tmp/~(:name module)") "./run.sh")
-      (step :cleanup "cd /tmp" (<< "rm -rf ~(:name module)*"))) ))
-
+      (step :run (<< "cd /tmp/~(:name module)") "./scripts/run.sh ")
+      (step :cleanup "cd /tmp" (<< "rm -rf ~(:name module)*"))))) 
 
 #_(.apply-
     (Standalone. {:host "192.168.5.203"} {:name "puppet-base-env" :src "/home/ronen/code/"}))
