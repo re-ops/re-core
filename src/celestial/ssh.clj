@@ -26,7 +26,7 @@
 (defn put 
   "Copies a file into host under dest"
   [host file dest]
-  (with-session host
+  (with-session host 22
     (fn [session]
       (let [channel (ssh-sftp session)]
         (with-channel-connection channel
@@ -35,7 +35,9 @@
 (defn log-output 
   "Output log stream" 
   [out]
-  (doseq [line (line-seq (clojure.java.io/reader out))] (debug line) )) 
+  (doseq [line (line-seq (clojure.java.io/reader out))] (debug line))
+  (debug "done")
+  ) 
 
 (defn execute [{:keys [host port] :or {port 22}} & batches]
   {:pre [(every? sequential? batches)]}
@@ -66,7 +68,7 @@
   (execute {:host host} [(<< "git clone ~{uri} ~{dest}/~(no-ext (fname uri))")]))
 (defmethod copy :http [host uri dest] 
   (execute {:host host} [(<< "wget -O ~{dest}/~(fname uri) ~{uri}")]))
-(defmethod copy :file [host uri dest] (put host (fname uri)  dest))
+(defmethod copy :file [host uri dest] (put host (subs uri 6)  dest))
 (defmethod copy :default [host uri dest] (copy host (<< "file:/~{uri}") dest))
 
 (test #'no-ext)
