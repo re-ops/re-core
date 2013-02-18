@@ -1,8 +1,10 @@
 (ns celestial.api
   (:use [compojure.core :only (defroutes context POST GET)] 
+        [celestial.persistency :only (profile)]
         [metrics.ring.expose :only  (expose-metrics-as-json)]
         [metrics.ring.instrument :only  (instrument)]
         [ring.middleware.edn :only (wrap-edn-params)]
+        [clj-yaml.core :only (generate-string parse-string)]
         [ring.adapter.jetty :only (run-jetty)] 
         [taoensso.timbre :only (debug info error warn set-config!)]
         [celestial.jobs :only (enqueue initialize-workers clear-all)])
@@ -34,10 +36,18 @@
                    (jobs/enqueue "machine" spec)
                    (generate-response {:status "submited system creation"})))
 
+(defroutes info-routes
+             (GET "/profile/:host" [host]
+                (debug "search after" host)
+                (generate-string (profile (keyword host))))
+             (POST "/profile/:type" [type & profile]
+                   (generate-response {:status "new profile type saved"})))
+
 (defroutes app-routes
   (context "/stage" [] stage-routes)
   (context "/provision" [] provision-routes)
   (context "/machine" [] machine-routes)
+  (context "/registry" [] info-routes)
   (route/not-found "Not Found"))
 
 (def app
