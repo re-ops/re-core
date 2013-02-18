@@ -45,11 +45,10 @@
   (with-session host port
     (fn [session]
       (doseq [b batches]
-        (let [{:keys [channel out-stream] :as res} (ssh session {:in  (join "\n" b)  :out :stream})]
-          (log-output out-stream)
-          (let [exit (.getExitStatus channel)]
-            (when-not (= exit 0) 
-              (throw+ (merge res {:type ::execute-failed :exit exit} (meta b))))))))))
+        (let [{:keys [exit out] :as res} (ssh session {:in  (join "\n" b)})]
+            (if (= exit 0) 
+              (debug out)
+              (throw+ (merge res {:type ::execute-failed :exit exit} (meta b)))))))))
 
 (defn fname [uri] (-> uri (split '#"/") last))
 
