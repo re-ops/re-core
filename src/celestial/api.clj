@@ -1,4 +1,5 @@
 (ns celestial.api
+  (:gen-class)
   (:use [compojure.core :only (defroutes context POST GET)] 
         [celestial.persistency :only (profile)]
         [metrics.ring.expose :only  (expose-metrics-as-json)]
@@ -64,7 +65,7 @@
            (debug "Shutting down...")
            (jobs/shutdown-workers)))) )
 
-(defn -main []
+(defn -main [& args]
   (add-shutdown)
   (jobs/clear-all)
   (jobs/initialize-workers)

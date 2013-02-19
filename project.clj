@@ -1,4 +1,4 @@
-(defproject celestial "0.1.0-SNAPSHOT"
+(defproject celestial "0.0.1"
   :description "A launching pad for virtualized applications"
   :url ""
   :license {:name "Eclipse Public License" :url "http://www.eclipse.org/legal/epl-v10.html"}
@@ -28,16 +28,13 @@
   :plugins  [[jonase/eastwood "0.0.2"] [lein-tarsier "0.10.0"]
              [lein-ring "0.7.3"] [lein-expectations "0.0.7"]]
 
-  :profiles {:dev {:dependencies [ [expectations "1.4.24"] [junit/junit "4.8.1"] ]}
-                     
-             }
-  ;:ring {:handler celestial.api/app :auto-reload? true}
+  :profiles {:dev {:dependencies [ [expectations "1.4.24"] [junit/junit "4.8.1"] ]}}
 
   :aot [proxmox.provider 
         celestial.puppet-standalone 
         celestial.api]
 
-  :test-selectors {:default #(not-any? % [:proxmox :redis :integration]) 
+  :test-selectors {:default #(not-any? % [:proxmox :redis :integration :puppet]) 
                    :redis :redis
                    :proxmox :proxmox
                    :integration :integration
