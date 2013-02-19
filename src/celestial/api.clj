@@ -14,7 +14,7 @@
     [compojure.handler :as handler]
     [compojure.route :as route]))
 
-(set-config! [:shared-appender-config :spit-filename ] "/home/ronen/code/celestial/celestial.log")
+(set-config! [:shared-appender-config :spit-filename ] "celestial.log")
 (set-config! [:appenders :spit :enabled?] true)
 
 (defn generate-response [data & [status]]
