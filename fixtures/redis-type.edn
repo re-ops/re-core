@@ -1,0 +1,4 @@
+{:provision
+  {:module  {:name "redis-sandbox" :src ""}}
+  {:type {:classes}}
+}
