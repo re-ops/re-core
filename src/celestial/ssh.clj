@@ -36,19 +36,20 @@
   "Output log stream" 
   [out]
   (doseq [line (line-seq (clojure.java.io/reader out))] (debug line))
-  (debug "done")
   ) 
 
 (defn execute [{:keys [host port] :or {port 22}} & batches]
   {:pre [(every? sequential? batches)]}
   "Executes remotly using ssh for example: (execute {:host \"192.168.20.171\"} [\"ls\"])"
-  (with-session host port
-    (fn [session]
-      (doseq [b batches]
-        (let [{:keys [exit out] :as res} (ssh session {:in  (join "\n" b)})]
-            (if (= exit 0) 
-              (debug out)
-              (throw+ (merge res {:type ::execute-failed :exit exit} (meta b)))))))))
+  (doseq [b batches]
+    (with-session host port
+      (fn [session]
+        (let [{:keys [channel out-stream] :as res} (ssh session {:in  (join "\n" b)  :out :stream})]
+          (log-output out-stream)
+          (let [exit (.getExitStatus channel)]
+            (when-not (= exit 0) 
+              (throw+ (merge res {:type ::execute-failed :exit exit} (meta b))))))
+        ))))
 
 (defn fname [uri] (-> uri (split '#"/") last))
 
