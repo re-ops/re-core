@@ -8,6 +8,8 @@
     [celestial.common :only (config)]
     [celestial.puppet-standalone :only (copy-module)]))
 
+;
+
 (def baseline
   {:system
    {:vmid 33 :cpus  2 :memory 1024 :hostname "redis-test" :disk 30
@@ -16,8 +18,8 @@
     :hypervisor "proxmox"
     }
    :provision
-   {:module  {:name "redis-sandbox-0.3.0" 
-              :src "http://dl.bintray.com/content/narkisr/boxes/redis-sandbox-0.3.0.tar.gz"}
+   {:module  {:name "redis-sandbox-0.3.1" 
+              :src "http://dl.bintray.com/content/narkisr/boxes/redis-sandbox-0.3.1.tar.gz"}
     :server {:host "192.168.5.33"}}
    }
   )
@@ -28,6 +30,5 @@
 (alter-var-root (var config) (fn [old] local-prox))
 
 (deftest ^:puppet redis-provision
-  ;(run-jetty app  {:port 8080 :join? true})
-  ;(reload baseline) 
+  (reload baseline) 
   (puppetize (:provision baseline)))
