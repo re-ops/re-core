@@ -22,8 +22,13 @@
     (expect (interaction (p/register-host host type machine)))))
 
 (scenario
-  (expect {:status 200} (in (app (request :get (<< "/registry/host/redis-local"))))) 
+  (expect {:status 200} (in (app (request :get (<< "/registry/host/machine/redis-local"))))) 
   (expect (interaction (p/host "redis-local"))))
+
+(scenario
+  (stubbing [p/host {:type "redis"}]
+  (expect {:status 200} (in (app (request :get (<< "/registry/host/type/redis-local"))))) 
+  (expect (interaction (p/type "redis")))))
 
 (def type-req
   (merge {:params (slurp-edn "fixtures/redis-type.edn")}
@@ -34,7 +39,6 @@
     (expect 
       (interaction (p/new-type "redis"  
                             (:classes (select-keys (slurp-edn "fixtures/redis-type.edn") [:classes]))))))
-
 (scenario 
   (expect {:status 200} (in (app (request :post "/provision/redis-local")))) 
   (expect (interaction (p/host "redis-local")))  

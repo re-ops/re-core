@@ -43,11 +43,15 @@
         (let [{:keys [hostname]} machine]
           (p/register-host hostname type machine) 
           (generate-response {:status "new host saved" :host hostname :machine machine :type type})))
-  (GET "/host/:h" [h]
-       (generate-response (:type (p/host h))))
+  (GET "/host/machine/:h" [h]
+       (generate-response (p/host h)))
+  (GET "/host/type/:h" [h]
+       (generate-response (p/type (:type (p/host h)))))
+
   (POST "/type" [type sandbox classes]
         (p/new-type type classes)
-        (generate-response {:status "new type saved" :type type :classes classes})))
+        (generate-response {:status "new type saved" :type type :classes classes}))
+  ) 
 
 (defroutes app-routes
   (context "/stage" [] stage-routes)
