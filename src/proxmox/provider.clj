@@ -27,8 +27,10 @@
    :password [str? (required)]
    :hostname [str? (required)]
    :hypervisor [str? (required)]
-   :features [vec?]
-   })
+   :features [vec?]})
+
+(def create-req-keys
+  (keys (dissoc ct-validations :hypervisor :features)))
 
 (def node-available? 
   "Node availability check, result is cached for one minute"
@@ -82,8 +84,8 @@
   (create [this] 
           (debug "creating" (:vmid spec))
           (try+ 
-            (let [cleanend-spec (apply dissoc spec [:features :hypervisor])]
-               (check-task node (prox-post (str "/nodes/" node "/openvz") ))) 
+            (let [cleanend-spec (select-keys spec create-req-keys)]
+               (check-task node (prox-post (str "/nodes/" node "/openvz") cleanend-spec))) 
             ; TODO enable this later
             ;(enable-features this spec)
             (catch [:status 500] e 
