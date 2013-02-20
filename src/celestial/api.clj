@@ -1,5 +1,5 @@
 (ns celestial.api
-  (:gen-class)
+  (:gen-class true)
   (:use [compojure.core :only (defroutes context POST GET)] 
         [metrics.ring.expose :only  (expose-metrics-as-json)]
         [metrics.ring.instrument :only  (instrument)]
@@ -9,7 +9,7 @@
         [taoensso.timbre :only (debug info error warn set-config!)]
         [celestial.jobs :only (enqueue initialize-workers clear-all)])
   (:require 
-    [celestial.persistency :as (p)]
+    [celestial.persistency :as p]
     [celestial.jobs :as jobs]
     [compojure.handler :as handler]
     [compojure.route :as route]))
@@ -41,7 +41,7 @@
              (POST "/host/" [& spec]
                   (debug "registering host") )
              (GET "/profile/:host" [host]
-                (generate-string (profile (keyword host))))
+                (generate-string (p/profile (keyword host))))
              (POST "/profile/:type" [t & profile]
                    (p/new-type t profile)
                    (generate-response {:status "new profile type saved"})))

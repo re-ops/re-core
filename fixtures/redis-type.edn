@@ -1,4 +1,6 @@
-{:provision
-  {:module  {:name "redis-sandbox" :src ""}}
-  {:type {:classes}}
+{
+ :sandbox {:name "redis-sandbox" 
+           :src "http://dl.bintray.com/content/narkisr/boxes/redis-sandbox-0.3.1.tar.gz"}
+
+ :classes {:redis {:append true}}
 }

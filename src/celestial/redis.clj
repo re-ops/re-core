@@ -64,3 +64,7 @@
 
 (defn create-worker [name f]
   (carmine-mq/make-dequeue-worker pool spec-server1 name :handler-fn f))
+
+(defn clear-all []
+  (wcar (car/flushdb))
+  )

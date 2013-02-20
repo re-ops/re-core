@@ -1,13 +1,11 @@
 (ns celestial.tasks
   "misc development tasks"
   (:use 
+    [celestial.common :only (slurp-edn)]
     [taoensso.timbre :only (debug info error warn)]) 
   (:import 
     [celestial.puppet_standalone Standalone]
     [proxmox.provider Container]))
-
-
-(defn slurp-edn [file] (read-string (slurp file)))
 
 (defn reload [{:keys [system]}]
   "Sets up a clean machine from scratch"
