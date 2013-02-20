@@ -44,9 +44,9 @@
         (generate-response {:status "new host saved" :host host :machine machine :type type}))
   (GET "/host/:h" [h]
        (generate-string (:type (p/host h))))
-  (POST "/type/:t" [t & spec]
-        (p/new-type t spec)
-        (generate-response {:status "new type saved" :type t :spec spec})))
+  (POST "/type" [type sandbox classes]
+        (p/new-type type classes)
+        (generate-response {:status "new type saved" :type type :classes classes})))
 
 (defroutes app-routes
   (context "/stage" [] stage-routes)
