@@ -37,20 +37,22 @@
                    (jobs/enqueue "machine" spec)
                    (generate-response {:status "submited system creation"})))
 
-(defroutes info-routes
-             (POST "/host/" [& spec]
-                  (debug "registering host") )
-             (GET "/profile/:host" [host]
-                (generate-string (p/profile (keyword host))))
-             (POST "/profile/:type" [t & profile]
-                   (p/new-type t profile)
-                   (generate-response {:status "new profile type saved"})))
+(defroutes reg-routes
+  (POST "/host" [machine foo t & r]
+         (debug r)
+        ;(p/register-host host t machine)
+        (generate-response {:status "new host saved" :host foo :machine machine :type t}))
+  (GET "/host/:h" [h]
+       (generate-string (:type (p/host h))))
+  (POST "/type/:t" [t & spec]
+        (p/new-type t spec)
+        (generate-response {:status "new type saved" :type t :spec spec})))
 
 (defroutes app-routes
   (context "/stage" [] stage-routes)
   (context "/provision" [] provision-routes)
   (context "/machine" [] machine-routes)
-  (context "/registry" [] info-routes)
+  (context "/registry" [] reg-routes)
   (route/not-found "Not Found"))
 
 (def app
@@ -62,10 +64,10 @@
 
 (defn add-shutdown []
   (.addShutdownHook (Runtime/getRuntime) 
-       (Thread. 
-         (fn [] 
-           (debug "Shutting down...")
-           (jobs/shutdown-workers)))) )
+                    (Thread. 
+                      (fn [] 
+                        (debug "Shutting down...")
+                        (jobs/shutdown-workers)))) )
 
 (defn -main [& args]
   (add-shutdown)
