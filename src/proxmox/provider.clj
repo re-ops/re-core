@@ -21,17 +21,14 @@
 
 (def ct-validations
   {:vmid [(required) (numeric)] 
-   :ostemplate [(required)]; string
+   :ostemplate [str? (required)]
    :cpus [(numeric)] :disk [(numeric)] :memory [(numeric)]
-   :ip_address [(required)]
-   :password [(required)]
-   :hostname [(required)]
-   :hypervisor [str?]
+   :ip_address [str? (required)]
+   :password [str? (required)]
+   :hostname [str? (required)]
+   :hypervisor [str? (required)]
    :features [vec?]
    })
-
-(def create-subset 
-  (dissoc ct-validations [:features :hypervisor]))
 
 (def node-available? 
   "Node availability check, result is cached for one minute"
@@ -85,8 +82,8 @@
   (create [this] 
           (debug "creating" (:vmid spec))
           (try+ 
-            (check-task node (prox-post (str "/nodes/" node "/openvz") 
-                                        (apply dissoc spec [:features :hypervisor])))
+            (let [cleanend-spec (apply dissoc spec [:features :hypervisor])]
+               (check-task node (prox-post (str "/nodes/" node "/openvz") ))) 
             ; TODO enable this later
             ;(enable-features this spec)
             (catch [:status 500] e 
