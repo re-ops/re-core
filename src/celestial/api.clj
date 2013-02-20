@@ -24,26 +24,27 @@
    :body (pr-str data)})
 
 (defroutes provision-routes
-             (POST "/" [provision] 
-                   (jobs/enqueue "provision" provision)
-                   (generate-response {:status "submitted pupptization"})))
+             (POST "/:host" [host] 
+                   (jobs/enqueue "provision" (p/host host))
+                   (generate-response {:status "submitted pupptization" :host host})))
 
 (defroutes stage-routes
-             (POST "/" [system] 
-                   (jobs/enqueue "stage" system)
-                   (generate-response {:status "submitted staging"})))
+             (POST "/:host" [host] 
+                   (jobs/enqueue "stage" (p/host host))
+                   (generate-response {:status "submitted staging" :host host})))
 
 (defroutes machine-routes
-             (POST "/" [& spec]
-                   (jobs/enqueue "machine" spec)
-                   (generate-response {:status "submited system creation"})))
+             (POST "/:host" [host]
+                   (jobs/enqueue "machine" (p/host host))
+                   (generate-response {:status "submited system creation" :host host})))
 
 (defroutes reg-routes
-  (POST "/host" [machine type host]
-        (p/register-host host type machine)
-        (generate-response {:status "new host saved" :host host :machine machine :type type}))
+  (POST "/host" [machine type]
+        (let [{:keys [hostname]} machine]
+          (p/register-host hostname type machine) 
+          (generate-response {:status "new host saved" :host hostname :machine machine :type type})))
   (GET "/host/:h" [h]
-       (generate-string (:type (p/host h))))
+       (generate-response (:type (p/host h))))
   (POST "/type" [type sandbox classes]
         (p/new-type type classes)
         (generate-response {:status "new type saved" :type type :classes classes})))
