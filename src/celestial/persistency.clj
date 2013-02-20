@@ -34,8 +34,9 @@
     (map (partial apply hash-map) (partition 2 (wcar (car/hgetall h))) )))
 
 
-(new-type "z" {})
-(register-host "foo" "z" {:foo 1})
-(host "foo")
+(comment 
+  (new-type "z" {}) 
+  (register-host "foo" "z" {:foo 1}) 
+  (host "foo")) 
 
 
