@@ -1,8 +1,8 @@
 {:machine 
- {:vmid 203 :cpus  4 :memory  4096 :hostname  "foobar" :disk 30
+ {:vmid 203 :cpus  4 :memory  4096 :hostname  "redis-local" :disk 30
    :ostemplate  "local:vztmpl/ubuntu-12.04-puppet_3-x86_64.tar.gz"
-   :ip_address "192.168.5.203" :password "foobar1" :profile "puppet-base-env"
+   :ip_address "192.168.5.203" :password "foobar1" :hypervisor "proxmox"
+   :features ["nfs:on"] 
   }
  :type "redis"
- :host "foobar"
 }
