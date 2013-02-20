@@ -1,24 +1,33 @@
 (ns celestial.test.proxmox
   (:use 
     [proxmox.remote :only (prox-get)]
-    [proxmox.provider :only (vzctl enable-features)]
+    [proxmox.provider :only (vzctl enable-features ->Container)]
+    [celestial.common :only (slurp-edn)]
     expectations.scenarios) 
   (:import 
     [proxmox.provider Container]))
 
-(def spec 
-  {:vmid 203 :ostemplate  "local:vztmpl/ubuntu-12.04-puppet_3-x86_64.tar.gz"
-   :cpus  4 :memory  4096 :hostname  "foobar" :disk 30
-   :ip_address  "192.168.20.170" :password "foobar1" :hypervisor "takadu"})
+(def spec (slurp-edn "fixtures/redis-system.edn"))
 
-(def ct (Container. (spec :hypervisor) spec))
+(let [{:keys [machine]} spec]
+  (def ct (->Container (machine :hypervisor) machine)))
+
+
+(let [{:keys [machine]} spec]
+  (scenario 
+    (expect java.lang.AssertionError 
+       (->Container (machine :hypervisor) (dissoc machine :vmid)))
+    (expect java.lang.AssertionError 
+       (->Container (machine :hypervisor) (assoc machine :vmid "string")))
+    ))
+
 
 (scenario 
   (stubbing [prox-get "stopped"]
-    (expect java.lang.AssertionError (vzctl ct "nfs:on"))))
+            (expect java.lang.AssertionError (vzctl ct "nfs:on"))))
 
 (scenario 
-   (enable-features ct {:vmid 1 :features ["nfs:on"]}) 
-   (expect 
-     (interaction (vzctl ct "set 1 --features \"nfs:on\" --save"))))
- 
+  (enable-features ct {:vmid 1 :features ["nfs:on"]}) 
+  (expect 
+    (interaction (vzctl ct "set 1 --features \"nfs:on\" --save"))))
+

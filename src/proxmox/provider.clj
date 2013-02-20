@@ -1,7 +1,6 @@
 (ns proxmox.provider
-  (:require 
-    [closchema.core :as schema])
   (:use 
+    [trammel.core :only  (defconstrainedrecord)]
     [clojure.core.memoize :only (memo-ttl)]
     [taoensso.timbre :only (debug info error warn)]
     [clojure.core.strint :only (<<)]
@@ -10,27 +9,29 @@
     [celestial.common :only (config)]
     [proxmox.remote :only (prox-post prox-delete prox-get)]
     [slingshot.slingshot :only  [throw+ try+]]
+    [mississippi.core :only (required numeric validate)]
+    [clojure.set :only (difference)]
     )
   (:import clojure.lang.ExceptionInfo)
   )
 
-(def ct-schema
-  {:type "object"
-   :properties  {
-     :vmid  {:description  "vm unique id number" :type  "integer" :required  true}
-     :ostemplate  {:description  "template used " :type  "string" :required  true}
-     :cpus  {:description "number of cpus" :type  "integer" :required false} 
-     :disk  {:description "disk size" :type  "integer" :required false}
-     :memory  {:description "RAM size" :type  "integer" :required false} 
-     :ip_address  {:description "the container static ip" :type  "string" :required false}
-     :password  {:description "machines password" :type  "string" :required false}
-     :hostname  {:description "container hostname" :type  "string" :required false}
-    }})
+(def str? [string? :msg "not a string"])
+(def vec? [vector? :msg "not a string"])
 
-(defn validate [spec]
-  (let [errors (schema/report-errors (schema/validate ct-schema spec))]
-    (when-not (empty? errors) 
-      (throw (ExceptionInfo. "Failed to validate spec" errors)))))
+
+(def ct-validations
+  {:vmid [(required) (numeric)] 
+   :ostemplate [(required)]; string
+   :cpus [(numeric)] :disk [(numeric)] :memory [(numeric)]
+   :ip_address [(required)]
+   :password [(required)]
+   :hostname [(required)]
+   :hypervisor [str?]
+   :features [vec?]
+   })
+
+(def create-subset 
+  (dissoc ct-validations [:features :hypervisor]))
 
 (def node-available? 
   "Node availability check, result is cached for one minute"
@@ -46,7 +47,7 @@
 
 (defn wait-for [node upid]
   (while (= "running" (:status (task-status node upid)))
-    (Thread/sleep 200)
+    (Thread/sleep 500)
     (debug "Waiting for task" upid "to end")))
 
 (defn check-task
@@ -57,8 +58,6 @@
     (when (not= exitstatus "OK")
       (throw+ (assoc res :type ::task-failed)))))
 
-
-
 (defmacro safe 
   "Making sure that the hypervisor exists and that the task succeeded"
   [f]
@@ -68,8 +67,6 @@
      (check-task ~'node ~f) 
      (catch [:status 500] e# (warn  "container does not exist"))))
 
-
-
 (declare vzctl unmount)
 
 (defn enable-features [this {:keys [vmid] :as spec}]
@@ -78,42 +75,45 @@
     (doseq [f features] 
       (vzctl this (<< "set ~{vmid} --features \"~{f}\" --save")))) )
 
+(defn key-set [h] (->> h keys (into #{})))
 
-(defrecord Container [node spec]
+(defconstrainedrecord Container [node spec]
+  "spec should match proxmox expected input"
+  [(empty? (:errors (validate spec ct-validations)))
+   (empty? (difference (key-set spec) (key-set ct-validations)))]
   Vm
   (create [this] 
-    (debug "creating" (:vmid spec))
-    (validate spec)
-    (try+ 
-      (check-task node (prox-post (str "/nodes/" node "/openvz") 
-                            (apply dissoc spec [:features :hypervisor])))
-      (enable-features this spec)
-      (catch [:status 500] e 
-        (warn "Container already exists" e))))
+          (debug "creating" (:vmid spec))
+          (try+ 
+            (check-task node (prox-post (str "/nodes/" node "/openvz") 
+                                        (apply dissoc spec [:features :hypervisor])))
+            ; TODO enable this later
+            ;(enable-features this spec)
+            (catch [:status 500] e 
+              (warn "Container already exists" e))))
 
   (delete [this]
-    (debug "deleting" (:vmid spec))
-    (unmount this)
-    (safe
-      (prox-delete (str "/nodes/" node "/openvz/" (:vmid spec)))))
+          (debug "deleting" (:vmid spec))
+          (unmount this)
+          (safe
+            (prox-delete (str "/nodes/" node "/openvz/" (:vmid spec)))))
 
   (start [this]
-    (debug "starting" (:vmid spec))
-    (safe
-      (prox-post (str "/nodes/" node "/openvz/" (:vmid spec) "/status/start"))))
+         (debug "starting" (:vmid spec))
+         (safe
+           (prox-post (str "/nodes/" node "/openvz/" (:vmid spec) "/status/start"))))
 
   (stop [this]
-    (debug "stopping" (:vmid spec))
-    (safe 
-      (prox-post (str "/nodes/" node "/openvz/" (:vmid spec) "/status/stop"))))
+        (debug "stopping" (:vmid spec))
+        (safe 
+          (prox-post (str "/nodes/" node "/openvz/" (:vmid spec) "/status/stop"))))
 
   (status [this] 
-    (try+ 
-      (:status 
-        (prox-get 
-          (str "/nodes/" node "/openvz/" (:vmid spec) "/status/current")))
-      (catch [:status 500] e "missing-container")))
-  ) 
+          (try+ 
+            (:status 
+              (prox-get 
+                (str "/nodes/" node "/openvz/" (:vmid spec) "/status/current")))
+            (catch [:status 500] e "missing-container")))) 
 
 (defn unmount [{:keys [spec node]}]
   (let [{:keys [vmid]} spec]
@@ -125,6 +125,6 @@
         (debug "no container to unmount")))))
 
 (defn vzctl [this action] 
-    {:pre [(= (status this) "running")]}
-    (execute (config :hypervisor) [(<< "vzctl ~{action}")]))
- 
+  {:pre [(= (status this) "running")]}
+  (execute (config :hypervisor) [(<< "vzctl ~{action}")]))
+
