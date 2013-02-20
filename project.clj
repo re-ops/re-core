@@ -4,7 +4,6 @@
   :license {:name "Eclipse Public License" :url "http://www.eclipse.org/legal/epl-v10.html"}
 
   :dependencies [[org.clojure/clojure "1.4.0"]
-                 [ring-mock "0.1.3"]
                  [org.clojure/tools.cli "0.2.1"]
                  [clj-ssh "0.5.0"]
                  [clj-config "0.2.0"]
@@ -22,14 +21,17 @@
                  [com.taoensso/carmine "1.5.0"]
                  [org.clojure/core.memoize "0.5.2"]
                  [metrics-clojure "0.9.2"]
+                 [trammel "0.7.0"]
+                 [mississippi "1.0.1"]
                  [metrics-clojure-ring "0.9.2"]
                  [ring/ring-jetty-adapter "1.1.6"]
                  [fogus/ring-edn "0.1.0"] ]
 
-  :plugins  [[jonase/eastwood "0.0.2"] [lein-tarsier "0.10.0"]
+  :plugins  [[lein-autoexpect "0.2.5"]  [jonase/eastwood "0.0.2"] [lein-tarsier "0.10.0"]
              [lein-ring "0.7.3"] [lein-expectations "0.0.7"]]
 
-  :profiles {:dev {:dependencies [ [expectations "1.4.24"] [junit/junit "4.8.1"] ]}}
+  :profiles {:dev {:dependencies [[ring-mock "0.1.3"] [expectations "1.4.24"] [junit/junit "4.8.1"] ]}}
+                 
 
   :aot [proxmox.provider 
         celestial.puppet-standalone 
