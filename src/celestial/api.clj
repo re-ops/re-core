@@ -1,5 +1,6 @@
 (ns celestial.api
   (:gen-class true)
+  (:refer-clojure :exclude [type])
   (:use [compojure.core :only (defroutes context POST GET)] 
         [metrics.ring.expose :only  (expose-metrics-as-json)]
         [metrics.ring.instrument :only  (instrument)]
@@ -38,10 +39,9 @@
                    (generate-response {:status "submited system creation"})))
 
 (defroutes reg-routes
-  (POST "/host" [machine foo t & r]
-         (debug r)
-        ;(p/register-host host t machine)
-        (generate-response {:status "new host saved" :host foo :machine machine :type t}))
+  (POST "/host" [machine type host]
+        (p/register-host host type machine)
+        (generate-response {:status "new host saved" :host host :machine machine :type type}))
   (GET "/host/:h" [h]
        (generate-string (:type (p/host h))))
   (POST "/type/:t" [t & spec]
