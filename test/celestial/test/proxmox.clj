@@ -21,10 +21,9 @@
        (->Container (machine :hypervisor) (assoc machine :vmid "string")))
     ))
 
-
 (scenario 
   (stubbing [prox-get "stopped"]
-            (expect java.lang.AssertionError (vzctl ct "nfs:on"))))
+    (expect java.lang.AssertionError (vzctl ct "nfs:on"))))
 
 (scenario 
   (enable-features ct {:vmid 1 :features ["nfs:on"]}) 
