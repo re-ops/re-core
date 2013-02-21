@@ -2,7 +2,7 @@
   (:use  
     [celestial.redis :only (with-lock)]
     [celestial.redis :only (wcar create-worker)]
-    [taoensso.timbre :only (debug info error warn)]
+    [taoensso.timbre :only (debug info error warn trace)]
     [celestial.tasks :only (reload puppetize full-cycle)]) 
   (:require  
     [taoensso.carmine :as car]
@@ -25,7 +25,7 @@
     (when (seq queues) (wcar (apply car/del queues)))))
 
 (defn enqueue [queue payload] 
-  (debug "submitting" payload "to" queue) 
+  (trace "submitting" payload "to" queue) 
   (wcar (carmine-mq/enqueue queue payload)))
 
 (defn shutdown-workers []
