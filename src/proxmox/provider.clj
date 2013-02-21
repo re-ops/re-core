@@ -83,7 +83,7 @@
 (defconstrainedrecord Container [node spec]
   "spec should match proxmox expected input"
   [(empty? (:errors (validate spec ct-validations)))
-   (empty? (difference (key-set spec) (key-set ct-validations)))
+   #_(empty? (difference (key-set spec) (key-set ct-validations)))
    (not (nil? node))]
   Vm
   (create [this] 
