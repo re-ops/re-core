@@ -2,15 +2,15 @@
   "misc development tasks"
   (:use 
     [celestial.common :only (slurp-edn)]
-    [taoensso.timbre :only (debug info error warn)]) 
+    [taoensso.timbre :only (debug info trace)]) 
   (:import 
     [celestial.puppet_standalone Standalone]
     [proxmox.provider Container]))
 
-(defn reload [{:keys [system]}]
+(defn reload [{:keys [machine]}]
   "Sets up a clean machine from scratch"
-  (let [{:keys [hypervisor]} system ct (Container. hypervisor system)]
-    (info "setting up" system "on" hypervisor)
+  (let [{:keys [hypervisor]} machine ct (Container. hypervisor machine)]
+    (info "setting up" machine "on" hypervisor)
     (.stop ct)
     (.delete ct) 
     (.create ct) 
@@ -18,10 +18,11 @@
     (assert (= (.status ct) "running"))
     (info "done system setup")))
 
-(defn puppetize [{:keys [server module] :as provision} ]
-  (info "starting to provision" provision)
-  (.apply- (Standalone. server module) )
-  (info "done provisioning" provision))
+(defn puppetize [{:keys [module machine] :as provision} ]
+  (info "starting to provision" )
+  (trace provision) 
+  (.apply- (Standalone. machine module))
+  (info "done provisioning"))
 
 (defn full-cycle
   ([{:keys [system hypervisor provision]}] (full-cycle system hypervisor))
