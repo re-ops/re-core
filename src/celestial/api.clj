@@ -5,11 +5,11 @@
         [metrics.ring.expose :only  (expose-metrics-as-json)]
         [metrics.ring.instrument :only  (instrument)]
         [ring.middleware.edn :only (wrap-edn-params)]
-        [clj-yaml.core :only (generate-string parse-string)]
         [ring.adapter.jetty :only (run-jetty)] 
         [taoensso.timbre :only (debug info error warn set-config!)]
         [celestial.jobs :only (enqueue initialize-workers clear-all)])
   (:require 
+    [clj-yaml.core :as yaml ]
     [celestial.persistency :as p]
     [celestial.jobs :as jobs]
     [compojure.handler :as handler]
@@ -47,11 +47,12 @@
   (GET "/host/machine/:h" [h]
        (generate-response (p/host h)))
   (GET "/host/type/:h" [h]
-       (generate-response (p/type (:type (p/host h)))))
+       (yaml/generate-string (select-keys (p/type (:type (p/fuzzy-host h))) [:classes])))
   (POST "/type" [type module classes]
         (p/new-type type {:module module :classes classes})
         (generate-response {:status "new type saved" :type type :classes classes}))
   ) 
+
 
 (defroutes app-routes
   (context "/stage" [] stage-routes)
