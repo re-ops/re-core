@@ -30,6 +30,7 @@
     (car/hset host :type t)))
 
 (defn hgetall [h]
+  "require since expect fails to mock otherwise"
    (wcar (car/hgetall h)))
 
 (defn host [h]
