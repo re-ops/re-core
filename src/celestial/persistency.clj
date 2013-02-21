@@ -23,15 +23,18 @@
   (wcar (car/set t spec)))
 
 (defn register-host [host t m]
-  {:pre [(type t)]}
+  ;{:pre [(type t)]}
   "Mapping host to a given type and its machine"
   (wcar 
     (car/hset host :machine m)
     (car/hset host :type t)))
 
+(defn hgetall [h]
+   (wcar (car/hgetall h)))
+
 (defn host [h]
-  (apply merge 
-    (map (partial apply hash-map) (partition 2 (wcar (car/hgetall h))) )))
+  (when-let [data (hgetall h)]
+    (apply merge (map (partial apply hash-map) (partition 2 data)))))
 
 
 (comment 
