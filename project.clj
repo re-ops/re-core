@@ -33,9 +33,7 @@
   :profiles {:dev {:dependencies [[ring-mock "0.1.3"] [expectations "1.4.24"] [junit/junit "4.8.1"] ]}}
                  
 
-  :aot [proxmox.provider 
-        celestial.puppet-standalone 
-        celestial.api]
+  :aot [proxmox.provider celestial.puppet-standalone celestial.api]
 
   :test-selectors {:default #(not-any? % [:proxmox :redis :integration :puppet]) 
                    :redis :redis
