@@ -40,7 +40,6 @@
 (defn fuzzy-host [h]
   "Searches after a host in a fuzzy manner, first fqn then tried prefixes"
   (let [ks (reverse (reductions (fn [r v] (str r "." v)) (split h #"\.")))]
-    (println ks)
     (when-let [k (first (filter #(= 1 (wcar (car/exists (hk %)))) ks))]
       (host k))))
 
