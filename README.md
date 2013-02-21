@@ -7,12 +7,7 @@
 
 TBD
  
-## Tests
 
-```clojure
- # make sure to configure a remote proxmox first
- $ lein test :integration 
-```
 ## License
 
 Copyright © 2013 narkisr.com
