@@ -19,11 +19,14 @@
   Provision
   (apply- [this]
     (use 'celestial.puppet-standalone)
-    (copy-module machine module) 
-    (execute machine 
-      (step :extract "cd /tmp" (<< "tar -xzf ~(:name module).tar.gz")) 
-      (step :run (<< "cd /tmp/~(:name module)") "./scripts/run.sh ")
-      (step :cleanup "cd /tmp" (<< "rm -rf ~(:name module)*"))))) 
+    (try (copy-module machine module) 
+      (execute machine 
+        (step :extract "cd /tmp" (<< "tar -xzf ~(:name module).tar.gz")) 
+        (step :run (<< "cd /tmp/~(:name module)") "./scripts/run.sh "))
+      (finally 
+        (execute machine (step :cleanup "cd /tmp" (<< "rm -rf ~(:name module)*"))) 
+        ) 
+      ))) 
 
 #_(.apply-
     (Standalone. {:host "192.168.5.203"} {:name "puppet-base-env" :src "/home/ronen/code/"}))
