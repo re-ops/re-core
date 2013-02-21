@@ -4,7 +4,7 @@
     [clojure.core.memoize :only (memo-ttl)]
     [taoensso.timbre :only (debug info error warn)]
     [clojure.core.strint :only (<<)]
-    [celestial.core :only (Vm status)]
+    [celestial.core :only (Vm )]
     [celestial.ssh :only (execute)]
     [celestial.common :only (config)]
     [proxmox.remote :only (prox-post prox-delete prox-get)]
@@ -79,7 +79,8 @@
 (defconstrainedrecord Container [node spec]
   "spec should match proxmox expected input"
   [(empty? (:errors (validate spec ct-validations)))
-   (empty? (difference (key-set spec) (key-set ct-validations)))]
+   (empty? (difference (key-set spec) (key-set ct-validations)))
+   (not (nil? node))]
   Vm
   (create [this] 
           (debug "creating" (:vmid spec))
@@ -123,7 +124,8 @@
       (catch [:type :proxmox.provider/task-failed] e 
         (debug "no container to unmount")))))
 
-(defn vzctl [this action] 
-  {:pre [(= (status this) "running")]}
+(defn vzctl 
+  [this action] 
+  {:pre [(= (.status this) "running")]}
   (execute (config :hypervisor) [(<< "vzctl ~{action}")]))
 
