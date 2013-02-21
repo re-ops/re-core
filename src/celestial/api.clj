@@ -8,7 +8,7 @@
         [metrics.ring.instrument :only  (instrument)]
         [ring.middleware.edn :only (wrap-edn-params)]
         [ring.adapter.jetty :only (run-jetty)] 
-        [taoensso.timbre :only (debug info error warn set-config!)]
+        [taoensso.timbre :only (debug info error warn set-config! set-level!)]
         [celestial.jobs :only (enqueue initialize-workers clear-all)])
   (:require 
     [clj-yaml.core :as yaml ]
@@ -19,6 +19,7 @@
 
 (set-config! [:shared-appender-config :spit-filename ] "celestial.log")
 (set-config! [:appenders :spit :enabled?] true)
+(set-level! :trace)
 
 (defn generate-response [data] {:status 200 :body data})
 

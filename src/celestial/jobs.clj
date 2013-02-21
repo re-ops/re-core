@@ -10,9 +10,10 @@
 
 (def workers (atom {}))
 
-(defn job-exec [f spec]
+(defn job-exec [f {:keys [machine] :as spec}]
+  {:pre [(machine :host)] }
   "Executes a job function tries to lock host first pulls lock info from redis"
-  (let [{:keys [host]} spec]
+  (let [{:keys [host]} machine]
     (with-lock host #(f spec))))
 
 (defn initialize-workers []

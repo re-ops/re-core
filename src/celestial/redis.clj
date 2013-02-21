@@ -2,7 +2,7 @@
   (:use  
     [clojure.core.strint :only (<<)]
     [slingshot.slingshot :only  [throw+]]
-    [taoensso.timbre :only (debug info error warn)])
+    [taoensso.timbre :only (debug trace info error warn)])
   (:require  
     [taoensso.carmine.message-queue :as carmine-mq]
     [taoensso.carmine :as car])
@@ -56,10 +56,15 @@
   ; TODO add expiry and wait options
   "Try to to obtain lock for id and execute f, throw exception if fails"
   [id f]
+  (trace "attempting to aquire lock on" id)
   (if-let [uuid (acquire id)]
     (try
+      (trace "lock acquired" id)
       (f) 
-      (finally (release id uuid)))
+      (finally 
+        (release id uuid)
+        (trace "lock released" id)
+        ))
     (throw+ {:type ::lock-fail :id id} "Failed to obtain lock")))
 
 (defn create-worker [name f]

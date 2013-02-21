@@ -11,7 +11,7 @@
 (defn step [n & steps] (with-meta steps {:step n}))
 
 (defn copy-module [{:keys [host]} {:keys [src name]}]
-  {:pre [host src name] }
+  {:pre [host src name]}
   "Copy a opsk module into server"
   (copy host src "/tmp"))
 
