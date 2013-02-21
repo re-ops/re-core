@@ -67,4 +67,3 @@
 
 (defn clear-all []
   (wcar (car/flushdb)))
-
