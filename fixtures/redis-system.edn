@@ -1,9 +1,11 @@
 {:machine 
  {:vmid 33 :cpus  4 :memory  4096 :disk 30
-  :hostname  "redis-local" :ip_address "192.168.5.33"  :host "192.168.5.33" :nameserver "8.8.8.8"
+  :hostname  "red1" :ip_address "192.168.5.33"  :host "192.168.5.33" 
+  :nameserver "8.8.8.8" :searchdomain "local"
   :ostemplate "local:vztmpl/ubuntu-12.04-puppet_3-x86_64.tar.gz"
   :password "foobar1" 
   :hypervisor "proxmox"
   :features ["nfs:on"]}
+
  :type "redis"
 }
