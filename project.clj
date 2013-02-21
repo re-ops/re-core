@@ -25,7 +25,7 @@
                  [mississippi "1.0.1"]
                  [metrics-clojure-ring "0.9.2"]
                  [ring/ring-jetty-adapter "1.1.6"]
-                 [fogus/ring-edn "0.1.0"] ]
+                 [ring-middleware-format "0.2.4"]]
 
   :plugins  [[lein-autoexpect "0.2.5"]  [jonase/eastwood "0.0.2"] [lein-tarsier "0.10.0"]
              [lein-ring "0.7.3"] [lein-expectations "0.0.7"]]

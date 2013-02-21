@@ -3,6 +3,8 @@
   (:refer-clojure :exclude [type])
   (:use [compojure.core :only (defroutes context POST GET)] 
         [metrics.ring.expose :only  (expose-metrics-as-json)]
+        [ring.middleware.format-params :only [wrap-restful-params]]
+        [ring.middleware.format-response :only [wrap-restful-response]]
         [metrics.ring.instrument :only  (instrument)]
         [ring.middleware.edn :only (wrap-edn-params)]
         [ring.adapter.jetty :only (run-jetty)] 
@@ -18,39 +20,37 @@
 (set-config! [:shared-appender-config :spit-filename ] "celestial.log")
 (set-config! [:appenders :spit :enabled?] true)
 
-(defn generate-response [data & [status]]
-  {:status (or status 200)
-   :headers {"Content-Type" "application/edn"}
-   :body (pr-str data)})
+(defn generate-response [data] {:status 200 :body data})
 
 (defroutes provision-routes
   (POST "/:host" [host] 
         (let [machine (p/host host) type (p/type (:type machine))]
           (jobs/enqueue "provision" (merge machine type)) 
-          (generate-response {:status "submitted pupptization" :host host :machine machine :type type}))))
+          (generate-response {:msg "submitted pupptization" :host host :machine machine :type type}))))
 
 (defroutes stage-routes
   (POST "/:host" [host] 
         (jobs/enqueue "stage" (p/host host))
-        (generate-response {:status "submitted staging" :host host})))
+        (generate-response {:msg "submitted staging" :host host})))
 
 (defroutes machine-routes
   (POST "/:host" [host]
         (jobs/enqueue "machine" (p/host host))
-        (generate-response {:status "submited system creation" :host host})))
+        (generate-response {:msg "submited system creation" :host host})))
 
 (defroutes reg-routes
   (POST "/host" [machine type]
         (let [{:keys [hostname]} machine]
           (p/register-host hostname type machine) 
-          (generate-response {:status "new host saved" :host hostname :machine machine :type type})))
+          (generate-response {:msg "new host saved" :host hostname :machine machine :type type})))
   (GET "/host/machine/:h" [h]
        (generate-response (p/host h)))
   (GET "/host/type/:h" [h]
-       (yaml/generate-string (select-keys (p/type (:type (p/fuzzy-host h))) [:classes])))
+       (debug (select-keys (p/type (:type (p/fuzzy-host h))) [:classes]))
+       (generate-response (select-keys (p/type (:type (p/fuzzy-host h))) [:classes])))
   (POST "/type" [type module classes]
         (p/new-type type {:module module :classes classes})
-        (generate-response {:status "new type saved" :type type :classes classes}))
+        (generate-response {:msg "new type saved" :type type :classes classes}))
   ) 
 
 
@@ -62,10 +62,13 @@
   (route/not-found "Not Found"))
 
 (def app
-  (-> (handler/api app-routes)
+  (-> 
+    (handler/api app-routes)
+    (wrap-restful-params)
+    (wrap-restful-response)
     (expose-metrics-as-json)
     (instrument)
-    (wrap-edn-params)))
+    ))
 
 
 (defn add-shutdown []
