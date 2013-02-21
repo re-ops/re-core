@@ -24,10 +24,10 @@
    :body (pr-str data)})
 
 (defroutes provision-routes
-  (POST "/:h" [h] 
-        (let [machine (p/host h) type (p/type (:type machine))]
+  (POST "/:host" [host] 
+        (let [machine (p/host host) type (p/type (:type machine))]
           (jobs/enqueue "provision" (merge machine type)) 
-          (generate-response {:status "submitted pupptization" :host h :machine machine :type type}))))
+          (generate-response {:status "submitted pupptization" :host host :machine machine :type type}))))
 
 (defroutes stage-routes
   (POST "/:host" [host] 
