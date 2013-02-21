@@ -27,10 +27,13 @@
    :password [str? (required)]
    :hostname [str? (required)]
    :hypervisor [str? (required)]
-   :features [vec?]})
+   :features [vec?]
+   :host [str?]
+   :nameserver [str?]} 
+  )
 
 (def create-req-keys
-  (keys (dissoc ct-validations :hypervisor :features)))
+  (keys (dissoc ct-validations :hypervisor :features :host)))
 
 (def node-available? 
   "Node availability check, result is cached for one minute"
@@ -61,6 +64,7 @@
   "Making sure that the hypervisor exists and that the task succeeded"
   [f]
   `(try+ 
+     (use 'proxmox.provider)
      (when-not (node-available? ~'node)
        (throw+ {:type ::missing-node :node ~'node :message "No matching proxmox hypervisor node found"}))
      (check-task ~'node ~f) 
