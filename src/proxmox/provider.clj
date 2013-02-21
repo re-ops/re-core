@@ -16,7 +16,7 @@
   )
 
 (def str? [string? :msg "not a string"])
-(def vec? [vector? :msg "not a string"])
+(def vec? [vector? :msg "not a vector"])
 
 
 (def ct-validations
