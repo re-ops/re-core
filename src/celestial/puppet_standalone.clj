@@ -6,19 +6,21 @@
     [celestial.core :only (Provision)]
     [celestial.ssh :only (copy execute)]
     [taoensso.timbre :only (debug info error warn)]
-    [slingshot.slingshot :only  [throw+ try+]]))
+    ))
 
 (defn step [n & steps] (with-meta steps {:step n}))
 
 (defn copy-module [{:keys [host]} {:keys [src name]}]
-  "Copy a puppet module into server"
-  (copy host src  "/tmp"))
+  {:pre [host src name] }
+  "Copy a opsk module into server"
+  (copy host src "/tmp"))
 
-(defrecord Standalone [server module]
+(defrecord Standalone [machine module]
   Provision
   (apply- [this]
-    (copy-module server module) 
-    (execute server 
+    (use 'celestial.puppet-standalone)
+    (copy-module machine module) 
+    (execute machine 
       (step :extract "cd /tmp" (<< "tar -xzf ~(:name module).tar.gz")) 
       (step :run (<< "cd /tmp/~(:name module)") "./scripts/run.sh ")
       (step :cleanup "cd /tmp" (<< "rm -rf ~(:name module)*"))))) 
