@@ -2,6 +2,7 @@
   (:refer-clojure :exclude [type])
   (:use 
     [celestial.redis :only (wcar)]
+    [slingshot.slingshot :only  [throw+ try+]]
     [clojure.core.strint :only (<<)]) 
   (:require 
     [taoensso.carmine :as car])
@@ -16,7 +17,8 @@
 
 (defn type [t]
   "Reading a type"
-  (wcar (car/get t)))
+  (if-let [res (wcar (car/get t))] res 
+    (throw+ {:type ::missing-type :t t})))
 
 (defn new-type [t spec]
   "An application type and its spec see fixtures/redis-type.edn"
@@ -31,12 +33,13 @@
 
 (defn hgetall [h]
   "require since expect fails to mock otherwise"
-   (wcar (car/hgetall h)))
+  (wcar (car/hgetall h)))
 
 (defn host [h]
-  (when-let [data (hgetall h)]
-    (apply merge (map (partial apply hash-map) (partition 2 data)))))
-
+  (if-let [data (hgetall h)]
+    (apply merge (map (partial apply hash-map) (partition 2 data)))
+    (throw+ {:type ::missing-host :host h} ) 
+    ))
 
 (comment 
   (new-type "z" {}) 

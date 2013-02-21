@@ -14,4 +14,4 @@
 
 (scenario 
   (stubbing [p/hgetall nil]
-    (expect nil (p/host "bar"))))
+    (expect clojure.lang.ExceptionInfo (p/host "bar"))))
