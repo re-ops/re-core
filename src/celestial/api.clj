@@ -6,7 +6,6 @@
         [ring.middleware.format-params :only [wrap-restful-params]]
         [ring.middleware.format-response :only [wrap-restful-response]]
         [metrics.ring.instrument :only  (instrument)]
-        [ring.middleware.edn :only (wrap-edn-params)]
         [ring.adapter.jetty :only (run-jetty)] 
         [taoensso.timbre :only (debug info error warn set-config! set-level!)]
         [celestial.jobs :only (enqueue initialize-workers clear-all)])
@@ -47,7 +46,6 @@
   (GET "/host/machine/:h" [h]
        (generate-response (p/host h)))
   (GET "/host/type/:h" [h]
-       (debug (select-keys (p/type (:type (p/fuzzy-host h))) [:classes]))
        (generate-response (select-keys (p/type (:type (p/fuzzy-host h))) [:classes])))
   (POST "/type" [type module classes]
         (p/new-type type {:module module :classes classes})
