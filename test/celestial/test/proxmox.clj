@@ -22,7 +22,7 @@
     ))
 
 (scenario 
-  (stubbing [prox-get "stopped"]
+  (stubbing [prox-get {:status "stopped"}]
     (expect java.lang.AssertionError (vzctl ct "nfs:on"))))
 
 (scenario 
