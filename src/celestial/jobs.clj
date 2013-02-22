@@ -16,9 +16,11 @@
   (let [{:keys [host]} machine]
     (with-lock host #(f spec))))
 
+(def jobs {:machine reload :provision puppetize :stage full-cycle})
+
 (defn initialize-workers []
   (dosync 
-    (doseq [[q f] {:machine reload :provision puppetize :stage full-cycle}]
+    (doseq [[q f] jobs]
       (swap! workers assoc q (create-worker (name q) (partial job-exec f))))))
 
 (defn clear-all []
