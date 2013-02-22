@@ -10,18 +10,24 @@
 
 (def workers (atom {}))
 
+(def half-hour (* 1000 60 30))
+
 (defn job-exec [f {:keys [machine] :as spec}]
   {:pre [(machine :host)] }
   "Executes a job function tries to lock host first pulls lock info from redis"
   (let [{:keys [host]} machine]
-    (with-lock host #(f spec))))
+    (with-lock host #(f spec) {:expiry half-hour})))
 
-(def jobs {:machine reload :provision puppetize :stage full-cycle})
+(def jobs {:machine [reload 2] :provision [puppetize 2] :stage [full-cycle 2]})
+
+(defn create-wks [queue f total]
+  "create a count of workers for queue"
+  (mapv (fn [v] (create-worker (name queue) (partial job-exec f))) (range total)))
 
 (defn initialize-workers []
   (dosync 
-    (doseq [[q f] jobs]
-      (swap! workers assoc q (create-worker (name q) (partial job-exec f))))))
+    (doseq [[q [f c]] jobs]
+      (swap! workers assoc q (create-wks q f c)))))
 
 (defn clear-all []
   (let [queues (wcar (car/keys ((car/make-keyfn "mqueue") "*")))]
@@ -32,6 +38,8 @@
   (wcar (carmine-mq/enqueue queue payload)))
 
 (defn shutdown-workers []
-  (doseq [[k w] @workers]
-    (debug "shutting down" w)
-    (carmine-mq/stop w)))
+  (doseq [[k ws] @workers]
+    (doseq [w ws]
+      (debug "shutting down" k w) 
+      (carmine-mq/stop w))))
+

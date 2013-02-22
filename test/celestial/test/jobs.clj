@@ -2,21 +2,21 @@
   (:require [celestial.jobs :as jobs])
   (:use 
     [clojure.core.strint :only (<<)]
-    [celestial.jobs :only (initialize-workers workers job-exec)]
-    [celestial.redis :only (create-worker with-lock)]
+    [celestial.jobs :only (initialize-workers workers job-exec create-wks half-hour)]
+    [celestial.redis :only (with-lock)]
     expectations.scenarios
     )
   (:import java.lang.AssertionError)
  )
 
 (scenario 
-  (with-redefs [jobs/jobs {:machine identity}] 
-    (stubbing [create-worker :worker]
+  (with-redefs [jobs/jobs {:machine [identity 2]}] 
+    (stubbing [create-wks [:w1 :w2]]
        (initialize-workers) 
        (expect :machine (in (keys @workers)))
-       (expect :worker (in (vals @workers))))))
+       (expect [:w1 :w2] (in (vals @workers))))))
 
 (scenario 
   (expect AssertionError (job-exec identity {:machine {:host nil}})) 
   (job-exec identity {:machine {:host "red1"}})
-  (expect (interaction (with-lock "red1" anything))))
+  (expect (interaction (with-lock "red1" anything {:expiry half-hour}))))
