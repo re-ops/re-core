@@ -31,5 +31,11 @@
 
 (deftest ^:redis locking-failure 
   (acquire 6 {:expiry 3}) 
-  (is (thrown+? [:type :celestial.redis/lock-fail] (with-lock 6 #())))
-  )
+  (is (thrown+? [:type :celestial.redis/lock-fail] (with-lock 6 #()))))
+
+
+(deftest ^:redis with-lock-expiry
+ (future (with-lock 9 (fn [] (Thread/sleep 1000)) {:expiry 4}))
+ (Thread/sleep 200)
+ (is (thrown+? [:type :celestial.redis/lock-fail] 
+        (with-lock 9 #() {:expiry 3 :wait-time 10}))))
