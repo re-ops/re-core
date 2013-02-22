@@ -2,7 +2,7 @@
   (:require [celestial.jobs :as jobs])
   (:use 
     [clojure.core.strint :only (<<)]
-    [celestial.jobs :only (initialize-workers workers job-exec create-wks half-hour)]
+    [celestial.jobs :only (initialize-workers workers job-exec create-wks half-hour minute)]
     [celestial.redis :only (with-lock)]
     expectations.scenarios
     )
@@ -19,4 +19,4 @@
 (scenario 
   (expect AssertionError (job-exec identity {:machine {:host nil}})) 
   (job-exec identity {:machine {:host "red1"}})
-  (expect (interaction (with-lock "red1" anything {:expiry half-hour}))))
+  (expect (interaction (with-lock "red1" anything {:expiry half-hour :wait-time minute}))))
