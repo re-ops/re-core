@@ -1,0 +1,5 @@
+{:hypervisor 
+  {:username "root" :password "foobar" :host "localhost" :ssh-port 2222}
+ :redis 
+  {:host "localhost"} 
+ }
