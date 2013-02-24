@@ -1,5 +1,6 @@
 (ns celestial.redis
   (:use  
+    [celestial.common :only (config)]
     [clojure.core.strint :only (<<)]
     [slingshot.slingshot :only  [throw+]]
     [taoensso.timbre :only (debug trace info error warn)])
@@ -10,8 +11,7 @@
 
 (def pool (car/make-conn-pool)) 
 
-; TODO move to config file
-(def spec-server1 (car/make-conn-spec :host "localhost"))
+(def spec-server1 (car/make-conn-spec :host (get-in config [:redis :host])))
 
 (defmacro wcar [& body] `(car/with-conn pool spec-server1 ~@body))
 
