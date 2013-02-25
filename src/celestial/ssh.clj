@@ -7,7 +7,7 @@
     [clojure.string :only (join)]
     [slingshot.slingshot :only  [throw+ try+]]
     [clj-ssh.ssh :only 
-      (session ssh-agent with-connection sftp ssh-sftp with-channel-connection ssh)]))
+      (session ssh-agent with-connection sftp ssh-sftp with-channel-connection ssh add-identity)]))
 
 (defn ssh-opts 
   "SSH session options" [port]
@@ -16,12 +16,14 @@
 (defn with-session 
   "Executes f on host with an ssh session"
   [host port f]
-  (let [session (session (ssh-agent {}) host (ssh-opts port))] 
-    (try+
-      (with-connection session (f session))
-      (catch #(= (:message %) "Auth fail") e
-        (throw+ {:type ::auth :host host} 
-                "Failed to login make sure to ssh-copy-id to the remote host")))))
+  (let [agent (ssh-agent  {:use-system-ssh-agent false})]
+    (add-identity agent {:private-key-path (config :ssh)}) 
+    (let [session (session agent host (ssh-opts port))] 
+      (try+
+        (with-connection session (f session))
+        (catch #(= (:message %) "Auth fail") e
+          (throw+ {:type ::auth :host host} 
+                  "Failed to login make sure to ssh-copy-id to the remote host"))))))
 
 (defn put 
   "Copies a file into host under dest"
@@ -44,12 +46,13 @@
   (doseq [b batches]
     (with-session host port
       (fn [session]
-        (let [{:keys [channel out-stream] :as res} (ssh session {:in  (join "\n" b)  :out :stream})]
+        (let [{:keys [channel out-stream] :as res} (ssh session {:in  (join "\n" b)  :out :stream :agent-forwarding false})]
           (log-output out-stream)
           (let [exit (.getExitStatus channel)]
             (when-not (= exit 0) 
               (throw+ (merge res {:type ::execute-failed :exit exit} (meta b))))))
         ))))
+
 
 (defn fname [uri] (-> uri (split '#"/") last))
 
