@@ -10,15 +10,18 @@
       (session ssh-agent with-connection sftp ssh-sftp with-channel-connection ssh add-identity)]))
 
 (defn ssh-opts 
-  "SSH session options" [port]
-  {:username "root" :strict-host-key-checking :no :port port})
+  "SSH session options" 
+  ([port]
+   {:username "root" :strict-host-key-checking :no :port port})
+  ([port user]
+   {:username user :strict-host-key-checking :no :port port}))
 
 (defn with-session 
   "Executes f on host with an ssh session"
-  [host port f]
+  [host port user f]
   (let [agent (ssh-agent  {:use-system-ssh-agent false})]
-    (add-identity agent {:private-key-path (config :ssh)}) 
-    (let [session (session agent host (ssh-opts port))] 
+    (add-identity agent (config :ssh)) 
+    (let [session (session agent host (ssh-opts port user))] 
       (try+
         (with-connection session (f session))
         (catch #(= (:message %) "Auth fail") e
@@ -40,11 +43,11 @@
   (doseq [line (line-seq (clojure.java.io/reader out))] (debug line))
   ) 
 
-(defn execute [{:keys [host port] :or {port 22}} & batches]
+(defn execute [{:keys [host port user] :or {port 22}} & batches]
   {:pre [(every? sequential? batches)]}
   "Executes remotly using ssh for example: (execute {:host \"192.168.20.171\"} [\"ls\"])"
   (doseq [b batches]
-    (with-session host port
+    (with-session host port user
       (fn [session]
         (let [{:keys [channel out-stream] :as res} (ssh session {:in  (join "\n" b)  :out :stream :agent-forwarding false})]
           (log-output out-stream)
