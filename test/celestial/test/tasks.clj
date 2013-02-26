@@ -9,15 +9,12 @@
 
 
 (def identity-hook
-  {:hooks {:post-create {clojure.core/identity {:foo 1}}}}
-  )
+  {:hooks {:post-create {clojure.core/identity {:foo 1}}}})
 
-; (alter-var-root (var config) (fn [old] identity-hook))
-
-(scenario 
+#_(scenario 
   (let [machine {:machine {:hostname "foo" :ip_address "192.168.2.1"}}]
     (with-redefs [config identity-hook]
       (post-create-hooks machine))
       (expect (interaction (merge machine {:foo 1})))))
 
-; (post-create-hooks {:machine {:hostname "foo" :ip_address "192.168.2.1"}})
+;(post-create-hooks {:machine {:hostname "foo" :ip_address "192.168.2.1"}})

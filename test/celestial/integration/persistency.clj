@@ -1,5 +1,6 @@
 (ns celestial.integration.persistency
   "Integration test for persistency that use a redis instance"
+  (:refer-clojure :exclude [type])
   (:require 
     [celestial.persistency :as p])
   (:use clojure.test
