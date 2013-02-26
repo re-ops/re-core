@@ -1,5 +1,12 @@
 {:hypervisor 
-  {:username "root" :password "foobar" :host "localhost" :ssh-port 2222}
- :redis 
-  {:host "localhost"} 
+ {:username "root" :password "foobar" :host "localhost" :ssh-port 2222}
+ :redis {:host "localhost"} 
+ :ssh {:private-key-path "/home/ronen/.ssh/id_rsa"}
+ :hooks {
+  :post-create {
+    celetial.dnsmasq/add-host {
+      :dnsmasq {:host "192.168.5.20" :user "ronen"}
+    }
+  }
  }
+}
