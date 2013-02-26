@@ -2,7 +2,7 @@
   (:use 
     [trammel.core :only  (defconstrainedrecord)]
     [clojure.core.memoize :only (memo-ttl)]
-    [taoensso.timbre :only (debug info error warn)]
+    [taoensso.timbre :only (debug info error warn trace)]
     [clojure.core.strint :only (<<)]
     [celestial.core :only (Vm )]
     [celestial.ssh :only (execute)]
@@ -76,7 +76,9 @@
   (when-let [features (:features spec)] 
     ;vzctl set 170 --features "nfs:on" --save 
     (doseq [f features] 
+      (trace "enabling feature" f)
       (vzctl this (<< "set ~{vmid} --features \"~{f}\" --save")))) )
+
 
 (defn key-set [h] (->> h keys (into #{})))
 
@@ -91,8 +93,7 @@
           (try+ 
             (let [cleanend-spec (select-keys spec create-req-keys)]
                (check-task node (prox-post (str "/nodes/" node "/openvz") cleanend-spec))) 
-            ; TODO enable this later
-            ;(enable-features this spec)
+            (enable-features this spec)
             (catch [:status 500] e 
               (warn "Container already exists" e))))
 
@@ -130,6 +131,6 @@
 
 (defn vzctl 
   [this action] 
-  {:pre [(= (.status this) "running")]}
+  ; {:pre [(= (.status this) "running")]}
   (execute (config :hypervisor) [(<< "vzctl ~{action}")]))
 
