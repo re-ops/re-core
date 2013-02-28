@@ -2,6 +2,7 @@
   (:use 
     [clojure.core.strint :only (<<)]
     [clojure.string :only (split)]
+    [plumbing.core :only (defnk)]
     [celestial.common :only (config)]
     [taoensso.timbre :only (debug info error warn)]
     [clojure.string :only (join)]
@@ -41,8 +42,8 @@
   (doseq [line (line-seq (clojure.java.io/reader out))] (debug line))
   ) 
 
-(defn execute [opts & batches]
-  {:pre [(every? sequential? batches)]}
+(defn execute [[{:keys [ignore-ecode] :or {ignore-ecode false}} :as opts] & batches]
+  {:pre [(every? string? batches)]}
   "Executes remotly using ssh for example: (execute {:host \"192.168.20.171\"} [\"ls\"])"
   (doseq [b batches]
     (with-session opts
