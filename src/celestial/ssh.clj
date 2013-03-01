@@ -55,12 +55,12 @@
   (doseq [b batches]
     (with-session opts
       (fn [session]
-        (let [{:keys [channel out-stream] :as res} (ssh session {:in  (join "\n" b)  :out :stream :agent-forwarding false})]
+        (let [{:keys [ignore-code] :or {ignore-code false}} (meta b)
+              {:keys [channel out-stream] :as res} (run session b)]
           (log-output out-stream)
           (let [exit (.getExitStatus channel)]
-            (when-not (= exit 0) 
-              (throw+ (merge res {:type ::execute-failed :exit exit} (meta b))))))
-        ))))
+            (when (and (not (= exit 0)) (not ignore-code)) 
+              (throw+ (merge res {:type ::execute-failed :exit exit}) (meta b)))))))))
 
 (defn fname [uri] (-> uri (split '#"/") last))
 
