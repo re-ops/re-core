@@ -3,12 +3,13 @@
     [clojure.core.strint :only (<<)]
     [clojure.string :only (split)]
     [plumbing.core :only (defnk)]
-    [celestial.common :only (config)]
-    [taoensso.timbre :only (debug info error warn)]
+    [celestial.common :only (config import-logging)]
     [clojure.string :only (join)]
     [slingshot.slingshot :only  [throw+ try+]]
     [clj-ssh.ssh :only 
       (session ssh-agent with-connection sftp ssh-sftp with-channel-connection ssh add-identity)]))
+
+(import-logging)
 
 (defn ssh-opts 
   "SSH session options" 

@@ -18,3 +18,6 @@
 
 (defn slurp-edn [file] (read-string (slurp file)))
 
+(defn import-logging []
+    (use '[taoensso.timbre :only (debug info error warn trace)])
+  )
