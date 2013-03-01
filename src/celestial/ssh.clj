@@ -60,7 +60,7 @@
           (log-output out-stream)
           (let [exit (.getExitStatus channel)]
             (when (and (not (= exit 0)) (not ignore-code)) 
-              (throw+ (merge res {:type ::execute-failed :exit exit}) (meta b)))))))))
+              (throw+ (merge res {:type ::execute-failed :exit exit} (meta b))))))))))
 
 (defn fname [uri] (-> uri (split '#"/") last))
 
