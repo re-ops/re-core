@@ -43,8 +43,14 @@
   (doseq [line (line-seq (clojure.java.io/reader out))] (debug line))
   ) 
 
-(defn execute [[{:keys [ignore-ecode] :or {ignore-ecode false}} :as opts] & batches]
-  {:pre [(every? string? batches)]}
+(defn run [session batch]
+   (trace "performing" (meta batch))
+   (ssh session {:in (join "\n" batch) :out :stream :agent-forwarding false}))
+
+(defn step [n & steps] (with-meta steps {:step n}))
+
+(defn execute [opts & batches]
+  {:pre [(every? sequential? batches)]}
   "Executes remotly using ssh for example: (execute {:host \"192.168.20.171\"} [\"ls\"])"
   (doseq [b batches]
     (with-session opts

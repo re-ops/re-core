@@ -3,20 +3,21 @@
    expects an Ubuntu and dnsmasq on the other end "
   (:use 
     [clojure.core.strint :only (<<)]
-    [celestial.ssh :only (execute)]))
+    [celestial.ssh :only (execute step)]))
 
+(def restart (step :restart-service "sudo service dnsmasq restart"))
 
 (defn add-host [{:keys [hostname ip_address dnsmasq]}]
   (execute dnsmasq 
-      [(<< "echo '~{ip_address} ~{hostname}' | sudo tee -a /etc/hosts >>/dev/null" )
-           "sudo service dnsmasq restart" 
-       ]))
+      (step :add-host (<< "echo '~{ip_address} ~{hostname}' | sudo tee -a /etc/hosts >>/dev/null" ))
+       restart 
+      ))
 
 
 (defn remove-host [{:keys [hostname ip_address dnsmasq]}]
   (execute dnsmasq 
-       (<< "sudo sed -ie \"\\|^~{ip_address} ~{hostname}\\$|d\" /etc/hosts")
-            "sudo service dnsmasq restart" 
+    (step :remove-host (<< "sudo sed -ie \"\\|^~{ip_address} ~{hostname}\\$|d\" /etc/hosts"))
+     restart
         ))
 
 ; (add-host "foo" "192.168.20.90")

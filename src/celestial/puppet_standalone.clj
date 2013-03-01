@@ -4,11 +4,10 @@
   (:use 
     [clojure.core.strint :only (<<)]
     [celestial.core :only (Provision)]
-    [celestial.ssh :only (copy execute)]
+    [celestial.ssh :only (copy execute step)]
     [taoensso.timbre :only (debug info error warn)]
     ))
 
-(defn step [n & steps] (with-meta steps {:step n}))
 
 (defn copy-module [{:keys [host]} {:keys [src name]}]
   {:pre [host src name]}
