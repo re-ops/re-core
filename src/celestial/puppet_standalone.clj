@@ -27,6 +27,4 @@
         ) 
       ))) 
 
-#_(.apply-
-    (Standalone. {:host "192.168.5.203"} {:name "puppet-base-env" :src "/home/ronen/code/"}))
 
