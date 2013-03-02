@@ -22,7 +22,8 @@
     (.delete ct)))
 
 (deftest ^:proxmox full-cycle
-  (let [{:keys [machine]} spec ct (Container. (machine :hypervisor) machine)]
+  (let [{:keys [machine]} spec 
+        ct (Container. (machine :hypervisor) (dissoc machine :features))]
     (.stop ct)
     (.delete ct) 
     (.create ct) 
