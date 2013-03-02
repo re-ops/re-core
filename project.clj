@@ -4,20 +4,20 @@
   :license {:name "Eclipse Public License" :url "http://www.eclipse.org/legal/epl-v10.html"}
 
   :dependencies [[org.clojure/clojure "1.4.0"]
-                 [org.clojure/tools.cli "0.2.1"]
-                 [clj-ssh "0.5.0"]
-                 [clj-config "0.2.0"]
+                 [org.clojure/tools.cli "0.2.1" :exclusions [org.clojure/clojure]]
+                 [clj-ssh "0.5.0" :exclusions [org.clojure/clojure]  ]
+                 [clj-config "0.2.0" :exclusions [org.clojure/clojure] ]
                  [prismatic/plumbing "0.0.1"]
                  [cheshire "5.0.1"]
-                 [com.taoensso/timbre "1.4.0"]
+                 [com.taoensso/timbre "1.4.0" :exclusions [org.clojure/clojure]]
                  [narkisr/closchema "0.3.0-SNAPSHOT"]
                  [org.clojure/core.incubator "0.1.2"]
-                 [slingshot "0.10.3"]
+                 [slingshot "0.10.3" :exclusions [org.clojure/clojure]]
                  [clj-http "0.6.4"]
                  [clj-yaml "0.4.0"]
                  [compojure "1.1.1"]
                  [ring "1.0.2"]
-                 [org.clojure/data.json "0.2.1"]
+                 [org.clojure/data.json "0.2.1" :exclusions [org.clojure/clojure]]
                  [com.taoensso/carmine "1.5.0"]
                  [org.clojure/core.memoize "0.5.2"]
                  [metrics-clojure "0.9.2"]
@@ -30,7 +30,9 @@
   :plugins  [[lein-autoexpect "0.2.5"]  [jonase/eastwood "0.0.2"] [lein-tarsier "0.10.0"]
              [lein-ring "0.7.3"] [lein-expectations "0.0.7"]]
 
-  :profiles {:dev {:dependencies [[ring-mock "0.1.3"] [expectations "1.4.24"] [junit/junit "4.8.1"] ]}}
+  :profiles {
+             :1.5 {:dependencies [[org.clojure/clojure "1.5.0"]]} 
+             :dev {:dependencies [[ring-mock "0.1.3"] [expectations "1.4.24"] [junit/junit "4.8.1"] ]}}
                  
 
   :aot [proxmox.provider celestial.puppet-standalone celestial.api]
@@ -40,6 +42,8 @@
                    :proxmox :proxmox
                    :integration :integration
                    :all (constantly true)}
+
+      
 
   :aliases  
   {"reload"  ["run" "-m" "celestial.tasks" "reload" "systems/baseline.edn" "proxmox"]
