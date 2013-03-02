@@ -1,0 +1,15 @@
+{
+ :machine {
+  :cpus 4 :memory 4096 :disk 30
+  :hostname "red1" :ip "192.168.5.33"
+ }
+
+ :proxmox {
+  :vmid 33 :features ["nfs:on"] 
+  :nameserver "8.8.8.8" :searchdomain "local"
+  :ostemplate "local:vztmpl/ubuntu-12.04-puppet_3-x86_64.tar.gz"
+  :password "foobar1" :node "proxmox"
+ }
+
+ :type "redis"
+}

@@ -4,7 +4,7 @@
     [clojure.core.memoize :only (memo-ttl)]
     [taoensso.timbre :only (debug info error warn trace)]
     [clojure.core.strint :only (<<)]
-    [celestial.core :only (Vm )]
+    [celestial.core :only (Vm Model)]
     [celestial.ssh :only (execute)]
     [celestial.common :only (config)]
     [proxmox.remote :only (prox-post prox-delete prox-get)]
@@ -27,9 +27,10 @@
    :password [str? (required)]
    :hostname [str? (required)]
    :hypervisor [str? (required)]
+   :nameserver [str?]  
    :features [vec?]
    :host [str?]
-   :nameserver [str?]} 
+   }
   )
 
 (def create-req-keys
@@ -131,6 +132,16 @@
 
 (defn vzctl 
   [this action] 
-  ; {:pre [(= (.status this) "running")]}
   (execute (config :hypervisor) [(<< "vzctl ~{action}")]))
 
+(def conversions {:ip :ip_address})
+
+(defrecord ProxmoxModel [spec]
+  Model 
+  (translate [this {:keys [machine proxmox]}]
+    (let [res (merge machine proxmox)]
+      (map 
+        (fn [[k v]] (dissoc k (assoc res v (get-in res k)))) conversions)
+      )
+    ) 
+  )
