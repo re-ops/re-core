@@ -12,7 +12,7 @@
 (defn tk [id] (<< "type:~{id}"))
 (defn hk [id] (<< "host:~{id}"))
 
-(defn type [t]
+(defn type-of [t]
   "Reading a type"
   (if-let [res (wcar (car/get (tk t)))] res 
     (throw+ {:type ::missing-type :t t})))
@@ -21,12 +21,12 @@
   "An application type and its spec see fixtures/redis-type.edn"
   (wcar (car/set (tk t) spec)))
 
-(defn register-host [host t m]
-  {:pre [(type t)]}
+(defn register-host [{:keys [type machine] :as props}]
+  {:pre [(type-of type)]}
   "Mapping host to a given type and its machine"
   (wcar 
-    (car/hset (hk host) :machine m)
-    (car/hset (hk host) :type t)))
+    (doseq [[k v] props]
+      (car/hset (hk (machine :hostname)) k v))))
 
 (defn hgetall [h]
   "require since expect fails to mock otherwise"

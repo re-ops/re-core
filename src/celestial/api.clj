@@ -24,7 +24,7 @@
 
 (defroutes provision-routes
   (POST "/:host" [host] 
-        (let [machine (p/host host) type (p/type (:type machine))]
+        (let [machine (p/host host) type (p/type-of (:type machine))]
           (jobs/enqueue "provision" (merge machine type)) 
           (generate-response {:msg "submitted pupptization" :host host :machine machine :type type}))))
 
@@ -39,14 +39,13 @@
         (generate-response {:msg "submited system creation" :host host})))
 
 (defroutes reg-routes
-  (POST "/host" [machine type]
-        (let [{:keys [hostname]} machine]
-          (p/register-host hostname type machine) 
-          (generate-response {:msg "new host saved" :host hostname :machine machine :type type})))
+  (POST "/host" [& props]
+        (p/register-host props)
+        (generate-response {:msg "new host saved" :host (get-in props [:machine :hostname]) :props props}))
   (GET "/host/machine/:h" [h]
        (generate-response (p/host h)))
   (GET "/host/type/:h" [h]
-       (generate-response (select-keys (p/type (:type (p/fuzzy-host h))) [:classes])))
+       (generate-response (select-keys (p/type-of (:type (p/fuzzy-host h))) [:classes])))
   (POST "/type" [type & props]
         (p/new-type type props)
         (generate-response {:msg "new type saved" :type type :opts props}))
