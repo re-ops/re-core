@@ -47,9 +47,9 @@
        (generate-response (p/host h)))
   (GET "/host/type/:h" [h]
        (generate-response (select-keys (p/type (:type (p/fuzzy-host h))) [:classes])))
-  (POST "/type" [type module classes]
-        (p/new-type type {:module module :classes classes})
-        (generate-response {:msg "new type saved" :type type :classes classes}))
+  (POST "/type" [type & props]
+        (p/new-type type props)
+        (generate-response {:msg "new type saved" :type type :opts props}))
   ) 
 
 
