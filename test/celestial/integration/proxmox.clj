@@ -4,15 +4,13 @@
         proxmox.provider
         [celestial.common :only (config slurp-edn)]
         [celestial.model :only (construct)]
-        [celestial.fixtures :only (spec)]
+        [celestial.fixtures :only (spec local-prox)]
         )
   (:import 
     [proxmox.provider Container]))
 
-(def local-prox (slurp-edn "fixtures/.celestial.edn"))
 
 (def fake-id (update-in spec [:proxmox :vmid] (fn [o] 190)))
-
 
 (deftest ^:proxmox non-existing 
   (with-redefs [config local-prox]

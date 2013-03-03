@@ -6,6 +6,4 @@
 
 (def type (slurp-edn "fixtures/redis-type.edn"))
 
-#_(defn alter-confi []
-   (alter-var-root)
-  )
+(def local-prox (slurp-edn "fixtures/.celestial.edn"))

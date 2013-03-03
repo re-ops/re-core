@@ -2,9 +2,9 @@
   (:use 
     [proxmox.remote :only (prox-get)]
     [proxmox.provider :only (vzctl enable-features ->Container)]
-    [celestial.common :only (slurp-edn)]
+    [celestial.common :only (config)]
     [celestial.model :only (construct translate)]
-    [celestial.fixtures :only (spec)]
+    [celestial.fixtures :only (spec local-prox)]
     expectations.scenarios) 
   (:import 
     [proxmox.provider Container]))
@@ -18,7 +18,9 @@
     ))
 
 
-(def ct (construct (assoc-in spec [:proxmox :features] ["nfs:on"])))
+(with-redefs [config local-prox]
+  (def ct 
+    (construct (assoc-in spec [:proxmox :features] ["nfs:on"]))))
 
 (scenario 
   (enable-features ct) 
