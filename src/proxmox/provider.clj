@@ -154,7 +154,6 @@
   (first (map (fn [[k v]] (update-in res [k] v ))
               {:ostemplate (fn [os] (get-in config [:hypervisor :proxmox :ostemplates os]))})))
 
-
 (def selections (juxt (key-select ct-valid) (key-select extra-valid)))
 
 (defmethod translate :proxmox [{:keys [machine proxmox]}]
@@ -168,4 +167,4 @@
              (->Container node ct ex)))))
 
 ; (validate (first (translate (celestial.common/slurp-edn "fixtures/redis-system.edn"))) ct-valid)
-; (construct (celestial.common/slurp-edn "fixtures/redis-system.edn")) ct-valid
+; (construct (celestial.common/slurp-edn "fixtures/redis-system.edn")) 

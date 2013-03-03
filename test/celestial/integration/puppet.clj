@@ -27,7 +27,7 @@
 (def local-prox 
   {:hypervisor  {:username "root" :password "foobar" :host "localhost" :ssh-port 22222}})
 
-(alter-var-root (var config) (fn [old] local-prox))
+; (alter-var-root (var config) (fn [old] local-prox))
 
 (deftest ^:puppet redis-provision
   (reload baseline) 

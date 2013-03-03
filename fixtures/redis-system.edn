@@ -10,7 +10,7 @@
   :nameserver "8.8.8.8" :searchdomain "local"
   :password "foobar1" :node "proxmox"
   :type :ct
-  :features ["nfs:on"] 
+  :features [] 
   }
 
  :type "redis"

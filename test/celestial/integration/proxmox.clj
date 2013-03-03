@@ -4,14 +4,12 @@
         proxmox.provider
         [celestial.common :only (config slurp-edn)]
         [celestial.model :only (construct)]
+        [celestial.fixtures :only (spec)]
         )
   (:import 
     [proxmox.provider Container]))
 
-(def spec (slurp-edn "fixtures/redis-system.edn"))
-
-(def local-prox 
-  {:hypervisor {:username "root" :password "foobar" :host "localhost" :ssh-port 22222}})
+(def local-prox (slurp-edn "fixtures/.celestial.edn"))
 
 (def fake-id (update-in spec [:proxmox :vmid] (fn [o] 190)))
 
@@ -23,8 +21,7 @@
     (.delete ct)))
 
 (deftest ^:proxmox full-cycle
-  (let [{:keys [machine]} spec 
-        ct (construct (dissoc machine :features))]
+  (let [ct (construct spec )]
     (.stop ct)
     (.delete ct) 
     (.create ct) 

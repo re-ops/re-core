@@ -3,7 +3,7 @@
     [proxmox.remote :only (prox-get)]
     [proxmox.provider :only (vzctl enable-features ->Container)]
     [celestial.common :only (slurp-edn)]
-    [celestial.model :only (construct)]
+    [celestial.model :only (construct translate)]
     [celestial.fixtures :only (spec)]
     expectations.scenarios) 
   (:import 
@@ -18,11 +18,7 @@
     ))
 
 
-(def ct (construct spec))
-
-(scenario 
-  (stubbing [prox-get {:status "stopped"}]
-    (expect java.lang.AssertionError (vzctl ct "nfs:on"))))
+(def ct (construct (assoc-in spec [:proxmox :features] ["nfs:on"])))
 
 (scenario 
   (enable-features ct) 

@@ -6,6 +6,6 @@
 
 (def type (slurp-edn "fixtures/redis-type.edn"))
 
-(defn alter-confi []
+#_(defn alter-confi []
    (alter-var-root)
   )
