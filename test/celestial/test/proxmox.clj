@@ -3,30 +3,29 @@
     [proxmox.remote :only (prox-get)]
     [proxmox.provider :only (vzctl enable-features ->Container)]
     [celestial.common :only (slurp-edn)]
+    [celestial.model :only (construct)]
+    [celestial.fixtures :only (spec)]
     expectations.scenarios) 
   (:import 
     [proxmox.provider Container]))
 
-(def spec (slurp-edn "fixtures/redis-system.edn"))
-
-(let [{:keys [machine]} spec]
-  (def ct (->Container (machine :hypervisor) machine)))
-
-
-(let [{:keys [machine]} spec]
+(let [{:keys [machine proxmox]} spec]
   (scenario 
     (expect java.lang.AssertionError 
-       (->Container (machine :hypervisor) (dissoc machine :vmid)))
+       (construct (assoc-in spec [:proxmox :vmid] nil)))
     (expect java.lang.AssertionError 
-       (->Container (machine :hypervisor) (assoc machine :vmid "string")))
+       (construct (assoc-in spec [:proxmox :vmid] "string") ))
     ))
+
+
+(def ct (construct spec))
 
 (scenario 
   (stubbing [prox-get {:status "stopped"}]
     (expect java.lang.AssertionError (vzctl ct "nfs:on"))))
 
 (scenario 
-  (enable-features ct {:vmid 1 :features ["nfs:on"]}) 
+  (enable-features ct) 
   (expect 
-    (interaction (vzctl ct "set 1 --features \"nfs:on\" --save"))))
+    (interaction (vzctl ct "set 33 --features \"nfs:on\" --save")) :once))
 

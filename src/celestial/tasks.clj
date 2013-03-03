@@ -3,7 +3,8 @@
   (:use 
     [celestial.common :only (config)]
     [celestial.common :only (slurp-edn)]
-    [taoensso.timbre :only (debug info trace)]) 
+    [taoensso.timbre :only (debug info trace)] 
+    [celestial.model :only (construct)]) 
   (:import 
     [celestial.puppet_standalone Standalone]
     [proxmox.provider Container]))
@@ -21,10 +22,10 @@
     ((resolve- f) (merge machine args))    
     ))
 
-(defn reload [{:keys [machine]}]
+(defn reload [{:keys [machine] :as spec}]
   "Sets up a clean machine from scratch"
-  (let [{:keys [hypervisor]} machine ct (Container. hypervisor machine)]
-    (info "setting up" machine "on" hypervisor)
+  (let [ct (construct spec) {:keys [node]} ct ]
+    (info "setting up" machine "on" node)
     (.stop ct)
     (.delete ct) 
     (.create ct) 

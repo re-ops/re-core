@@ -11,6 +11,7 @@
     [slingshot.slingshot :only  [throw+ try+]]
     [mississippi.core :only (required numeric validate)]
     [clojure.set :only (difference)]
+    [celestial.model :only (translate construct)]
     )
   (:import clojure.lang.ExceptionInfo)
   )
@@ -19,22 +20,28 @@
 (def vec? [vector? :msg "not a vector"])
 
 
-(def ct-validations
-  {:vmid [(required) (numeric)] 
+(def ct-valid
+  {
+   :vmid [(required) (numeric)] 
    :ostemplate [str? (required)]
    :cpus [(numeric)] :disk [(numeric)] :memory [(numeric)]
    :ip_address [str? (required)]
    :password [str? (required)]
    :hostname [str? (required)]
-   :hypervisor [str? (required)]
    :nameserver [str?]  
-   :features [vec?]
-   :host [str?]
    }
   )
 
-(def create-req-keys
-  (keys (dissoc ct-validations :hypervisor :features :host)))
+(def extra-valid
+  {
+   :hypervisor [str? (required)]
+   :features [vec?]
+   :host [str?]
+   :node [str?]
+   } 
+  )
+
+
 
 (def node-available? 
   "Node availability check, result is cached for one minute"
@@ -73,56 +80,53 @@
 
 (declare vzctl unmount)
 
-(defn enable-features [this {:keys [vmid] :as spec}]
-  (when-let [features (:features spec)] 
-    ;vzctl set 170 --features "nfs:on" --save 
+(defn enable-features [{:keys [ct extended] :as this}]
+   "vzctl set 170 --features \"nfs:on\" --save "
+  (when-let [features (extended :features)]
     (doseq [f features] 
       (trace "enabling feature" f)
-      (vzctl this (<< "set ~{vmid} --features \"~{f}\" --save")))) )
+      (vzctl this (<< "set ~(ct :vmid) --features \"~{f}\" --save")))) () )
 
 
 (defn key-set [h] (->> h keys (into #{})))
 
-(defconstrainedrecord Container [node spec]
-  "spec should match proxmox expected input"
-  [(empty? (:errors (validate spec ct-validations)))
-   #_(empty? (difference (key-set spec) (key-set ct-validations)))
-   (not (nil? node))]
+(defconstrainedrecord Container [node ct extended]
+  "ct should match proxmox expected input"
+  [(empty? (:errors (validate ct ct-valid))) (not (nil? node))]
   Vm
   (create [this] 
-          (debug "creating" (:vmid spec))
+          (debug "creating" (:vmid ct))
           (try+ 
-            (let [cleanend-spec (select-keys spec create-req-keys)]
-               (check-task node (prox-post (str "/nodes/" node "/openvz") cleanend-spec))) 
-            (enable-features this spec)
+            (check-task node (prox-post (str "/nodes/" node "/openvz") ct)) 
+            (enable-features this)
             (catch [:status 500] e 
               (warn "Container already exists" e))))
 
   (delete [this]
-          (debug "deleting" (:vmid spec))
+          (debug "deleting" (:vmid ct))
           (unmount this)
           (safe
-            (prox-delete (str "/nodes/" node "/openvz/" (:vmid spec)))))
+            (prox-delete (str "/nodes/" node "/openvz/" (:vmid ct)))))
 
   (start [this]
-         (debug "starting" (:vmid spec))
+         (debug "starting" (:vmid ct))
          (safe
-           (prox-post (str "/nodes/" node "/openvz/" (:vmid spec) "/status/start"))))
+           (prox-post (str "/nodes/" node "/openvz/" (:vmid ct) "/status/start"))))
 
   (stop [this]
-        (debug "stopping" (:vmid spec))
+        (debug "stopping" (:vmid ct))
         (safe 
-          (prox-post (str "/nodes/" node "/openvz/" (:vmid spec) "/status/stop"))))
+          (prox-post (str "/nodes/" node "/openvz/" (:vmid ct) "/status/stop"))))
 
   (status [this] 
           (try+ 
             (:status 
               (prox-get 
-                (str "/nodes/" node "/openvz/" (:vmid spec) "/status/current")))
+                (str "/nodes/" node "/openvz/" (:vmid ct) "/status/current")))
             (catch [:status 500] e "missing-container")))) 
 
-(defn unmount [{:keys [spec node]}]
-  (let [{:keys [vmid]} spec]
+(defn unmount [{:keys [ct node]}]
+  (let [{:keys [vmid]} ct]
     (debug "unmounting" vmid) 
     (try+
       (safe 
@@ -134,14 +138,34 @@
   [this action] 
   (execute (config :hypervisor) [(<< "vzctl ~{action}")]))
 
-(def conversions {:ip :ip_address})
+(defn- key-select [v] (fn [m] (select-keys m (keys v))))
 
-(defrecord ProxmoxModel [spec]
-  Model 
-  (translate [this {:keys [machine proxmox]}]
-    (let [res (merge machine proxmox)]
-      (map 
-        (fn [[k v]] (dissoc k (assoc res v (get-in res k)))) conversions)
-      )
-    ) 
-  )
+(defn mappings [res]
+ "(mappings {:ip \"1234\" :os \"ubuntu\" :cpu 1})" 
+  (let [ms {:ip :ip_address :os :ostemplate}
+        vs ((key-select ms) res) ]
+     (merge 
+       (reduce (fn [r [k v]] (dissoc r k)) res ms)
+       (reduce (fn [r [k v]] (assoc r (ms k) v)) {} vs)) 
+    ))
+
+
+(defn transform [res]
+  (first (map (fn [[k v]] (update-in res [k] v ))
+              {:ostemplate (fn [os] (get-in config [:hypervisor :proxmox :ostemplates os]))})))
+
+
+(def selections (juxt (key-select ct-valid) (key-select extra-valid)))
+
+(defmethod translate :proxmox [{:keys [machine proxmox]}]
+  "Convert the general model into a proxmox vz specific one"
+  (-> (merge machine proxmox) mappings transform selections)) 
+
+(defmethod construct :proxmox [{:keys [proxmox] :as spec}]
+  (let [{:keys [type node]} proxmox]
+    (case type
+      :ct  (let [[ct ex] (translate spec)] 
+             (->Container node ct ex)))))
+
+; (validate (first (translate (celestial.common/slurp-edn "fixtures/redis-system.edn"))) ct-valid)
+; (construct (celestial.common/slurp-edn "fixtures/redis-system.edn")) ct-valid

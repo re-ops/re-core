@@ -1,7 +1,21 @@
-{:hypervisor 
- {:username "root" :password "foobar" :host "localhost" :ssh-port 2222}
- :redis {:host "localhost"} 
- :ssh {:private-key-path "/home/ronen/.ssh/id_rsa"}
+{
+ :hypervisor {
+    :username "root" :password "foobar" :host "localhost" :ssh-port 2222
+    :proxmox {
+      :ostemplates {
+         :ubuntu-12.10  "local:vztmpl/ubuntu-12.04-puppet_3-x86_64.tar.gz"
+       }
+    }
+ }
+
+ :redis {
+   :host "localhost"
+ } 
+
+ :ssh {
+   :private-key-path "/home/ronen/.ssh/id_rsa"
+ }
+
  :hooks {
   :post-create {
     celetial.dnsmasq/add-host {
