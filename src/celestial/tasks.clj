@@ -4,7 +4,7 @@
     [celestial.common :only (config)]
     [celestial.common :only (slurp-edn)]
     [taoensso.timbre :only (debug info trace)] 
-    [celestial.model :only (create-vm create-prov)]) 
+    [celestial.model :only (vconstruct pconstruct)]) 
   (:import 
     [celestial.puppet_standalone Standalone]
     [proxmox.provider Container]))
@@ -24,7 +24,7 @@
 
 (defn reload [{:keys [machine] :as spec}]
   "Sets up a clean machine from scratch"
-  (let [ct (create-vm spec) {:keys [node]} ct ]
+  (let [ct (vconstruct spec) {:keys [node]} ct ]
     (info "setting up" machine "on" node)
     (.stop ct)
     (.delete ct) 
@@ -37,11 +37,12 @@
 (defn puppetize [type spec]
   (info "starting to provision" )
   (trace type spec) 
-  (.apply- (create-prov {:type type :host (spec :host)}))
+  (.apply- (pconstruct type spec))
   (info "done provisioning"))
 
 (defn full-cycle
-  ([{:keys [system hypervisor provision]}] (full-cycle system hypervisor))
+  ([{:keys [system hypervisor provision]}]
+   (full-cycle system hypervisor))
   ([system provision]
    (reload system) 
    (puppetize provision)))

@@ -4,6 +4,7 @@
   (:use 
     [clojure.core.strint :only (<<)]
     [celestial.core :only (Provision)]
+    [celestial.model :only (pconstruct)]
     [celestial.ssh :only (copy execute step)]
     [taoensso.timbre :only (debug info error warn)]
     ))
@@ -14,17 +15,18 @@
   "Copy a opsk module into server"
   (copy host src "/tmp"))
 
-(defrecord Standalone [host module]
+(defrecord Standalone [host type]
   Provision
   (apply- [this]
     (use 'celestial.puppet-standalone)
-    (try (copy-module {:host host} module) 
+    (let [puppet-std (type :puppet-std) module (puppet-std :module)]
+     (try (copy-module {:host host} module) 
       (execute {:host host}
         (step :extract "cd /tmp" (<< "tar -xzf ~(:name module).tar.gz")) 
         (step :run (<< "cd /tmp/~(:name module)") "./scripts/run.sh "))
       (finally 
-        (execute {:host host} (step :cleanup "cd /tmp" (<< "rm -rf ~(:name module)*"))) 
-        ) 
-      ))) 
+        (execute {:host host} (step :cleanup "cd /tmp" (<< "rm -rf ~(:name module)*")))))))) 
 
 
+(defmethod pconstruct :puppet-std [type {:keys [machine] :as spec}]
+   (Standalone. (machine :ip) type))

@@ -11,7 +11,7 @@
     [slingshot.slingshot :only  [throw+ try+]]
     [mississippi.core :only (required numeric validate)]
     [clojure.set :only (difference)]
-    [celestial.model :only (translate construct)]
+    [celestial.model :only (translate vconstruct)]
     )
   (:import clojure.lang.ExceptionInfo)
   )
@@ -160,7 +160,7 @@
   "Convert the general model into a proxmox vz specific one"
   (-> (merge machine proxmox) mappings transform selections)) 
 
-(defmethod construct [:vm :proxmox] [{:keys [proxmox] :as spec}]
+(defmethod vconstruct :proxmox [{:keys [proxmox] :as spec}]
   (let [{:keys [type node]} proxmox]
     (case type
       :ct  (let [[ct ex] (translate spec)] 
