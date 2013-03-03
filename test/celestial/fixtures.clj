@@ -4,6 +4,6 @@
 
 (def spec (slurp-edn "fixtures/redis-system.edn"))
 
-(def type (slurp-edn "fixtures/redis-type.edn"))
+(def redis-type (slurp-edn "fixtures/redis-type.edn"))
 
 (def local-prox (slurp-edn "fixtures/.celestial.edn"))
