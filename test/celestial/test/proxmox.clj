@@ -3,7 +3,7 @@
     [proxmox.remote :only (prox-get)]
     [proxmox.provider :only (vzctl enable-features ->Container)]
     [celestial.common :only (config)]
-    [celestial.model :only (construct translate)]
+    [celestial.model :only (create-vm)]
     [celestial.fixtures :only (spec local-prox)]
     expectations.scenarios) 
   (:import 
@@ -12,15 +12,15 @@
 (let [{:keys [machine proxmox]} spec]
   (scenario 
     (expect java.lang.AssertionError 
-       (construct (assoc-in spec [:proxmox :vmid] nil)))
+       (create-vm (assoc-in spec [:proxmox :vmid] nil)))
     (expect java.lang.AssertionError 
-       (construct (assoc-in spec [:proxmox :vmid] "string") ))
+       (create-vm (assoc-in spec [:proxmox :vmid] "string") ))
     ))
 
 
 (with-redefs [config local-prox]
   (def ct 
-    (construct (assoc-in spec [:proxmox :features] ["nfs:on"]))))
+    (create-vm (assoc-in spec [:proxmox :features] ["nfs:on"]))))
 
 (scenario 
   (enable-features ct) 

@@ -160,11 +160,9 @@
   "Convert the general model into a proxmox vz specific one"
   (-> (merge machine proxmox) mappings transform selections)) 
 
-(defmethod construct :proxmox [{:keys [proxmox] :as spec}]
+(defmethod construct [:vm :proxmox] [{:keys [proxmox] :as spec}]
   (let [{:keys [type node]} proxmox]
     (case type
       :ct  (let [[ct ex] (translate spec)] 
              (->Container node ct ex)))))
 
-; (validate (first (translate (celestial.common/slurp-edn "fixtures/redis-system.edn"))) ct-valid)
-; (construct (celestial.common/slurp-edn "fixtures/redis-system.edn")) 

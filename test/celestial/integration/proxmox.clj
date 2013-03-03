@@ -3,7 +3,7 @@
   (:use clojure.test 
         proxmox.provider
         [celestial.common :only (config slurp-edn)]
-        [celestial.model :only (construct)]
+        [celestial.model :only (create-vm)]
         [celestial.fixtures :only (spec local-prox)]
         )
   (:import 
@@ -14,13 +14,13 @@
 
 (deftest ^:proxmox non-existing 
   (with-redefs [config local-prox]
-    (let [ct (construct fake-id) ]
+    (let [ct (create-vm fake-id)]
     (.stop ct)
     (.delete ct))))
 
 (deftest ^:proxmox full-cycle
   (with-redefs [config local-prox]
-   (let [ct (construct spec )]
+   (let [ct (create-vm spec)]
     (.stop ct)
     (.delete ct) 
     (.create ct) 

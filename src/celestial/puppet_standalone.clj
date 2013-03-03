@@ -14,16 +14,16 @@
   "Copy a opsk module into server"
   (copy host src "/tmp"))
 
-(defrecord Standalone [machine module]
+(defrecord Standalone [host module]
   Provision
   (apply- [this]
     (use 'celestial.puppet-standalone)
-    (try (copy-module machine module) 
-      (execute machine 
+    (try (copy-module {:host host} module) 
+      (execute {:host host}
         (step :extract "cd /tmp" (<< "tar -xzf ~(:name module).tar.gz")) 
         (step :run (<< "cd /tmp/~(:name module)") "./scripts/run.sh "))
       (finally 
-        (execute machine (step :cleanup "cd /tmp" (<< "rm -rf ~(:name module)*"))) 
+        (execute {:host host} (step :cleanup "cd /tmp" (<< "rm -rf ~(:name module)*"))) 
         ) 
       ))) 
 
