@@ -2,8 +2,7 @@
   (:use 
     [celestial.model :only (translate)] 
     [celestial.common :only (slurp-edn)]
-    expectations) 
- )
+     expectations))
 
 (def model (slurp-edn "fixtures/model.edn"))
 
