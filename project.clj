@@ -40,6 +40,7 @@
   :test-selectors {:default #(not-any? % [:proxmox :redis :integration :puppet]) 
                    :redis :redis
                    :proxmox :proxmox
+                   :puppet :puppet
                    :integration :integration
                    :all (constantly true)}
 
