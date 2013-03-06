@@ -6,7 +6,7 @@
  }
 
  :ec2 {
-  :min-count 1 :max-count 1 :image-id "ami-64636a10"
+  :min-count 1 :max-count 1 
   :instance-type "t1.micro" ; optional guessed from machine if missing
   :key-name "ce-test" 
   :endpoint "ec2.eu-west-1.amazonaws.com"
