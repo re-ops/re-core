@@ -3,7 +3,8 @@
   (:use 
     [celestial.model :only (translate vconstruct)]
     [celestial.common :only (config import-logging)])
- )
+    [celestial.model :only (translate vconstruct)]
+  )
 
 (import-logging)
 
@@ -18,20 +19,16 @@
           (ec2/run-instances (creds) instance))
   (delete [this]
           (debug "deleting"))
-
   (start [this]
          (debug "starting" )
          (ec2/start-instances (creds)  "i-8843dec2"))
-
   (stop [this]
         (debug "stopping" )
         (ec2/stop-instances (creds)  "i-8843dec2"))
-
   (status [this] 
           (ec2/describe-instances (creds)))) 
 
 (defmethod vconstruct :aws [{:keys [ec2] :as spec}]
-  (let [{:keys [type node]} proxmox]
-    (case type
-      :aws  (let [[ct ex] (translate spec)] 
-             (->Container node ct ex)))))
+  (let [{:keys [endpoint]} ec2]
+    (let [instance-conf (translate spec)] 
+      (->Instance endpoint ct ex))))
