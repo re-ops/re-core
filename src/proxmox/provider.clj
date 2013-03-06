@@ -2,11 +2,10 @@
   (:use 
     [trammel.core :only  (defconstrainedrecord)]
     [clojure.core.memoize :only (memo-ttl)]
-    [taoensso.timbre :only (debug info error warn trace)]
     [clojure.core.strint :only (<<)]
     [celestial.core :only (Vm Model)]
     [celestial.ssh :only (execute)]
-    [celestial.common :only (config)]
+    [celestial.common :only (config import-logging)]
     [proxmox.remote :only (prox-post prox-delete prox-get)]
     [slingshot.slingshot :only  [throw+ try+]]
     [mississippi.core :only (required numeric validate)]
@@ -15,6 +14,8 @@
     )
   (:import clojure.lang.ExceptionInfo)
   )
+
+(import-logging)
 
 (def str? [string? :msg "not a string"])
 (def vec? [vector? :msg "not a vector"])

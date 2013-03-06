@@ -21,6 +21,7 @@
                  [com.taoensso/carmine "1.5.0"]
                  [org.clojure/core.memoize "0.5.2"]
                  [metrics-clojure "0.9.2"]
+                 [clj-aws-ec2 "0.2.0"]
                  [trammel "0.7.0"]
                  [mississippi "1.0.1"]
                  [metrics-clojure-ring "0.9.2"]
@@ -28,7 +29,7 @@
                  [ring-middleware-format "0.2.4"]]
 
   :plugins  [[lein-autoexpect "0.2.5"]  [jonase/eastwood "0.0.2"] [lein-tarsier "0.10.0"]
-             [lein-ring "0.7.3"] [lein-expectations "0.0.7"]]
+             [lein-ring "0.7.3"] [lein-expectations "0.0.7"] #_[lein-checkouts "1.1.0"]]
 
   :profiles {
              :1.5 {:dependencies [[org.clojure/clojure "1.5.0"]]} 
@@ -44,6 +45,7 @@
                    :integration :integration
                    :all (constantly true)}
 
+  :repositories  {"sonatype" "http://oss.sonatype.org/content/repositories/releases"}
       
 
   :aliases  
