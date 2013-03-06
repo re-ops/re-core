@@ -14,7 +14,3 @@
   (register [this machine])
   (un-register [this machine]))
 
-
-(defprotocol Model
-  (translate [this spec]) 
-  )

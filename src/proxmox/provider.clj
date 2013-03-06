@@ -3,23 +3,18 @@
     [trammel.core :only  (defconstrainedrecord)]
     [clojure.core.memoize :only (memo-ttl)]
     [clojure.core.strint :only (<<)]
-    [celestial.core :only (Vm Model)]
+    [celestial.core :only (Vm)]
     [celestial.ssh :only (execute)]
     [celestial.common :only (config import-logging)]
     [proxmox.remote :only (prox-post prox-delete prox-get)]
     [slingshot.slingshot :only  [throw+ try+]]
     [mississippi.core :only (required numeric validate)]
     [clojure.set :only (difference)]
-    [celestial.model :only (translate vconstruct)]
-    )
-  (:import clojure.lang.ExceptionInfo)
-  )
+    [celestial.provider :only (str? vec?)]
+    [celestial.model :only (translate vconstruct)])
+  (:import clojure.lang.ExceptionInfo))
 
 (import-logging)
-
-(def str? [string? :msg "not a string"])
-(def vec? [vector? :msg "not a vector"])
-
 
 (def ct-valid
   {
