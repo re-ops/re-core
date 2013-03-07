@@ -2,8 +2,8 @@
   (:require [celestial.jobs :as jobs])
   (:use 
     [clojure.core.strint :only (<<)]
-    [celestial.jobs :only (initialize-workers workers job-exec create-wks half-hour minute)]
-    [celestial.redis :only (with-lock)]
+    [celestial.jobs :only (initialize-workers workers job-exec create-wks )]
+    [celestial.redis :only (with-lock half-hour minute)]
     expectations.scenarios
     )
   (:import java.lang.AssertionError)

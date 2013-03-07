@@ -11,14 +11,14 @@
 (deftest ^:redis sanity
     (clear-all)
     (p/new-type "redis" redis-type) 
-    (p/register-host "redis.local" "redis" spec) 
+    (p/register-host spec) 
     (is (= (p/type-of "redis") redis-type))
-    (is (= (p/host "redis.local") {:machine spec :type "redis"}))
+    (is (= (p/host "red1") spec))
     )
 
 (deftest ^:redis fuzzy-lookup 
     (clear-all)
     (p/new-type "redis" redis-type) 
     (p/register-host spec) 
-    (is (= (p/fuzzy-host "redis.local") {:machine spec :type "redis"})))
+    (is (= (p/fuzzy-host "red1") spec)))
 
