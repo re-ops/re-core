@@ -1,4 +1,5 @@
 (ns celestial.redis
+  "Redis utilities like a distributed lock, connection managment and ref watcher"
   (:use  
     [celestial.common :only (config)]
     [clojure.core.strint :only (<<)]
@@ -11,9 +12,9 @@
 
 (def pool (car/make-conn-pool)) 
 
-(def spec-server1 (car/make-conn-spec :host (get-in config [:redis :host])))
+(def spec-server (car/make-conn-spec :host (get-in config [:redis :host])))
 
-(defmacro wcar [& body] `(car/with-conn pool spec-server1 ~@body))
+(defmacro wcar [& body] `(car/with-conn pool spec-server ~@body))
 
 (defn curr-time [] (.getTime (Date.)))
 
@@ -67,8 +68,20 @@
         ))
     (throw+ {:type ::lock-fail :id id} "Failed to obtain lock")))
 
+(def minute (* 1000 60))
+
+(def half-hour (* minute 30))
+
+ 
+(defn ref-watcher []
+  "lock backed atom map watcher that persists changes into redis takes the backing redis hash key"
+  (fn [_key _ref old _new]
+   (with-lock (str _key) 
+     {:expiry half-hour :wait-time minute})))
+
+
 (defn create-worker [name f]
-  (carmine-mq/make-dequeue-worker pool spec-server1 name :handler-fn f))
+  (carmine-mq/make-dequeue-worker pool spec-server name :handler-fn f))
 
 (defn clear-all []
   (wcar (car/flushdb)))

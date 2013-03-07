@@ -1,7 +1,6 @@
 (ns celestial.jobs
   (:use  
-    [celestial.redis :only (with-lock)]
-    [celestial.redis :only (wcar create-worker)]
+    [celestial.redis :only (create-worker wcar with-lock half-hour minute)]
     [taoensso.timbre :only (debug info error warn trace)]
     [celestial.tasks :only (reload puppetize full-cycle)]) 
   (:require  
@@ -9,9 +8,6 @@
     [taoensso.carmine.message-queue :as carmine-mq]))
 
 (def workers (atom {}))
-
-(def minute (* 1000 60))
-(def half-hour (* minute 30))
 
 (defn job-exec [f {:keys [machine] :as spec}]
   {:pre [(machine :host)] }
