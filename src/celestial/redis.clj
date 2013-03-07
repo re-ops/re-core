@@ -78,11 +78,28 @@
 
 (def half-hour (* minute 30))
 
-(defn ref-watcher []
+(defn atom-key [k] (str "atom" k))
+
+(defn apply-diff [map-key _new old]
+  {:pre [(map? _new) (map? old)]}
+  (fn [] 
+    (letfn [(sub [a b] (clojure.set/difference (into #{} a)(into #{} b)))]
+      (doseq [[k v] (sub _new old)] (wcar (car/hset map-key k v)))
+      (doseq [[k v] (sub old _new)] (wcar (car/hdel map-key k)))
+      )))
+
+(defn sync-watch [map-key r]
+  (add-watch r map-key
+     (fn [_key _ref old _new] 
+        (with-lock  _key (apply-diff map-key _new old)
+                 {:expiry half-hour :wait-time minute}))) r)
+
+(defn synched-map [k]
   "lock backed atom map watcher that persists changes into redis takes the backing redis hash key"
-  (fn [_key _ref old _new]
-   (with-lock (str _key) 
-     {:expiry half-hour :wait-time minute})))
+  (sync-watch (atom-key k)
+              (if-let [data (wcar (car/hgetall* (atom-key k)))]
+                (atom data)  
+                (atom {}))))
 
 (defn create-worker [name f]
   (carmine-mq/make-dequeue-worker pool spec-server name :handler-fn f))
