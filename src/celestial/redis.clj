@@ -72,13 +72,11 @@
 
 (def half-hour (* minute 30))
 
- 
 (defn ref-watcher []
   "lock backed atom map watcher that persists changes into redis takes the backing redis hash key"
   (fn [_key _ref old _new]
    (with-lock (str _key) 
      {:expiry half-hour :wait-time minute})))
-
 
 (defn create-worker [name f]
   (carmine-mq/make-dequeue-worker pool spec-server name :handler-fn f))
