@@ -14,7 +14,13 @@
 
 (def spec-server (car/make-conn-spec :host (get-in config [:redis :host])))
 
-(defmacro wcar [& body] `(car/with-conn pool spec-server ~@body))
+(def wcar-disable false)
+
+(defmacro wcar [& body] 
+  `(if-not wcar-disable 
+     (car/with-conn pool spec-server ~@body)
+     ~@body
+     ))
 
 (defn curr-time [] (.getTime (Date.)))
 

@@ -5,13 +5,14 @@
     [taoensso.carmine :as car])
   (:use 
     [clojure.core.strint :only (<<)]
+    [celestial.redis :only (wcar-disable)]
     expectations.scenarios ))
 
 
 (scenario 
-  (stubbing [p/hgetall [:k "v"] ]
+  (with-redefs [car/hgetall* (fn [_] (println "here") {:k "v"}) wcar-disable true]
     (expect {:k "v"} (p/host "bar"))))
 
 (scenario 
-  (stubbing [p/hgetall nil]
+  (with-redefs [car/hgetall* (fn [_] nil) wcar-disable true ]
     (expect clojure.lang.ExceptionInfo (p/host "bar"))))
