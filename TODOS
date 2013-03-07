@@ -1,2 +1,4 @@
 * Add success validation on wcar
 * Make cpu/mem optional for ec2 
+* add friend auth 
+* basic UI
