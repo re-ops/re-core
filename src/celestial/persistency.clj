@@ -28,13 +28,9 @@
     (doseq [[k v] props]
       (car/hset (hk (machine :hostname)) k v))))
 
-(defn hgetall [h]
-  "require since expect fails to mock otherwise"
-  (wcar (car/hgetall (hk h))))
-
 (defn host [h]
-  (if-let [data (hgetall h)]
-    (apply merge (map (partial apply hash-map) (partition 2 data)))
+   (if-let [data (wcar (car/hgetall* (hk h)))]
+     data
     (throw+ {:type ::missing-host :host h})))
 
 (defn fuzzy-host [h]
