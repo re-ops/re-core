@@ -12,6 +12,12 @@
        }
     }
 
+    :aws {
+      :access-key ""
+      :secret-key ""
+     } 
+ }
+  
  :redis {
    :host "localhost"
  } 
@@ -22,9 +28,9 @@
 
  :hooks {
   :post-create {
-    ; celetial.dnsmasq/add-host {
-    ;   :dnsmasq {:host "192.168.5.20" :user "ronen"}
-    ; }
+    ;celetial.dnsmasq/add-host {
+     ;   :dnsmasq {:host "192.168.5.20" :user "ronen"}
+    ;}             
   }
  }
 }
