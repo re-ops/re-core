@@ -9,7 +9,7 @@
   (:import clojure.lang.ExceptionInfo)) 
 
 
-(defn root [] (<< "https://~(-> config :hypervisor :host):8006/api2/json"))
+(defn root [] (<< "https://~(-> config :hypervisor :proxmox :host):8006/api2/json"))
 
 (defn retry
   "A retry for http calls against proxmox, some operations lock machine even after completion"
@@ -32,9 +32,11 @@
   [verb api args]
   (:data (parse-string (:body (verb (<< "~(root)~{api}") (merge args http-opts))) true)))
 
+(def proxmox-conf (get-in config [:hypervisor :proxmox]))
+
 (defn login-creds []
   (select-keys 
-    (assoc (config :hypervisor) :realm "pam") [:username :password :realm]))
+    (assoc proxmox-conf :realm "pam") [:username :password :realm]))
 
 (defn login []
   {:post [(not (nil? (% :CSRFPreventionToken))) (not (nil? (% :ticket)))]}
@@ -42,9 +44,9 @@
     (let [res (call- client/post "/access/ticket" {:form-params (login-creds)})]
       (select-keys res [:CSRFPreventionToken :ticket]))
     (catch #(#{401 500} (:status %)) e
-      (throw (ExceptionInfo. "Failed to login" config)))
+      (throw (ExceptionInfo. "Failed to login" proxmox-conf)))
     (catch #(#{400} (:status %)) e
-      (throw (ExceptionInfo. "Illegal request, check query params" config)))))
+      (throw (ExceptionInfo. "Illegal request, check query params" proxmox-conf)))))
 
 (def auth-headers
   (memoize 

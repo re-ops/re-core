@@ -4,13 +4,13 @@
  }
 
  :hypervisor {
-    :username "root" :password "foobar" :host "localhost" :ssh-port 2222
+
     :proxmox {
+      :username "root" :password "foobar" :host "localhost" :ssh-port 2222
       :ostemplates {
          :ubuntu-12.10  "local:vztmpl/ubuntu-12.04-puppet_3-x86_64.tar.gz"
        }
     }
- }
 
  :redis {
    :host "localhost"
