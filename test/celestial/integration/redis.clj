@@ -1,4 +1,4 @@
-(ns celestial.test.redis
+(ns celestial.integration.redis
   "Redis test assume a redis sandbox on localhost, use https://github.com/narkisr/redis-sandbox"
   (:use clojure.test slingshot.test
     [celestial.redis :only (acquire release get- with-lock)])
