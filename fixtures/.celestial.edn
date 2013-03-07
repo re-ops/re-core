@@ -1,4 +1,8 @@
 {
+ :celestial {
+   :port 8082
+ }
+
  :hypervisor {
     :username "root" :password "foobar" :host "localhost" :ssh-port 2222
     :proxmox {
