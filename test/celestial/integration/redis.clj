@@ -42,9 +42,11 @@
 
 (deftest ^:redis synched
    (let [ids (synched-map :ids)]
-      (is (= @ids {}))
+      (is (= (deref ids) {}))
       (swap! ids assoc :foo 1)    
       (swap! ids assoc :bar 2)    
-      (is (= (deref (synched-map :ids)) {:bar "2" :foo "1"}) )
+      (is (= (deref (synched-map :ids)) {:bar 2 :foo 1}))
+      (reset! ids {:foo {:bar 2}})
+      (is (= (deref (synched-map :ids)) {:foo {:bar 2}}))
     )
   )
