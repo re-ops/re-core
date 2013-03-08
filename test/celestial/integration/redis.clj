@@ -48,5 +48,7 @@
       (is (= (deref (synched-map :ids)) {:bar 2 :foo 1}))
       (reset! ids {:foo {:bar 2}})
       (is (= (deref (synched-map :ids)) {:foo {:bar 2}}))
+      (is (thrown? java.lang.AssertionError (reset! ids nil)))
+      (is (= (deref (synched-map :ids)) {:foo {:bar 2}}))
     )
   )
