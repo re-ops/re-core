@@ -3,12 +3,11 @@
   (:use 
     [trammel.core :only  (defconstrainedrecord)]
     [celestial.provider :only (str? vec?)]
-    [celestial.model :only (translate vconstruct)]
+    [celestial.redis :only (synched-map)]
     [celestial.core :only (Vm)]
     [celestial.common :only (config import-logging)]
     [mississippi.core :only (required numeric validate)]
-    [celestial.model :only (translate vconstruct)]) 
-  )
+    [celestial.model :only (translate vconstruct)]))
 
 (import-logging)
 
@@ -17,21 +16,20 @@
    :min-count [(required) (numeric)] 
    :max-count [(required) (numeric)] 
    :instance-type [str? (required)]
-   :keyname [str? (required)]
-   :endpoint [str? (required)]
+   :key-name [str? (required)]
    })
 
 (defn creds [] (get-in config [:hypervisor :aws]))
 
-(def ids (atom {}))
+(def ids (synched-map :aws-keys))
 
 (defconstrainedrecord Instance [endpoint conf uuid]
   "An Ec2 instance, uuid used for instance-id tracking"
   [(empty? (:errors (validate conf instance-valid))) (not (nil? endpoint))]
   Vm
   (create [this] 
-          (debug "creating" )
-          (ec2/run-instances (creds) conf))
+          (debug "creating" conf)
+          (debug (ec2/run-instances (creds) conf)))
   (delete [this]
           (debug "deleting"))
   (start [this]
@@ -43,6 +41,13 @@
   (status [this] 
           (ec2/describe-instances (creds)))) 
 
-(defmethod vconstruct :aws [{:keys [ec2] :as spec}]
-  (let [{:keys [endpoint]} ec2 [conf uuid] (translate spec)]
+(defmethod translate :aws [{:keys [aws machine]}] 
+   [(dissoc aws :endpoint) (java.util.UUID/randomUUID) (aws :endpoint) ] )
+
+(defmethod vconstruct :aws [{:keys [aws] :as spec}]
+  (let [[conf endpoint uuid] (translate spec)]
     (->Instance endpoint conf uuid)))
+
+; (use 'celestial.fixtures)
+; (.create (vconstruct redis-ec2-spec))
+

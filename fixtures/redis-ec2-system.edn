@@ -1,13 +1,12 @@
 {
  :machine {
-  :cpus 4 :memory 4096 :disk 30
-  :hostname "red1" :ip "192.168.5.33"
-  :os :ubuntu-12.10
+  :hostname "red1" :os :ubuntu-12.10
  }
 
- :ec2 {
+ :aws {
   :min-count 1 :max-count 1 
   :instance-type "t1.micro" ; optional guessed from machine if missing
+  :image-id "ami-64636a10"
   :key-name "ce-test" 
   :endpoint "ec2.eu-west-1.amazonaws.com"
   }
