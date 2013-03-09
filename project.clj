@@ -31,19 +31,18 @@
   :exclusions [org.clojure/clojure]
 
   :plugins  [[lein-autoexpect "0.2.5"]  [jonase/eastwood "0.0.2"] [lein-tarsier "0.10.0"]
-             [lein-expectations "0.0.7"] #_[lein-checkouts "1.1.0"]
-             [lein-pedantic "0.0.5"] 
-             ]
+             [lein-expectations "0.0.7"] [lein-pedantic "0.0.5"]]
 
   :profiles {:dev {:dependencies [[ring-mock "0.1.3"] [expectations "1.4.24"] [junit/junit "4.8.1"] ]}}
                  
 
   :aot [proxmox.provider celestial.puppet-standalone celestial.api]
 
-  :test-selectors {:default #(not-any? % [:proxmox :redis :integration :puppet]) 
+  :test-selectors {:default #(not-any? % [:proxmox :redis :integration :puppet :aws]) 
                    :redis :redis
                    :proxmox :proxmox
                    :puppet :puppet
+                   :aws :aws
                    :integration :integration
                    :all (constantly true)}
 
