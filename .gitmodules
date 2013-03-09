@@ -1,6 +1,3 @@
 [submodule "checkouts/clj-aws-ec2"]
 	path = checkouts/clj-aws-ec2
 	url = git://github.com/narkisr/clj-aws-ec2.git
-[submodule "checkouts/trammel"]
-	path = checkouts/trammel
-	url = git://github.com/fogus/trammel.git
