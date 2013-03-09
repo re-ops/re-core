@@ -24,8 +24,8 @@
 
 (def ids (synched-map :aws-keys))
 
-(defn wait-for-status [s instance & {:keys [timeout] :or {timeout }}]
- (while (not (= status (.status Instance)))
+(defn wait-for-status [req-stat instance & {:keys [timeout] :or {timeout 3000}}]
+ (while (not (= req-stat (.status instance)))
     
    ) 
   )
