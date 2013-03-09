@@ -34,9 +34,9 @@
 
 (defn acquire 
   "Acquires lock, returns uuid if successful 
-  wait-time (mili) wait time for lock,
-  expiry (sec) how long the lock is valid 
-  see http://dr-josiah.blogspot.co.il/2012/01/creating-lock-with-redis.html "
+   wait-time (mili) wait time for lock,
+   expiry (sec) how long the lock is valid 
+   see http://dr-josiah.blogspot.co.il/2012/01/creating-lock-with-redis.html "
   [id & [{:keys [wait-time expiry] :or {wait-time 2000 expiry 2} :as opts} & _]]
   {:pre [(or (nil? opts) (associative? opts))]}
   (let [lid (lock-id id) uuid (gen-uuid)
