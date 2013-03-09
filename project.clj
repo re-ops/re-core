@@ -17,6 +17,7 @@
                  [org.clojure/data.json "0.2.1" ]
                  [com.taoensso/carmine "1.6.0"]
                  [org.clojure/core.memoize "0.5.2"]
+                 [org.slf4j/slf4j-simple "1.6.4"]; required for codahale metrics
                  [metrics-clojure "0.9.2"]
                  [clj-aws-ec2 "0.2.0" :exclusions  [org.codehaus.jackson/jackson-core-asl]]
                  [trammel "0.8.0-SNAPSHOT"]
