@@ -19,7 +19,7 @@
                  [org.clojure/core.memoize "0.5.2"]
                  [metrics-clojure "0.9.2"]
                  [clj-aws-ec2 "0.2.0" :exclusions  [org.codehaus.jackson/jackson-core-asl]]
-                 [trammel "0.7.0"]
+                 [trammel "0.8.0-SNAPSHOT"]
                  [mississippi "1.0.1"]
                  [metrics-clojure-ring "0.9.2"]
                  [ring "1.1.8"]
