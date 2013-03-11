@@ -42,6 +42,14 @@
 (defmacro ec2 [f & args]
  `(~f (assoc (creds) :endpoint ~'endpoint) ~@args))
 
+(defn instance-id [uuid]
+   (if-let [id (@ids uuid)]
+     id
+     (throw+ 
+       {:type ::aws:missing-id :message 
+        "Instance id not found, make sure no to address deleted instances" :uuid uuid})
+     ))
+
 (defconstrainedrecord Instance [endpoint conf uuid]
   "An Ec2 instance, uuid used for instance-id tracking"
   [(empty? (:errors (validate conf instance-valid))) 
@@ -53,19 +61,19 @@
           this)
   (delete [this]
           (debug "deleting" uuid)
-          (ec2 terminate-instances (@ids uuid))
+          (ec2 terminate-instances (instance-id uuid))
           (wait-for-status this "terminated" {:timeout [5 :minute]}) 
           (swap! ids dissoc uuid))
   (start [this]
          (debug "starting" uuid)
-         (ec2 start-instances (@ids uuid))
+         (ec2 start-instances (instance-id uuid))
          (wait-for-status this "running" {:timeout [5 :minute]}))
   (stop [this]
         (debug "stopping" uuid )
-        (ec2 stop-instances  (@ids uuid))
+        (ec2 stop-instances  (instance-id uuid))
         (wait-for-status this "stopped" {:timeout [2 :minute]}))
   (status [this] 
-          (-> (ec2 describe-instances (instance-id-filter (@ids uuid)))
+          (-> (ec2 describe-instances (instance-id-filter (instance-id uuid)))
               first :instances first :state :name
               ))) 
 
