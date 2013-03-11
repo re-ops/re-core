@@ -1,7 +1,7 @@
 (ns celestial.redis
   "Redis utilities like a distributed lock, connection managment and ref watcher"
   (:use  
-    [celestial.common :only (config)]
+    [celestial.common :only (config curr-time)]
     [clojure.core.strint :only (<<)]
     [slingshot.slingshot :only  [throw+]]
     [taoensso.timbre :only (debug trace info error warn)])
@@ -23,7 +23,6 @@
      ~@body
      ))
 
-(defn curr-time [] (.getTime (Date.)))
 
 (defn lock-id [k] (<< "lock.~{k}"))
 

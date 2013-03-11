@@ -1,4 +1,5 @@
 (ns celestial.common
+  (:import java.util.Date)
   (:use 
     [clojure.core.strint :only (<<)]
     [clojure.java.io :only (file)]
@@ -20,3 +21,5 @@
 
 (defn import-logging []
     (use '[taoensso.timbre :only (debug info error warn trace)]))
+
+(defn curr-time [] (.getTime (Date.)))
