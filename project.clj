@@ -3,7 +3,7 @@
   :url "TBD"
   :license {:name "Apache V2" :url "http://www.apache.org/licenses/LICENSE-2.0.html"}
 
-  :dependencies [[org.clojure/clojure "1.5.0"]
+  :dependencies [[org.clojure/clojure "1.5.1"]
                  [org.clojure/tools.cli "0.2.1" ]
                  [clj-ssh "0.5.0" ]
                  [clj-config "0.2.0" ]
@@ -20,7 +20,6 @@
                  [org.slf4j/slf4j-simple "1.6.4"]; required for codahale metrics
                  [metrics-clojure "0.9.2"]
                  [clj-aws-ec2 "0.2.0" :exclusions  [org.codehaus.jackson/jackson-core-asl]]
-                 ; [trammel "0.8.0-SNAPSHOT"]
                  [narkisr/trammel "0.8.0-freez"]
                  [mississippi "1.0.1"]
                  [metrics-clojure-ring "0.9.2"]
