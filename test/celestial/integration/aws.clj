@@ -2,8 +2,7 @@
   "Tests ec2, requires access key and secret key to be defined in ~/.celestial.edn"
   (:use 
      celestial.integration.aws clojure.test
-     [celestial.fixtures :only (redis-ec2-spec)]
-        ))
+     [celestial.fixtures :only (redis-ec2-spec)]))
 
 
 (deftest ^:ec2 full-cycle 
@@ -14,5 +13,6 @@
       (.stop instance)
       (is (= (.status instance) "stopped"))
       (.delete instance) 
-      (is (= (.status instance) "terminated"))
-      ))
+      (is (= (.status instance) "terminated"))))
+
+
