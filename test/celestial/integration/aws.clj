@@ -8,8 +8,11 @@
 
 (deftest ^:ec2 full-cycle 
     (let [instance (vconstruct redis-ec2-spec)]
-      ; (.stop instance)
-      ; (.delete instance) 
       (.create instance) 
       (.start instance)
-      (is (= (.status instance) "running"))))
+      (is (= (.status instance) "running"))
+      (.stop instance)
+      (is (= (.status instance) "stopped"))
+      (.delete instance) 
+      (is (= (.status instance) "terminated"))
+      ))
