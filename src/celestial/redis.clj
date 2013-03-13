@@ -1,6 +1,8 @@
 (ns celestial.redis
   "Redis utilities like a distributed lock, connection managment and ref watcher"
   (:use  
+    [clojure.set :only (difference)]
+    [flatland.useful.utils :only (defm)]
     [celestial.common :only (config curr-time)]
     [clojure.core.strint :only (<<)]
     [slingshot.slingshot :only  [throw+]]
@@ -11,15 +13,15 @@
     [taoensso.carmine :as car])
   (:import java.util.Date))
 
-(def pool (car/make-conn-pool)) 
+(defm pool [] (car/make-conn-pool)) 
 
-(def spec-server (car/make-conn-spec :host (get-in config [:redis :host])))
+(defm spec-server [] (car/make-conn-spec :host (get-in config [:redis :host])))
 
 (def wcar-disable false)
 
 (defmacro wcar [& body] 
   `(if-not wcar-disable 
-     (car/with-conn pool spec-server ~@body)
+     (car/with-conn (pool) (spec-server) ~@body)
      ~@body
      ))
 
@@ -83,7 +85,7 @@
 (defn apply-diff [map-key _new old]
   {:pre [(map? _new) (map? old)]}
   (fn [] 
-    (letfn [(sub [a b] (clojure.set/difference (into #{} a) (into #{} b)))]
+    (letfn [(sub [a b] (difference (into #{} a) (into #{} b)))]
       (doseq [[k v] (sub old _new)] (wcar (car/hdel map-key k)))
       (doseq [[k v] (sub _new old)] (wcar (car/hset map-key k (car/preserve v))))
       )))
@@ -102,7 +104,7 @@
        (atom {}))))
 
 (defn create-worker [name f]
-  (carmine-mq/make-dequeue-worker pool spec-server name :handler-fn f))
+  (carmine-mq/make-dequeue-worker (pool) (spec-server) name :handler-fn f))
 
 (defn clear-all []
   (wcar (car/flushdb)))
