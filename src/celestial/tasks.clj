@@ -2,8 +2,10 @@
   "misc development tasks"
   (:use 
     [celestial.common :only (config)]
+    [clojure.core.strint :only (<<)]
     [celestial.common :only (slurp-edn)]
     [taoensso.timbre :only (debug info trace)] 
+    [slingshot.slingshot :only  [throw+ try+]]
     [celestial.model :only (vconstruct pconstruct)]) 
   (:require proxmox.provider aws.provider); loading defmethods
   (:import 
@@ -13,9 +15,11 @@
 (defn resolve- [fqn-fn]
   ;(resolve- (first (keys (get-in config [:hooks :post-create]))))
   (let [[n f] (.split (str fqn-fn) "/")] 
-    (require (symbol n))
-    (ns-resolve (find-ns (symbol n)) (symbol f)) 
-    )) 
+    (try+
+      (require (symbol n))
+      (ns-resolve (find-ns (symbol n)) (symbol f)) 
+     (catch java.io.FileNotFoundException e
+       (throw+ {:type ::hook-missing :message (<<  "Could not locate hook ~{fqn-fn}")}))))) 
 
 (defn post-create-hooks [machine]
   (doseq [[f args] (get-in config [:hooks :post-create])]
