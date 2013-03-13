@@ -3,8 +3,7 @@
     slingshot.test
     expectations.scenarios
     [celestial.common :only (config)]
-    [celestial.dnsmasq :only (add-host)] 
-    [celestial.tasks :only (resolve- reload post-create-hooks)])  
+    [celestial.tasks :only (resolve- post-create-hooks)])  
   (:import clojure.lang.ExceptionInfo)
  )
 
