@@ -22,6 +22,7 @@
                  [clj-aws-ec2 "0.2.0" :exclusions  [org.codehaus.jackson/jackson-core-asl]]
                  [narkisr/trammel "0.8.0-freez"]
                  [mississippi "1.0.1"]
+                 [org.flatland/useful "0.9.5"]
                  [fogus/minderbinder "0.2.0"]
                  [metrics-clojure-ring "0.9.2"]
                  [ring "1.1.8"]
@@ -39,11 +40,11 @@
 
   :aot [proxmox.provider celestial.puppet-standalone celestial.api]
 
-  :test-selectors {:default #(not-any? % [:proxmox :redis :integration :puppet :aws]) 
+  :test-selectors {:default #(not-any? % [:proxmox :redis :integration :puppet :ec2]) 
                    :redis :redis
                    :proxmox :proxmox
                    :puppet :puppet
-                   :aws :aws
+                   :ec2 :ec2
                    :integration :integration
                    :all (constantly true)}
 
