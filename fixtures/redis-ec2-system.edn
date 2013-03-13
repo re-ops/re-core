@@ -7,7 +7,7 @@
   :min-count 1 :max-count 1 
   :instance-type "t1.micro" ; optional guessed from machine if missing
   :image-id "ami-64636a10"
-  :key-name "ce-test" 
+  :key-name "Uranus" 
   :endpoint "ec2.eu-west-1.amazonaws.com"
   }
 
