@@ -5,6 +5,7 @@
     [celestial.common :only (slurp-edn)]
     [taoensso.timbre :only (debug info trace)] 
     [celestial.model :only (vconstruct pconstruct)]) 
+  (:require proxmox.provider aws.provider); loading defmethods
   (:import 
     [celestial.puppet_standalone Standalone]
     [proxmox.provider Container]))
