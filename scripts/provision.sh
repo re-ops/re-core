@@ -1,1 +1,1 @@
-curl -X POST http://localhost:8080/provision/$1
+curl -X POST http://localhost:8082/provision/$1
