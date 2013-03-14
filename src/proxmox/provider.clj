@@ -132,7 +132,7 @@
 
 (defn vzctl 
   [this action] 
-  (execute (config :hypervisor) [(<< "vzctl ~{action}")]))
+  (execute (get-in config [:hypervisor :proxmox]) [(<< "vzctl ~{action}")]))
 
 (defn- key-select [v] (fn [m] (select-keys m (keys v))))
 
