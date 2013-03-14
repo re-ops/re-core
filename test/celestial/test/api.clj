@@ -44,15 +44,15 @@
 (scenario 
   (let [machine {:type "redis" :machine {:host "foo"}} type {:classes {:redis {}}}]
     (stubbing [p/host machine  p/type-of type]
-              (expect {:status 200} (in (app (request :post "/provision/redis-local")))) 
-              (expect (interaction (jobs/enqueue "provision" (merge machine type)))))))
+        (expect {:status 200} (in (app (request :post "/provision/redis-local")))) 
+        (expect (interaction (jobs/enqueue "provision" {:identity "redis-local" :args [type machine]}))))))
 
 (scenario 
   (expect {:status 200} (in (app (request :post "/stage/redis-local")))) 
   (expect (interaction (p/host "redis-local")))  
-  (expect (interaction (jobs/enqueue "stage" "p/host result"))))
+  (expect (interaction (jobs/enqueue "stage" {:identity "redis-local" :args ["p/host result"]}))))
 
 (scenario 
   (expect {:status 200} (in (app (request :post "/machine/redis-local")))) 
   (expect (interaction (p/host "redis-local")))  
-  (expect (interaction (jobs/enqueue "machine" "p/host result"))))
+  (expect (interaction (jobs/enqueue "machine" {:identity "redis-local" :args ["p/host result"]}))))

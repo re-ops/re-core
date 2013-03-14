@@ -1,4 +1,5 @@
 (ns celestial.jobs
+  (:refer-clojure :exclude [identity])
   (:use  
     [celestial.redis :only (create-worker wcar with-lock half-hour minute)]
     [taoensso.timbre :only (debug info error warn trace)]
@@ -9,11 +10,11 @@
 
 (def workers (atom {}))
 
-(defn job-exec [f {:keys [machine] :as spec}]
-  {:pre [(machine :hostname)] }
-  "Executes a job function tries to lock host first pulls lock info from redis"
-  (let [{:keys [hostname]} machine]
-    (with-lock hostname #(f spec) {:expiry half-hour :wait-time minute})))
+(defn job-exec [f {:keys [identity args] :as spec}]
+  "Executes a job function tries to lock identity first (if used)"
+  (if identity
+    (with-lock identity #(apply f args) {:expiry half-hour :wait-time minute}) 
+    (apply f args)))
 
 (def jobs {:machine [reload 2] :provision [puppetize 2] :stage [full-cycle 2]})
 

@@ -7,7 +7,7 @@
     [taoensso.timbre :only (debug info trace)] 
     [slingshot.slingshot :only  [throw+ try+]]
     [celestial.model :only (vconstruct pconstruct)]) 
-  (:require proxmox.provider aws.provider); loading defmethods
+  (:require proxmox.provider aws.provider celestial.puppet_standalone); loading defmethods
   (:import 
     [celestial.puppet_standalone Standalone]
     [proxmox.provider Container]))

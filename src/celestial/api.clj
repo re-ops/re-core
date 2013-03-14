@@ -14,7 +14,7 @@
     [compojure.handler :as handler]
     [compojure.route :as route]))
 
-(set-config! [:shared-appender-config :spit-filename ] "celestial.log")
+(set-config! [:shared-appender-config :spit-filename ] "celestial.log"); TODO move this to /var/log
 (set-config! [:appenders :spit :enabled?] true)
 (set-level! :trace)
 
@@ -23,17 +23,17 @@
 (defroutes provision-routes
   (POST "/:host" [host] 
         (let [machine (p/host host) type (p/type-of (:type machine))]
-          (jobs/enqueue "provision" (merge machine type)) 
+          (jobs/enqueue "provision" {:identity host :args [type machine]}) 
           (generate-response {:msg "submitted pupptization" :host host :machine machine :type type}))))
 
 (defroutes stage-routes
   (POST "/:host" [host] 
-        (jobs/enqueue "stage" (p/host host))
+        (jobs/enqueue "stage" {:identity host :args [(p/host host)]})
         (generate-response {:msg "submitted staging" :host host})))
 
 (defroutes machine-routes
   (POST "/:host" [host]
-        (jobs/enqueue "machine" (p/host host))
+        (jobs/enqueue "machine" {:identity host :args [(p/host host)]})
         (generate-response {:msg "submited system creation" :host host})))
 
 (defroutes reg-routes

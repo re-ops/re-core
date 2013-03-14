@@ -17,6 +17,5 @@
        (expect [:w1 :w2] (in (vals @workers))))))
 
 (scenario 
-  (expect AssertionError (job-exec identity {:machine {:host nil}})) 
-  (job-exec identity {:machine {:hostname "red1"}})
+  (job-exec identity {:identity "red1" :args {:machine {:hostname "red1"}}})
   (expect (interaction (with-lock "red1" anything {:expiry half-hour :wait-time minute}))))
