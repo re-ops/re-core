@@ -1,7 +1,10 @@
-(ns aws.provider
+(ns celestial.integration.aws
   "Tests ec2, requires access key and secret key to be defined in ~/.celestial.edn"
+  (:require aws.provider)
+  (:import clojure.lang.ExceptionInfo)
   (:use 
-     celestial.integration.aws clojure.test
+    [celestial.model :only (vconstruct)]
+     clojure.test
      [celestial.fixtures :only (redis-ec2-spec)]))
 
 
@@ -13,6 +16,6 @@
       (.stop instance)
       (is (= (.status instance) "stopped"))
       (.delete instance) 
-      (is (= (.status instance) "terminated"))))
+      (is (thrown? ExceptionInfo (.status instance)))))
 
 
