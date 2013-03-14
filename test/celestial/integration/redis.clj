@@ -1,7 +1,7 @@
 (ns celestial.integration.redis
   "Redis test assume a redis sandbox on localhost, use https://github.com/narkisr/redis-sandbox"
   (:use clojure.test slingshot.test
-    [celestial.redis :only (acquire release get- with-lock synched-map clear-all)])
+    [celestial.redis :only (acquire release get- with-lock synched-map clear-all clear-locks)])
   (:import clojure.lang.ExceptionInfo))
 
 (use-fixtures :once (fn [f] (f) (clear-all)))
@@ -39,6 +39,11 @@
  (Thread/sleep 200)
  (is (thrown+? [:type :celestial.redis/lock-fail] 
         (with-lock 9 #() {:expiry 3 :wait-time 10}))))
+
+(deftest ^:redis locks-clearence 
+   (acquire 7 {:expiry 3}) 
+   (clear-locks) 
+   (is (acquire 7 {:expiry 3})))
 
 (deftest ^:redis synched
    (let [ids (synched-map :ids)]

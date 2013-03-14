@@ -76,6 +76,10 @@
         ))
     (throw+ {:type ::lock-fail :id id} "Failed to obtain lock")))
 
+(defn clear-locks []
+  (doseq [k (wcar (car/keys (lock-id "*")))]
+    (wcar (car/del k))))
+
 (def minute (* 1000 60))
 
 (def half-hour (* minute 30))
