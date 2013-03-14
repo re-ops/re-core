@@ -11,15 +11,15 @@
 (def restart 
   (step :restart-service "sudo service dnsmasq stop" "sudo service dnsmasq start"))
 
-(defn add-host [{:keys [hostname ip_address dnsmasq]}]
+(defn add-host [{:keys [hostname ip dnsmasq]}]
   (execute dnsmasq 
-      (step :add-host (<< "echo '~{ip_address} ~{hostname}' | sudo tee -a /etc/hosts >> /dev/null" ))
+      (step :add-host (<< "echo '~{ip} ~{hostname}' | sudo tee -a /etc/hosts >> /dev/null" ))
       (ignore-code restart)))
 
 
-(defn remove-host [{:keys [hostname ip_address dnsmasq]}]
+(defn remove-host [{:keys [hostname ip dnsmasq]}]
   (execute dnsmasq 
-    (step :remove-host (<< "sudo sed -ie \"\\|^~{ip_address} ~{hostname}\\$|d\" /etc/hosts"))
+    (step :remove-host (<< "sudo sed -ie \"\\|^~{ip} ~{hostname}\\$|d\" /etc/hosts"))
     (ignore-code restart)))
 
 ; (add-host "foo" "192.168.20.90")
