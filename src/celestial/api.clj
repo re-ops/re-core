@@ -1,15 +1,12 @@
 (ns celestial.api
-  (:gen-class true)
   (:refer-clojure :exclude [type])
   (:use [compojure.core :only (defroutes context POST GET)] 
-        [celestial.common :only (config)]
         [metrics.ring.expose :only  (expose-metrics-as-json)]
         [ring.middleware.format-params :only [wrap-restful-params]]
         [ring.middleware.format-response :only [wrap-restful-response]]
         [metrics.ring.instrument :only  (instrument)]
-        [ring.adapter.jetty :only (run-jetty)] 
         [taoensso.timbre :only (debug info error warn set-config! set-level!)]
-        [celestial.jobs :only (enqueue initialize-workers clear-all)])
+        )
   (:require 
     [clj-yaml.core :as yaml ]
     [celestial.persistency :as p]
@@ -68,17 +65,3 @@
     (expose-metrics-as-json)
     (instrument)
     ))
-
-
-(defn add-shutdown []
-  (.addShutdownHook (Runtime/getRuntime) 
-                    (Thread. 
-                      (fn [] 
-                        (debug "Shutting down...")
-                        (jobs/shutdown-workers)))) )
-
-(defn -main [& args]
-  (add-shutdown)
-  (jobs/clear-all)
-  (jobs/initialize-workers)
-  (run-jetty app  {:port (get-in config [:celestial :port]) :join? true}))

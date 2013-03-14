@@ -38,7 +38,7 @@
   :profiles {:dev {:dependencies [[ring-mock "0.1.3"] [expectations "1.4.24"] [junit/junit "4.8.1"] ]}}
                  
 
-  :aot [proxmox.provider celestial.puppet-standalone celestial.api]
+  :aot [proxmox.provider celestial.puppet-standalone celestial.launch]
 
   :test-selectors {:default #(not-any? % [:proxmox :redis :integration :puppet :ec2]) 
                    :redis :redis
@@ -55,5 +55,5 @@
   {"reload"  ["run" "-m" "celestial.tasks" "reload" "systems/baseline.edn" "proxmox"]
    "puppetize"  ["run" "-m" "celestial.tasks" "puppetize" "systems/baseline.edn"]}
 
-  :main celestial.api
+  :main celestial.launch
   )
