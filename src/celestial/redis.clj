@@ -77,6 +77,7 @@
     (throw+ {:type ::lock-fail :id id} "Failed to obtain lock")))
 
 (defn clear-locks []
+  (trace "clearing locks")
   (doseq [k (wcar (car/keys (lock-id "*")))]
     (wcar (car/del k))))
 
