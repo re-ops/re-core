@@ -16,6 +16,6 @@
   (with-redefs [config local-prox]
     (reload spec) 
     (p/new-type "red1" redis-type) 
-    (p/register-host "red1" "redis" spec) 
-    (run-jetty app {:port 8080 :join? false})
+    (p/register-host spec) 
     (puppetize redis-type spec)))
+
