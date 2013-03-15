@@ -1,8 +1,8 @@
 {
  :puppet-std {
     :module {
-       :name "redis-sandbox-0.3.3" 
-       :src "http://dl.bintray.com/content/narkisr/boxes/redis-sandbox-0.3.3.tar.gz"
+       :name "redis-sandbox-0.3.4" 
+       :src "http://dl.bintray.com/content/narkisr/boxes/redis-sandbox-0.3.4.tar.gz"
      }
   }
 
