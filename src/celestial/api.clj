@@ -8,7 +8,6 @@
         [taoensso.timbre :only (debug info error warn set-config! set-level!)]
         )
   (:require 
-    [clj-yaml.core :as yaml ]
     [celestial.persistency :as p]
     [celestial.jobs :as jobs]
     [compojure.handler :as handler]
