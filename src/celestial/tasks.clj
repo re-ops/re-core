@@ -29,18 +29,19 @@
 
 (defn reload [{:keys [machine] :as spec}]
   "Sets up a clean machine from scratch"
-  (let [ct (vconstruct spec) {:keys [node]} ct ]
-    (info "setting up" machine "on" node)
-    (.stop ct)
-    (.delete ct) 
-    (.create ct) 
-    (.start ct)
-    (assert (= (.status ct) "running"))
+  (let [vm (vconstruct spec)]
+    (info "setting up" machine)
+    (when (.status vm)
+      (.stop vm) 
+      (.delete vm)) 
+    (.create vm) 
+    (.start vm)
+    (assert (= (.status vm) "running")); might not match all providers
     (post-create-hooks machine)
     (info "done system setup")))
 
 (defn puppetize [type spec]
-  (info "starting to provision" )
+  (info "starting to provision")
   (trace type spec) 
   (.apply- (pconstruct type spec))
   (info "done provisioning"))

@@ -5,7 +5,8 @@
   (delete [this])  
   (start [this])  
   (stop [this])
-  (status [this]))
+  (status [this] 
+    "Returns vm status (values defere between providers) false if it does not exists"))
 
 (defprotocol Provision
   (apply- [this]))

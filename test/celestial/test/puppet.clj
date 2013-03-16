@@ -6,4 +6,5 @@
   )
 
 
-(expect {:type (assoc redis-type :hostname "red1")} (in (pconstruct redis-type redis-prox-spec)))
+(expect {:type (assoc redis-type :hostname "red1")} 
+        (in (pconstruct redis-type redis-prox-spec)))

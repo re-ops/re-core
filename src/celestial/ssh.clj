@@ -7,7 +7,10 @@
     [clojure.string :only (join)]
     [slingshot.slingshot :only  [throw+ try+]]
     [clj-ssh.ssh :only 
-      (session ssh-agent with-connection sftp ssh-sftp with-channel-connection ssh add-identity)]))
+      (connect session ssh-agent with-connection sftp
+       ssh-sftp with-channel-connection ssh add-identity)])
+   (:import (java.net Socket)) 
+  )
 
 (import-logging)
 
@@ -28,6 +31,14 @@
           (throw+ {:type ::auth :host host} 
                   "Failed to login make sure to ssh-copy-id to the remote host"))))))
 
+(defn ssh-up? [host port user]
+  (let [agent (ssh-agent  {:use-system-ssh-agent false})]
+    (add-identity agent (config :ssh)) 
+    (let [session (session agent host (ssh-opts port user))] 
+      (connect session (* 5 60 1000))
+      true 
+      )))
+
 (defn put 
   "Copies a file into host under dest"
   [host file dest]
@@ -44,8 +55,8 @@
   ) 
 
 (defn run [session batch]
-   (trace "performing" (meta batch))
-   (ssh session {:in (join "\n" batch) :out :stream :agent-forwarding false}))
+  (trace "performing" (meta batch))
+  (ssh session {:in (join "\n" batch) :out :stream :agent-forwarding false}))
 
 (defn step [n & steps] (with-meta steps {:step n}))
 
@@ -62,6 +73,8 @@
             (when (and (not (= exit 0)) (not ignore-code)) 
               (throw+ (merge res {:type ::execute-failed :exit exit} (meta b))))))))))
 
+
+
 (defn fname [uri] (-> uri (split '#"/") last))
 
 (defn ^{:test #(assert (= (no-ext "celestial.git") "celestial"))}
@@ -75,11 +88,11 @@
   (fn [_ uri _] 
     (keyword (first (split uri '#":")))))
 
-(defmethod copy :git  [host uri dest] 
-  (execute {:host host} [(<< "git clone ~{uri} ~{dest}/~(no-ext (fname uri))")]))
-(defmethod copy :http [host uri dest] 
-  (execute {:host host} [(<< "wget -O ~{dest}/~(fname uri) ~{uri}")]))
-(defmethod copy :file [host uri dest] (put host (subs uri 6)  dest))
-(defmethod copy :default [host uri dest] (copy host (<< "file:/~{uri}") dest))
+(defmethod copy :git  [remote uri dest] 
+  (execute remote [(<< "git clone ~{uri} ~{dest}/~(no-ext (fname uri))")]))
+(defmethod copy :http [remote uri dest] 
+  (execute remote [(<< "wget -O ~{dest}/~(fname uri) ~{uri}")]))
+(defmethod copy :file [remote uri dest] (put remote (subs uri 6)  dest))
+(defmethod copy :default [remote uri dest] (copy remote (<< "file:/~{uri}") dest))
 
 (test #'no-ext)

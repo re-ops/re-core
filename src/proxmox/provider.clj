@@ -119,7 +119,7 @@
             (:status 
               (prox-get 
                 (str "/nodes/" node "/openvz/" (:vmid ct) "/status/current")))
-            (catch [:status 500] e "missing-container")))) 
+            (catch [:status 500] e false)))) 
 
 (defn unmount [{:keys [ct node]}]
   (let [{:keys [vmid]} ct]

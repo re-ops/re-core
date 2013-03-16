@@ -3,17 +3,20 @@
   (:import (java.util UUID))
   (:use 
     [flatland.useful.utils :only (defm)]
+    [flatland.useful.map :only (dissoc-in*)]
     [minderbinder.time :only (parse-time-unit)]
     [slingshot.slingshot :only  [throw+ try+]]
     [aws.sdk.ec2 :only 
        (run-instances describe-instances terminate-instances start-instances
         stop-instances instance-filter instance-id-filter)]
+    [celestial.persistency :only (update-host)]
     [trammel.core :only (defconstrainedrecord)]
     [celestial.provider :only (str? vec?)]
     [celestial.redis :only (synched-map)]
     [celestial.core :only (Vm)]
     [celestial.common :only (config import-logging curr-time)]
     [mississippi.core :only (required numeric validate)]
+    [celestial.ssh :only (ssh-up?)]
     [celestial.model :only (translate vconstruct)]))
 
 (import-logging)
@@ -43,7 +46,7 @@
 (defn wait-for-status [instance req-stat timeout]
   "Waiting for ec2 machine status timeout is in mili"
   (wait-for timeout #(= req-stat (.status instance))
-    {:type ::aws:status-failed :message "Failed to wait for status" :status req-stat}))
+    {:type ::aws:status-failed :message "Timed out on waiting for status" :status req-stat :timeout timeout}))
 
 (defmacro ec2 [f & args]
   `(~f (assoc (creds) :endpoint ~'endpoint) ~@args))
@@ -69,17 +72,26 @@
     #(= "attached" (instance-desc endpoint uuid :block-device-mappings 0 :ebs :status)) 
     {:type ::aws:ebs-attach-failed :message "Failed to wait for ebs root device attach"}))
 
-(defconstrainedrecord Instance [endpoint conf uuid]
+(defn pub-dns [endpoint uuid]
+  (instance-desc endpoint uuid :public-dns))
+
+(defn pubdns-update [{:keys [spec endpoint uuid] :as instance}]
+  (update-host (get-in spec [:machine :hostname]) 
+     {:machine {:ssh-host (pub-dns endpoint uuid)}}))
+
+(defconstrainedrecord Instance [endpoint spec uuid]
   "An Ec2 instance, uuid used for instance-id tracking"
-  [(empty? (:errors (validate conf instance-valid))) 
+  [(empty? (:errors (validate (spec :aws) instance-valid))) 
    (not (nil? endpoint)) (instance? UUID uuid)]
   Vm
   (create [this] 
-          (debug "creating" uuid)
-          (swap! (ids) assoc uuid 
-            (-> (ec2 run-instances conf) :instances first :id)) 
-          (when (= (image-desc (conf :image-id) :root-device-type) "ebs")
-             (wait-for-attach endpoint uuid {:timeout [10 :minute]}))
+          (let [{:keys [aws]} spec]
+            (debug "creating" uuid) 
+            (swap! (ids) assoc uuid 
+                   (-> (ec2 run-instances aws) :instances first :id)) 
+            (when (= (image-desc (aws :image-id) :root-device-type) "ebs")
+              (wait-for-attach endpoint uuid {:timeout [10 :minute]})) 
+            (pubdns-update this))     
           this)
   (delete [this]
           (debug "deleting" uuid)
@@ -89,18 +101,22 @@
   (start [this]
          (debug "starting" (instance-id uuid))
          (ec2 start-instances (instance-id uuid))
-         (wait-for-status this "running" {:timeout [5 :minute]}))
+         (wait-for-status this "running" {:timeout [5 :minute]})
+         (pubdns-update this)
+         (assert (ssh-up? (pub-dns uuid endpoint) 22)))
   (stop [this]
         (debug "stopping" uuid )
         (ec2 stop-instances  (instance-id uuid))
-        (wait-for-status this "stopped" {:timeout [2 :minute]}))
+        (wait-for-status this "stopped" {:timeout [5 :minute]}))
   (status [this] 
-          (instance-desc endpoint uuid :state :name))) 
+          (try+ 
+            (instance-desc endpoint uuid :state :name)
+            (catch [:type ::aws:missing-id] e false)))) 
 
-(defmethod translate :aws [{:keys [aws machine]}] 
-  [(aws :endpoint) (dissoc aws :endpoint) (UUID/randomUUID)])
+(defmethod translate :aws [{:keys [aws machine] :as spec}] 
+  [(aws :endpoint) (dissoc-in* spec [:aws :endpoint]) (UUID/randomUUID)])
 
-(defmethod vconstruct :aws [{:keys [aws] :as spec}]
+(defmethod vconstruct :aws [spec]
   (apply ->Instance (translate spec)))
 
 (comment 
@@ -115,18 +131,5 @@
   (-> (ec2/describe-images (creds) (ec2/image-id-filter "ami-5a60692e"))
       first :root-device-type  
       )
-
-  (let [endpoint "ec2.eu-west-1.amazonaws.com" uuid (:uuid m)]
-    (wait-for-attach endpoint (:uuid m) {:timeout [1 :minute]}) )
-
-
-  (.status m) 
-  (.stop m) 
-  (.delete m)
-
-  (wait-for-status m "stopped") 
-  (parse-time-unit [1 :minute])
-  (wait-for-status m "running" {:timeout [1 :minute]}) 
   ) 
-
 

@@ -23,7 +23,7 @@
   (POST "/:host" [host] 
         (let [machine (p/host host) type (p/type-of (:type machine))]
           (jobs/enqueue "provision" {:identity host :args [type machine]}) 
-          (generate-response {:msg "submitted pupptization" :host host :machine machine :type type}))))
+          (generate-response {:msg "submitted provisioning" :host host :machine machine :type type}))))
 
 (defroutes stage-routes
   (POST "/:host" [host] 

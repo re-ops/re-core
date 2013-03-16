@@ -111,5 +111,9 @@
 (defn create-worker [name f]
   (carmine-mq/make-dequeue-worker (pool) (spec-server) name :handler-fn f))
 
+(defn hsetall* [rk m]
+  "The persistency of hgetall*"
+  (wcar (doseq [[k v] m] (car/hset rk k (car/preserve v)))))
+
 (defn clear-all []
   (wcar (car/flushdb)))
