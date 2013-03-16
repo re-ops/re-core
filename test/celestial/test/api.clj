@@ -4,7 +4,7 @@
   (:use 
     [clojure.core.strint :only (<<)]
     [celestial.common :only (slurp-edn)]
-    [celestial.fixtures :only (spec redis-type)]
+    [celestial.fixtures :only (redis-prox-spec redis-type)]
     ring.mock.request
     expectations.scenarios 
     [celestial.api :only (app)])
@@ -14,12 +14,12 @@
 
 ; TODO is seems that ring-mock isn't working correctly with '&' distructuing 
 #_(def host-req 
-  (merge {:params spec}
+  (merge {:params redis-prox-spec}
          (header (request :post "/registry/host") "Content-type" "application/edn")))
 
 #_(scenario
     (expect {:status 200} (in (app (request :post "/registry/host" host-req)))) 
-    (expect (interaction (p/register-host spec))))
+    (expect (interaction (p/register-host redis-prox-spec))))
 
 (scenario
   (expect {:status 200} (in (app (request :get (<< "/registry/host/machine/redis-local"))))) 

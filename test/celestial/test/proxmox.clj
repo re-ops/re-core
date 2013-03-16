@@ -4,23 +4,23 @@
     [proxmox.provider :only (vzctl enable-features ->Container)]
     [celestial.common :only (config)]
     [celestial.model :only (vconstruct)]
-    [celestial.fixtures :only (spec local-prox)]
+    [celestial.fixtures :only (redis-prox-spec local-prox)]
     expectations.scenarios) 
   (:import 
     [proxmox.provider Container]))
 
-(let [{:keys [machine proxmox]} spec]
+(let [{:keys [machine proxmox]} redis-prox-spec]
   (scenario 
     (expect java.lang.AssertionError 
-       (vconstruct (assoc-in spec [:proxmox :vmid] nil)))
+       (vconstruct (assoc-in redis-prox-spec [:proxmox :vmid] nil)))
     (expect java.lang.AssertionError 
-       (vconstruct (assoc-in spec [:proxmox :vmid] "string") ))
+       (vconstruct (assoc-in redis-prox-spec [:proxmox :vmid] "string") ))
     ))
 
 
 (with-redefs [config local-prox]
   (def ct 
-    (vconstruct (assoc-in spec [:proxmox :features] ["nfs:on"]))))
+    (vconstruct (assoc-in redis-prox-spec [:proxmox :features] ["nfs:on"]))))
 
 (scenario 
   (enable-features ct) 
