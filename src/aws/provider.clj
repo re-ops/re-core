@@ -2,6 +2,8 @@
   (:require [aws.sdk.ec2 :as ec2])
   (:import (java.util UUID))
   (:use 
+    [clojure.core.strint :only (<<)]
+    [celestial.ssh :only (execute step)]
     [flatland.useful.utils :only (defm)]
     [flatland.useful.map :only (dissoc-in*)]
     [minderbinder.time :only (parse-time-unit)]
@@ -33,7 +35,7 @@
 
 (defm ids [] (synched-map :aws-keys))
 
-(defn wait-for [{:keys [timeout] :or {timeout [5 :minute]}} pred err]
+(defn wait-for [timeout pred err]
   "A general wait for pred function"
   (let [wait (+ (curr-time) (parse-time-unit timeout))]
     (loop []
@@ -75,14 +77,28 @@
 (defn pub-dns [endpoint uuid]
   (instance-desc endpoint uuid :public-dns))
 
-(defn pubdns-update [{:keys [spec endpoint uuid] :as instance}]
-  (update-host (get-in spec [:machine :hostname]) 
-     {:machine {:ssh-host (pub-dns endpoint uuid)}}))
+(defn wait-for-ssh [{:keys [endpoint uuid user] :as instance}]
+  (let [timeout [5 :minute]] 
+    (wait-for timeout
+       #(ssh-up? (pub-dns endpoint uuid) 22 user)
+       {:type ::aws:ssh-failed :message "Timed out while waiting for ssh" :timeout timeout})))
 
-(defconstrainedrecord Instance [endpoint spec uuid]
+(defn update-pubdns [{:keys [spec endpoint uuid] :as instance}]
+  "updates public dns in the machine persisted data"
+  (update-host (get-in spec [:machine :hostname]) 
+               {:machine {:ssh-host (pub-dns endpoint uuid)}}))
+
+(defn set-hostname [{:keys [spec endpoint uuid user] :as instance}]
+  "Uses a generic method of setting hostname in Linux"
+  (let [hostname (get-in spec [:machine :hostname])]
+    (execute {:host (pub-dns endpoint uuid) :user user}
+     (step :run 
+      (<< "echo kernel.hostname=~{hostname} | sudo tee -a /etc/sysctl.conf") "sudo sysctl -p"))))
+
+(defconstrainedrecord Instance [endpoint spec uuid user]
   "An Ec2 instance, uuid used for instance-id tracking"
   [(empty? (:errors (validate (spec :aws) instance-valid))) 
-   (not (nil? endpoint)) (instance? UUID uuid)]
+   (-> endpoint nil? not)  (-> uuid nil? not)]
   Vm
   (create [this] 
           (let [{:keys [aws]} spec]
@@ -90,31 +106,33 @@
             (swap! (ids) assoc uuid 
                    (-> (ec2 run-instances aws) :instances first :id)) 
             (when (= (image-desc (aws :image-id) :root-device-type) "ebs")
-              (wait-for-attach endpoint uuid {:timeout [10 :minute]})) 
-            (pubdns-update this))     
-          this)
+              (wait-for-attach endpoint uuid [10 :minute])) 
+            (update-pubdns this)
+            (wait-for-ssh this)
+            (set-hostname this)
+            this))
   (delete [this]
           (debug "deleting" uuid)
           (ec2 terminate-instances (instance-id uuid))
-          (wait-for-status this "terminated" {:timeout [5 :minute]}) 
+          (wait-for-status this "terminated" [5 :minute]) 
           (swap! (ids) dissoc uuid))
   (start [this]
          (debug "starting" (instance-id uuid))
          (ec2 start-instances (instance-id uuid))
-         (wait-for-status this "running" {:timeout [5 :minute]})
-         (pubdns-update this)
-         (assert (ssh-up? (pub-dns uuid endpoint) 22)))
+         (wait-for-status this "running" [5 :minute])
+         (update-pubdns this)
+         (wait-for-ssh this))
   (stop [this]
-        (debug "stopping" uuid )
+        (debug "stopping" uuid)
         (ec2 stop-instances  (instance-id uuid))
-        (wait-for-status this "stopped" {:timeout [5 :minute]}))
+        (wait-for-status this "stopped" [5 :minute]))
   (status [this] 
           (try+ 
             (instance-desc endpoint uuid :state :name)
             (catch [:type ::aws:missing-id] e false)))) 
 
 (defmethod translate :aws [{:keys [aws machine] :as spec}] 
-  [(aws :endpoint) (dissoc-in* spec [:aws :endpoint]) (UUID/randomUUID)])
+  [(aws :endpoint) (dissoc-in* spec [:aws :endpoint]) (str (UUID/randomUUID)) (or (machine :user) "root")])
 
 (defmethod vconstruct :aws [spec]
   (apply ->Instance (translate spec)))

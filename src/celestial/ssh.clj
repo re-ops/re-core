@@ -35,9 +35,11 @@
   (let [agent (ssh-agent  {:use-system-ssh-agent false})]
     (add-identity agent (config :ssh)) 
     (let [session (session agent host (ssh-opts port user))] 
-      (connect session (* 5 60 1000))
-      true 
-      )))
+      (try 
+        (connect session (* 5 60 1000))
+        true 
+        (catch Exception e false)
+        ))))
 
 (defn put 
   "Copies a file into host under dest"
