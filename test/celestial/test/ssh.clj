@@ -27,14 +27,14 @@
 
 (scenario
   (let [uri "http://dl.bintray.com/content/narkisr/boxes/redis-sandbox.tar.gz"
-        host "localhost" dest "/tmp"]
-    (copy host uri dest)
+        remote {:host "localhost"} dest "/tmp"]
+    (copy remote uri dest)
     (expect 
-      (interaction (execute {:host host} [(<< "wget -O /tmp/redis-sandbox.tar.gz ~{uri}")])))))
+      (interaction (execute remote [(<< "wget -O /tmp/redis-sandbox.tar.gz ~{uri}")])))))
 
 (scenario
   (let [uri "git://github.com/narkisr/celestial.git"
-        host "localhost" dest "/tmp"]
-    (copy host uri dest)
+        remote {:host "localhost"} dest "/tmp"]
+    (copy remote uri dest)
     (expect 
-      (interaction (execute {:host host} [(<< "git clone ~{uri} ~{dest}/celestial")])))))
+      (interaction (execute remote [(<< "git clone ~{uri} ~{dest}/celestial")])))))
