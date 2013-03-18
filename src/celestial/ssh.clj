@@ -43,8 +43,8 @@
 
 (defn put 
   "Copies a file into host under dest"
-  [host file dest]
-  (with-session {:host host :port 22} 
+  [remote file dest]
+  (with-session (assoc remote :port 22)
     (fn [session]
       (let [channel (ssh-sftp session)]
         (with-channel-connection channel
@@ -53,8 +53,7 @@
 (defn log-output 
   "Output log stream" 
   [out]
-  (doseq [line (line-seq (clojure.java.io/reader out))] (debug line))
-  ) 
+  (doseq [line (line-seq (clojure.java.io/reader out))] (debug line))) 
 
 (defn run [session batch]
   (trace "performing" (meta batch))
@@ -71,7 +70,7 @@
         (let [{:keys [ignore-code] :or {ignore-code false}} (meta b)
               {:keys [channel out-stream] :as res} (run session b)]
           (log-output out-stream)
-          (let [exit (.getExitStatus channel)]
+          #_(let [exit (.getExitStatus channel)]
             (when (and (not (= exit 0)) (not ignore-code)) 
               (throw+ (merge res {:type ::execute-failed :exit exit} (meta b))))))))))
 

@@ -24,19 +24,23 @@
     (copy remote path (<< "/tmp/~{name}/"))
     (.delete f)))
 
+(defn as-root [remote cmd]
+   (if (remote :user)
+     (<< "sudo ~{cmd}") cmd))
+
 (defrecord Standalone [remote type]
   Provision
   (apply- [this]
-    (let [puppet-std (type :puppet-std) module (puppet-std :module)]
+    (let [puppet-std (type :puppet-std) module (puppet-std :module) sudo ()]
      (try 
       (copy-module remote module) 
       (execute remote 
         (step :extract "cd /tmp" (<< "tar -xzf ~(:name module).tar.gz"))) 
       (copy-yml-type type remote)
       (execute remote
-          (step :run (<< "cd /tmp/~(:name module)") "./scripts/run.sh "))
+          (step :run (<< "cd /tmp/~(:name module)") (as-root remote "./scripts/run.sh")))
       (finally 
-        (execute remote (step :cleanup "cd /tmp" (<< "rm -rf ~(:name module)*")))))))) 
+        #_(execute remote (step :cleanup "cd /tmp" (<< "rm -rf ~(:name module)*")))))))) 
 
 
 (defmethod pconstruct :puppet-std [type {:keys [machine] :as spec}]

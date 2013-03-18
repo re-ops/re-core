@@ -61,8 +61,8 @@
        "Instance id not found, make sure no to address deleted instances" :uuid uuid})
     ))
 
-(defn image-desc [ami & ks]
-  (-> (ec2/describe-images (creds) (ec2/image-id-filter ami))
+(defn image-desc [endpoint ami & ks]
+  (-> (ec2/describe-images (assoc (creds) :endpoint endpoint) (ec2/image-id-filter ami))
       first (apply ks)))
 
 (defn instance-desc [endpoint uuid & ks]
@@ -105,7 +105,7 @@
             (debug "creating" uuid) 
             (swap! (ids) assoc uuid 
                    (-> (ec2 run-instances aws) :instances first :id)) 
-            (when (= (image-desc (aws :image-id) :root-device-type) "ebs")
+            (when (= (image-desc endpoint (aws :image-id) :root-device-type) "ebs")
               (wait-for-attach endpoint uuid [10 :minute])) 
             (update-pubdns this)
             (wait-for-ssh this)
@@ -142,7 +142,7 @@
   (def m (.create (vconstruct celestial.fixtures/redis-ec2-spec))) 
   (.start m)
 
-  (-> (ec2/describe-images (creds) (ec2/image-id-filter "ami-64636a10"))
+  (-> (ec2/describe-images (assoc (creds) :endpoint "ec2.eu-west-1.amazonaws.com") (ec2/image-id-filter "ami-64636a10"))
       first :root-device-type  
       )
 
