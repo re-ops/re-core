@@ -32,12 +32,7 @@
   [verb api args]
   (:data (parse-string (:body (verb (<< "~(root)~{api}") (merge args http-opts))) true)))
 
-(defn proxmox-conf [] 
-  
-  (let [c (get-in config [:hypervisor :proxmox])]
-    (debug c) 
-    c
-    ))
+(defn proxmox-conf [] (get-in config [:hypervisor :proxmox]))
 
 (defn login-creds []
   (select-keys 
@@ -72,5 +67,3 @@
 
 (defn prox-get [api] (call client/get api {:headers auth-headers}))
 
-
-(login)
