@@ -38,7 +38,9 @@
     (.start vm)
     (assert (= (.status vm) "running")); might not match all providers
     (post-create-hooks machine)
-    (info "done system setup")))
+    (info "done system setup")
+     vm 
+    ))
 
 (defn puppetize [type spec]
   (info "starting to provision")
