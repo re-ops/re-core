@@ -32,11 +32,16 @@
   [verb api args]
   (:data (parse-string (:body (verb (<< "~(root)~{api}") (merge args http-opts))) true)))
 
-(def proxmox-conf (get-in config [:hypervisor :proxmox]))
+(defn proxmox-conf [] 
+  
+  (let [c (get-in config [:hypervisor :proxmox])]
+    (debug c) 
+    c
+    ))
 
 (defn login-creds []
   (select-keys 
-    (assoc proxmox-conf :realm "pam") [:username :password :realm]))
+    (assoc (proxmox-conf) :realm "pam") [:username :password :realm]))
 
 (defn login []
   {:post [(not (nil? (% :CSRFPreventionToken))) (not (nil? (% :ticket)))]}
@@ -44,9 +49,9 @@
     (let [res (call- client/post "/access/ticket" {:form-params (login-creds)})]
       (select-keys res [:CSRFPreventionToken :ticket]))
     (catch #(#{401 500} (:status %)) e
-      (throw (ExceptionInfo. "Failed to login" proxmox-conf)))
+      (throw (ExceptionInfo. "Failed to login" (proxmox-conf))))
     (catch #(#{400} (:status %)) e
-      (throw (ExceptionInfo. "Illegal request, check query params" proxmox-conf)))))
+      (throw (ExceptionInfo. "Illegal request, check query params" (proxmox-conf))))))
 
 (def auth-headers
   (memoize 
@@ -68,3 +73,4 @@
 (defn prox-get [api] (call client/get api {:headers auth-headers}))
 
 
+(login)
