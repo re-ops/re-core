@@ -28,6 +28,8 @@
                  [ring "1.1.8"]
                  [compojure "1.1.5" :exclusions  [ring/ring-core]]
                  [ring/ring-jetty-adapter "1.1.8"]
+                 [org.bouncycastle/bcprov-jdk16 "1.46"]
+                 [net.schmizz/sshj "0.8.1"]
                  [ring-middleware-format "0.2.4"]]
 
   :exclusions [org.clojure/clojure]
@@ -35,7 +37,8 @@
   :plugins  [[lein-autoexpect "0.2.5"]  [jonase/eastwood "0.0.2"] [lein-tarsier "0.10.0"]
              [lein-expectations "0.0.7"] [lein-pedantic "0.0.5"]]
 
-  :profiles {:dev {:dependencies [[ring-mock "0.1.3"] [expectations "1.4.24"] [junit/junit "4.8.1"] ]}}
+  :profiles {:dev {:dependencies [[org.clojure/tools.trace "0.7.5"]
+                                  [ring-mock "0.1.3"] [expectations "1.4.24"] [junit/junit "4.8.1"] ]}}
                  
 
   :aot [proxmox.provider celestial.puppet-standalone celestial.launch]
