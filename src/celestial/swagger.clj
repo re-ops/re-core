@@ -1,5 +1,5 @@
 (ns celestial.swagger 
- (:use [compojure.core :only (defroutes GET context)])
+ (:use [compojure.core :only (defroutes GET POST context)])
   (:require [compojure.route :as route])) 
 
 (def base "http://localhost:8082/")
@@ -18,13 +18,45 @@
 
 (defstruct parameter :paramType :name :description :dataType :required :allowableValues :allowMultiple)
 
+(defn create-op [path args desc]
+  (println path args desc) 
+  )
+
+(defmacro GET- "Generate a swagger enabled GET route."
+  [path args desc & body]
+  `(do 
+     (with-meta (GET ~path ~args ~@body) (merge ~desc {:path ~path}))))
+
+(defmacro POST- "Generate a swagger enabled POST route."
+  [path args desc & body]
+  `(do 
+     (with-meta (POST ~path ~args ~@body) (merge ~desc {:path ~path}))))
+
+(defn create-api [& routes]
+  (doseq [r routes] (println (meta r)))
+  )
+
+(defmacro defroutes-
+  "A swagger enabled defroute"
+  [name & routes]
+  `(do 
+     (create-api ~@(identity  routes))
+     (defroutes ~name ~@routes)))
+
+(macroexpand 
+ '(defroutes- machines {:path "/machines" :description "Operations on machines"}
+  (GET- "/machine/" [^String host] {:nickname "getMachine" :summary "gets a machine"}  
+      (println host))
+  (POST- "/machine/" [^String host] {:nickname "setFoo" :summary "sets a machine"}  
+      (println host))))
+
 (def celetial-listing
   (struct resource-listing "0.1" "1.1" base 
           [(struct bare-api "/api/registry" "Registry operations") 
            (struct bare-api "/api/machine" "Machine operations")]))
 
-(defroutes api-declerations
-  (GET "/registry" [] 
+(defroutes- api-declerations
+  (GET- "/registry" []  {}
        {:body 
         (struct api-decleration
           "0.1" "1.1" "http://localhost:8082/api" "/registry" 
@@ -32,7 +64,7 @@
                [(struct operation "GET" "getHost" "" 
                    [(struct parameter "path" "name" "machine hostname" "String" true nil false)]
                    "Getting host" "Use with care" "")])] {})}) 
-  (GET "/machine" [] 
+  (GET- "/machine" [] {}
        {:body 
         {:apiVersion "0.1",
          :swaggerVersion "1.1",

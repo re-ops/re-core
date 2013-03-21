@@ -31,6 +31,7 @@
                  [org.bouncycastle/bcprov-jdk16 "1.46"]
                  [com.cemerick/friend "0.1.4"]
                  [net.schmizz/sshj "0.8.1"]
+                 [org.clojure/tools.macro "0.1.2"]
                  [ring-middleware-format "0.2.4"]]
 
   :exclusions [org.clojure/clojure]
