@@ -5,8 +5,8 @@
         [ring.middleware.format-params :only [wrap-restful-params]]
         [ring.middleware.format-response :only [wrap-restful-response]]
         [metrics.ring.instrument :only  (instrument)]
-        [taoensso.timbre :only (debug info error warn set-config! set-level!)]
-        )
+        [celestial.swagger :only (swagger-routes)]
+        [taoensso.timbre :only (debug info error warn set-config! set-level!)])
   (:require 
     [celestial.security :as sec]
     [celestial.persistency :as p]
@@ -59,12 +59,10 @@
   (context "/registry" [] reg-routes)
   (route/not-found "Not Found"))
 
-(defroutes public 
-  (GET "/api" [h] "swagger json.api will be here"))
 
 (defn app [secured?]
   "The api routes, secured? will enabled authentication"
-  (-> (routes public 
+  (-> (routes swagger-routes
         (if secured? (sec/secured-app app-routes) app-routes))
     (handler/api)
     (wrap-restful-params)
