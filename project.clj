@@ -16,7 +16,7 @@
                  [clj-yaml "0.4.0"]
                  [org.clojure/data.json "0.2.1" ]
                  [com.taoensso/carmine "1.6.0"]
-                 [org.clojure/core.memoize "0.5.2"]
+                 [org.clojure/core.memoize "0.5.2" :exclusions [org.clojure/core.cache]]
                  [org.slf4j/slf4j-simple "1.6.4"]; required for codahale metrics
                  [metrics-clojure "0.9.2"]
                  [clj-aws-ec2 "0.2.0" :exclusions  [org.codehaus.jackson/jackson-core-asl]]
@@ -29,6 +29,7 @@
                  [compojure "1.1.5" :exclusions  [ring/ring-core]]
                  [ring/ring-jetty-adapter "1.1.8"]
                  [org.bouncycastle/bcprov-jdk16 "1.46"]
+                 [com.cemerick/friend "0.1.4"]
                  [net.schmizz/sshj "0.8.1"]
                  [ring-middleware-format "0.2.4"]]
 

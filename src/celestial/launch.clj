@@ -23,4 +23,4 @@
 (defn -main [& args]
   (add-shutdown)
   (jobs/initialize-workers)
-  (run-jetty app  {:port (get-in config [:celestial :port]) :join? true}))
+  (run-jetty (app true)  {:port (get-in config [:celestial :port]) :join? true}))
