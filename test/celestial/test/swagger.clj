@@ -14,9 +14,13 @@
   (is (= (count (get-in @apis [:machines :apis])) 1)))
 
 (deftest parameters 
-   (defroutes- machines {:path "/machines" :description "Operations on machines"}
+  (defroutes- machines {:path "/machines" :description "Operations on machines"}
     (GET- "/machine/" [^{:paramType "body" :dataType "String"} host] {:nickname "getMachine" :summary "gets a machine"}  
-          (println host))
-    (POST "/machine/" [host] (println host)))
-    (is (= (get-in @apis [:machines :apis 0 :parameters 0 :dataType]) "String"))
+          (println host)))
+  (is (= (get-in @apis [:machines :apis 0 :parameters 0 :dataType]) "String"))
+  )
+
+(deftest auto-param-type-guessing 
+    (is (= (-> (GET- "/machine/" [^:string host] {} ()) meta
+         (get-in [:parameters 0 :dataType]))) :string)
   )
