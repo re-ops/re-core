@@ -26,11 +26,15 @@
 
 (def apis (atom {}))
 
+(defn create-params [args] 
+  (let [defaults (struct parameter "path" nil nil "String" true nil false)]
+     (mapv 
+       #(-> % meta (merge defaults {:name (str %)})) args)))
+
 (defmacro GET- "Generate a swagger enabled GET route."
   [path args desc & body]
-  `(do 
-     (with-meta (GET ~path ~args ~@body) 
-        (merge (struct operation) ~desc {:httpMethod "GET" :path ~path}))))
+    `(with-meta (GET ~path ~args ~@body) 
+        (merge (struct operation) ~desc {:parameters ~(create-params args) :httpMethod "GET" :path ~path})))
 
 (defmacro POST- "Generate a swagger enabled POST route."
   [path args desc & body]
@@ -38,7 +42,7 @@
         (merge (struct operation) ~desc {:httpMethod "POST" :path ~path})))
 
 (defn create-api [name & routes]
-   (let [_apis (filter identity (mapv meta (rest routes)))]
+   (let [_apis (filterv identity (map meta (rest routes)))]
      (swap! apis assoc (keyword name) 
        (struct api-decleration "0.1" "1.1" (<< "~{base}api") (<< "/~{name}") _apis []))))
 
@@ -51,7 +55,7 @@
 
 (macroexpand 
  '(defroutes- machines {:path "/machines" :description "Operations on machines"}
-  (GET- "/machine/" [^String host] 
+  (GET- "/machine/" [^{:paramType "body" :dataType "String"} host] 
     {:nickname "getMachine" :summary "gets a machine"}  
       (println host))
   (POST "/machine/" [^String host] 
