@@ -23,4 +23,6 @@
 (deftest auto-param-type-guessing 
     (is (= (-> (GET- "/machine/" [^:string host] {} ()) meta
          (get-in [:parameters 0 :dataType]))) :string)
+    (is (= (-> (GET- "/machine/:host" [^:string host] {} ()) meta
+         (get-in [:parameters 0 :paramType]))) "path")
   )
