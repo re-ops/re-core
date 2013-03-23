@@ -1,8 +1,10 @@
 (ns celestial.swagger 
  "Swagger integration for Compojure, see https://github.com/wordnik/swagger-core/wiki/Resource-Listing for api definitions."
+ (:refer-clojure :exclude [replace])
  (:use 
    clojure.pprint
    [flatland.useful.seq :only (find-first)]
+   [clojure.string :only (replace)]
    [clojure.core.strint :only (<<)]
    [compojure.core :only (defroutes GET POST context)])
    (:require 
@@ -44,12 +46,19 @@
       #(-> % meta 
            (merge defaults {:name (str %)} (guess-type path %))) args)))
 
+(defn create-op [desc verb params]
+  (merge (struct operation) desc {:parameters params :httpMethod verb}))
+
+(defn swag-path [path]
+  "Converts compojure params to swagger params notation"
+   (replace path #"\:(\w*)" (fn [v] (<< "{~{(second v)}}"))))
+
 (defmacro swag-verb 
   "Creates a swagger enabled http route with a given verb"
   [verb path args desc & body]
   `(with-meta (~verb ~path ~args ~@body) 
-              (merge (struct operation) ~desc 
-                     {:parameters ~(create-params path args) :httpMethod (-> ~verb var meta :name) :path ~path})))
+      (struct api ~(swag-path path) "THis should be taken from defroute!"
+           [(create-op ~desc (-> ~verb var meta :name) ~(create-params path args))])))
 
 (defmacro GET- 
   "A swagger enabled GET route."
@@ -61,10 +70,15 @@
   [path args desc & body]
   `(swag-verb POST ~path ~args ~desc ~@body))
 
+(defn combine-apis [_apis]
+  "Merges api routes with same paths different verbs"
+  (mapv #(apply merge-with (fn [f s] (if (vector? f) (into [] (concat f s)) f)) %)
+        (vals (group-by :path _apis))))
+
 (defn create-api [name & routes]
   (let [_apis (filterv identity (map meta (rest routes)))]
     (swap! apis assoc (keyword name) 
-           (struct api-decleration "0.1" "1.1" (<< "~{base}api") (<< "/~{name}") _apis []))))
+           (struct api-decleration "0.1" "1.1" (<< "~{base}api") (<< "/~{name}") (combine-apis _apis) []))))
 
 (defmacro defroutes-
   "A swagger enabled defroute"
@@ -73,38 +87,23 @@
      (create-api ~(str name) ~@routes)
      (defroutes ~name ~@routes)))
 
-(macroexpand 
-  '(defroutes- machines {:path "/machines" :description "Operations on machines"}
-     (GET- "/machine/" [^{:paramType "body" :dataType "String"} host] 
-           {:nickname "getMachine" :summary "gets a machine"}  
-           (println host))
-     (POST "/machine/" [^String host] 
-           {:nickname "setFoo" :summary "sets a machine"}  
-           (println host))))
+#_(defroutes- machines {:path "/machine" :description "Operations on machines"}
+     (GET- "/machine/:host" [^:string host] 
+        {:nickname "getMachine" :summary "gets a machine"}  ())
+     (POST- "/machine/:host" [^:string host] 
+           {:nickname "addMachine" :summary "adds a machine"} ())
+     (GET- "/machine/:cpu" [^:int cpus] 
+           {:nickname "getCpus" :summary "get machines cpus list"} ())  
+   )
 
 (def celetial-listing
   (struct resource-listing "0.1" "1.1" base 
-          [(struct bare-api "/api/registry" "Registry operations") 
-           (struct bare-api "/api/machine" "Machine operations")]))
+          [(struct bare-api "/api/jobs" "Job scheduling operations")
+           (struct bare-api "/api/hosts" "Hosts operations")]))
 
 (defroutes api-declerations
-  (GET "/registry" []  {}
-       {:body 
-        (struct api-decleration
-                "0.1" "1.1" "http://localhost:8082/api" "/registry" 
-                [(struct api "/registry/host/machine/{name}" "Getting machine"
-                         [(struct operation "GET" "getHost" "" 
-                                  [(struct parameter "path" "name" "machine hostname" "String" true nil false)]
-                                  "Getting host" "Use with care" "")])] {})}) 
-  (GET "/machine" [] {}
-       {:body 
-        {:apiVersion "0.1",
-         :swaggerVersion "1.1",
-         :basePath "http://localhost:8082/api",
-         :resourcePath "/machine"
-         :apis []
-         :models {}}})
-  )
+  (GET "/hosts" [] {:body (@apis :hosts)})
+  (GET "/jobs" [] {:body (@apis :jobs)}))
 
 (defroutes swagger-routes
   (context "/api" [] api-declerations)

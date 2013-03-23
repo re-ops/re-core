@@ -19,14 +19,13 @@
     (GET- "/machine/" 
       [^{:paramType "query" :dataType "String"} host] {:nickname "getMachine" :summary "gets a machine"}  
           ()))
-  (let [param (get-in @apis [:machines :apis 0 :parameters 0 ])]
+  (let [param (get-in @apis [:machines :apis 0  :operations 0 :parameters 0])]
     (is (= (param :dataType) "String")) 
     (is (= (param :paramType) "query"))) 
   )
 
 (deftest auto-param-type-guessing 
-  (is (= (swag-meta 
-           (GET- "/machine/" [^:string host] {} ()) :parameters 0 :dataType) "string"))
-  (is (= (swag-meta 
-           (GET- "/machine/:host" [^:string host] {} ()) :parameters 0 :paramType) "path"))
+  (let [param (swag-meta (GET- "/machine/:host" [^:string host] {} ()) :operations 0 :parameters 0)]
+    (is (= (param :dataType)  "string")) 
+    (is (= (param :paramType) "path"))) 
   )

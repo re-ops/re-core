@@ -5,7 +5,7 @@
         [ring.middleware.format-params :only [wrap-restful-params]]
         [ring.middleware.format-response :only [wrap-restful-response]]
         [metrics.ring.instrument :only  (instrument)]
-        [celestial.swagger :only (swagger-routes GET- defroutes-)]
+        [celestial.swagger :only (swagger-routes GET- POST- defroutes-)]
         [taoensso.timbre :only (debug info error warn set-config! set-level!)])
   (:require 
     [celestial.security :as sec]
@@ -20,8 +20,6 @@
 (set-config! [:appenders :spit :enabled?] true)
 (set-level! :trace)
 
-
-
 (defn generate-response [data] {:status 200 :body data})
 
 (defroutes provision-routes
@@ -35,18 +33,19 @@
         (jobs/enqueue "stage" {:identity host :args [(p/host host)]})
         (generate-response {:msg "submitted staging" :host host})))
 
-(defroutes machine-routes
-  (POST "/:host" [host]
+(defroutes- jobs {:path "/job" :description "Operations on async job scheduling"}
+  (POST- "/job/:host" [^:string host] {:nickname "createMachine" :summary "schedules a machine creation job"}
         (jobs/enqueue "machine" {:identity host :args [(p/host host)]})
         (generate-response {:msg "submited system creation" :host host})))
 
-(defroutes reg-routes
+(defroutes- hosts {:path "/host" :description "Operations on hosts"}
   (POST "/host" [& props]
         (p/register-host props)
         (generate-response {:msg "new host saved" :host (get-in props [:machine :hostname]) :props props}))
-  (GET "/host/machine/:h" [h] (generate-response (p/host h)))
-  (GET "/host/type/:h" [h]
-       (generate-response (select-keys (p/type-of (:type (p/fuzzy-host h))) [:classes])))
+  (GET- "/host/machine/:host" [^:string host] {:nickname "getHostMachine" :summary "Host machine"}
+        (generate-response (p/host host)))
+  (GET- "/host/type/:host" [^:string host] {:nickname "getHostType" :summary "Host type"}
+       (generate-response (select-keys (p/type-of (:type (p/fuzzy-host host))) [:classes])))
   (POST "/type" [type & props]
         (p/new-type type props)
         (generate-response {:msg "new type saved" :type type :opts props}))) 
@@ -55,8 +54,7 @@
 (defroutes app-routes
   (context "/stage" [] stage-routes)
   (context "/provision" [] provision-routes)
-  (context "/machine" [] machine-routes)
-  (context "/registry" [] reg-routes)
+   hosts jobs
   (route/not-found "Not Found"))
 
 
