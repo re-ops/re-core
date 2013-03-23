@@ -33,8 +33,8 @@
 
 (defn guess-type [path arg]
   (let [m (meta arg)]
-    {:paramType (if (.contains path (<< ":~(str arg)")) "path" "body")
-     :dataType (or (find-first primitives (keys m)) (m :dataType))
+    {:paramType (or (m :paramType) (if (.contains path (<< ":~(str arg)")) "path" "body"))
+     :dataType (name (or (find-first primitives (keys m)) (m :dataType)))
      }))
 
 

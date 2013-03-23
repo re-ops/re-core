@@ -5,7 +5,7 @@
         [ring.middleware.format-params :only [wrap-restful-params]]
         [ring.middleware.format-response :only [wrap-restful-response]]
         [metrics.ring.instrument :only  (instrument)]
-        [celestial.swagger :only (swagger-routes)]
+        [celestial.swagger :only (swagger-routes GET- defroutes-)]
         [taoensso.timbre :only (debug info error warn set-config! set-level!)])
   (:require 
     [celestial.security :as sec]
