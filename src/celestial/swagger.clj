@@ -4,7 +4,7 @@
  (:use 
    clojure.pprint
    [flatland.useful.seq :only (find-first)]
-   [clojure.string :only (replace)]
+   [clojure.string :only (replace capitalize)]
    [clojure.core.strint :only (<<)]
    [compojure.core :only (defroutes GET POST context)])
    (:require 
@@ -39,36 +39,53 @@
 (def ^{:doc "see https://github.com/wordnik/swagger-core/wiki/Datatypes"}
   primitives #{:byte :boolean :int :long :float :double :string :Date})
 
-(def resource-listing-data (atom (resource-listing-)))
+(def ^{:doc "see https://github.com/wordnik/swagger-core/wiki/Datatypes"}
+  containers  #{:List :Set :Array})
+
+(def ^{:doc "User defined types"} models (atom {}))
 
 (def apis (atom {}))
+
+(defn add-model [k m] (swap! models assoc k m))
+
+(defmacro defmodel [name & props]
+  `(add-model ~(keyword name) (model- ~(-> name str capitalize) (hash-map ~@props)))
+  )
+
+
+(defn type-match [m]
+     (or 
+       (some-> (find-first (into #{} (keys @models)) (keys m)) name capitalize)
+       (some-> (find-first primitives (keys m)) name)
+       (name (m :dataType)))
+  )
 
 (defn guess-type [path arg]
   (let [m (meta arg)]
     {:paramType (or (m :paramType) (if (.contains path (<< ":~(str arg)")) "path" "body"))
-     :dataType (name (or (find-first primitives (keys m)) (m :dataType)))
-     }))
+     :dataType (type-match m)}))
 
 
 (defn create-params [path args] 
   (let [defaults (parameter- nil nil nil "String" true nil false) ]
     (mapv 
       #(-> % meta 
-           (merge defaults {:name (str %)} (guess-type path %))) args)))
+           (merge defaults {:name (str %)} (guess-type path %))) (remove #(= % '&) args))))
 
 (defn create-op [desc verb params]
   (merge (operation-) desc {:parameters params :httpMethod verb}))
 
 (defn swag-path [path]
   "Converts compojure params to swagger params notation"
-   (replace path #"\:(\w*)" (fn [v] (<< "{~{(second v)}}"))))
+  (replace path #"\:(\w*)" (fn [v] (<< "{~{(second v)}}"))))
 
 (defmacro swag-verb 
   "Creates a swagger enabled http route with a given verb"
   [verb path args desc & body]
+  {:pre [(map? desc)]}
   `(with-meta (~verb ~path ~args ~@body) 
-      (api- ~(swag-path path) "THis should be taken from defroute!"
-           [(create-op ~desc (-> ~verb var meta :name) ~(create-params path args))])))
+              (api- ~(swag-path path) "THis should be taken from defroute!"
+                    [(create-op ~desc (-> ~verb var meta :name) ~(create-params path args))])))
 
 (defmacro GET- 
   "A swagger enabled GET route."
@@ -97,19 +114,22 @@
      (create-api ~(str name) ~@routes)
      (defroutes ~name ~@routes)))
 
+(defmodel type :foo :string)
 #_(defroutes- machines {:path "/machine" :description "Operations on machines"}
-     (GET- "/machine/:host" [^:string host] 
-        {:nickname "getMachine" :summary "gets a machine"}  ())
-     (POST- "/machine/:host" [^:string host] 
+    (GET- "/machine/:host" [^:string host] 
+          {:nickname "getMachine" :summary "gets a machine"}  ())
+    (POST- "/machine/:host" [^:string host] 
            {:nickname "addMachine" :summary "adds a machine"} ())
-     (GET- "/machine/:cpu" [^:int cpus] 
-           {:nickname "getCpus" :summary "get machines cpus list"} ())  
-   )
+    (GET- "/machine/:cpu" [^:int cpus] 
+          {:nickname "getCpus" :summary "get machines cpus list"} ())  
+    (POST- "/type" [^:string type & ^:type props] {:nickname "addType" :summary "Adds a type"}
+           (identity 1))
+    )
 
 (def celetial-listing
   (resource-listing- "0.1" "1.1" base 
-          [(bare-api- "/api/jobs" "Job scheduling operations")
-           (bare-api- "/api/hosts" "Hosts operations")]))
+                     [(bare-api- "/api/jobs" "Job scheduling operations")
+                      (bare-api- "/api/hosts" "Hosts operations")]))
 
 (defroutes api-declerations
   (GET "/hosts" [] {:body (@apis :hosts)})
