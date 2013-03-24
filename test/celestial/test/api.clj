@@ -24,18 +24,18 @@
 (def non-sec-app (app false))
 
 (scenario
-  (expect {:status 200} (in (non-sec-app (request :get (<< "/registry/host/machine/redis-local"))))) 
+  (expect {:status 200} (in (non-sec-app (request :get (<< "/host/machine/redis-local"))))) 
   (expect (interaction (p/host "redis-local"))))
 
 (scenario
   (stubbing [p/fuzzy-host {:type "redis"} p/type-of {:classes {:redis {:append true}}}]
      (expect {:status 200} 
-         (in (non-sec-app (header (request :get (<< "/registry/host/type/redis-local")) "accept"  "application/json")))) 
+         (in (non-sec-app (header (request :get (<< "/host/type/redis-local")) "accept"  "application/json")))) 
             ))
 
 (def type-req
   (merge {:params (slurp-edn "fixtures/redis-type.edn")}
-         (header (request :post "/registry/type") "Content-type" "application/edn")))
+         (header (request :post "/type") "Content-type" "application/edn")))
 
 (scenario
   (expect {:status 200} (in (non-sec-app type-req))) 
@@ -46,15 +46,15 @@
 (scenario 
   (let [machine {:type "redis" :machine {:host "foo"}} type {:classes {:redis {}}}]
     (stubbing [p/host machine  p/type-of type]
-        (expect {:status 200} (in (non-sec-app (request :post "/provision/redis-local")))) 
+        (expect {:status 200} (in (non-sec-app (request :post "/job/provision/redis-local")))) 
         (expect (interaction (jobs/enqueue "provision" {:identity "redis-local" :args [type machine]}))))))
 
 (scenario 
-  (expect {:status 200} (in (non-sec-app (request :post "/stage/redis-local")))) 
+  (expect {:status 200} (in (non-sec-app (request :post "/job/stage/redis-local")))) 
   (expect (interaction (p/host "redis-local")))  
   (expect (interaction (jobs/enqueue "stage" {:identity "redis-local" :args ["p/host result"]}))))
 
 (scenario 
-  (expect {:status 200} (in (non-sec-app (request :post "/machine/redis-local")))) 
+  (expect {:status 200} (in (non-sec-app (request :post "/job/create/redis-local")))) 
   (expect (interaction (p/host "redis-local")))  
   (expect (interaction (jobs/enqueue "machine" {:identity "redis-local" :args ["p/host result"]}))))
