@@ -10,26 +10,36 @@
    (:require 
      [compojure.route :as route])) 
 
+(defmacro defstruct- [name & ks]
+  "A struct def that creates a constructor in the form of sname-"
+ `(do 
+   (defstruct ~name ~@ks)
+   (defn ~(symbol (str name "-")) [& k#] (apply struct ~name k# ))))
+
 (def base "http://localhost:8082/")
 
-(defstruct base-swag :apiVersion :swaggerVersion :basepath)
+(defstruct- base-swag :apiVersion :swaggerVersion :basepath)
 
-(defstruct resource-listing :apiVersion :swaggerVersion :basepath :apis)
+(defstruct- resource-listing :apiVersion :swaggerVersion :basepath :apis)
 
-(defstruct api-decleration  :apiVersion :swaggerVersion :basepath :resourcePath :apis :models)
+(defstruct- api-decleration  :apiVersion :swaggerVersion :basepath :resourcePath :apis :models)
 
-(defstruct bare-api :path :description)
+(defstruct- bare-api :path :description)
 
-(defstruct api :path :description :operations)
+(defstruct- api :path :description :operations)
 
-(defstruct operation :httpMethod :nickname :responseClass :parameters :summary :notes :errorResponses)
+(defstruct- operation :httpMethod :nickname :responseClass :parameters :summary :notes :errorResponses)
 
-(defstruct parameter :paramType :name :description :dataType :required :allowableValues :allowMultiple)
+(defstruct- parameter :paramType :name :description :dataType :required :allowableValues :allowMultiple)
+
+(defstruct- model :id :properties)
+
+(defstruct- property :name :type :description)
 
 (def ^{:doc "see https://github.com/wordnik/swagger-core/wiki/Datatypes"}
   primitives #{:byte :boolean :int :long :float :double :string :Date})
 
-(def resource-listing-data (atom (struct resource-listing)))
+(def resource-listing-data (atom (resource-listing-)))
 
 (def apis (atom {}))
 
@@ -41,13 +51,13 @@
 
 
 (defn create-params [path args] 
-  (let [defaults (struct parameter nil nil nil "String" true nil false) ]
+  (let [defaults (parameter- nil nil nil "String" true nil false) ]
     (mapv 
       #(-> % meta 
            (merge defaults {:name (str %)} (guess-type path %))) args)))
 
 (defn create-op [desc verb params]
-  (merge (struct operation) desc {:parameters params :httpMethod verb}))
+  (merge (operation-) desc {:parameters params :httpMethod verb}))
 
 (defn swag-path [path]
   "Converts compojure params to swagger params notation"
@@ -57,7 +67,7 @@
   "Creates a swagger enabled http route with a given verb"
   [verb path args desc & body]
   `(with-meta (~verb ~path ~args ~@body) 
-      (struct api ~(swag-path path) "THis should be taken from defroute!"
+      (api- ~(swag-path path) "THis should be taken from defroute!"
            [(create-op ~desc (-> ~verb var meta :name) ~(create-params path args))])))
 
 (defmacro GET- 
@@ -78,7 +88,7 @@
 (defn create-api [name & routes]
   (let [_apis (filterv identity (map meta (rest routes)))]
     (swap! apis assoc (keyword name) 
-           (struct api-decleration "0.1" "1.1" (<< "~{base}api") (<< "/~{name}") (combine-apis _apis) []))))
+           (api-decleration- "0.1" "1.1" (<< "~{base}api") (<< "/~{name}") (combine-apis _apis) []))))
 
 (defmacro defroutes-
   "A swagger enabled defroute"
@@ -97,9 +107,9 @@
    )
 
 (def celetial-listing
-  (struct resource-listing "0.1" "1.1" base 
-          [(struct bare-api "/api/jobs" "Job scheduling operations")
-           (struct bare-api "/api/hosts" "Hosts operations")]))
+  (resource-listing- "0.1" "1.1" base 
+          [(bare-api- "/api/jobs" "Job scheduling operations")
+           (bare-api- "/api/hosts" "Hosts operations")]))
 
 (defroutes api-declerations
   (GET "/hosts" [] {:body (@apis :hosts)})
