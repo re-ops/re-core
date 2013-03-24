@@ -49,16 +49,13 @@
 (defn add-model [k m] (swap! models assoc k m))
 
 (defmacro defmodel [name & props]
-  `(add-model ~(keyword name) (model- ~(-> name str capitalize) (hash-map ~@props)))
-  )
-
+  `(add-model ~(keyword name) (model- ~(-> name str capitalize) (hash-map ~@props))))
 
 (defn type-match [m]
      (or 
        (some-> (find-first (into #{} (keys @models)) (keys m)) name capitalize)
        (some-> (find-first primitives (keys m)) name)
-       (name (m :dataType)))
-  )
+       (name (m :dataType))))
 
 (defn guess-type [path arg]
   (let [m (meta arg)]
@@ -102,10 +99,11 @@
   (mapv #(apply merge-with (fn [f s] (if (vector? f) (into [] (concat f s)) f)) %)
         (vals (group-by :path _apis))))
 
-(defn create-api [name & routes]
+(defn create-api [_name & routes]
   (let [_apis (filterv identity (map meta (rest routes)))]
-    (swap! apis assoc (keyword name) 
-           (api-decleration- "0.1" "1.1" (<< "~{base}api") (<< "/~{name}") (combine-apis _apis) []))))
+    (swap! apis assoc (keyword _name) 
+       (api-decleration- "0.1" "1.1" (<< "~{base}api") (<< "/~{_name}") (combine-apis _apis)
+        (into {} (map (fn [[k v]] [(-> k name capitalize) v]) @models))))))
 
 (defmacro defroutes-
   "A swagger enabled defroute"
@@ -114,7 +112,7 @@
      (create-api ~(str name) ~@routes)
      (defroutes ~name ~@routes)))
 
-(defmodel type :foo :string)
+#_(defmodel :type )
 #_(defroutes- machines {:path "/machine" :description "Operations on machines"}
     (GET- "/machine/:host" [^:string host] 
           {:nickname "getMachine" :summary "gets a machine"}  ())

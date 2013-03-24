@@ -22,13 +22,13 @@
 
 (defn generate-response [data] {:status 200 :body data})
 
-(defmodel type :puppet-std {:type "Puppetstd"})
+(defmodel type :puppetstd {:type "Puppetstd"})
 
 (defmodel puppetstd :module {:type "Module"} :type :string :classes {:type "Classes"} )
 
 (defmodel module :name :string :src :string)
 
-(defmodel classes)
+(defmodel classes :id :string)
 
 
 (defroutes- jobs {:path "/job" :description "Operations on async job scheduling"}
