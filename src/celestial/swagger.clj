@@ -48,8 +48,13 @@
 
 (defn add-model [k m] (swap! models assoc k m))
 
+(defn nest-types [m]
+  (reduce (fn [r [k v]] (assoc r k (if (keyword? v) {:type v} v))) {} m))
+
 (defmacro defmodel [name & props]
-  `(add-model ~(keyword name) (model- ~(-> name str capitalize) (hash-map ~@props))))
+  `(add-model ~(keyword name) (model- ~(-> name str capitalize) (nest-types (hash-map ~@props)))))
+
+(defmodel module :name :string :src :string)
 
 (defn type-match [m]
      (or 

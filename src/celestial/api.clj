@@ -22,14 +22,31 @@
 
 (defn generate-response [data] {:status 200 :body data})
 
-(defmodel type :puppetstd {:type "Puppetstd"})
 
-(defmodel puppetstd :module {:type "Module"} :type :string :classes {:type "Classes"} )
+(defmodel type :type :string :puppet-std {:type "Puppetstd"} :classes {:type "Object"})
+
+(defmodel puppetstd :module {:type "Module"})
 
 (defmodel module :name :string :src :string)
 
-(defmodel classes :id :string)
+(defmodel object)
 
+(defmodel system :machine {:type "Machine"} 
+  :aws {:type "Aws" :description "Only for ec2"}
+  :proxmox {:type "Proxmox" :description "Only for proxmox"}
+  :type :string)
+
+(defmodel machine 
+  :cpus {:type :int :description "Not relevant in ec2"}
+  :memory {:type :int :description "Not relevant in ec2"}
+  :disk {:type :int :description "Not relevant in ec2"}
+  :hostname :string :user :string :os :string :ip {:type :string :description "Not relevant in ec2"})
+
+(defmodel proxmox :vmid :int :nameserver :string :searchdomain :string 
+  :password :string :node :string :type :string :features {:type "List"})
+
+(defmodel aws :min-count :int :max-count :int :instance-type :string 
+  :image-id :string :keyname :string :endpoint :string)
 
 (defroutes- jobs {:path "/job" :description "Operations on async job scheduling"}
   (POST- "/job/stage/:host" [^:string host] {:nickname "stageMachine" :summary "Complete staging job"}
@@ -46,24 +63,24 @@
            (generate-response {:msg "submitted provisioning" :host host :machine machine :type type}))))
 
 (defroutes- hosts {:path "/host" :description "Operations on hosts"}
-  (GET- "/host/machine/:host" [^:string host] {:nickname "getHostMachine" :summary "Host machine"}
+  (GET- "/host/machine/:host" [^:string host] {:nickname "getHostMachine" :summary "Get Host machine"}
         (generate-response (p/host host)))
 
-  (POST "/host/machine" [& props] {:nickname "getHostMachine" :summary "Host machine"}
-        (p/register-host props)
-        (generate-response 
-          {:msg "new host saved" :host (get-in props [:machine :hostname]) :props props}))
+  (POST- "/host/machine" [& ^:system props] {:nickname "getHostMachine" :summary "Add Host machine"}
+         (p/register-host props)
+         (generate-response 
+           {:msg "new host saved" :host (get-in props [:machine :hostname]) :props props}))
 
   (GET- "/host/type/:host" [^:string host] {:nickname "getHostType" :summary "Host type"}
         (generate-response (select-keys (p/type-of (:type (p/fuzzy-host host))) [:classes])))
 
   (POST- "/type" [^:string type & ^:type props] {:nickname "addType" :summary "Add type"}
-        (p/new-type type props)
-        (generate-response {:msg "new type saved" :type type :opts props}))) 
+         (p/new-type type props)
+         (generate-response {:msg "new type saved" :type type :opts props}))) 
 
 
 (defroutes app-routes
-   hosts jobs
+  hosts jobs
   (route/not-found "Not Found"))
 
 
