@@ -35,6 +35,9 @@
   (trace "submitting" payload "to" queue) 
   (wcar (carmine-mq/enqueue queue payload)))
 
+(defn status [queue uuid]
+   (wcar (carmine-mq/status queue uuid))
+  )
 (defn shutdown-workers []
   (doseq [[k ws] @workers]
     (doseq [w ws]

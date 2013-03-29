@@ -4,8 +4,10 @@
         [metrics.ring.expose :only  (expose-metrics-as-json)]
         [ring.middleware.format-params :only [wrap-restful-params]]
         [ring.middleware.format-response :only [wrap-restful-response]]
+        [ring.middleware.params :only (wrap-params)]
         [metrics.ring.instrument :only  (instrument)]
-        [swag.core :only (swagger-routes GET- POST- defroutes- defmodel)]
+        [swag.core :only (swagger-routes GET- POST- defroutes-)]
+        [swag.model :only (defmodel wrap-swag defv defc)]
         [taoensso.timbre :only (debug info error warn set-config! set-level!)])
   (:require 
     [celestial.security :as sec]
@@ -22,7 +24,6 @@
 
 (defn generate-response [data] {:status 200 :body data})
 
-
 (defmodel type :type :string :puppet-std {:type "Puppetstd"} :classes {:type "Object"})
 
 (defmodel puppetstd :module {:type "Module"})
@@ -31,7 +32,8 @@
 
 (defmodel object)
 
-(defmodel system :machine {:type "Machine"} 
+(defmodel system 
+  :machine {:type "Machine"} 
   :aws {:type "Aws" :description "Only for ec2"}
   :proxmox {:type "Proxmox" :description "Only for proxmox"}
   :type :string)
@@ -42,13 +44,24 @@
   :disk {:type :int :description "Not relevant in ec2"}
   :hostname :string :user :string :os :string :ip {:type :string :description "Not relevant in ec2"})
 
-(defmodel proxmox :vmid :int :nameserver :string :searchdomain :string 
-  :password :string :node :string :type :string :features {:type "List"})
+(defmodel proxmox :vmid :int :nameserver :string :searchdomain :string :password :string :node :string 
+  :type {:type :string :allowableValues {:valueType "LIST" :values ["ct" "vm"]}}
+  :features {:type "List"})
 
-(defmodel aws :min-count :int :max-count :int :instance-type :string 
+(defv [:proxmox :type]
+  (let [allowed (get-in proxmox [:properties :type :allowableValues :values])]
+    (when-not (first (filter #{v} allowed))
+      (throw (Exception. (str v " proxmox type isn't allowed"))))))
+
+(defc [:proxmox :type] (keyword v))
+
+(defc [:machine :os] (keyword v))
+
+(defmodel aws :min-count :int :max-count :int :instance-type :string
   :image-id :string :keyname :string :endpoint :string)
 
 (defroutes- jobs {:path "/job" :description "Operations on async job scheduling"}
+
   (POST- "/job/stage/:host" [^:string host] {:nickname "stageMachine" :summary "Complete staging job"}
          (jobs/enqueue "stage" {:identity host :args [(p/host host)]})
          (generate-response {:msg "submitted staging" :host host}))
@@ -96,8 +109,9 @@
   "The api routes, secured? will enabled authentication"
   (-> (routes swagger-routes
               (if secured? (sec/secured-app app-routes) app-routes))
+      (wrap-swag) 
       (handler/api)
-      (wrap-restful-params)
+      (wrap-restful-params) 
       (wrap-restful-response)
       (expose-metrics-as-json)
       (instrument)
