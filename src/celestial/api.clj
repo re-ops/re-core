@@ -54,13 +54,21 @@
          (generate-response {:msg "submitted staging" :host host}))
 
   (POST- "/job/create/:host" [^:string host] {:nickname "createMachine" :summary "Machine creation job"}
-         (jobs/enqueue "machine" {:identity host :args [(p/host host)]})
-         (generate-response {:msg "submited system creation" :host host}))
+         (let [[id t] (jobs/enqueue "machine" {:identity host :args [(p/host host)]})]
+           (generate-response {:msg "submited system creation" :host host :id id :total t})))
 
   (POST- "/job/provision/:host" [^:string host] {:nickname "provisionHost" :summary "provisioning job"}
-         (let [machine (p/host host) type (p/type-of (:type machine))]
-           (jobs/enqueue "provision" {:identity host :args [type machine]}) 
-           (generate-response {:msg "submitted provisioning" :host host :machine machine :type type}))))
+         (let [machine (p/host host) type (p/type-of (:type machine))
+               [id t] (jobs/enqueue "provision" {:identity host :args [type machine]})]
+           (generate-response 
+             {:msg "submitted provisioning" :host host :machine machine :type type :id id :total t})))
+
+  (GET- "/job/:queue/:uuid/status" [^:string queue ^:string uuid]
+        {:nickname "jobStatus" :summary "job status tracking" 
+         :notes "job status can be pending, processing, done or nil"}
+        (generate-response {:job-status  (jobs/status queue uuid)}))
+
+  )
 
 (defroutes- hosts {:path "/host" :description "Operations on hosts"}
   (GET- "/host/machine/:host" [^:string host] {:nickname "getHostMachine" :summary "Get Host machine"}
