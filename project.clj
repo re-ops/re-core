@@ -10,6 +10,7 @@
                  [prismatic/plumbing "0.0.1"]
                  [cheshire "5.0.2"]
                  [com.taoensso/timbre "1.4.0" ]
+                 [com.narkisr/gelfino "0.4.0" :exclusions [org.clojure/tools.logging]]
                  [org.clojure/core.incubator "0.1.2"]
                  [slingshot "0.10.3" ]
                  [clj-http "0.6.5"]

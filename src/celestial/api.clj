@@ -103,6 +103,12 @@
          (generate-response {:msg "new type saved" :type type :opts props}))) 
 
 
+(defn user-tracking [app]
+  "A tiny middleware to track api access"
+  (fn [{:keys [uri request-method] :as req}]
+    (debug request-method " on " uri "by" (friend/current-authentication) )
+    (app req)))
+
 (defroutes app-routes
   hosts jobs
   (route/not-found "Not Found"))
@@ -111,7 +117,8 @@
 (defn app [secured?]
   "The api routes, secured? will enabled authentication"
   (-> (routes swagger-routes
-              (if secured? (sec/secured-app app-routes) app-routes))
+              (if secured? (sec/secured-app (user-tracking app-routes)) app-routes))
+
       (wrap-swag) 
       (handler/api)
       (wrap-restful-params) 
