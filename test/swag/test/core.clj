@@ -2,7 +2,9 @@
   (:use 
     clojure.test 
     [compojure.core :only (POST)] 
-    [swag.core :only (defroutes- GET- POST- apis defmodel models)]))
+    [swag.core :only (defroutes- GET- POST- apis)]
+    [swag.model :only (defmodel models)] 
+    ))
 
 (defn swag-meta [r & ks] (-> r meta (get-in ks)))
 
@@ -33,5 +35,4 @@
 (deftest using-model 
   (let [param (swag-meta (GET- "/machine/" [^:string host ^:type type] {} ()) :operations 0 :parameters 1)]
     (is (= (param :dataType)  "Type")) 
-    (is (= (param :paramType) "body")))
-  )
+    (is (= (param :paramType) "body"))))

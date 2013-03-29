@@ -3,18 +3,14 @@
  (:refer-clojure :exclude [replace])
  (:use 
    clojure.pprint
+   [swag.model :only (models)]
+   [swag.common :only (defstruct-)]
    [flatland.useful.seq :only (find-first)]
    [clojure.string :only (replace capitalize)]
    [clojure.core.strint :only (<<)]
    [compojure.core :only (defroutes GET POST context)])
    (:require 
      [compojure.route :as route])) 
-
-(defmacro defstruct- [name & ks]
-  "A struct def that creates a constructor in the form of sname-"
- `(do 
-   (defstruct ~name ~@ks)
-   (defn ~(symbol (str name "-")) [& k#] (apply struct ~name k# ))))
 
 (def ^:dynamic base "http://localhost:8082/")
 
@@ -32,8 +28,6 @@
 
 (defstruct- parameter :paramType :name :description :dataType :required :allowableValues :allowMultiple)
 
-(defstruct- model :id :properties)
-
 (defstruct- property :name :type :description)
 
 (def ^{:doc "see https://github.com/wordnik/swagger-core/wiki/Datatypes"}
@@ -42,19 +36,7 @@
 (def ^{:doc "see https://github.com/wordnik/swagger-core/wiki/Datatypes"}
   containers  #{:List :Set :Array})
 
-(def ^{:doc "User defined types"} models (atom {}))
-
 (def apis (atom {}))
-
-(defn add-model [k m] (swap! models assoc k m))
-
-(defn nest-types [m]
-  (reduce (fn [r [k v]] (assoc r k (if (keyword? v) {:type v} v))) {} m))
-
-(defmacro defmodel [name & props]
-  `(add-model ~(keyword name) (model- ~(-> name str capitalize) (nest-types (hash-map ~@props)))))
-
-(defmodel module :name :string :src :string)
 
 (defn type-match [m]
      (or 
@@ -66,7 +48,6 @@
   (let [m (meta arg)]
     {:paramType (or (m :paramType) (if (.contains path (<< ":~(str arg)")) "path" "body"))
      :dataType (type-match m)}))
-
 
 (defn create-params [path args] 
   (let [defaults (parameter- nil nil nil "String" true nil false) ]
