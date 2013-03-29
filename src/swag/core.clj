@@ -1,4 +1,4 @@
-(ns celestial.swagger 
+(ns swag.core
  "Swagger integration for Compojure, see https://github.com/wordnik/swagger-core/wiki/Resource-Listing for api definitions."
  (:refer-clojure :exclude [replace])
  (:use 
@@ -16,7 +16,7 @@
    (defstruct ~name ~@ks)
    (defn ~(symbol (str name "-")) [& k#] (apply struct ~name k# ))))
 
-(def base "http://localhost:8082/")
+(def ^:dynamic base "http://localhost:8082/")
 
 (defstruct- base-swag :apiVersion :swaggerVersion :basepath)
 

@@ -1,9 +1,8 @@
-(ns celestial.test.swagger
+(ns swag.test.core
   (:use 
     clojure.test 
     [compojure.core :only (POST)] 
-    [celestial.swagger :only (defroutes- GET- POST- apis defmodel)])   
- )
+    [swag.core :only (defroutes- GET- POST- apis defmodel models)]))
 
 (defn swag-meta [r & ks] (-> r meta (get-in ks)))
 
@@ -29,8 +28,9 @@
     (is (= (param :paramType) "path"))) 
   )
 
+(defmodel type :id :string)
+
 (deftest using-model 
-  (defmodel type :id :string)
   (let [param (swag-meta (GET- "/machine/" [^:string host ^:type type] {} ()) :operations 0 :parameters 1)]
     (is (= (param :dataType)  "Type")) 
     (is (= (param :paramType) "body")))
