@@ -83,8 +83,6 @@
 
   )
 
-(jobs/status "machine" "2a340dcb-17af-41e0-afbd-561c2a81ec25" )
-
 (defroutes- hosts {:path "/host" :description "Operations on hosts"}
   (GET- "/host/machine/:host" [^:string host] {:nickname "getHostMachine" :summary "Get Host machine"}
         (generate-response (p/host host)))
