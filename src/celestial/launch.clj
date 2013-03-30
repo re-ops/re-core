@@ -5,19 +5,21 @@
     [celestial.api :only (app)]
     [celestial.logging :only (gelf-appender)]
     [ring.adapter.jetty :only (run-jetty)] 
-    [celestial.common :only (config import-logging)]
+    [celestial.common :only (get* import-logging)]
     [celestial.redis :only (clear-locks)]
     [taoensso.timbre :only (set-config! set-level!)])
   (:require [celestial.jobs :as jobs]))
 
 (import-logging)
 
+(def log* (partial get* :celestial :log))
+
 (set-config! [:appenders :gelf] gelf-appender)
-(set-config! [:shared-appender-config :gelf] {:host "192.168.5.9"})
+(set-config! [:shared-appender-config :gelf] {:host (log* :gelf-host)})
  
-(set-config! [:shared-appender-config :spit-filename ] "celestial.log"); TODO move this to /var/log
+(set-config! [:shared-appender-config :spit-filename] (log* :path))
 (set-config! [:appenders :spit :enabled?] true)
-(set-level! :trace)
+(set-level! (log* :level))
 
 (defn clean-up []
   (debug "Shutting down...")
@@ -31,4 +33,4 @@
 (defn -main [& args]
   (add-shutdown)
   (jobs/initialize-workers)
-  (run-jetty (app true)  {:port (get-in config [:celestial :port]) :join? true}))
+  (run-jetty (app true)  {:port (get* :celestial :port) :join? true}))

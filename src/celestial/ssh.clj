@@ -3,7 +3,7 @@
     [clojure.core.strint :only (<<)]
     [clojure.string :only (split)]
     [plumbing.core :only (defnk)]
-    [celestial.common :only (config import-logging)]
+    [celestial.common :only (get* import-logging)]
     [clojure.string :only (join)]
     [slingshot.slingshot :only  [throw+ try+]]
     [clj-ssh.ssh :only 
@@ -23,7 +23,7 @@
   "Executes f on host with an ssh session"
   [{:keys [host port user] :or {user "root" port 22}} f]
   (let [agent (ssh-agent  {:use-system-ssh-agent false})]
-    (add-identity agent (config :ssh)) 
+    (add-identity agent (get* :ssh)) 
     (let [session (session agent host (ssh-opts port user))] 
       (try+
         (with-connection session (f session))
@@ -33,7 +33,7 @@
 
 (defn ssh-up? [host port user]
   (let [agent (ssh-agent  {:use-system-ssh-agent false})]
-    (add-identity agent (config :ssh)) 
+    (add-identity agent (get* :ssh)) 
     (let [session (session agent host (ssh-opts port user))] 
       (try 
         (connect session (* 5 60 1000))

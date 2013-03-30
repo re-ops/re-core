@@ -1,7 +1,7 @@
 (ns celestial.tasks
   "misc development tasks"
   (:use 
-    [celestial.common :only (config)]
+    [celestial.common :only (get*)]
     [clojure.core.strint :only (<<)]
     [celestial.common :only (slurp-edn)]
     [taoensso.timbre :only (debug info trace)] 
@@ -22,7 +22,7 @@
        (throw+ {:type ::hook-missing :message (<<  "Could not locate hook ~{fqn-fn}")}))))) 
 
 (defn post-create-hooks [machine]
-  (doseq [[f args] (get-in config [:hooks :post-create])]
+  (doseq [[f args] (get* :hooks :post-create)]
     (debug "running hook"  f (resolve f))
     ((resolve- f) (merge machine args))    
     ))

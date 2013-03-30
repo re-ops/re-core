@@ -5,7 +5,7 @@
     [clojure.core.strint :only (<<)]
     [celestial.core :only (Vm)]
     [celestial.ssh :only (execute)]
-    [celestial.common :only (config import-logging)]
+    [celestial.common :only (get* import-logging)]
     [proxmox.remote :only (prox-post prox-delete prox-get)]
     [slingshot.slingshot :only  [throw+ try+]]
     [mississippi.core :only (required numeric validate)]
@@ -132,7 +132,7 @@
 
 (defn vzctl 
   [this action] 
-  (execute (get-in config [:hypervisor :proxmox]) [(<< "vzctl ~{action}")]))
+  (execute (get* :hypervisor :proxmox) [(<< "vzctl ~{action}")]))
 
 (defn- key-select [v] (fn [m] (select-keys m (keys v))))
 
@@ -148,7 +148,7 @@
 
 (defn transform [res]
   (first (map (fn [[k v]] (update-in res [k] v ))
-              {:ostemplate (fn [os] (get-in config [:hypervisor :proxmox :ostemplates os]))})))
+              {:ostemplate (fn [os] (get* :hypervisor :proxmox :ostemplates os))})))
 
 (def selections (juxt (key-select ct-valid) (key-select extra-valid)))
 

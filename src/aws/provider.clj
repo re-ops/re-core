@@ -16,7 +16,7 @@
     [celestial.provider :only (str? vec?)]
     [celestial.redis :only (synched-map)]
     [celestial.core :only (Vm)]
-    [celestial.common :only (config import-logging curr-time)]
+    [celestial.common :only (get* import-logging curr-time)]
     [mississippi.core :only (required numeric validate)]
     [celestial.ssh :only (ssh-up?)]
     [celestial.model :only (translate vconstruct)]))
@@ -31,7 +31,7 @@
    :key-name [str? (required)]
    })
 
-(defn creds [] (get-in config [:hypervisor :aws]))
+(defn creds [] (get* :hypervisor :aws))
 
 (defm ids [] (synched-map :aws-keys))
 

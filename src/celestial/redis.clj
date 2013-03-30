@@ -3,7 +3,7 @@
   (:use  
     [clojure.set :only (difference)]
     [flatland.useful.utils :only (defm)]
-    [celestial.common :only (config curr-time)]
+    [celestial.common :only (get* curr-time)]
     [clojure.core.strint :only (<<)]
     [slingshot.slingshot :only  [throw+]]
     [taoensso.timbre :only (debug trace info error warn)])
@@ -15,7 +15,7 @@
 
 (defm pool [] (car/make-conn-pool)) 
 
-(defm spec-server [] (car/make-conn-spec :host (get-in config [:redis :host])))
+(defm spec-server [] (car/make-conn-spec :host (get* :redis :host)))
 
 (def wcar-disable false)
 

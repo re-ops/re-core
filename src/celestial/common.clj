@@ -15,9 +15,14 @@
       (conf/read-config path)
       (do 
         (warn (<< "~{path} does not exist, make sure to configure it")) 
-        {} 
+        {:celestial 
+          {:log {:level :trace :path "celestial.log" :gelf-host ""} }} 
         ) 
       ))
+
+(defn get* [& keys]
+  (get-in config keys))
+
 
 
 (defn slurp-edn [file] (read-string (slurp file)))
