@@ -6,6 +6,8 @@
     [plumbing.core :only (defnk)] 
     ) 
   (:import 
+    (net.schmizz.sshj.common StreamCopier$Listener)
+    (net.schmizz.sshj.xfer FileSystemFile TransferListener)
     (net.schmizz.sshj SSHClient)
     (net.schmizz.sshj.userauth.keyprovider FileKeyProvider)
     (net.schmizz.sshj.transport.verification PromiscuousVerifier)
@@ -23,18 +25,45 @@
   [out]
   (doseq [line (line-seq (clojure.java.io/reader out))] (debug line)))
 
-(defnk session [host {user (@config :user)}]
+(defnk ssh-strap [host {user (@config :user)}]
   (let [ssh (SSHClient.)]
-     (.addHostKeyVerifier ssh (PromiscuousVerifier.))
-     (.loadKnownHosts ssh)
-     (.connect ssh host)
-     (.authPublickey ssh user #^"[Ljava.lang.String;" (into-array [(@config :key)]) )
-     (.startSession ssh)))
+    (.addHostKeyVerifier ssh (PromiscuousVerifier.))
+    (.loadKnownHosts ssh)
+    (.connect ssh host)
+    (.authPublickey ssh user #^"[Ljava.lang.String;" (into-array [(@config :key)]) )
+    ssh))
 
-(defn ssh-execute [cmd remote]
-   (let [session (session remote) res (.exec session cmd) ]
-     (debug cmd)
-     (log-output (.getInputStream res))))
+(defmacro with-ssh [remote & body]
+  `(let [~'ssh (ssh-strap ~remote)]
+     (try 
+       ~@body
+       (catch Throwable e#
+         (error e#)
+         (.disconnect ~'ssh)))))
 
-; (ssh-execute "ping -c 1 google.com" {:host "localhost" :user "ronen"})
+(defn execute 
+  "Executes a cmd on a remote host"
+  [cmd remote]
+  (with-ssh remote 
+    (let [session (.startSession ssh) res (.exec session cmd) ]
+      (debug cmd) 
+      (log-output (.getInputStream res)))))
 
+(def listener 
+  (proxy [TransferListener] []
+    (directory [name*] (debug "starting to transfer" name*)) 
+    (file [name* size]
+      (proxy [StreamCopier$Listener ] []
+        (reportProgress [transferred]
+          (debug (<< "transferred ~(/ (* transferred 100) size)% of ~{name*}")))))))
+
+(defn upload [src dst remote]
+  (with-ssh remote
+    (let [scp (.newSCPFileTransfer ssh)]
+      (.setTransferListener scp listener)
+      (.upload scp (FileSystemFile. src) dst) 
+      ))
+  )
+
+; (execute "ping -c 1 google.com" {:host "localhost" :user "ronen"}) 
+; (upload "/home/ronen/Downloads/PCBSD9.1-x64-DVD.iso" "/tmp" {:host "localhost" :user "ronen"})
