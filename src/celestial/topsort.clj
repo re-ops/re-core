@@ -1,4 +1,5 @@
 (ns celestial.topsort
+  "See https://gist.github.com/alandipert/1263783"
   (:use [clojure.set :only (difference union intersection)])) 
 
 (defn without
