@@ -45,7 +45,7 @@
                                   [ring-mock "0.1.3"] [expectations "1.4.24"] [junit/junit "4.8.1"] ]}}
                  
 
-  :aot [proxmox.provider celestial.puppet-standalone celestial.launch]
+  :aot [proxmox.provider celestial.core celestial.puppet-standalone celestial.launch]
 
   :test-selectors {:default #(not-any? % [:proxmox :redis :integration :puppet :ec2]) 
                    :redis :redis
