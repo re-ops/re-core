@@ -8,7 +8,8 @@
         [metrics.ring.instrument :only  (instrument)]
         [swag.core :only (swagger-routes GET- POST- defroutes-)]
         [swag.model :only (defmodel wrap-swag defv defc)]
-        [taoensso.timbre :only (debug info error warn set-config! set-level!)])
+        [celestial.common :only (import-logging)]
+        )
   (:require 
     [celestial.security :as sec]
     [celestial.persistency :as p]
@@ -18,9 +19,7 @@
     [cemerick.friend :as friend]
     [compojure.route :as route])) 
 
-(set-config! [:shared-appender-config :spit-filename ] "celestial.log"); TODO move this to /var/log
-(set-config! [:appenders :spit :enabled?] true)
-(set-level! :trace)
+(import-logging)
 
 (defn generate-response [data] {:status 200 :body data})
 
@@ -102,23 +101,14 @@
          (p/new-type type props)
          (generate-response {:msg "new type saved" :type type :opts props}))) 
 
-
-(defn user-tracking [app]
-  "A tiny middleware to track api access"
-  (fn [{:keys [uri request-method] :as req}]
-    (debug request-method " on " uri "by" (friend/current-authentication) )
-    (app req)))
-
 (defroutes app-routes
   hosts jobs
   (route/not-found "Not Found"))
 
-
 (defn app [secured?]
   "The api routes, secured? will enabled authentication"
   (-> (routes swagger-routes
-              (if secured? (sec/secured-app (user-tracking app-routes)) app-routes))
-
+              (if secured? (sec/secured-app app-routes) app-routes))
       (wrap-swag) 
       (handler/api)
       (wrap-restful-params) 
