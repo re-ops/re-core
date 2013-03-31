@@ -2,10 +2,12 @@
   (:use 
     [celestial.topsort :only (kahn-sort)]
     [clojure.core.strint :only (<<)]
+    [clojure.string :only (split)]
     [celestial.common :only (import-logging)]
     [plumbing.core :only (defnk)] 
     ) 
   (:import 
+    (java.util.concurrent TimeUnit)
     (net.schmizz.sshj.common StreamCopier$Listener)
     (net.schmizz.sshj.xfer FileSystemFile TransferListener)
     (net.schmizz.sshj SSHClient)
@@ -68,5 +70,26 @@
       (.upload scp (FileSystemFile. src) dst) 
       )))
 
+(defn fname [uri] (-> uri (split '#"/") last))
+
+(defn ^{:test #(assert (= (no-ext "celestial.git") "celestial"))}
+  no-ext 
+  "file name without extension"
+  [name]
+  (-> name (split '#"\.") first))
+
+(defmulti copy 
+  "A general remote copy" 
+  (fn [uri _ _] 
+    (keyword (first (split uri '#":")))))
+
+(defmethod copy :git [uri dest remote] 
+  (execute (<< "git clone ~{uri} ~{dest}/~(no-ext (fname uri))") remote))
+(defmethod copy :http [uri dest remote] 
+  (execute (<< "wget -O ~{dest}/~(fname uri) ~{uri}") remote))
+(defmethod copy :file [uri dest remote] (upload (subs uri 6) dest remote))
+(defmethod copy :default [uri dest remote] (copy (<< "file:/~{uri}") dest remote))
+
+(test #'no-ext)
 ; (execute "ping -c 1 google.com" {:host "localhost" :user "ronen"}) 
 ; (upload "/home/ronen/Downloads/PCBSD9.1-x64-DVD.iso" "/tmp" {:host "localhost" :user "ronen"})
