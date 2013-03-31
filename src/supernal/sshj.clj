@@ -26,12 +26,11 @@
   (doseq [line (line-seq (clojure.java.io/reader out))] (debug  (<< "[~{host}]:") line)))
 
 (defnk ssh-strap [host {user (@config :user)}]
-  (let [ssh (SSHClient.)]
-    (.addHostKeyVerifier ssh (PromiscuousVerifier.))
-    (.loadKnownHosts ssh)
-    (.connect ssh host)
-    (.authPublickey ssh user #^"[Ljava.lang.String;" (into-array [(@config :key)]) )
-    ssh))
+  (doto (SSHClient.)
+    (.addHostKeyVerifier (PromiscuousVerifier.))
+    (.loadKnownHosts )
+    (.connect host)
+    (.authPublickey user #^"[Ljava.lang.String;" (into-array [(@config :key)]))))
 
 (defmacro with-ssh [remote & body]
   `(let [~'ssh (ssh-strap ~remote)]
@@ -45,9 +44,14 @@
   "Executes a cmd on a remote host"
   [cmd remote]
   (with-ssh remote 
-    (let [session (.startSession ssh) res (.exec session cmd) ]
+    (let [session (doto (.startSession ssh) (.allocateDefaultPTY)) command (.exec session cmd) ]
       (debug (<< "[~(remote :host)]:") cmd) 
-      (log-output (.getInputStream res) (remote :host)))))
+      (log-output (.getInputStream command) (remote :host))
+      (log-output (.getErrorStream command) (remote :host))
+      (.join command 60 TimeUnit/SECONDS) 
+      (when-not (= 0 (.getExitStatus command))
+        (throw (Exception. (<< "Failed to execute ~{cmd} on ~{remote}"))))
+      )))
 
 (def listener 
   (proxy [TransferListener] []
