@@ -23,8 +23,6 @@
 (defn get* [& keys]
   (get-in config keys))
 
-
-
 (defn slurp-edn [file] (read-string (slurp file)))
 
 (defn import-logging []
