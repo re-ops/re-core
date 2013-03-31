@@ -1,4 +1,4 @@
 (ns celestial.test.sshj
-  (:use celestial.sshj clojure.test)
+  (:use supernal.sshj clojure.test)
  )
 
