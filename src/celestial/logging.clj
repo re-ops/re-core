@@ -8,6 +8,8 @@
 
 (def levels {:trace 1 :debug 7 :info 6 :warn 5 :error 4 :fatal 3 :unknown 1})
 
+(def hostname (.getHostName (java.net.InetAddress/getLocalHost)))
+
 (def gelf-appender
   {:doc       "A gelfino based appender"
    :min-level :debug
@@ -19,5 +21,6 @@
      (when-not @client-socket (connect))
      (let [message* (if (seq more) (str message " " (join " " more)) message)]
        (send-> (get-in ap-config [:gelf :host]) 
-          {:short_message message* :message message* :level (levels level)}))
+          {:short_message message* :message message* :level (levels level) 
+           :facility "gelfino" :host hostname}))
      )})
