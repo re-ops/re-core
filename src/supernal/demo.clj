@@ -7,14 +7,13 @@
 
 (env 
   {:roles 
-   {:web #{ {:host "localhost" :user "ronen"}
+    {:web #{{:host "localhost" :user "ronen"}
             {:host "192.168.5.9" :user "vagrant"}}}})
 
 (ns- deploy 
   (task update-code
-     (let [war-url "http://..."]
        (debug "updating code on" remote)
-       #_(copy war-url "/tmp"))) 
+       (copy "http://dl.bintray.com/content/narkisr/boxes/redis-sandbox-0.3.4.tar.gz" "/tmp")) 
 
   (task start 
     (debug "starting service on" remote)
