@@ -48,8 +48,7 @@
 
 (defn run-cycle [cycle* args remote]
    (doseq [t cycle*]
-     (t args remote) 
-     ))
+     (t args remote)))
 
 (defmacro execute [ns* args role]
   "Excutes the lifecycle of a given ns"
@@ -66,25 +65,15 @@
   [role] 
   )
 
-(defn run- 
-  "The run shim function implementation" 
-  [cmd remote]
-  (sshj/execute cmd remote)
-  )
-
 (defn run
   "Running a given cmd on a remote system" 
   [cmd]
-  (fn [remote] (run- cmd remote)))
+  (partial sshj/execute cmd))
 
-
-(defn copy- 
-  "The copy shim function implementation" 
-  [src dst remote]
-  )
 
 (defn copy
-  "Copies src uri (can be http/file/git) into a remote destination path" 
+  "Copies src uri (either http/file/git) into a remote destination path" 
   [src dst]
-  (fn [remote] (copy src dst remote)))
+  (partial sshj/copy src dst))
+
 
