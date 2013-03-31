@@ -1,4 +1,4 @@
-(ns celestial.sshj
+(ns supernal.sshj
   (:use 
     [celestial.topsort :only (kahn-sort)]
     [clojure.core.strint :only (<<)]
@@ -22,8 +22,8 @@
 
 (defn log-output 
   "Output log stream" 
-  [out]
-  (doseq [line (line-seq (clojure.java.io/reader out))] (debug line)))
+  [out host]
+  (doseq [line (line-seq (clojure.java.io/reader out))] (debug  (<< "[~{host}]:") line)))
 
 (defnk ssh-strap [host {user (@config :user)}]
   (let [ssh (SSHClient.)]
@@ -46,8 +46,8 @@
   [cmd remote]
   (with-ssh remote 
     (let [session (.startSession ssh) res (.exec session cmd) ]
-      (debug cmd) 
-      (log-output (.getInputStream res)))))
+      (debug (<< "[~(remote :host)]:") cmd) 
+      (log-output (.getInputStream res) (remote :host)))))
 
 (def listener 
   (proxy [TransferListener] []
@@ -55,15 +55,14 @@
     (file [name* size]
       (proxy [StreamCopier$Listener ] []
         (reportProgress [transferred]
-          (debug (<< "transferred ~(/ (* transferred 100) size)% of ~{name*}")))))))
+          (debug (<< "transferred ~(float (/ (* transferred 100) size))% of ~{name*}")))))))
 
 (defn upload [src dst remote]
   (with-ssh remote
     (let [scp (.newSCPFileTransfer ssh)]
       (.setTransferListener scp listener)
       (.upload scp (FileSystemFile. src) dst) 
-      ))
-  )
+      )))
 
 ; (execute "ping -c 1 google.com" {:host "localhost" :user "ronen"}) 
 ; (upload "/home/ronen/Downloads/PCBSD9.1-x64-DVD.iso" "/tmp" {:host "localhost" :user "ronen"})

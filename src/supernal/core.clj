@@ -8,6 +8,7 @@
   * can be used as a library and as a standalone tool  
   * Zeromq agent for improved perforemance over basic ssh
   "
+  (:require [supernal.sshj :as sshj]) 
   (:use 
     [celestial.topsort :only (kahn-sort)] 
     (clojure.pprint)))
@@ -16,8 +17,14 @@
 (defn gen-ns [ns*]
   (symbol (str "supernal.user." ns*)))
 
+(defn apply-env 
+  "Tasks wrapping functions (run or copy) and applies env to them (calling run- copy-)."
+  [body]
+  (let [shim #{'run 'copy}] 
+    (map #(if (shim (first %)) (list % 'remote) %) body)))
+
 (defn task [ns* name* body]
-  (list 'intern (list symbol ns*) (list symbol name*) (concat '(fn [args])  body)))
+  (list 'intern (list symbol ns*) (list symbol name*) (concat '(fn [args remote]) (apply-env body))))
 
 (defmacro ns- 
   "Tasks ns macro, a group of tasks is associated with matching functions under the supernal.user ns"
@@ -39,15 +46,45 @@
                           (assoc r# (ns-resolve '~(gen-ns ns*) k#) 
                                  (into #{} (map #(ns-resolve '~(gen-ns ns*) %) v#)))) {} '~plan))))
 
+(defn run-cycle [cycle* args remote]
+   (doseq [t cycle*]
+     (t args remote) 
+     ))
+
 (defmacro execute [ns* args role]
   "Excutes the lifecycle of a given ns"
-  `(doseq [t# ~(gen-lifecycle ns*)] (t# ~args)))
+  `(doseq [remote# (get-in @~'env- [:roles ~role])] 
+     (future (run-cycle ~(gen-lifecycle ns*) ~args remote#))))
 
-(defn role->hosts [role]
+(defmacro env 
+  "A hash of running enviroment info and roles"
+  [hash*]
+  `(intern *ns* (symbol  "env-") (atom ~hash*)))
 
+(defn role->hosts 
+  "A hash based role to hosts resolver"
+  [role] 
   )
 
-(defn run [cmd])
+(defn run- 
+  "The run shim function implementation" 
+  [cmd remote]
+  (sshj/execute cmd remote)
+  )
 
-(defn copy [src dst])
+(defn run
+  "Running a given cmd on a remote system" 
+  [cmd]
+  (fn [remote] (run- cmd remote)))
+
+
+(defn copy- 
+  "The copy shim function implementation" 
+  [src dst remote]
+  )
+
+(defn copy
+  "Copies src uri (can be http/file/git) into a remote destination path" 
+  [src dst]
+  (fn [remote] (copy src dst remote)))
 
