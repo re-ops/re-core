@@ -10,6 +10,7 @@
   "
   (:require [supernal.sshj :as sshj]) 
   (:use 
+    [clojure.core.strint :only (<<)]
     [celestial.topsort :only (kahn-sort)] 
     (clojure.pprint)))
 
@@ -38,22 +39,28 @@
 (defn gen-lifecycle [ns*]
   (symbol (str ns* "-lifecycle")))
 
+(defn resolve- [sym]
+  (let [[pre k] (.split (str sym) "/")]
+    (if-let [res (ns-resolve (symbol (str "supernal.user." pre)) (symbol k))]
+      res
+      (throw (Exception. (<< "No symbol ~{k} found in ns ~{pre}"))))))
+
 (defmacro lifecycle 
   "Generates a topological sort from a lifecycle plan"
-  [ns* plan]
-  `(def ~(gen-lifecycle ns*)
+  [name* plan]
+  `(def ~name*
      (kahn-sort (reduce (fn [r# [k# v#]] 
-                          (assoc r# (ns-resolve '~(gen-ns ns*) k#) 
-                                 (into #{} (map #(ns-resolve '~(gen-ns ns*) %) v#)))) {} '~plan))))
+                          (assoc r# (resolve- k#) 
+                                 (into #{} (map #(resolve- %) v#)))) {} '~plan))))
 
 (defn run-cycle [cycle* args remote]
-   (doseq [t cycle*]
-     (t args remote)))
+  (doseq [t cycle*]
+    (t args remote)))
 
-(defmacro execute [ns* args role]
+(defmacro execute [name* args role]
   "Excutes the lifecycle of a given ns"
   `(doseq [remote# (get-in @~'env- [:roles ~role])] 
-     (future (run-cycle ~(gen-lifecycle ns*) ~args remote#))))
+     (future (run-cycle ~name* ~args remote#))))
 
 (defmacro env 
   "A hash of running enviroment info and roles"

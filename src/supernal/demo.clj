@@ -27,14 +27,15 @@
     (run "hostname")))
 
 (ns- bar 
-    (task play))
+    (task stop2
+      (debug "stoping in bar!")))
 
-(lifecycle deploy 
-  {update-code #{start}
-   stop #{update-code}
-   start #{}})
+(lifecycle basic-deploy
+  {deploy/update-code #{deploy/start}
+   deploy/stop #{deploy/update-code bar/stop2}
+   bar/stop2 #{}
+   deploy/start #{}})
 
-; (println deploy-lifecycle)
-(execute deploy {:war "foo"} :web)
+(execute basic-deploy {:war "foo"} :web)
 
-;(execute deploy/stop) 
+; (execute deploy/stop) 
