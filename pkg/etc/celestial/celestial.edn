@@ -1,0 +1,41 @@
+{
+ :celestial {
+   :port 8082
+   :log {
+     :level :trace
+     :path "/var/log/celestial.log"
+     :gelf-host ""
+   }
+ }
+
+ :hypervisor {
+
+    :proxmox {
+      :username "root" :password "" :host "" :ssh-port 2222
+      :ostemplates {
+         ; :ubuntu-12.10  "local:vztmpl/ubuntu-12.04-puppet_3-x86_64.tar.gz"
+       }
+    }
+
+    :aws {
+      :access-key ""
+      :secret-key ""
+     } 
+ }
+  
+ :redis {
+   :host "localhost"
+ } 
+
+ :ssh {
+   :private-key-path "/home/user/.ssh/id_rsa"
+ }
+
+ :hooks {
+  :post-create {
+    ;celestial.dnsmasq/add-host {
+     ;   :dnsmasq {:host "192.168.5.20" :user "ronen"}
+    ;}             
+  }
+ }
+}

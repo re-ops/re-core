@@ -17,11 +17,11 @@
                  [swag "0.1.0"]
                  [clj-yaml "0.4.0"]
                  [org.clojure/data.json "0.2.1" ]
-                 [com.taoensso/carmine "1.6.0"]
+                 [com.narkisr/carmine "1.6.0"]
                  [org.clojure/core.memoize "0.5.2" :exclusions [org.clojure/core.cache]]
                  [org.slf4j/slf4j-simple "1.6.4"]; required for codahale metrics
                  [metrics-clojure "0.9.2"]
-                 [clj-aws-ec2 "0.2.0" :exclusions  [org.codehaus.jackson/jackson-core-asl]]
+                 [clj-aws-ec2 "0.2.1" :exclusions  [org.codehaus.jackson/jackson-core-asl]]
                  [narkisr/trammel "0.8.0-freez"]
                  [mississippi "1.0.1"]
                  [org.flatland/useful "0.9.5"]
@@ -39,11 +39,12 @@
   :exclusions [org.clojure/clojure]
 
   :plugins  [[lein-autoexpect "0.2.5"]  [jonase/eastwood "0.0.2"] [lein-tarsier "0.10.0"]
-             [lein-expectations "0.0.7"] [lein-pedantic "0.0.5"]]
+             [lein-expectations "0.0.7"] [lein-pedantic "0.0.5"]  [lein-tar "1.1.2"]]
 
   :profiles {:dev {:dependencies [[org.clojure/tools.trace "0.7.5"]
                                   [ring-mock "0.1.3"] [expectations "1.4.24"] [junit/junit "4.8.1"] ]}}
                  
+  :tar  {:uberjar true}
 
   :aot [proxmox.provider celestial.core celestial.puppet-standalone celestial.launch]
 
