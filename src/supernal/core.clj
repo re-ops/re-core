@@ -8,7 +8,9 @@
   * can be used as a library and as a standalone tool  
   * Zeromq agent for improved perforemance over basic ssh
   "
-  (:require [supernal.sshj :as sshj]) 
+  (:require 
+       [clojure.walk :as walk]
+       [supernal.sshj :as sshj]) 
   (:use 
     [clojure.core.strint :only (<<)]
     [celestial.topsort :only (kahn-sort)] 
@@ -18,14 +20,17 @@
 (defn gen-ns [ns*]
   (symbol (str "supernal.user." ns*)))
 
-(defn apply-env 
-  "Tasks wrapping functions (run or copy) and applies env to them (calling run- copy-)."
+(defn apply-remote 
+  "Applies call to partial copy and run functions under tasks,
+  (copy foo bar) is transformed into ((copy from to) remote)"
   [body]
-  (let [shim #{'run 'copy}] 
-    (map #(if (shim (first %)) (list % 'remote) %) body)))
+  (let [shim #{'run 'copy}]
+    (walk/postwalk #(if (and (seq? %) (shim (first %))) (list % 'remote) %) body)))
 
-(defn task [ns* name* body]
-  (list 'intern (list symbol ns*) (list symbol name*) (concat '(fn [args remote]) (apply-env body))))
+(defn task 
+  "Maps a task defition into a functions named name* under ns* namesapce" 
+  [ns* name* body]
+  (list 'intern (list symbol ns*) (list symbol name*) (concat '(fn [args remote]) (apply-remote body))))
 
 (defmacro ns- 
   "Tasks ns macro, a group of tasks is associated with matching functions under the supernal.user ns"
@@ -49,18 +54,25 @@
   "Generates a topological sort from a lifecycle plan"
   [name* plan]
   `(def ~name*
-     (kahn-sort (reduce (fn [r# [k# v#]] 
+     (with-meta
+       (kahn-sort (reduce (fn [r# [k# v#]] 
                           (assoc r# (resolve- k#) 
-                                 (into #{} (map #(resolve- %) v#)))) {} '~plan))))
+                                 (into #{} (map #(resolve- %) v#)))) {} '~plan)) {:plan '~plan})))
 
 (defn run-cycle [cycle* args remote]
   (doseq [t cycle*]
     (t args remote)))
 
 (defmacro execute [name* args role]
-  "Excutes the lifecycle of a given ns"
-  `(doseq [remote# (get-in @~'env- [:roles ~role])] 
-     (future (run-cycle ~name* ~args remote#))))
+  "Excutes the lifecycle or task of a given ns"
+  (if (ns-resolve *ns* name*)
+    `(doseq [remote# (get-in @~'env- [:roles ~role])] 
+       (future (run-cycle ~name* ~args remote#))
+       )
+    `(doseq [remote# (get-in @~'env- [:roles ~role])] 
+       (future ((resolve- '~name*) ~args remote#))
+       )
+    ))
 
 (defmacro env 
   "A hash of running enviroment info and roles"
