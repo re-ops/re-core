@@ -40,6 +40,7 @@
  
   (task symlink
     (let [{:keys [app-name run-id]} args]
+      (run (<< "rm -f ~(current app-name)"))
       (run (<< "ln -s ~(releases app-name run-id) ~(current app-name)"))))
 
   (task stop
