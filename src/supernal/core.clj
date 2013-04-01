@@ -55,25 +55,28 @@
   [name* plan]
   `(def ~name*
      (with-meta
-       (kahn-sort (reduce (fn [r# [k# v#]] 
-                          (assoc r# (resolve- k#) 
-                                 (into #{} (map #(resolve- %) v#)))) {} '~plan)) {:plan '~plan})))
+       (kahn-sort 
+         (reduce (fn [r# [k# v#]] 
+                   (assoc r# (resolve- k#) 
+                          (into #{} (map #(resolve- %) v#)))) {} '~plan)) {:plan '~plan})))
 
 (defn run-cycle [cycle* args remote]
   (doseq [t cycle*]
     (t args remote)))
 
+(defn run-id [args]
+  (assoc args :run-id (java.util.UUID/randomUUID)))
+
 (defmacro execute [name* args role]
   "Executes a lifecycle defintion on a given role"
-    `(doseq [remote# (get-in @~'env- [:roles ~role])] 
-       (future (run-cycle ~name* ~args remote#))
-       ))
+  `(doseq [remote# (get-in @~'env- [:roles ~role])] 
+     (future (run-cycle ~name* (run-id ~args) remote#))))
 
 (defmacro execute-task 
   "Executes a single task on a given role"
   [name* args role]
   `(doseq [remote# (get-in @~'env- [:roles ~role])] 
-       (future ((resolve- '~name*) ~args remote#))))
+     (future ((resolve- '~name*) (run-id ~args) remote#))))
 
 (defmacro env 
   "A hash of running enviroment info and roles"
@@ -88,8 +91,9 @@
 (defn run
   "Running a given cmd on a remote system" 
   [cmd]
-  (partial sshj/execute cmd))
-
+  (fn [remote] 
+    (let [cmd* (if (-> remote :sudo) (str "sudo " cmd) cmd)]
+      (sshj/execute cmd* remote))))
 
 (defn copy
   "Copies src uri (either http/file/git) into a remote destination path" 

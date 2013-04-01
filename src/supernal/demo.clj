@@ -6,9 +6,9 @@
 
 
 (env 
-  {:roles 
-    {:web #{{:host "localhost" :user "ronen"}
-            {:host "192.168.5.9" :user "vagrant"}}}})
+  {:roles {
+      :web #{{:host "192.168.5.9" :user "vagrant" :sudo true}}}
+   })
 
 (ns- deploy 
   (task stop
