@@ -39,8 +39,9 @@
      (try 
        ~@body
        (catch Throwable e#
-         (error e#)
-         (.disconnect ~'ssh)))))
+         (.disconnect ~'ssh)
+         (throw e#)
+         ))))
 
 (defn execute 
   "Executes a cmd on a remote host"
