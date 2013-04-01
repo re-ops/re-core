@@ -4,7 +4,7 @@
   (:use 
     [clojure.core.strint :only (<<)]
     [taoensso.timbre :only (warn debug)]
-    [supernal.core :only (ns- copy)]))
+    [supernal.core :only (ns- lifecycle copy)]))
 
 (defn target [name* t] (<< "/u/apps/releases/~{name}/~{t}"))
  
@@ -20,3 +20,7 @@
   (task stop
     (debug "stopping service on" remote))) 
  
+(lifecycle basic-deploy
+  {deploy/update-code #{deploy/start}
+   deploy/stop #{deploy/update-code}
+   deploy/start #{}})

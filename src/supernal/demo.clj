@@ -1,7 +1,8 @@
 (ns supernal.demo
   (:use 
+    [supernal.baseline :only (basic-deploy) ]
     [taoensso.timbre :only (warn debug)]
-    [supernal.core :only (lifecycle ns- execute run copy env)]))
+    [supernal.core :only (ns- execute execute-task run copy env)]))
 
 
 (env 
@@ -19,14 +20,8 @@
      (let [foo 1]
        (debug "stoping in bar!"))))
 
-(lifecycle basic-deploy
-  {deploy/update-code #{deploy/start}
-   deploy/stop #{deploy/update-code bar/stop2}
-   bar/stop2 #{}
-   deploy/start #{}})
-
 (def artifact "http://dl.bintray.com/content/narkisr/boxes/redis-sandbox-0.3.4.tar.gz")
 
 (execute basic-deploy {:app-name "foo" :src artifact} :web)
 
-(execute deploy/stop {:app-name "foo" :src artifact} :web ) 
+; (execute-task deploy/stop {:app-name "foo" :src artifact} :web) 

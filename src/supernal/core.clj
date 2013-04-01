@@ -64,15 +64,16 @@
     (t args remote)))
 
 (defmacro execute [name* args role]
-  "Excutes the lifecycle or task of a given ns"
-  (if (ns-resolve *ns* name*)
+  "Executes a lifecycle defintion on a given role"
     `(doseq [remote# (get-in @~'env- [:roles ~role])] 
        (future (run-cycle ~name* ~args remote#))
-       )
-    `(doseq [remote# (get-in @~'env- [:roles ~role])] 
-       (future ((resolve- '~name*) ~args remote#))
-       )
-    ))
+       ))
+
+(defmacro execute-task 
+  "Executes a single task on a given role"
+  [name* args role]
+  `(doseq [remote# (get-in @~'env- [:roles ~role])] 
+       (future ((resolve- '~name*) ~args remote#))))
 
 (defmacro env 
   "A hash of running enviroment info and roles"
