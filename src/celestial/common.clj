@@ -8,7 +8,7 @@
 
 (def path 
   (first (filter #(.exists (file %))
-    ["/etc/celestial.edn" (<< "~(System/getProperty \"user.home\")/.celestial.edn")])))
+    ["/etc/celestial/celestial.edn" (<< "~(System/getProperty \"user.home\")/.celestial.edn")])))
 
 (def config 
    (if path
