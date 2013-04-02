@@ -3,7 +3,7 @@
   (:gen-class true)
   (:use 
     [celestial.api :only (app)]
-    [celestial.logging :only (gelf-appender)]
+    [gelfino.timbre :only (gelf-appender)]
     [ring.adapter.jetty :only (run-jetty)] 
     [celestial.common :only (get* import-logging)]
     [celestial.redis :only (clear-locks)]
