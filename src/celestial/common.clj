@@ -6,15 +6,15 @@
     [taoensso.timbre :only (warn)]
     [clj-config.core :as conf]))
 
-(def path (<< "~(System/getProperty \"user.home\")/.celestial.edn"))
-
-(defn config-exists? [] (.exists (file path)))
+(def path 
+  (first (filter #(.exists (file %))
+    ["/etc/celestial.edn" (<< "~(System/getProperty \"user.home\")/.celestial.edn")])))
 
 (def config 
-   (if (config-exists?)
+   (if path
       (conf/read-config path)
       (do 
-        (warn (<< "~{path} does not exist, make sure to configure it")) 
+        (warn (<< "~{path} does not exist, make sure to configure it using default configuration")) 
         {:celestial 
           {:log {:level :trace :path "celestial.log" :gelf-host ""} }} 
         ) 
