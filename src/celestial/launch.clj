@@ -33,4 +33,5 @@
 (defn -main [& args]
   (add-shutdown)
   (jobs/initialize-workers)
-  (run-jetty (app true)  {:port (get* :celestial :port) :join? true}))
+  (run-jetty (app true)  {:port (get* :celestial :port) :join? true 
+                           :ssl? true :keystore "my.keystore" :key-password "foobar" :ssl-port 8443}))
