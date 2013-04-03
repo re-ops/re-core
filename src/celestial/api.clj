@@ -8,10 +8,9 @@
         [ring.middleware.format-response :only [wrap-restful-response]]
         [ring.middleware.params :only (wrap-params)]
         [metrics.ring.instrument :only  (instrument)]
-        [swag.core :only (swagger-routes GET- POST- PUT- DELETE- defroutes-)]
+        [swag.core :only (swagger-routes http-codes GET- POST- PUT- DELETE- defroutes- errors)]
         [swag.model :only (defmodel wrap-swag defv defc)]
-        [celestial.common :only (import-logging)]
-        )
+        [celestial.common :only (import-logging)])
   (:require 
     [celestial.security :as sec]
     [celestial.persistency :as p]
@@ -22,9 +21,6 @@
     [compojure.route :as route])) 
 
 (import-logging)
-
-(def ^{:doc "see http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html"}
-  http-codes {:conflict 409 :success 200 :bad-req 400})
 
 (defn resp
   "Http resposnse compositor"
@@ -99,7 +95,8 @@
   (GET- "/host/machine/:host" [^:string host] {:nickname "getHostMachine" :summary "Get Host machine"}
         (success (p/host host)))
 
-  (POST- "/host/machine" [& ^:system props] {:nickname "addHostMachine" :summary "Add Host machine"}
+  (POST- "/host/machine" [& ^:system props] {:nickname "addHostMachine" :summary "Add Host machine" 
+                                             :errorResponses (errors {:conflict "Host already exists" :bad-req "Missing host type"})}
          (let [host (get-in props [:machine :hostname])]
            (if (p/host-exists? host)
              (conflict {:msg "Host aleady exists, use PUT /host/machine instead"}) 
@@ -110,14 +107,16 @@
                  (bad-req  {:msg (<< "Cannot create machine with missing type ~(e :t)}")}))) 
              )))
 
-  (PUT- "/host/machine" [& ^:system props] {:nickname "updateHostMachine" :summary "Add Host machine"}
-        (let [host  (get-in props [:machine :hostname])]
-          (when-not (p/host-exists? host)
-            (conflict {:msg "Host does not exists, use POST /host/machine first"})) 
-          (p/register-host props) 
-          (success {:msg "new host saved" :host host :props props})))
+  (PUT- "/host/machine" [& ^:system props] {:nickname "updateHostMachine" :summary "Add Host machine" 
+                                            :errorResponses (errors {:conflict "Host does not exist"}) }
+        (let [host (get-in props [:machine :hostname])]
+          (if-not (p/host-exists? host)
+            (conflict {:msg "Host does not exists, use POST /host/machine first"}) 
+            (do (p/register-host props) 
+                (success {:msg "new host saved" :host host :props props})))))
 
-  (DELETE- "/host/machine/:host" [^:string host] {:nickname "deleteHost" :summary "Delete Host"}
+  (DELETE- "/host/machine/:host" [^:string host] {:nickname "deleteHost" :summary "Delete Host" 
+                                                  :errorResponses (errors {:bad-req "Host does not exist"})}
            (if (p/host-exists? host)
              (do (p/delete-host host) (success {:msg "Host deleted"}))
              (bad-req {:msg "Host does not exist"})))
