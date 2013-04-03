@@ -107,7 +107,7 @@
                  (bad-req  {:msg (<< "Cannot create machine with missing type ~(e :t)}")}))) 
              )))
 
-  (PUT- "/host/machine" [& ^:system props] {:nickname "updateHostMachine" :summary "Add Host machine" 
+  (PUT- "/host/machine" [& ^:system props] {:nickname "updateHostMachine" :summary "Update Host machine" 
                                             :errorResponses (errors {:conflict "Host does not exist"}) }
         (let [host (get-in props [:machine :hostname])]
           (if-not (p/host-exists? host)
