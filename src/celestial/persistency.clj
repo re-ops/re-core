@@ -26,13 +26,27 @@
   "Mapping host to a given type and its machine"
   (hsetall* (hk (machine :hostname)) props))
 
-(defn host [h]
-   (if-let [data (wcar (car/hgetall* (hk h)))]
-     data
-    (throw+ {:type ::missing-host :host h})))
+(defn host-exists?
+  "checks if host exists"
+  [h] (not= 0 (wcar (car/exists (hk h)))))
 
-(defn update-host [h m]
+(defn host 
+  "Reads host data"
+  [h]
+  (let [data (wcar (car/hgetall* (hk h)))]
+    (if-not (empty? data)
+      data 
+      (throw+ {:type ::missing-host :host h}))))
+
+(defn update-host 
+  "Updates a given host"
+  [h m]
   (hsetall* (hk h) (merge-with merge m (host h))))
+
+(defn delete-host 
+  "Deletes a given host"
+  [host]
+  (wcar (car/del (hk host))))
 
 (defn fuzzy-host [h]
   "Searches after a host in a fuzzy manner, first fqn then tried prefixes"
