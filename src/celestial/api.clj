@@ -68,7 +68,7 @@
 
 (defroutes- jobs {:path "/job" :description "Operations on async job scheduling"}
 
-  (POST- "/job/stage/:host" [^:string host] {:nickname "stageMachine" :summary "Complete staging job"}
+  (POST- "/job/stage/:host" [^:string host] {:nickname "stageMachine" :summary "Complete end to end staging job"}
          (jobs/enqueue "stage" {:identity host :args [(p/host host)]})
          (success {:msg "submitted staging" :host host}))
 
@@ -77,7 +77,7 @@
            {:msg "submited system creation" :host host 
             :job (jobs/enqueue "machine" {:identity host :args [(p/host host)]})}))
 
-  (POST- "/job/provision/:host" [^:string host] {:nickname "provisionHost" :summary "provisioning job"}
+  (POST- "/job/provision/:host" [^:string host] {:nickname "provisionHost" :summary "Provisioning job"}
          (let [machine (p/host host) type (p/type-of (:type machine)) ]
            (success 
              {:msg "submitted provisioning" :host host :machine machine :type type 
