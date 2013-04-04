@@ -1,7 +1,7 @@
 (defproject celestial "0.0.1"
   :description "A launching pad for virtualized applications"
-  :url "https://github.com/narkisr/celestial"
-  :license  {:name "Eclipse Public License" :url "http://www.eclipse.org/legal/epl-v10.html"}
+  :url "https://github.com/celestial-ops/celestial-core"
+  :license  {:name "Apache License, Version 2.0" :url "http://www.apache.org/licenses/LICENSE-2.0.html"}
 
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [org.clojure/tools.cli "0.2.1" ]
