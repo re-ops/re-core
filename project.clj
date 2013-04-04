@@ -58,6 +58,7 @@
 
   :repositories  {"sonatype" "http://oss.sonatype.org/content/repositories/releases"}
       
+  :resource-paths  ["src/main/resource"]
 
   :aliases  
   {"reload"  ["run" "-m" "celestial.tasks" "reload" "systems/baseline.edn" "proxmox"]

@@ -9,7 +9,7 @@
     [celestial.api :only (app)]
     [ring.adapter.jetty :only (run-jetty)] 
     [celestial.tasks :only (reload puppetize)]
-    [celestial.common :only (config config-exists?)]
+    [celestial.common :only (config path)]
     [celestial.redis :only (clear-all)]
     [celestial.persistency :only (host register-host new-type)]  
     [celestial.fixtures :only (redis-prox-spec redis-ec2-spec local-prox redis-type)]))
@@ -27,7 +27,7 @@
 (deftest ^:puppet redis-ec2-provision
   "assumes a working ec2 defs in ~/.celestial.edn"
   (let [puppet-ami (assoc-in redis-ec2-spec [:aws :image-id] "ami-4eb1ba3a")]
-    (assert (config-exists?))
+    (assert path)
     (run-cycle puppet-ami redis-type)))
 
 (deftest ^:puppet redis-prox-provision

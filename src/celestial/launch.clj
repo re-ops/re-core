@@ -13,6 +13,8 @@
   "celestial lanching ground aka main"
   (:gen-class true)
   (:use 
+    [celestial.ssl :only (generate)]
+    [clojure.java.io :only (file resource)]
     [celestial.api :only (app)]
     [gelfino.timbre :only (gelf-appender)]
     [ring.adapter.jetty :only (run-jetty)] 
@@ -41,8 +43,29 @@
 (defn add-shutdown []
   (.addShutdownHook (Runtime/getRuntime) (Thread. clean-up)))
 
+(defn cert-conf 
+   "Celetial cert configuration" 
+   [k]
+   (get* :celestial :cert k))
+
+(defn default-key 
+  "Generates a default keystore if missing" 
+  []
+  (when-not (.exists (file (cert-conf :keystore)))
+    (info "generating a default keystore")
+    (generate (cert-conf :keystore))))
+
+
+
 (defn -main [& args]
   (add-shutdown)
+  (info (slurp (resource "main/resources/celestial.txt")))
+  (info "version 0.0.1 see http://celestial-ops.com")
   (jobs/initialize-workers)
-  (run-jetty (app true)  {:port (get* :celestial :port) :join? true 
-                           :ssl? true :keystore "my.keystore" :key-password "foobar" :ssl-port 8443}))
+  (default-key)
+  (run-jetty (app true)  
+             {:port (get* :celestial :port) :join? true 
+              :ssl? true :keystore (cert-conf :keystore)
+              :key-password  (cert-conf :password)
+              :ssl-port (get* :celestial :https-port)}))
+

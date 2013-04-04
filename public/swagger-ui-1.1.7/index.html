@@ -44,8 +44,9 @@
 
     <script type="text/javascript">
         $(function () {
+		var origin = document.location;
             window.swaggerUi = new SwaggerUi({
-                discoveryUrl:"https://0.0.0.0:8443/api-docs.json",
+                discoveryUrl:"https://" + origin.hostname + ":" + origin.port + "/api-docs.json",
                 apiKey:"special-key",
                 dom_id:"swagger-ui-container",
                 supportHeaderParams: false,

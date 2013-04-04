@@ -21,7 +21,7 @@
         [metrics.ring.instrument :only  (instrument)]
         [swag.core :only (swagger-routes http-codes GET- POST- PUT- DELETE- defroutes- errors)]
         [swag.model :only (defmodel wrap-swag defv defc)]
-        [celestial.common :only (import-logging)])
+        [celestial.common :only (import-logging get*)])
   (:require 
     [celestial.security :as sec]
     [celestial.persistency :as p]
@@ -140,8 +140,7 @@
          (success {:msg "new type saved" :type type :opts props}))) 
 
 (defroutes app-routes
-  hosts jobs
-  (route/not-found "Not Found"))
+  hosts jobs (route/not-found "Not Found"))
 
 (defn error-wrap
   "A catch all error handler"
@@ -151,15 +150,24 @@
       (app req)
       (catch Throwable e {:body (.getMessage e) :status 500}))))
 
+(defn force-https [rs]
+  (binding [friend/*default-scheme-ports* {:http (get* :celestial :port) :https (get* :celestial :https)}]
+    (friend/requires-scheme rs :https)))
+
+(defn compose-routes
+   "Composes celetial apps" 
+   [secured?]
+  (let [rs (routes swagger-routes (if secured? (sec/secured-app app-routes) app-routes))]
+    (if secured? 
+      (force-https rs) rs)))
+
 (defn app [secured?]
   "The api routes, secured? will enabled authentication"
-  (-> (routes swagger-routes
-              (if secured? (sec/secured-app app-routes) app-routes))
+  (-> (compose-routes secured?) 
       (wrap-swag) 
       (handler/api)
       (wrap-restful-params) 
       (wrap-restful-response)
       (expose-metrics-as-json)
       (instrument)
-      (error-wrap)
-      ))
+      (error-wrap)))

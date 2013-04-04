@@ -1,15 +1,20 @@
 {
  :celestial {
    :port 8082
+   :https-port 8443
    :log {
      :level :trace
      :path "celestial.log"
      :gelf-host "192.168.5.9"
    }
+
+   :cert {
+     :password "foobar" 
+     :keystore "foo.keystore"
+   }
  }
 
  :hypervisor {
-
     :proxmox {
       :username "root" :password "foobar" :host "localhost" :ssh-port 2222
       :ostemplates {
