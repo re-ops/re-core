@@ -1,5 +1,6 @@
 * Add success validation on wcar
-* Make cpu/mem optional for ec2 
-* add friend auth 
-* basic UI
 * Replace clj-ssh with jssh
+* Persist user in redis
+* Add user api and role managment
+* Supernal rollback
+* Supernal deployment api
