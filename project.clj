@@ -8,6 +8,7 @@
                  [clj-ssh "0.5.0" ]
                  [clj-config "0.2.0" ]
                  [prismatic/plumbing "0.0.1"]
+                 [bouncer "0.2.3-beta1"]
                  [cheshire "5.0.2"]
                  [com.taoensso/timbre "1.5.2"]
                  [com.narkisr/gelfino-client "0.4.0"]
@@ -38,10 +39,12 @@
 
   :exclusions [org.clojure/clojure]
 
-  :plugins  [[lein-autoexpect "0.2.5"]  [jonase/eastwood "0.0.2"] [lein-tarsier "0.10.0"]
-             [lein-expectations "0.0.7"] [lein-pedantic "0.0.5"]  [lein-tar "1.1.2"]]
+  :plugins  [[lein-autoexpect "0.2.5"]  [jonase/eastwood "0.0.2"] 
+             [lein-expectations "0.0.7"] [lein-pedantic "0.0.5"]]
 
-  :profiles {:dev {:dependencies [[org.clojure/tools.trace "0.7.5"]
+  :injections [(require '[redl core complete])]
+
+  :profiles {:dev {:dependencies [[org.clojure/tools.trace "0.7.5"] [redl "0.1.0" :exclusions  [commons-io]]
                                   [ring-mock "0.1.3"] [expectations "1.4.24"] [junit/junit "4.8.1"] ]}}
                  
   :tar  {:uberjar true}
