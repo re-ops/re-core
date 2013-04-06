@@ -1,7 +1,6 @@
 (ns celestial.integration.proxmox
   "Integration tests assume a proxmox vm with local address make sure to configure it"
-  (:use clojure.test 
-        midje.sweet
+  (:use midje.sweet
         proxmox.provider
         [celestial.common :only (slurp-edn)]
         [celestial.config :only (config)]
@@ -25,5 +24,5 @@
     (.delete ct) 
     (.create ct) 
     (.start ct)
-    (is (= (.status ct) "running")))))
+    (.status ct) => "running")))
 
