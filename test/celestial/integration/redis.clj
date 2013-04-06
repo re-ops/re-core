@@ -1,11 +1,9 @@
 (ns celestial.integration.redis
   "Redis test assume a redis sandbox on localhost, use https://github.com/narkisr/redis-sandbox"
   (:use midje.sweet
+        [celestial.fixtures :only (is-type?)]
         [celestial.redis :only (acquire release get- with-lock synched-map clear-all clear-locks)])
   (:import clojure.lang.ExceptionInfo))
-
-(defn is-type? [type]
-  (fn [exception] (= type (get-in (.getData exception) [:object :type]))))
 
 (with-state-changes [(before :facts (clear-all))]
   (fact "basic locks in redis" :integration :redis 

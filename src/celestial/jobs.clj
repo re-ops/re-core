@@ -27,7 +27,8 @@
     (with-lock identity #(apply f args) {:expiry half-hour :wait-time minute}) 
     (apply f args)))
 
-(def jobs {:machine [reload 2] :provision [puppetize 2] :stage [full-cycle 2]})
+(def jobs 
+  (atom {:machine [reload 2] :provision [puppetize 2] :stage [full-cycle 2]}))
 
 (defn create-wks [queue f total]
   "create a count of workers for queue"
@@ -35,7 +36,7 @@
 
 (defn initialize-workers []
   (dosync 
-    (doseq [[q [f c]] jobs]
+    (doseq [[q [f c]] @jobs]
       (swap! workers assoc q (create-wks q f c)))))
 
 (defn clear-all []
