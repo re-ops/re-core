@@ -115,8 +115,6 @@
          (wcar (hsetall* (~id-fn ~'id) (merge (wcar (car/hgetall* (~id-fn ~'id))) ~'v)))
          ))))
 
-
-
 (entity user)
 
 (defn validate-user [user]

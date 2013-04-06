@@ -19,7 +19,7 @@
 
 (import-logging)
 
-(def roles #{::admin ::user ::anonymous})
+(def roles {"admin" ::admin "user" ::user "anonymous" ::anonymous})
 
 (derive ::admin ::user)
 

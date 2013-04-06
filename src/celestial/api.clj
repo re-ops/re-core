@@ -65,6 +65,9 @@
   :type {:type :string :allowableValues {:valueType "LIST" :values ["ct" "vm"]}}
   :features {:type "List"})
 
+(defmodel user :username :string :password :string 
+  :roles {:type :string :allowableValues {:valueType "LIST" :values (into [] (keys sec/roles))}})
+
 (defv [:proxmox :type]
   (let [allowed (get-in proxmox [:properties :type :allowableValues :values])]
     (when-not (first (filter #{v} allowed))
@@ -97,9 +100,15 @@
   (GET- "/job/:queue/:uuid/status" [^:string queue ^:string uuid]
         {:nickname "jobStatus" :summary "job status tracking" 
          :notes "job status can be pending, processing, done or nil"}
-        (success {:job-status (jobs/status queue uuid)}))
+        (success {:job-status (jobs/status queue uuid)})))
 
-  )
+(defroutes- users {:path "/user" :description "User managment"}
+  (GET- "/user/:id" [^:string id] {:nickname "getUser" :summary "Get User"}
+       (success (p/get-user id)))
+
+  (POST- "/user/" [& ^:user user] {:nickname "addUser" :summary "adds a new user"}
+      (let [id (p/add-user (update-in user [:roles] (fn [v] (sec/roles v))))]
+        (success {:user-id id}))))
 
 (defroutes- hosts {:path "/host" :description "Operations on hosts"}
 
@@ -140,7 +149,7 @@
          (success {:msg "new type saved" :type type :opts props}))) 
 
 (defroutes app-routes
-  hosts jobs (route/not-found "Not Found"))
+  hosts jobs users (route/not-found "Not Found"))
 
 (defn error-wrap
   "A catch all error handler"
@@ -157,7 +166,7 @@
 (defn compose-routes
    "Composes celetial apps" 
    [secured?]
-  (let [rs (routes swagger-routes (if secured? (sec/secured-app app-routes) app-routes))]
+  (let [rs (routes (swagger-routes) (if secured? (sec/secured-app app-routes) app-routes))]
     (if secured? 
       (force-https rs) rs)))
 

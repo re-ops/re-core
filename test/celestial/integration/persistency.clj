@@ -10,7 +10,6 @@
 
 
 (with-state-changes [(before :facts (clear-all))]
-  
    (fact "Persisting type and host sanity" :integration :redis 
          (p/new-type "redis" redis-type) 
          (p/register-host redis-prox-spec) 
@@ -38,6 +37,7 @@
           (p/delete-user id)
           (p/user-exists? id) => falsey
           ))
+
    (fact "non valid user" :integration :redis
       (let [user {:username "foo" :password "bla" :roles #{::user}}]
           (p/add-user (dissoc user :username)) => 
