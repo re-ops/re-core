@@ -3,27 +3,27 @@
   (:refer-clojure :exclude [type])
   (:require 
     [celestial.persistency :as p])
-  (:use clojure.test
+  (:use 
+    midje.sweet
+    clojure.test
     [celestial.fixtures :only (redis-prox-spec redis-type)]
     [celestial.redis :only (clear-all)]))
 
 
-(use-fixtures :each (fn [f] (clear-all) (f)))
+(with-state-changes [(before :facts (clear-all))]
+  (fact "Persisting type and host sanity" :integration :redis 
+        (p/new-type "redis" redis-type) 
+        (p/register-host redis-prox-spec) 
+        (p/type-of "redis") => redis-type
+        (p/host "red1") => redis-prox-spec)
 
-(deftest ^:redis sanity
-    (p/new-type "redis" redis-type) 
-    (p/register-host redis-prox-spec) 
-    (is (= (p/type-of "redis") redis-type))
-    (is (= (p/host "red1") redis-prox-spec)))
+  (fact "fuzzy host lookup" :integration :redis 
+        (p/new-type "redis" redis-type) 
+        (p/register-host redis-prox-spec) 
+        (p/fuzzy-host "red1") => redis-prox-spec) 
 
-(deftest ^:redis fuzzy-lookup 
-    (p/new-type "redis" redis-type) 
-    (p/register-host redis-prox-spec) 
-    (is (= (p/fuzzy-host "red1") redis-prox-spec)))
-
-(deftest ^:redis host-update 
-   (p/new-type "redis" redis-type) 
-   (p/register-host redis-prox-spec) 
-   (p/update-host "red1" {:foo 2})
-   (is (= (:foo (p/host "red1")) 2))
-  )
+  (fact "host update" :integration  :redis 
+        (p/new-type "redis" redis-type) 
+        (p/register-host redis-prox-spec) 
+        (p/update-host "red1" {:foo 2})
+        (:foo (p/host "red1")) => 2)) 

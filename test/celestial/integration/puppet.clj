@@ -3,13 +3,14 @@
   (:require 
     [celestial.persistency :as p])
   (:use 
+    midje.sweet
     clojure.test    
     [clojure.java.io :only (file)]
     [taoensso.timbre :only (debug info error warn)]
     [celestial.api :only (app)]
     [ring.adapter.jetty :only (run-jetty)] 
     [celestial.tasks :only (reload puppetize)]
-    [celestial.common :only (config path)]
+    [celestial.config :only (config path)]
     [celestial.redis :only (clear-all)]
     [celestial.persistency :only (host register-host new-type)]  
     [celestial.fixtures :only (redis-prox-spec redis-ec2-spec local-prox redis-type)]))
@@ -24,13 +25,13 @@
       (.stop vm)
       (.delete vm))))
 
-(deftest ^:puppet redis-ec2-provision
+(fact "provisioning an ec2 instance" :integration :puppet 
   "assumes a working ec2 defs in ~/.celestial.edn"
   (let [puppet-ami (assoc-in redis-ec2-spec [:aws :image-id] "ami-4eb1ba3a")]
     (assert path)
     (run-cycle puppet-ami redis-type)))
 
-(deftest ^:puppet redis-prox-provision
+(fact "provisioning a proxmox instance" :integration :puppet
    (with-redefs [config local-prox]
      (run-cycle redis-prox-spec redis-type)))
 

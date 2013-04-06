@@ -2,7 +2,7 @@
   (:use 
     slingshot.test
     expectations.scenarios
-    [celestial.common :only (config)]
+    [celestial.config :only (config)]
     [celestial.tasks :only (resolve- post-create-hooks)])  
   (:import clojure.lang.ExceptionInfo)
  )

@@ -2,7 +2,7 @@
   (:use 
     [proxmox.remote :only (prox-get)]
     [proxmox.provider :only (vzctl enable-features ->Container)]
-    [celestial.common :only (config)]
+    [celestial.config :only (config)]
     [slingshot.slingshot :only  [throw+ try+]]
     [celestial.model :only (vconstruct)]
     [celestial.fixtures :only (redis-prox-spec local-prox)]
