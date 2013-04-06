@@ -22,10 +22,10 @@
        }
     }
 
-    :aws {
-      :access-key ""
-      :secret-key ""
-     } 
+    ;; :aws {
+    ;;   :access-key ""
+    ;;   :secret-key ""
+    ;;  } 
  }
   
  :redis {
