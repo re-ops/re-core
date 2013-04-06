@@ -39,13 +39,13 @@
 
   :exclusions [org.clojure/clojure]
 
-  :plugins  [[jonase/eastwood "0.0.2"] [lein-expectations "0.0.7"] [lein-pedantic "0.0.5"] [lein-midje "3.0.0"]]
+  :plugins  [[jonase/eastwood "0.0.2"] [lein-pedantic "0.0.5"] [lein-midje "3.0.0"]]
 
   :injections [(require '[redl core complete])]
 
   :profiles {:dev {:dependencies [[org.clojure/tools.trace "0.7.5"] [redl "0.1.0" :exclusions  [commons-io]]
                                   [ring-mock "0.1.3"]  [midje "1.5.1" :exclusions [org.clojure/core.unify]]
-                                  [expectations "1.4.24"] [junit/junit "4.8.1"] ]}}
+                                  [junit/junit "4.8.1"] ]}}
                  
   :tar  {:uberjar true}
 
