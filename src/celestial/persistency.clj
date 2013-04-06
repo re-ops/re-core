@@ -21,8 +21,6 @@
   (:require 
     [taoensso.carmine :as car]))
 
-
-
 (defn tk 
   "type key"
   [id] (<< "type:~{id}"))
@@ -108,7 +106,7 @@
 
        (defn ~exists-fn [~'id] (not= 0 (wcar (car/exists (~id-fn ~'id)))))
        
-       (defn ~update-fn [{:keys [~'id] :as ~'v}]
+       (defn ~update-fn [~'id ~'v]
          (~validate-fn ~'v)
          (when-not (~exists-fn ~'id)
             (throw+ {:type ~missing ~(keyword name*) ~'v }))

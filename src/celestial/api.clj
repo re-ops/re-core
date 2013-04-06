@@ -104,11 +104,19 @@
 
 (defroutes- users {:path "/user" :description "User managment"}
   (GET- "/user/:id" [^:string id] {:nickname "getUser" :summary "Get User"}
-       (success (p/get-user id)))
+        (success (p/get-user id)))
 
   (POST- "/user/" [& ^:user user] {:nickname "addUser" :summary "adds a new user"}
-      (let [id (p/add-user (update-in user [:roles] (fn [v] (sec/roles v))))]
-        (success {:user-id id}))))
+         (let [id (p/add-user (update-in user [:roles] (fn [v] (sec/roles v))))]
+           (success {:user-id id})))
+
+  (PUT- "/user/:id" [^:string id & ^:user user] {:nickname "updateUser" :summary "updates an existing user"}
+        (p/update-user (assoc user :id id))
+        (success {:msg "user updated" :id id}))
+
+  (DELETE- "/user/:id" [^:string id] {:nickname "deleteUser" :summary "deleted a user"}
+           (p/delete-user id) 
+           (success {:msg "user deleted" :id id})))
 
 (defroutes- hosts {:path "/host" :description "Operations on hosts"}
 
@@ -164,8 +172,8 @@
     (friend/requires-scheme rs :https)))
 
 (defn compose-routes
-   "Composes celetial apps" 
-   [secured?]
+  "Composes celetial apps" 
+  [secured?]
   (let [rs (routes (swagger-routes) (if secured? (sec/secured-app app-routes) app-routes))]
     (if secured? 
       (force-https rs) rs)))

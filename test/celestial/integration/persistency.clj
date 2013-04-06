@@ -32,15 +32,15 @@
      (let [user {:username "foo" :password "bla" :roles #{::user}} id (p/add-user user)]
           (p/get-user id) => user
           (p/user-exists? id) => truthy
-          (p/update-user (merge user {:username "bla" :id id}))
+          (p/update-user id (merge user {:username "bla" :id id}))
           (p/get-user id) => (merge user {:username "bla" :id id})
           (p/delete-user id)
           (p/user-exists? id) => falsey
           ))
 
    (fact "non valid user" :integration :redis
-      (let [user {:username "foo" :password "bla" :roles #{::user}}]
+      (let [user {:username "foo" :password "bla" :roles #{::user}} id (p/add-user user)]
           (p/add-user (dissoc user :username)) => 
                (throws clojure.lang.ExceptionInfo (is-type? :celestial.persistency/non-valid-user))
-          (p/update-user (dissoc user :username)) =>
+          (p/update-user id (dissoc user :username)) =>
                (throws clojure.lang.ExceptionInfo (is-type? :celestial.persistency/non-valid-user)))))
