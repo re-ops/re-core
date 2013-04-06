@@ -1,9 +1,11 @@
 (ns celestial.test.model
   (:use 
+    midje.sweet
     [celestial.model :only (translate)] 
     [celestial.common :only (slurp-edn)]
-     expectations))
+    ))
 
 (def model (slurp-edn "fixtures/model.edn"))
 
-(expect {:node "proxmox" :features ["nfs:on"]}  (second (translate model)))
+(fact "constructing a proxmox model"
+  (second (translate model)) => {:node "proxmox" :features ["nfs:on"]})

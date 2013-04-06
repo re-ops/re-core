@@ -1,27 +1,23 @@
 (ns celestial.test.proxmox
   (:use 
-    [proxmox.remote :only (prox-get)]
-    [proxmox.provider :only (vzctl enable-features ->Container)]
+    midje.sweet
+    [proxmox.provider :only (vzctl enable-features)]
     [celestial.config :only (config)]
-    [slingshot.slingshot :only  [throw+ try+]]
     [celestial.model :only (vconstruct)]
-    [celestial.fixtures :only (redis-prox-spec local-prox)]
-    expectations) 
-  (:import 
-    [proxmox.provider Container]))
+    [celestial.fixtures :only (redis-prox-spec local-prox)])
+  )
 
 (let [{:keys [machine proxmox]} redis-prox-spec]
-  (expect java.lang.AssertionError 
-       (vconstruct (assoc-in redis-prox-spec [:proxmox :vmid] nil)))
-    (expect java.lang.AssertionError 
-       (vconstruct (assoc-in redis-prox-spec [:proxmox :vmid] "string")))
-    )
+  (fact "missing vmid"
+        (vconstruct (assoc-in redis-prox-spec [:proxmox :vmid] nil)) => (throws java.lang.AssertionError))
+  (fact "non int vmid"
+        (vconstruct (assoc-in redis-prox-spec [:proxmox :vmid] "string")) => (throws java.lang.AssertionError))
+  )
 
 
 (with-redefs [config local-prox]
   (let [ct (vconstruct (assoc-in redis-prox-spec [:proxmox :features] ["nfs:on"]))]
-    (expect 
-      (interaction (vzctl ct "set 33 --features \"nfs:on\" --save"))
-      (enable-features ct)) 
-    ; (expect false (.status ct)) redef does not work
-    )) 
+    (fact "vzctl usage"
+      (enable-features ct) => '()
+      (provided 
+        (vzctl ct "set 33 --features \"nfs:on\" --save") => nil :times 1)))) 

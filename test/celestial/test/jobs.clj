@@ -12,9 +12,7 @@
   (fact "workers creation"
      (initialize-workers)
      (keys @workers) => (just :machine)
-     ;; (vals @workers) => (contains [:w1 :w2])
-    #_(provided 
-      (jobs/create-wks :machine identity 2) => [:w1 :w2])))
+    ))
 
 (fact "with-lock used if :identity key was provided" 
       (job-exec identity {:identity "red1" :args {:machine {:hostname "red1"}}}) => nil
