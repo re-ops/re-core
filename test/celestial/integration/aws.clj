@@ -3,7 +3,6 @@
   (:require aws.provider)
   (:import clojure.lang.ExceptionInfo)
   (:use 
-    clojure.test
     midje.sweet
     [celestial.model :only (vconstruct)]
     [celestial.redis :only (clear-all)]
@@ -18,10 +17,10 @@
       (register-host redis-ec2-spec)
       (.create instance) 
       (.start instance)
-      (is (not (nil? (get-in (host hostname) [:machine :ssh-host]))))
-      (is (= (.status instance) "running"))
+      (get-in (host hostname) [:machine :ssh-host]) => truthy
+      (.status instance) => "running"
       (.stop instance)
-      (is (= (.status instance) "stopped"))
+      (.status instance) => "stopped"
       (.delete instance) 
-      (is (= (.status instance) false))))
+      (.status instance) => falsey))
 

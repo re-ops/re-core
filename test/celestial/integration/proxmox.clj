@@ -6,10 +6,8 @@
         [celestial.common :only (slurp-edn)]
         [celestial.config :only (config)]
         [celestial.model :only (vconstruct)]
-        [celestial.fixtures :only (redis-prox-spec local-prox)]
-        )
-  (:import 
-    [proxmox.provider Container]))
+        [celestial.fixtures :only (redis-prox-spec local-prox)])
+  (:import [proxmox.provider Container]))
 
 
 (def fake-id (update-in redis-prox-spec [:proxmox :vmid] (fn [o] 190)))

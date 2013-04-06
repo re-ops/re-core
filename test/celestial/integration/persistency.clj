@@ -5,7 +5,6 @@
     [celestial.persistency :as p])
   (:use 
     midje.sweet
-    clojure.test
     [celestial.fixtures :only (redis-prox-spec redis-type)]
     [celestial.redis :only (clear-all)]))
 

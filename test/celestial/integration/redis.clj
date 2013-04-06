@@ -1,8 +1,6 @@
 (ns celestial.integration.redis
   "Redis test assume a redis sandbox on localhost, use https://github.com/narkisr/redis-sandbox"
-  (:use clojure.test 
-        slingshot.test
-        midje.sweet
+  (:use midje.sweet
         [celestial.redis :only (acquire release get- with-lock synched-map clear-all clear-locks)])
   (:import clojure.lang.ExceptionInfo))
 
@@ -36,7 +34,6 @@
   (fact "locking failure" :integration :redis 
         (acquire 6 {:expiry 3}) 
         (with-lock 6 #() {:wait-time 10}) => (throws ExceptionInfo (is-type? :celestial.redis/lock-fail)))
-
 
   (fact "using lock expiry" :integration :redis 
         (future (with-lock 9 (fn [] (Thread/sleep 1000)) {:expiry 4}))
