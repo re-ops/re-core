@@ -75,8 +75,7 @@
   [c]
   (cond-> (-> c celestial-v second base-v second)
     (get-in c [:hypervisor :proxmox]) (-> proxmox-v second) 
-    (get-in c [:hypervisor :aws])  (-> aws-v second)
-    ))
+    (get-in c [:hypervisor :aws])  (-> aws-v second)))
 
 (def config-paths
   ["/etc/celestial.edn" (<< "~(System/getProperty \"user.home\")/.celestial.edn")])
@@ -90,7 +89,7 @@
   (let [st (java.io.StringWriter.)]
     (binding [*out* st] 
       (clojure.pprint/pprint m))
-    (error st))) 
+    (error "Following configuration errors found:\n" st))) 
 
 (defn read-and-validate []
   (let [c (conf/read-config path) ]
