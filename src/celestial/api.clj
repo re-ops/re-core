@@ -157,7 +157,7 @@
          (success {:msg "new type saved" :type type :opts props}))) 
 
 (defroutes app-routes
-  hosts jobs users (route/not-found "Not Found"))
+  hosts jobs (friend/wrap-authorize users #{(sec/roles "admin")}) (route/not-found "Not Found"))
 
 (defn error-wrap
   "A catch all error handler"
