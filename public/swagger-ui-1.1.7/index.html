@@ -47,7 +47,6 @@
 		var origin = document.location;
             window.swaggerUi = new SwaggerUi({
                 discoveryUrl:"https://" + origin.hostname + ":" + origin.port + "/api-docs.json",
-                apiKey:"special-key",
                 dom_id:"swagger-ui-container",
                 supportHeaderParams: false,
                 supportedSubmitMethods: ['get', 'post', 'put', 'delete'],
