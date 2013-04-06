@@ -12,6 +12,7 @@
 (ns celestial.config
   "Celetial configuration info"
   (:use 
+    [celestial.validations :only (hash-v str-v validate-nest)]
     [clojure.pprint :only (pprint)]
     [bouncer [core :as b] [validators :as v]]
     [bouncer.validators :only (defvalidator)]
@@ -22,20 +23,6 @@
   )
 
 (def levels #{:trace :debug :info :error})
-
-(defvalidator hash-v
-  {:default-message-format "%s must be a hash"}
-  [c] (map? c))
-
-(defvalidator str-v
-  {:default-message-format "%s must be a string"}
-  [c] (string? c))
-
-(defmacro validate-nest 
-  "Bouncer nested maps validation with prefix key"
-  [target pref & body]
-  (let [with-prefix (reduce (fn [r [ks vs]] (cons (into pref ks) (cons vs  r))) '() (partition 2 body))]
-  `(b/validate ~target ~@with-prefix)))
 
 (defn base-v [c]
   (b/validate c 

@@ -19,6 +19,8 @@
 
 (import-logging)
 
+(def roles #{::admin ::user ::anonymous})
+
 (derive ::admin ::user)
 
 ; TODO move this into redis

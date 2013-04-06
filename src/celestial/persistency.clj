@@ -12,6 +12,8 @@
 (ns celestial.persistency
   (:refer-clojure :exclude [type])
   (:use 
+    [bouncer [core :as b] [validators :as v]]
+    [celestial.validations :only (str-v validate!)]
     [clojure.string :only (split join)]
     [celestial.redis :only (wcar hsetall*)]
     [slingshot.slingshot :only  [throw+ try+]]
@@ -19,9 +21,15 @@
   (:require 
     [taoensso.carmine :as car]))
 
-(defn tk [id] (<< "type:~{id}"))
 
-(defn hk [id] (<< "host:~{id}"))
+
+(defn tk 
+  "type key"
+  [id] (<< "type:~{id}"))
+
+(defn hk 
+  "host key"
+  [id] (<< "host:~{id}"))
 
 (defn type-of [t]
   "Reading a type"
@@ -64,7 +72,57 @@
   (let [ks (reverse (reductions (fn [r v] (str r "." v)) (split h #"\.")))]
     (when-let [k (first (filter #(= 1 (wcar (car/exists (hk %)))) ks))]
       (host k))))
-(comment 
-  (new-type "z" {}) 
-  (register-host "foo" "z" {:foo 1}) 
-  (host "foo")) 
+
+(defmacro <<< 
+  "String interpulation into a symbol"
+  [s] `(symbol (<< ~s)))
+
+(defmacro <<k 
+  "String interpulation into a keyword"
+  [s] `(keyword (<< ~s)))
+
+(defmacro entity
+  "Generates all the persistency (add/delete/exists etc..) functions for given entity"
+  [name*]
+  (let [id-fn (<<< "~{name*}-id") gen-fn (<<< "gen-~{name*}-id")
+        add-fn (<<< "add-~{name*}") delete-fn (<<< "delete-~{name*}")
+        update-fn (<<< "update-~{name*}") get-fn (<<< "get-~{name*}")
+        exists-fn (<<< "~{name*}-exists?") missing (<<k ":~{*ns*}/missing-~{name*}") 
+        validate-fn (<<< "validate-~{name*}")]
+    `(do 
+       (declare ~validate-fn)
+
+       (defn ~id-fn [~'id] (str '~name* ":" ~'id))
+
+       (defn ~gen-fn []
+         (wcar (~id-fn (car/incr ~(<< "~{name*}:ids")))))
+
+       (defn ~add-fn [~'v]
+         (~validate-fn ~'v)
+         (let [id# (~gen-fn)]
+           (wcar (hsetall* (~id-fn id#) ~'v)) id#)) 
+
+       (defn ~get-fn [~'id] (wcar (car/hgetall* (~id-fn ~'id))))
+        
+       (defn ~delete-fn [~'id] (wcar (car/del (~id-fn ~'id))))
+
+       (defn ~exists-fn [~'id] (not= 0 (wcar (car/exists (~id-fn ~'id)))))
+       
+       (defn ~update-fn [{:keys [~'id] :as ~'v}]
+         (~validate-fn ~'v)
+         (when-not (~exists-fn ~'id)
+            (throw+ {:type ~missing ~(keyword name*) ~'v }))
+         (wcar (hsetall* (~id-fn ~'id) (merge (wcar (car/hgetall* (~id-fn ~'id))) ~'v)))
+         ))))
+
+
+
+(entity user)
+
+(defn validate-user [user]
+  (validate! ::non-valid-user
+    (b/validate user
+      [:username] [v/required str-v]
+      [:password] [v/required str-v]
+      [:roles] [v/required])))
+
