@@ -24,6 +24,7 @@
         [swag.model :only (defmodel wrap-swag defv defc)]
         [celestial.common :only (import-logging get*)])
   (:require 
+    [ring.middleware [multipart-params :as mp] ]
     [celestial.security :as sec]
     [celestial.persistency :as p]
     [compojure.handler :refer (site)]
@@ -112,10 +113,9 @@
    (update-in user [:password] (fn [v] (creds/hash-bcrypt v))))
 
 (defroutes- supernal {:path "/supernal" :description "Supernal tasks managment"}
-  (POST- "/supernal/" [^:file script] {:nickname "addTask" :summary "adds a new supernal task"}
-         (debug script)
-         (success {:msg "added task"})) 
-  )
+    (POST- "/supernal/" [^:file script] {:nickname "addTask" :summary "adds a new supernal task"}
+         (debug (slurp (:tempfile script)))
+         (success {:msg "added task"})))
 
 (defroutes- users {:path "/user" :description "User managment"}
   (GET- "/user/:name" [^:string name] {:nickname "getUser" :summary "Get User"}
@@ -172,7 +172,7 @@
          (success {:msg "new type saved" :type type :opts props}))) 
 
 (defroutes app-routes
-  hosts jobs (friend/wrap-authorize users admin) (route/not-found "Not Found"))
+  hosts supernal jobs (friend/wrap-authorize users admin) (route/not-found "Not Found"))
 
 (defn error-wrap
   "A catch all error handler"
@@ -200,6 +200,7 @@
       (handler/api)
       (wrap-restful-params) 
       (wrap-restful-response)
+      (mp/wrap-multipart-params)
       (expose-metrics-as-json)
       (instrument)
       (error-wrap)))
