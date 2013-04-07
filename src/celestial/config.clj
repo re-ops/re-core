@@ -89,8 +89,8 @@
 (def ^{:doc "main configuation"} config 
   (if path
     (read-and-validate)      
-    (do 
+    (when-not (System/getProperty "disable-conf") 
       (error 
-          (<< "Missing configuration file, you should configure celestial in either ~{config-paths}"))
-      (when-not (System/getProperty "disable-conf") (System/exit 1)))))
+        (<< "Missing configuration file, you should configure celestial in either ~{config-paths}"))  
+      (System/exit 1))))
 
