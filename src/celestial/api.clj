@@ -103,20 +103,20 @@
         (success {:job-status (jobs/status queue uuid)})))
 
 (defroutes- users {:path "/user" :description "User managment"}
-  (GET- "/user/:id" [^:string id] {:nickname "getUser" :summary "Get User"}
-        (success (p/get-user id)))
+  (GET- "/user/:name" [^:string name] {:nickname "getUser" :summary "Get User"}
+        (success (p/get-user name)))
 
   (POST- "/user/" [& ^:user user] {:nickname "addUser" :summary "adds a new user"}
-         (let [id (p/add-user (update-in user [:roles] (fn [v] (sec/roles v))))]
-           (success {:user-id id})))
+         (p/add-user (update-in user [:roles] (fn [v] (sec/roles v))))
+         (success {:msg "added user"}))
 
-  (PUT- "/user/:id" [^:string id & ^:user user] {:nickname "updateUser" :summary "updates an existing user"}
-        (p/update-user (assoc user :id id))
-        (success {:msg "user updated" :id id}))
+  (PUT- "/user/" [& ^:user user] {:nickname "updateUser" :summary "updates an existing user"}
+        (p/update-user (update-in user [:roles] (fn [v] (sec/roles v))))
+        (success {:msg "user updated"}))
 
-  (DELETE- "/user/:id" [^:string id] {:nickname "deleteUser" :summary "deleted a user"}
-           (p/delete-user id) 
-           (success {:msg "user deleted" :id id})))
+  (DELETE- "/user/:name" [^:string name] {:nickname "deleteUser" :summary "deleted a user"}
+           (p/delete-user name) 
+           (success {:msg "user deleted" :name name})))
 
 (defroutes- hosts {:path "/host" :description "Operations on hosts"}
 
