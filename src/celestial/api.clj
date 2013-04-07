@@ -111,6 +111,12 @@
 (defn hash-pass [user]
    (update-in user [:password] (fn [v] (creds/hash-bcrypt v))))
 
+(defroutes- supernal {:path "/supernal" :description "Supernal tasks managment"}
+  (POST- "/supernal/" [^:file script] {:nickname "addTask" :summary "adds a new supernal task"}
+         (debug script)
+         (success {:msg "added task"})) 
+  )
+
 (defroutes- users {:path "/user" :description "User managment"}
   (GET- "/user/:name" [^:string name] {:nickname "getUser" :summary "Get User"}
         (success (p/get-user name)))

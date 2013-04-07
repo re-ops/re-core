@@ -15,12 +15,11 @@
                  [org.clojure/core.incubator "0.1.2"]
                  [slingshot "0.10.3" ]
                  [clj-http "0.6.5"]
-                 [swag "0.2.0"]
+                 [swag "0.2.1"]
                  [clj-yaml "0.4.0"]
                  [org.clojure/data.json "0.2.1" ]
                  [com.narkisr/carmine "1.6.0"]
                  [org.clojure/core.memoize "0.5.2" :exclusions [org.clojure/core.cache]]
-                 [org.slf4j/slf4j-simple "1.6.4"]; required for codahale metrics
                  [metrics-clojure "0.9.2"]
                  [clj-aws-ec2 "0.2.1" :exclusions  [org.codehaus.jackson/jackson-core-asl]]
                  [narkisr/trammel "0.8.0-freez"]
@@ -28,6 +27,8 @@
                  [org.flatland/useful "0.9.5"]
                  [fogus/minderbinder "0.2.0"]
                  [metrics-clojure-ring "0.9.2"]
+                 [ch.qos.logback/logback-classic "1.0.9"]
+                 [org.codehaus.groovy/groovy "2.1.2"]
                  [ring "1.1.8"]
                  [compojure "1.1.5" :exclusions  [ring/ring-core]]
                  [ring/ring-jetty-adapter "1.1.8"]
@@ -61,7 +62,7 @@
 
   :repositories  {"sonatype" "http://oss.sonatype.org/content/repositories/releases"}
 
-  :resource-paths  ["src/main/resource"]
+  :resource-paths  ["src/main/resources/"]
 
   :main celestial.launch
   )

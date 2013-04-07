@@ -41,7 +41,7 @@
 (defnk ssh-strap [host {user (@config :user)}]
   (doto (SSHClient.)
     (.addHostKeyVerifier (PromiscuousVerifier.))
-    (.loadKnownHosts )
+    (.loadKnownHosts)
     (.connect host)
     (.authPublickey user #^"[Ljava.lang.String;" (into-array [(@config :key)]))))
 

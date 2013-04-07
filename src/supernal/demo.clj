@@ -34,6 +34,6 @@
 ; (def artifact "http://dl.bintray.com/content/narkisr/boxes/redis-sandbox-0.3.4.tar.gz")
 (def artifact "git://github.com/narkisr/swag.git")
 
-(execute basic-deploy {:app-name "foo" :src artifact} :web)
+;; (execute basic-deploy {:app-name "foo" :src artifact} :web)
 
 ; (execute-task deploy/stop {:app-name "foo" :src artifact} :web) 

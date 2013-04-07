@@ -17,7 +17,7 @@
   * Dynamic role and host lookup for tasks invocation targets
   * First class (java) package deployment lifecycle
   * can be used as a library and as a standalone tool  
-  * Zeromq agent for improved perforemance over basic ssh
+  * Zeromq (jeromq) agent for improved perforemance over basic ssh
   "
   (:require 
        [clojure.walk :as walk]
