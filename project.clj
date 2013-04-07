@@ -41,15 +41,14 @@
 
   :plugins  [[jonase/eastwood "0.0.2"] [lein-pedantic "0.0.5"] [lein-midje "3.0.0"]]
 
-  :injections [(require '[redl core complete])]
-
   :profiles {:dev 
              {:dependencies [[org.clojure/tools.trace "0.7.5"] 
-                             [redl "0.1.0" :exclusions  [commons-io]]
                              [ring-mock "0.1.3"]  [midje "1.5.1" :exclusions [org.clojure/core.unify]]
                              [junit/junit "4.8.1"] ]
 
-              :jvm-opts ~(vec (map (fn [[p v]] (str "-D" (name p) "=" v)) {:disable-conf "true"}))}}
+              :jvm-opts ~(vec (map (fn [[p v]] (str "-D" (name p) "=" v)) {:disable-conf "true"}))}
+            :prod {} 
+             }
 
 
   :aot [proxmox.provider celestial.core celestial.puppet-standalone celestial.launch]
