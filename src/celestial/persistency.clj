@@ -13,7 +13,7 @@
   (:refer-clojure :exclude [type])
   (:use 
     [bouncer [core :as b] [validators :as v]]
-    [celestial.validations :only (str-v validate!)]
+    [celestial.validations :only (str-v set-v validate!)]
     [clojure.string :only (split join)]
     [celestial.redis :only (wcar hsetall*)]
     [slingshot.slingshot :only  [throw+ try+]]
@@ -138,6 +138,5 @@
              (b/validate user
                          [:username] [v/required str-v]
                          [:password] [v/required str-v]
-                         [:roles] [v/required])))
+                         [:roles] [v/required set-v])))
 
-(add-user {:username "bar" :password "foo" :roles "admin"})

@@ -29,6 +29,7 @@
     [celestial.jobs :as jobs]
     [compojure.handler :as handler]
     [cemerick.friend :as friend]
+    [cemerick.friend.credentials :as creds]
     [compojure.route :as route])) 
 
 (import-logging)
@@ -102,16 +103,23 @@
          :notes "job status can be pending, processing, done or nil"}
         (success {:job-status (jobs/status queue uuid)})))
 
+
+(defn convert-roles [user]
+   (update-in user [:roles] (fn [v] #{(sec/roles v)})))
+
+(defn hash-pass [user]
+   (update-in user [:password] (fn [v] (creds/hash-bcrypt v))))
+
 (defroutes- users {:path "/user" :description "User managment"}
   (GET- "/user/:name" [^:string name] {:nickname "getUser" :summary "Get User"}
         (success (p/get-user name)))
 
   (POST- "/user/" [& ^:user user] {:nickname "addUser" :summary "adds a new user"}
-         (p/add-user (update-in user [:roles] (fn [v] (sec/roles v))))
+         (p/add-user (-> user convert-roles hash-pass))
          (success {:msg "added user"}))
 
   (PUT- "/user/" [& ^:user user] {:nickname "updateUser" :summary "updates an existing user"}
-        (p/update-user (update-in user [:roles] (fn [v] (sec/roles v))))
+        (p/update-user (-> user convert-roles hash-pass))
         (success {:msg "user updated"}))
 
   (DELETE- "/user/:name" [^:string name] {:nickname "deleteUser" :summary "deleted a user"}

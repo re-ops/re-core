@@ -18,6 +18,10 @@
   {:default-message-format "%s must be a hash"}
   [c] (map? c))
 
+(defvalidator set-v
+  {:default-message-format "%s must be a set"}
+  [c] (set? c))
+
 (defvalidator str-v
   {:default-message-format "%s must be a string"}
   [c] (string? c))

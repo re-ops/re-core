@@ -13,6 +13,7 @@
   (:use 
     [celestial.common :only (import-logging)])
   (:require 
+    [celestial.persistency :as p]
     [cemerick.friend :as friend]
     (cemerick.friend [workflows :as workflows]
                      [credentials :as creds])))
@@ -23,15 +24,6 @@
 
 (derive ::admin ::user)
 
-; TODO move this into redis
-(def users (atom 
-        {"admin" {:username "admin"
-                    :password (creds/hash-bcrypt "admin_password")
-                    :roles #{::admin}}
-         "ronen" {:username "ronen"
-                    :password (creds/hash-bcrypt "user_password")
-                    :roles #{::user}}}))
-
 (def user #{::user})
 
 (defn user-tracking [app]
@@ -40,13 +32,20 @@
     (debug request-method " on " uri "by" (friend/current-authentication) )
     (app req)))
 
+(defn reset-admin
+  "Resets admin password if non is defined"
+  []
+  (when (empty? (p/get-user "admin"))
+    (p/add-user {:username "admin" :password (creds/hash-bcrypt "changeme") :roles #{::admin}})))
+
 (defn secured-app [routes]
+  (reset-admin)
   (friend/authenticate 
     (friend/wrap-authorize (user-tracking routes) user) 
     {:allow-anon? true
      :unauthenticated-handler 
         #(assoc (workflows/http-basic-deny "celestial" %) :body {:message "login failed" } )
      :workflows [(workflows/http-basic
-                   :credential-fn #(creds/bcrypt-credential-fn @users %)
+                   :credential-fn #(creds/bcrypt-credential-fn p/get-user %)
                    :realm "celestial")]}))
 
