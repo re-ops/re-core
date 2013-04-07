@@ -50,14 +50,18 @@
             :prod {} 
              }
 
-
+  :aliases {"celestial" 
+              ["with-profile" "prod" "trampoline" "run"]
+            "autotest"
+             ["midje" ":autotest" ":filter" "-integration"] 
+             "runtest"
+             ["midje" ":filter" "-integration"] 
+            }
   :aot [proxmox.provider celestial.core celestial.puppet-standalone celestial.launch]
 
   :repositories  {"sonatype" "http://oss.sonatype.org/content/repositories/releases"}
 
   :resource-paths  ["src/main/resource"]
-
-
 
   :main celestial.launch
   )
