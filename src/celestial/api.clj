@@ -14,6 +14,7 @@
   (:use [compojure.core :only (defroutes context POST GET routes)] 
         [metrics.ring.expose :only  (expose-metrics-as-json)]
         [ring.middleware.format-params :only [wrap-restful-params]]
+        [celestial.roles :only (roles roles-m admin)]
         [clojure.core.strint :only (<<)]
         [slingshot.slingshot :only  [throw+ try+]]
         [ring.middleware.format-response :only [wrap-restful-response]]
@@ -67,7 +68,7 @@
   :features {:type "List"})
 
 (defmodel user :username :string :password :string 
-  :roles {:type :string :allowableValues {:valueType "LIST" :values (into [] (keys sec/roles))}})
+  :roles {:type :string :allowableValues {:valueType "LIST" :values (into [] (keys roles-m))}})
 
 (defv [:proxmox :type]
   (let [allowed (get-in proxmox [:properties :type :allowableValues :values])]
@@ -105,7 +106,7 @@
 
 
 (defn convert-roles [user]
-   (update-in user [:roles] (fn [v] #{(sec/roles v)})))
+   (update-in user [:roles] (fn [v] #{(roles-m v)})))
 
 (defn hash-pass [user]
    (update-in user [:password] (fn [v] (creds/hash-bcrypt v))))
@@ -165,7 +166,7 @@
          (success {:msg "new type saved" :type type :opts props}))) 
 
 (defroutes app-routes
-  hosts jobs (friend/wrap-authorize users #{(sec/roles "admin")}) (route/not-found "Not Found"))
+  hosts jobs (friend/wrap-authorize users admin) (route/not-found "Not Found"))
 
 (defn error-wrap
   "A catch all error handler"

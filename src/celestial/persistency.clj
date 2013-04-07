@@ -12,6 +12,8 @@
 (ns celestial.persistency
   (:refer-clojure :exclude [type])
   (:use 
+    [celestial.roles :only (roles admin)]
+    [cemerick.friend.credentials :as creds]
     [bouncer [core :as b] [validators :as v]]
     [celestial.validations :only (str-v set-v validate!)]
     [clojure.string :only (split join)]
@@ -135,8 +137,13 @@
 
 (defn validate-user [user]
   (validate! ::non-valid-user
-             (b/validate user
-                         [:username] [v/required str-v]
-                         [:password] [v/required str-v]
-                         [:roles] [v/required set-v])))
+      (b/validate user
+         [:username] [v/required str-v]
+         [:password] [v/required str-v]
+         [:roles] [v/required (v/every #(roles %) :message (<< "role must be either ~{roles}"))])))
 
+(defn reset-admin
+  "Resets admin password if non is defined"
+  []
+  (when (empty? (get-user "admin"))
+    (add-user {:username "admin" :password (creds/hash-bcrypt "changeme") :roles admin})))

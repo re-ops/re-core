@@ -13,6 +13,7 @@
   (:use 
     [celestial.common :only (import-logging)])
   (:require 
+    [celestial.roles :as roles]
     [celestial.persistency :as p]
     [cemerick.friend :as friend]
     (cemerick.friend [workflows :as workflows]
@@ -20,28 +21,15 @@
 
 (import-logging)
 
-(def roles {"admin" ::admin "user" ::user "anonymous" ::anonymous})
-
-(derive ::admin ::user)
-
-(def user #{::user})
-
 (defn user-tracking [app]
   "A tiny middleware to track api access"
   (fn [{:keys [uri request-method] :as req}]
     (debug request-method " on " uri "by" (friend/current-authentication) )
     (app req)))
 
-(defn reset-admin
-  "Resets admin password if non is defined"
-  []
-  (when (empty? (p/get-user "admin"))
-    (p/add-user {:username "admin" :password (creds/hash-bcrypt "changeme") :roles #{::admin}})))
-
 (defn secured-app [routes]
-  (reset-admin)
   (friend/authenticate 
-    (friend/wrap-authorize (user-tracking routes) user) 
+    (friend/wrap-authorize (user-tracking routes) roles/user) 
     {:allow-anon? true
      :unauthenticated-handler 
         #(assoc (workflows/http-basic-deny "celestial" %) :body {:message "login failed" } )

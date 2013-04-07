@@ -13,6 +13,7 @@
   "celestial lanching ground aka main"
   (:gen-class true)
   (:use 
+    [celestial.persistency :as p]
     [celestial.ssl :only (generate)]
     [clojure.java.io :only (file resource)]
     [celestial.api :only (app)]
@@ -29,7 +30,7 @@
 
 (set-config! [:appenders :gelf] gelf-appender)
 (set-config! [:shared-appender-config :gelf] {:host (log* :gelf-host)})
- 
+
 (set-config! [:shared-appender-config :spit-filename] (log* :path))
 (set-config! [:appenders :spit :enabled?] true)
 (set-level! (log* :level))
@@ -44,9 +45,9 @@
   (.addShutdownHook (Runtime/getRuntime) (Thread. clean-up)))
 
 (defn cert-conf 
-   "Celetial cert configuration" 
-   [k]
-   (get* :celestial :cert k))
+  "Celetial cert configuration" 
+  [k]
+  (get* :celestial :cert k))
 
 (defn default-key 
   "Generates a default keystore if missing" 
@@ -55,9 +56,8 @@
     (info "generating a default keystore")
     (generate (cert-conf :keystore))))
 
-
-
 (defn -main [& args]
+  (p/reset-admin)
   (add-shutdown)
   (info (slurp (resource "main/resources/celestial.txt")))
   (info "version 0.0.1 see http://celestial-ops.com")
