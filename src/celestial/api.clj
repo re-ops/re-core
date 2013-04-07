@@ -27,9 +27,8 @@
     [ring.middleware [multipart-params :as mp] ]
     [celestial.security :as sec]
     [celestial.persistency :as p]
-    [compojure.handler :refer (site)]
+    [compojure.handler :as handler :refer (site)]
     [celestial.jobs :as jobs]
-    [compojure.handler :as handler]
     [cemerick.friend :as friend]
     [cemerick.friend.credentials :as creds]
     [compojure.route :as route])) 
