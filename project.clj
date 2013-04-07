@@ -43,29 +43,22 @@
 
   :injections [(require '[redl core complete])]
 
-  :profiles {:dev {:dependencies [[org.clojure/tools.trace "0.7.5"] [redl "0.1.0" :exclusions  [commons-io]]
-                                  [ring-mock "0.1.3"]  [midje "1.5.1" :exclusions [org.clojure/core.unify]]
-                                  [junit/junit "4.8.1"] ]}}
-                 
-  :tar  {:uberjar true}
+  :profiles {:dev 
+             {:dependencies [[org.clojure/tools.trace "0.7.5"] 
+                             [redl "0.1.0" :exclusions  [commons-io]]
+                             [ring-mock "0.1.3"]  [midje "1.5.1" :exclusions [org.clojure/core.unify]]
+                             [junit/junit "4.8.1"] ]
+
+              :jvm-opts ~(vec (map (fn [[p v]] (str "-D" (name p) "=" v)) {:disable-conf "true"}))}}
+
 
   :aot [proxmox.provider celestial.core celestial.puppet-standalone celestial.launch]
 
-  :test-selectors {:default #(not-any? % [:proxmox :redis :integration :puppet :ec2]) 
-                   :redis :redis
-                   :proxmox :proxmox
-                   :puppet :puppet
-                   :ec2 :ec2
-                   :integration :integration
-                   :all (constantly true)}
-
   :repositories  {"sonatype" "http://oss.sonatype.org/content/repositories/releases"}
-      
+
   :resource-paths  ["src/main/resource"]
 
-  :aliases  
-  {"reload"  ["run" "-m" "celestial.tasks" "reload" "systems/baseline.edn" "proxmox"]
-   "puppetize"  ["run" "-m" "celestial.tasks" "puppetize" "systems/baseline.edn"]}
+
 
   :main celestial.launch
   )

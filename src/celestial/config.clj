@@ -91,6 +91,6 @@
     (read-and-validate)      
     (do 
       (error 
-        (<< "Missing configuration file, you should configure celestial in either ~{config-paths}")) 
-      (System/exit 1))))
- 
+          (<< "Missing configuration file, you should configure celestial in either ~{config-paths}"))
+      (when-not (System/getProperty "disable-conf") (System/exit 1)))))
+
