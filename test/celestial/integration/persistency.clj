@@ -32,8 +32,8 @@
      (let [user {:username "foo" :password "bla" :roles #{::user}} id (p/add-user user)]
           (p/get-user id) => user
           (p/user-exists? id) => truthy
-          (p/update-user id (merge user {:username "bla" :id id}))
-          (p/get-user id) => (merge user {:username "bla" :id id})
+          (p/update-user (merge user {:username "foo" :password "123"}))
+          (p/get-user id) => (merge user {:username "foo" :password "123"})
           (p/delete-user id)
           (p/user-exists? id) => falsey
           ))
@@ -42,5 +42,17 @@
       (let [user {:username "foo" :password "bla" :roles #{::user}} id (p/add-user user)]
           (p/add-user (dissoc user :username)) => 
                (throws clojure.lang.ExceptionInfo (is-type? :celestial.persistency/non-valid-user))
-          (p/update-user id (dissoc user :username)) =>
+          (p/update-user (dissoc user :username)) =>
                (throws clojure.lang.ExceptionInfo (is-type? :celestial.persistency/non-valid-user)))))
+
+(with-state-changes [(before :facts (clear-all))]
+  (fact "id-less entity"
+    (p/entity foo)        
+    (defn validate-foo [foo] {})
+    (let [id (add-foo {:bar 1})]
+      (get-foo id) => {:bar 1}
+      (foo-exists? id) => truthy
+      (update-foo id {:bar 2}) 
+      (get-foo id) => {:bar 2}
+      (delete-foo id)
+      (foo-exists? id) => falsey))) 
