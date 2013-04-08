@@ -182,7 +182,7 @@
       (catch Throwable e {:body (.getMessage e) :status 500}))))
 
 (defn force-https [rs]
-  (binding [friend/*default-scheme-ports* {:http (get* :celestial :port) :https (get* :celestial :https)}]
+  (binding [friend/*default-scheme-ports* {:http (get* :celestial :port) :https (get* :celestial :https-port)}]
     (friend/requires-scheme rs :https)))
 
 (defn compose-routes
