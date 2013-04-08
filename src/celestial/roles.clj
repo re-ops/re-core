@@ -11,5 +11,5 @@
 
 (def user #{::user})
 
-(def admin #{::user})
+(def admin #{::admin})
  
