@@ -120,15 +120,15 @@
   (GET- "/user/:name" [^:string name] {:nickname "getUser" :summary "Get User"}
         (success (p/get-user name)))
 
-  (POST- "/user/" [& ^:user user] {:nickname "addUser" :summary "adds a new user"}
+  (POST- "/user/" [& ^:user user] {:nickname "addUser" :summary "Adds a new user"}
          (p/add-user (-> user convert-roles hash-pass))
          (success {:msg "added user"}))
 
-  (PUT- "/user/" [& ^:user user] {:nickname "updateUser" :summary "updates an existing user"}
+  (PUT- "/user/" [& ^:user user] {:nickname "updateUser" :summary "Updates an existing user"}
         (p/update-user (-> user convert-roles hash-pass))
         (success {:msg "user updated"}))
 
-  (DELETE- "/user/:name" [^:string name] {:nickname "deleteUser" :summary "deleted a user"}
+  (DELETE- "/user/:name" [^:string name] {:nickname "deleteUser" :summary "Deleted a user"}
            (p/delete-user name) 
            (success {:msg "user deleted" :name name})))
 
