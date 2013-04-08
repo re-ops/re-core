@@ -12,6 +12,7 @@
 (ns celestial.common
   (:import java.util.Date)
   (:use 
+    [slingshot.slingshot :only  [throw+ try+]]
     [celestial.config :only (config)]
     [clojure.core.strint :only (<<)]
     ))
@@ -21,7 +22,12 @@
 
 (import-logging)
 
-(defn get* [& keys] (get-in config keys))
+(defn get* 
+  "Reading a keys path from configuration"
+  [& keys] 
+  (if-let [v (get-in config keys)]
+    v
+    (throw+ {:type ::missing-conf :message (<< "No matching configuration keys ~{keys} found")})))
 
 (defn slurp-edn [file] (read-string (slurp file)))
 
