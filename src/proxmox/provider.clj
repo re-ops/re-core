@@ -162,10 +162,21 @@
       (reduce (fn [r [k v]] (assoc r (ms k) v)) {} vs)) 
     ))
 
+(defn os->template 
+  "Converts os key to vz template" 
+  [os]
+  (let [ks [:hypervisor :proxmox :ostemplates os]]
+    (try+ 
+      (apply get* ks)
+      (catch [:type :celestial.common/missing-conf] e
+        (throw+ {:type :missing-template :message 
+          (<< "no matching proxmox template found for ~{os}, add one to configuration under ~{ks} ")}) 
+        ))))
 
-(defn transform [res]
-  (first (map (fn [[k v]] (update-in res [k] v ))
-              {:ostemplate (fn [os] (get* :hypervisor :proxmox :ostemplates os))})))
+(defn transform 
+  "manipulated the model making it proxmox ready "
+  [res]
+  (first (map (fn [[k v]] (update-in res [k] v )) {:ostemplate os->template})))
 
 (def selections (juxt (key-select ct-valid) (key-select extra-valid)))
 
