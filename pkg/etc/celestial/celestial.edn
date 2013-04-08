@@ -1,6 +1,7 @@
 {
  :celestial {
    :port 8082
+   :https-port 8443
    :log {
      :level :trace
      :path "/var/log/celestial.log"
@@ -13,14 +14,14 @@
     :proxmox {
       :username "root" :password "" :host "" :ssh-port 2222
       :ostemplates {
-         ; :ubuntu-12.10  "local:vztmpl/ubuntu-12.04-puppet_3-x86_64.tar.gz"
+         ; :ubuntu-12.04 "local:vztmpl/ubuntu-12.04-puppet_3-x86_64.tar.gz"
        }
     }
-
-    :aws {
-      :access-key ""
-      :secret-key ""
-     } 
+; 
+;     :aws {
+;       :access-key ""
+;       :secret-key ""
+;      } 
  }
   
  :redis {
