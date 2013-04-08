@@ -7,6 +7,12 @@
      :path "/var/log/celestial.log"
      :gelf-host ""
    }
+
+   :cert {
+     :password "changeme" 
+     :keystore "celestial.keystore"
+   }
+
  }
 
  :hypervisor {
