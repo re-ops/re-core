@@ -1,4 +1,5 @@
 (ns celestial.test.puppet
+  (:require proxmox.provider aws.provider celestial.puppet_standalone); loading defmethods
   (:use 
     midje.sweet
     [celestial.model :only (pconstruct)]
