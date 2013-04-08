@@ -32,12 +32,11 @@
 (def state "IL") 
 (def country "IL")
 (def validity 1096)
-(def alias- "celetial-jetty")
-(def key-pass (.toCharArray  (get* :celestial :cert :password)))
+(def alias- "celestial-ops-jetty")
 
 (defn generate 
   "Generates a java keystore file with defined spec" 
-  [output]
+  [output key-pass]
   (let [keystore (doto (KeyStore/getInstance "JKS") (.load nil nil)) 
         keypair (CertAndKeyGen. "RSA" "SHA1WithRSA" nil) 
         x500 (X500Name. cname org-unit org city state country) ]

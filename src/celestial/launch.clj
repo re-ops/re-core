@@ -54,7 +54,7 @@
   []
   (when-not (.exists (file (cert-conf :keystore)))
     (info "generating a default keystore")
-    (generate (cert-conf :keystore))))
+    (generate (cert-conf :keystore) (cert-conf :password))))
 
 (defn -main [& args]
   (p/reset-admin)
