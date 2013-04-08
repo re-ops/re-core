@@ -97,9 +97,15 @@
 
 (defn key-set [h] (->> h keys (into #{})))
 
+(defn validate-debug 
+  [ct]
+  (let [es (:errors (validate ct ct-valid))]
+    (debug es)
+    (empty? es)))
+
 (defconstrainedrecord Container [node ct extended]
   "ct should match proxmox expected input"
-  [(empty? (:errors (validate ct ct-valid))) (not (nil? node))]
+  [(validate-debug ct) (not (nil? node))]
   Vm
   (create [this] 
           (debug "creating" (:vmid ct))
@@ -148,12 +154,12 @@
 (defn- key-select [v] (fn [m] (select-keys m (keys v))))
 
 (defn mappings [res]
- "(mappings {:ip \"1234\" :os \"ubuntu\" :cpu 1})" 
+  "(mappings {:ip \"1234\" :os \"ubuntu\" :cpu 1})" 
   (let [ms {:ip :ip_address :os :ostemplate}
         vs ((key-select ms) res) ]
-     (merge 
-       (reduce (fn [r [k v]] (dissoc r k)) res ms)
-       (reduce (fn [r [k v]] (assoc r (ms k) v)) {} vs)) 
+    (merge 
+      (reduce (fn [r [k v]] (dissoc r k)) res ms)
+      (reduce (fn [r [k v]] (assoc r (ms k) v)) {} vs)) 
     ))
 
 
