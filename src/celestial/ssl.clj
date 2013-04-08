@@ -20,7 +20,9 @@
     java.util.Date
     sun.security.x509.CertAndKeyGen
     sun.security.x509.X500Name)
-  (:use [clojure.core.strint :only (<<)]))
+  (:use 
+    [celestial.common :only (get*)]
+    [clojure.core.strint :only (<<)]))
 
 (def keysize 1024) 
 (def cname "celesital-ops.local") 
@@ -31,7 +33,7 @@
 (def country "IL")
 (def validity 1096)
 (def alias- "celetial-jetty")
-(def key-pass (.toCharArray  "foobar"))
+(def key-pass (.toCharArray  (get* :celestial :cert :password)))
 
 (defn generate 
   "Generates a java keystore file with defined spec" 
