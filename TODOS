@@ -4,3 +4,12 @@
 * Add user api and role managment
 * Supernal rollback
 * Supernal deployment api
+
+More todos
+
+* Stats on what was deleted registered etc..
+* Custom jobs (supernal jobs)
+* Create ui with:
+  * Get List of machines by type
+  * Run job on a list of machines
+
