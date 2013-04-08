@@ -39,11 +39,12 @@
   [output key-pass]
   (let [keystore (doto (KeyStore/getInstance "JKS") (.load nil nil)) 
         keypair (CertAndKeyGen. "RSA" "SHA1WithRSA" nil) 
-        x500 (X500Name. cname org-unit org city state country) ]
+        x500 (X500Name. cname org-unit org city state country)
+        pass-chars (.toCharArray key-pass)]
     (.generate keypair keysize)
     (let [private-key (.getPrivateKey keypair)
           chain (.getSelfCertificate keypair x500 (Date.) (long (* validity 24 60 60)))]
-      (.setKeyEntry keystore alias- private-key key-pass  (into-array X509Certificate [chain]))
-      (.store keystore (FileOutputStream. output) key-pass))))
+      (.setKeyEntry keystore alias- private-key pass-chars  (into-array X509Certificate [chain]))
+      (.store keystore (FileOutputStream. output) pass-chars))))
 
 
