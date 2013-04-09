@@ -82,6 +82,10 @@
 (defmodel aws :min-count :int :max-count :int :instance-type :string
   :image-id :string :keyname :string :endpoint :string)
 
+(defmodel capistrano :name :string :src :string :args :string)
+
+(defmodel task :capistrano {:type "Capistrano" :description "For capistrano based tasks"})
+
 (defroutes- jobs {:path "/job" :description "Operations on async job scheduling"}
 
   (POST- "/job/stage/:host" [^:string host] {:nickname "stageMachine" :summary "Complete end to end staging job"}
@@ -111,8 +115,8 @@
 (defn hash-pass [user]
    (update-in user [:password] (fn [v] (creds/hash-bcrypt v))))
 
-(defroutes- supernal {:path "/supernal" :description "Supernal tasks managment"}
-    (POST- "/supernal/" [^:file script] {:nickname "addTask" :summary "adds a new supernal task"}
+(defroutes- tasks {:path "/tasks" :description "Tasks managment"}
+    (POST- "/task" [^:task script] {:nickname "addTask" :summary "adds a new task"}
          (debug (slurp (:tempfile script)))
          (success {:msg "added task"})))
 
@@ -171,7 +175,7 @@
          (success {:msg "new type saved" :type type :opts props}))) 
 
 (defroutes app-routes
-  hosts supernal jobs (friend/wrap-authorize users admin) (route/not-found "Not Found"))
+  hosts tasks jobs (friend/wrap-authorize users admin) (route/not-found "Not Found"))
 
 (defn error-wrap
   "A catch all error handler"

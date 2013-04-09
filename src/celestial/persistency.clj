@@ -15,7 +15,7 @@
     [celestial.roles :only (roles admin)]
     [cemerick.friend.credentials :as creds]
     [bouncer [core :as b] [validators :as v]]
-    [celestial.validations :only (str-v set-v validate!)]
+    [celestial.validations :only (str-v set-v validate! validate-nest)]
     [clojure.string :only (split join)]
     [celestial.redis :only (wcar hsetall*)]
     [slingshot.slingshot :only  [throw+ try+]]
@@ -142,8 +142,29 @@
          [:password] [v/required str-v]
          [:roles] [v/required (v/every #(roles %) :message (<< "role must be either ~{roles}"))])))
 
+(entity task)
+
+
+(defn cap-v
+  "Validates a capistrano task"
+  [c-task]
+  (validate-nest [:capistrano]
+    [:src] [v/required str-v]
+    [:args] [v/required str-v]
+    [:name] [v/required str-v]))
+
+(defn validate-task 
+  "Validates task model"
+  [task]
+   (validate! ::non-valid-task
+     (cond-> task
+       (task :capistrano) (-> cap-v second))))
+
+
 (defn reset-admin
   "Resets admin password if non is defined"
   []
   (when (empty? (get-user "admin"))
     (add-user {:username "admin" :password (creds/hash-bcrypt "changeme") :roles admin})))
+
+
