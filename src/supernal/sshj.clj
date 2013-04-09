@@ -138,7 +138,9 @@
 (defmethod copy-localy :default [uri dest] (copy-localy (<< "file:/~{uri}") dest))
 
 (defn copy 
-  "A general copy utility for both remote and local uri's http/git/file protocols are supported"
+  "A general copy utility for both remote and local uri's http/git/file protocols are supported
+   assumes a posix system with wget/git, for remote requires key based ssh access.
+  "
   ([uri dest] (copy-localy uri dest)) 
   ([uri dest remote] (copy-remote uri dest remote)))
 

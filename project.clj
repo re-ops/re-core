@@ -59,7 +59,7 @@
              ["midje" ":filter" "-integration"] 
             }
 
-  :aot [proxmox.provider celestial.core celestial.puppet-standalone celestial.launch]
+  :aot [capistrano.remoter proxmox.provider celestial.core celestial.puppet-standalone celestial.launch]
 
   :repositories  {"sonatype" "http://oss.sonatype.org/content/repositories/releases"}
 
