@@ -1,13 +1,13 @@
 (comment 
-   Celestial, Copyright 2012 Ronen Narkis, narkisr.com
-   Licensed under the Apache License,
-   Version 2.0  (the "License") you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.)
+  Celestial, Copyright 2012 Ronen Narkis, narkisr.com
+  Licensed under the Apache License,
+  Version 2.0  (the "License") you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.)
 
 (ns supernal.sshj
   (:use 
@@ -94,18 +94,28 @@
 
 
 (defn copy-dispatch 
-  ([uri _ _] (copy-dispatch uri nil))
-  ([uri _] (keyword (first (split uri '#":")))))
+  ([uri _ _] (copy-dispatch uri))
+  ([uri _] (copy-dispatch uri)) 
+  ([uri] (keyword (first (split uri '#":")))) )
 
+(defmulti dest-path
+  "Calculates a uri destination path"
+   copy-dispatch)
+
+(defmethod dest-path :git [uri dest] (<< "~{dest}/~(no-ext (fname uri))"))
+(defmethod dest-path :http [uri dest] (<< "~{dest}/~(fname uri) ~{uri}"))
+(defmethod dest-path :default [uri dest] dest)
+ 
 (defmulti copy-remote
   "A general remote copy" 
   copy-dispatch
   )
 
 (defmethod copy-remote :git [uri dest remote] 
-  (execute (<< "git clone ~{uri} ~{dest}/~(no-ext (fname uri))") remote))
+  (println (<< "git clone ~{uri} ~(dest-path uri dest)"))
+  (execute (<< "git clone ~{uri} ~(dest-path uri dest)") remote))
 (defmethod copy-remote :http [uri dest remote] 
-  (execute (<< "wget -O ~{dest}/~(fname uri) ~{uri}") remote))
+  (execute (<< "wget -O ~(dest-path uri dest) ~{uri}") remote))
 (defmethod copy-remote :file [uri dest remote] (upload (subs uri 6) dest remote))
 (defmethod copy-remote :default [uri dest remote] (copy-remote (<< "file:/~{uri}") dest remote))
 
@@ -127,8 +137,7 @@
 
 (defmulti copy-localy
   "A general local copy"
-  copy-dispatch
-  )
+  copy-dispatch)
 
 (defmethod copy-localy :git [uri dest] 
   (sh- "git" "clone" uri  (<< "~{dest}/~(no-ext (fname uri))")))
@@ -139,8 +148,7 @@
 
 (defn copy 
   "A general copy utility for both remote and local uri's http/git/file protocols are supported
-   assumes a posix system with wget/git, for remote requires key based ssh access.
-  "
+  assumes a posix system with wget/git, for remote requires key based ssh access."
   ([uri dest] (copy-localy uri dest)) 
   ([uri dest remote] (copy-remote uri dest remote)))
 

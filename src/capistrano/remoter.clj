@@ -1,8 +1,8 @@
 (ns capistrano.remoter
   (:use 
     [clojure.java.shell :only (with-sh-dir)]
-    [supernal.sshj :only (copy sh-)]
-    [clojure.java.io :only (file)]
+    [supernal.sshj :only (copy sh- dest-path)]
+    [clojure.java.io :only (file delete-file)]
     [celestial.common :only (import-logging)]
     [clojure.core.strint :only (<<)]
     [clojure.java.shell :only [sh]]
@@ -13,13 +13,17 @@
 (import-logging)
 
 (defconstrainedrecord Capistrano [src args name]
-  "A capistrano remote"
+  "A capistrano remote agent"
   []
   Remoter
+  (setup [this] 
+    (when-not (.exists (file (dest-path "/tmp" src)))
+      (copy src "/tmp")))
   (run [this context]
-       (copy src "/tmp")
        (with-sh-dir (<< "/tmp/~{name}")
-         (apply sh- (into ["cap"] args)))))
+         (apply sh- (into ["cap"] args))))
+  (cleanup [this]
+       (delete-file (file (dest-path "/tmp" src)))))
 
 (defmethod rconstruct :capistrano [spec]
   (let [{:keys [src args name] :as spec} (spec :capistrano)]
