@@ -12,17 +12,20 @@
 (ns celestial.core)
 
 (defprotocol Vm
-  (create [this])  
-  (delete [this])  
-  (start [this])  
-  (stop [this])
+  "A VM/Machine base API, implement this in order to add a new provider into celestial"
+  (create [this] "Creates a VM, the VM should be upand and ready to accept ssh sessions post this step")  
+  (delete [this] "Deletes a VM")  
+  (start [this] "Starts an existing VM, ssh should be up")  
+  (stop [this]  "Stops a VM")
   (status [this] 
     "Returns vm status (values defere between providers) false if it does not exists"))
 
 (defprotocol Provision
-  (apply- [this]))
+  "A provisioner (puppet/chef) base API, implement this to add more provisioners"
+  (apply- [this] "applies provisioner"))
 
-(defprotocol Registry 
-  (register [this machine])
-  (un-register [this machine]))
 
+(defprotocol Remoter
+  "Remote automation (capistrano, fabric and supernal) base api"
+  (run [this context] "execute a script on remote hosts with provided context")
+  )

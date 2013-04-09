@@ -1,0 +1,7 @@
+{
+  :capistrano {
+    :src "git://github.com/narkisr/cap-demo.git"
+    :args ["deploy"]
+    :name "cap-demo"
+  }
+}

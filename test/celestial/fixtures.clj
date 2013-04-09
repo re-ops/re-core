@@ -10,6 +10,8 @@
 
 (def local-prox (slurp-edn "fixtures/.celestial.edn"))
 
+(def cap-deploy (slurp-edn "fixtures/cap-deploy.edn"))
+
 (defn is-type? [type]
   (fn [exception] (= type (get-in (.getData exception) [:object :type]))))
 

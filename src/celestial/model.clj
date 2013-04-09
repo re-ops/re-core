@@ -31,3 +31,10 @@
   "Creates a Provisioner instance model from input spec" 
    (fn [type spec] (first (filter provisioners (keys type)))))
 
+(def remoters #{:supernal :capistrano})
+
+(defn figure-rem [spec] (first (filter remoters (keys spec))))
+
+(defmulti rconstruct
+  "Creates a Remoter instance model from input spec"
+   (fn [spec] (figure-rem spec)))

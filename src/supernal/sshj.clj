@@ -11,7 +11,7 @@
 
 (ns supernal.sshj
   (:use 
-    [clojure.string :only (join)]
+    [clojure.string :only (join split)]
     [clojure.java.shell :only [sh]]
     [celestial.topsort :only (kahn-sort)]
     [clojure.core.strint :only (<<)]
@@ -109,15 +109,21 @@
 (defmethod copy-remote :file [uri dest remote] (upload (subs uri 6) dest remote))
 (defmethod copy-remote :default [uri dest remote] (copy-remote (<< "file:/~{uri}") dest remote))
 
-(defn sh- [& cmds]
+(defn log-res 
+  "Logs a cmd result"
+  [out]
+  (when-not (empty? out) 
+    (doseq [line (.split out "\n")] (info line))))
+
+(defn sh- 
+  "Runs a command localy and logs it "
+  [& cmds]
   (let [{:keys [out err exit]} (apply sh cmds) cmd (join " " cmds)]
     (info cmd)
-    (when-not (empty? out) (info out))
-    (when-not (empty? err) (error err))
+    (log-res out) 
+    (log-res err) 
     (when-not (= 0 exit) 
-      (throw (Exception. (<< "Failed to execute: ~{cmd}"))))
-    )
-  )
+      (throw (Exception. (<< "Failed to execute: ~{cmd}"))))))
 
 (defmulti copy-localy
   "A general local copy"
