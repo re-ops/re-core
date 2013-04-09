@@ -11,6 +11,8 @@
 
 (ns supernal.sshj
   (:use 
+    [clojure.string :only (join)]
+    [clojure.java.shell :only [sh]]
     [celestial.topsort :only (kahn-sort)]
     [clojure.core.strint :only (<<)]
     [clojure.string :only (split)]
@@ -90,17 +92,49 @@
   [name]
   (-> name (split '#"\.") first))
 
-(defmulti copy 
-  "A general remote copy" 
-  (fn [uri _ _] 
-    (keyword (first (split uri '#":")))))
 
-(defmethod copy :git [uri dest remote] 
+(defn copy-dispatch 
+  ([uri _ _] (copy-dispatch uri nil))
+  ([uri _] (keyword (first (split uri '#":")))))
+
+(defmulti copy-remote
+  "A general remote copy" 
+  copy-dispatch
+  )
+
+(defmethod copy-remote :git [uri dest remote] 
   (execute (<< "git clone ~{uri} ~{dest}/~(no-ext (fname uri))") remote))
-(defmethod copy :http [uri dest remote] 
+(defmethod copy-remote :http [uri dest remote] 
   (execute (<< "wget -O ~{dest}/~(fname uri) ~{uri}") remote))
-(defmethod copy :file [uri dest remote] (upload (subs uri 6) dest remote))
-(defmethod copy :default [uri dest remote] (copy (<< "file:/~{uri}") dest remote))
+(defmethod copy-remote :file [uri dest remote] (upload (subs uri 6) dest remote))
+(defmethod copy-remote :default [uri dest remote] (copy-remote (<< "file:/~{uri}") dest remote))
+
+(defn sh- [& cmds]
+  (let [{:keys [out err exit]} (apply sh cmds) cmd (join " " cmds)]
+    (info cmd)
+    (when-not (empty? out) (info out))
+    (when-not (empty? err) (error err))
+    (when-not (= 0 exit) 
+      (throw (Exception. (<< "Failed to execute: ~{cmd}"))))
+    )
+  )
+
+(defmulti copy-localy
+  "A general local copy"
+  copy-dispatch
+  )
+
+(defmethod copy-localy :git [uri dest] 
+  (sh- "git" "clone" uri  (<< "~{dest}/~(no-ext (fname uri))")))
+(defmethod copy-localy :http [uri dest] 
+  (sh- "wget" "-O" (<< "~{dest}/~(fname uri) ~{uri}")))
+(defmethod copy-localy :file [uri dest] (sh- "cp" (subs uri 6) dest))
+(defmethod copy-localy :default [uri dest] (copy-localy (<< "file:/~{uri}") dest))
+
+(defn copy 
+  "A general copy utility for both remote and local uri's http/git/file protocols are supported"
+  ([uri dest] (copy-localy uri dest)) 
+  ([uri dest remote] (copy-remote uri dest remote)))
 
 (test #'no-ext)
 ; (execute "ping -c 1 google.com" {:host "localhost" :user "ronen"}) 
