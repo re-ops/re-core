@@ -26,14 +26,16 @@
 
 (import-logging)
 
-(def log* (partial get* :celestial :log))
 
-(set-config! [:appenders :gelf] gelf-appender)
-(set-config! [:shared-appender-config :gelf] {:host (log* :gelf-host)})
-
-(set-config! [:shared-appender-config :spit-filename] (log* :path))
-(set-config! [:appenders :spit :enabled?] true)
-(set-level! (log* :level))
+(defn setup-logging 
+  "Sets up logging configuration"
+  []
+  (let [log* (partial get* :celestial :log)]
+    (set-config! [:appenders :gelf] gelf-appender) 
+    (set-config! [:shared-appender-config :gelf] {:host (log* :gelf-host)}) 
+    (set-config! [:shared-appender-config :spit-filename] (log* :path)) 
+    (set-config! [:appenders :spit :enabled?] true) 
+    (set-level! (log* :level))))
 
 (defn clean-up []
   (debug "Shutting down...")
@@ -57,6 +59,7 @@
     (generate (cert-conf :keystore) (cert-conf :password))))
 
 (defn -main [& args]
+  (setup-logging)
   (p/reset-admin)
   (add-shutdown)
   (info (slurp (resource "main/resources/celestial.txt")))

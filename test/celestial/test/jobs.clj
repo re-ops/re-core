@@ -9,7 +9,7 @@
 
 
 (with-state-changes [(before :facts (reset! jobs/jobs {:machine [identity 2]}))] 
-  (fact "workers creation"
+  (fact "workers creation" :integration :redis
      (initialize-workers)
      (keys @workers) => (just :machine)
     ))

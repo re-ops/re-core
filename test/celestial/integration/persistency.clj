@@ -46,7 +46,7 @@
                (throws clojure.lang.ExceptionInfo (is-type? :celestial.persistency/non-valid-user)))))
 
 (with-state-changes [(before :facts (clear-all))]
-  (fact "id-less entity"
+  (fact "id-less entity" :integration :redis
     (p/entity foo)        
     (defn validate-foo [foo] {})
     (let [id (add-foo {:bar 1})]
