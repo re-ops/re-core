@@ -1,4 +1,5 @@
 (ns celestial.test.proxmox
+  (:require proxmox.provider)
   (:use 
     midje.sweet
     [proxmox.provider :only (vzctl enable-features)]

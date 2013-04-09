@@ -1,4 +1,5 @@
 (ns celestial.test.model
+  (:require proxmox.provider)
   (:use 
     midje.sweet
     [celestial.model :only (translate)] 
