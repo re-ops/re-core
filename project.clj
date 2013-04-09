@@ -8,6 +8,7 @@
                  [clj-ssh "0.5.0" ]
                  [clj-config "0.2.0" ]
                  [prismatic/plumbing "0.0.1"]
+                 [me.raynes/fs "1.4.1"]
                  [bouncer "0.2.3-beta1"]
                  [cheshire "5.0.2"]
                  [com.taoensso/timbre "1.5.2"]

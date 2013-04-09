@@ -1,17 +1,15 @@
 (ns celestial.integration.capistrano
   "Capistrano remoter provider see https://github.com/narkisr/cap-demo and fixtures/cap-deploy.edn"
+  (:require capistrano.remoter)
   (:use 
     midje.sweet 
-    [celestial.launch :only (setup-logging)]
     [celestial.fixtures :only (cap-deploy)]
-    [celestial.model :only (rconstruct)]
-    )  
-  (:require capistrano.remoter)
-  (:import [capistrano.remoter Capistrano])
+    [celestial.model :only (rconstruct)])  
   )
 
-#_(fact "basic deploy" :integration :sshj
+(fact "basic deploy" :integration :sshj
    (let [cap (rconstruct cap-deploy)]
-     (setup-logging)
-     (.run cap "")))
+     (.setup cap)
+     (.run cap "")
+     (.cleanup cap)))
 
