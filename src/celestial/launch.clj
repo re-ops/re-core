@@ -58,6 +58,7 @@
     (info "generating a default keystore")
     (generate (cert-conf :keystore) (cert-conf :password))))
 
+
 (defn -main [& args]
   (setup-logging)
   (p/reset-admin)
@@ -66,9 +67,16 @@
   (info "version 0.0.1 see http://celestial-ops.com")
   (jobs/initialize-workers)
   (default-key)
-  (run-jetty (app true)  
-             {:port (get* :celestial :port) :join? true 
+  (run-jetty (app true)
+             {:port (get* :celestial :port) :join? false
               :ssl? true :keystore (cert-conf :keystore)
               :key-password  (cert-conf :password)
               :ssl-port (get* :celestial :https-port)}))
 
+
+(comment
+  (def jetty (-main))
+  (.stop jetty)
+  (.start jetty)
+  (ring.adapter.jetty/reload-handler jetty (app true))
+  )
