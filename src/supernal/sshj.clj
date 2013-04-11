@@ -56,18 +56,25 @@
          (throw e#)
          ))))
 
+(defn batch
+  "Batches a seq of cmd's"
+  [& args]
+  (let [remote (last args) cmds (butlast args)]
+    (with-ssh remote 
+      (doseq [cmd cmds]
+        (let [session (doto (.startSession ssh) (.allocateDefaultPTY)) command (.exec session cmd) ]
+          (debug (<< "[~(remote :host)]:") cmd) 
+          (log-output (.getInputStream command) (remote :host))
+          (log-output (.getErrorStream command) (remote :host))
+          (.join command 60 TimeUnit/SECONDS) 
+          (when-not (= 0 (.getExitStatus command))
+            (throw (Exception. (<< "Failed to execute ~{cmd} on ~{remote}")))))))))
+
 (defn execute 
   "Executes a cmd on a remote host"
   [cmd remote]
-  (with-ssh remote 
-    (let [session (doto (.startSession ssh) (.allocateDefaultPTY)) command (.exec session cmd) ]
-      (debug (<< "[~(remote :host)]:") cmd) 
-      (log-output (.getInputStream command) (remote :host))
-      (log-output (.getErrorStream command) (remote :host))
-      (.join command 60 TimeUnit/SECONDS) 
-      (when-not (= 0 (.getExitStatus command))
-        (throw (Exception. (<< "Failed to execute ~{cmd} on ~{remote}"))))
-      )))
+  (batch cmd remote))
+
 
 (def listener 
   (proxy [TransferListener] []
@@ -100,12 +107,12 @@
 
 (defmulti dest-path
   "Calculates a uri destination path"
-   copy-dispatch)
+  copy-dispatch)
 
 (defmethod dest-path :git [uri dest] (<< "~{dest}/~(no-ext (fname uri))"))
 (defmethod dest-path :http [uri dest] (<< "~{dest}/~(fname uri) ~{uri}"))
 (defmethod dest-path :default [uri dest] dest)
- 
+
 (defmulti copy-remote
   "A general remote copy" 
   copy-dispatch
