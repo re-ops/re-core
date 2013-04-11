@@ -158,8 +158,7 @@
   [task]
    (validate! ::non-valid-task
      (cond-> task
-       (task :capistrano) (-> cap-v second))))
-
+       (task :capistrano) cap-v)))
 
 (defn reset-admin
   "Resets admin password if non is defined"
