@@ -121,11 +121,15 @@
            (success {:msg "added new task" :id id})))
 
   (PUT- "/task/:id" [^:int id & ^:task task] {:nickname "updateTask" :summary "Update a task"}
-        (p/update-task task)
+        (p/update-task id task)
         (success {:msg "updated task" :task task}))
 
-  (GET- "/task" [^:int id] {:nickname "getTask" :summary "Get a task"}
-        (success {:task (p/get-task id)})))
+  (GET- "/task/:id" [^:int id] {:nickname "getTask" :summary "Get a task"}
+        (success {:task (p/get-task id)}))
+
+  (DELETE- "/task/:id" [^:int id] {:nickname "deleteTask" :summary "Deletes a task"}
+           (p/delete-task id)
+           (success {:msg "delete task" :id id})))
 
 (defroutes- users {:path "/user" :description "User managment"}
   (GET- "/user/:name" [^:string name] {:nickname "getUser" :summary "Get User"}
