@@ -110,7 +110,8 @@
        (defn ~add-fn [~'v]
          (~validate-fn ~'v)
          (let [id# ~add-k-fn]
-           (wcar (hsetall* (~id-fn id#) ~'v)) id#))
+           (wcar (hsetall* (~id-fn id#) ~'v)) 
+           id#))
 
        (defn ~update-fn ~up-args
          (~validate-fn ~'v)
@@ -144,11 +145,10 @@
 
 (entity task)
 
-
 (defn cap-v
   "Validates a capistrano task"
-  [c-task]
-  (validate-nest [:capistrano]
+  [cap-task]
+  (validate-nest cap-task [:capistrano]
     [:src] [v/required str-v]
     [:args] [v/required str-v]
     [:name] [v/required str-v]))
