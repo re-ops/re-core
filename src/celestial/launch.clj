@@ -74,9 +74,21 @@
               :ssl-port (get* :celestial :https-port)}))
 
 
+; hack http://bit.ly/YfXnXG
+(def proxy-handler #'ring.adapter.jetty/proxy-handler)
+
+(defn reload-handler 
+  "Re sets the handler passed to jetty see http://bit.ly/12NnSL4"
+  [s handler]
+   (doto s (.setHandler (proxy-handler handler))))
+
+(defn jetty-reload 
+  "Reloads jetty routes"
+  [jetty]
+  (.stop jetty)
+  (reload-handler jetty (app true))
+  (.start jetty))
+
 (comment
   (def jetty (-main))
-  (.stop jetty)
-  (.start jetty)
-  (ring.adapter.jetty/reload-handler jetty (app true))
-  )
+  (jetty-reload jetty))
