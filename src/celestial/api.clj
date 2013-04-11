@@ -116,9 +116,16 @@
    (update-in user [:password] (fn [v] (creds/hash-bcrypt v))))
 
 (defroutes- tasks {:path "/tasks" :description "Tasks managment"}
-    (POST- "/task" [^:task script] {:nickname "addTask" :summary "adds a new task"}
-         (debug (slurp (:tempfile script)))
-         (success {:msg "added task"})))
+  (POST- "/task" [& ^:task task] {:nickname "addTask" :summary "Adds a new task"}
+         (let [id (p/add-task task)]
+           (success {:msg "added new task" :id id})))
+
+  (PUT- "/task/:id" [^:int id & ^:task task] {:nickname "updateTask" :summary "Update a task"}
+        (p/update-task task)
+        (success {:msg "updated task" :task task}))
+
+  (GET- "/task" [^:int id] {:nickname "getTask" :summary "Get a task"}
+        (success {:task (p/get-task id)})))
 
 (defroutes- users {:path "/user" :description "User managment"}
   (GET- "/user/:name" [^:string name] {:nickname "getUser" :summary "Get User"}
