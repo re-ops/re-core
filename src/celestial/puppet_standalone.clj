@@ -18,7 +18,7 @@
     [clojure.core.strint :only (<<)]
     [celestial.core :only (Provision)]
     [celestial.model :only (pconstruct)]
-    [celestial.ssh :only (copy execute step)]
+    [supernal.sshj :only (copy batch)]
     [taoensso.timbre :only (debug info error warn)]
     ))
 
@@ -26,13 +26,13 @@
 (defn copy-module [remote {:keys [src name]}]
   {:pre [(remote :host) src name]}
   "Copy a opsk module into server"
-  (copy remote src "/tmp"))
+  (copy src "/tmp" remote ))
 
 (defn copy-yml-type [{:keys [type hostname puppet-std] :as _type} remote]
   (let [path (<< "/tmp/~{hostname}.yml") f (file path)
         name (get-in puppet-std [:module :name])]
     (spit f (yaml/generate-string (select-keys _type [:classes])))
-    (copy remote path (<< "/tmp/~{name}/"))
+    (copy path (<< "/tmp/~{name}/") remote )
     (.delete f)))
 
 (defn as-root [remote cmd]
@@ -45,11 +45,9 @@
     (let [puppet-std (type :puppet-std) module (puppet-std :module) sudo ()]
      (try 
       (copy-module remote module) 
-      (execute remote 
-        (step :extract "cd /tmp" (<< "tar -xzf ~(:name module).tar.gz"))) 
+      (batch "cd /tmp" (<< "tar -xzf ~(:name module).tar.gz") remote) 
       (copy-yml-type type remote)
-      (execute remote
-          (step :run (<< "cd /tmp/~(:name module)") (as-root remote "./scripts/run.sh")))
+      (batch (<< "cd /tmp/~(:name module)") (as-root remote "./scripts/run.sh") remote)
       (finally 
         #_(execute remote (step :cleanup "cd /tmp" (<< "rm -rf ~(:name module)*")))))))) 
 
