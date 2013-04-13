@@ -7,7 +7,7 @@
     [supernal.sshj :only (copy execute sh-)]))
 
 
-(def remote {:host "192.168.5.11" :user "vagrant"})
+(def remote {:host "192.168.1.20" :user "vagrant"})
 
 (def git-uri "git://github.com/narkisr/cap-demo.git")
 

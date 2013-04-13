@@ -14,7 +14,7 @@
   (:import (java.util UUID))
   (:use 
     [clojure.core.strint :only (<<)]
-    [celestial.ssh :only (execute step)]
+    [supernal.sshj :only (execute ssh-up?)]
     [flatland.useful.utils :only (defm)]
     [flatland.useful.map :only (dissoc-in*)]
     [minderbinder.time :only (parse-time-unit)]
@@ -29,7 +29,6 @@
     [celestial.core :only (Vm)]
     [celestial.common :only (get* import-logging curr-time)]
     [mississippi.core :only (required numeric validate)]
-    [celestial.ssh :only (ssh-up?)]
     [celestial.model :only (translate vconstruct)]))
 
 (import-logging)
@@ -91,7 +90,7 @@
 (defn wait-for-ssh [{:keys [endpoint uuid user] :as instance}]
   (let [timeout [5 :minute]] 
     (wait-for timeout
-       #(ssh-up? (pub-dns endpoint uuid) 22 user)
+       #(ssh-up? {:host (pub-dns endpoint uuid) :port 22 :user user})
        {:type ::aws:ssh-failed :message "Timed out while waiting for ssh" :timeout timeout})))
 
 (defn update-pubdns [{:keys [spec endpoint uuid] :as instance}]
@@ -101,10 +100,10 @@
 
 (defn set-hostname [{:keys [spec endpoint uuid user] :as instance}]
   "Uses a generic method of setting hostname in Linux"
-  (let [hostname (get-in spec [:machine :hostname])]
-    (execute {:host (pub-dns endpoint uuid) :user user}
-     (step :run 
-      (<< "echo kernel.hostname=~{hostname} | sudo tee -a /etc/sysctl.conf") "sudo sysctl -p"))))
+  (let [hostname (get-in spec [:machine :hostname]) remote {:host (pub-dns endpoint uuid) :user user}]
+    (execute (<< "echo kernel.hostname=~{hostname} | sudo tee -a /etc/sysctl.conf") remote )
+    (execute "sudo sysctl -p" remote) 
+    ))
 
 (defconstrainedrecord Instance [endpoint spec uuid user]
   "An Ec2 instance, uuid used for instance-id tracking"

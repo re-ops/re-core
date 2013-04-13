@@ -94,6 +94,9 @@
       (.upload scp (FileSystemFile. src) dst) 
       )))
 
+(defn ssh-up? [remote] 
+  (execute "date" remote) true)
+
 (defn fname [uri] (-> uri (split '#"/") last))
 
 (defn ^{:test #(assert (= (no-ext "celestial.git") "celestial"))}

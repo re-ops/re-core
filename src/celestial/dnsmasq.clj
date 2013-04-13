@@ -14,24 +14,22 @@
    expects an Ubuntu and dnsmasq on the other end "
   (:use 
     [clojure.core.strint :only (<<)]
-    [celestial.ssh :only (execute step)]))
+    [supernal.sshj :only (execute)]))
 
 (defn ignore-code [s]
   (with-meta s (merge (meta s) {:ignore-code true})))
 
 (def restart 
-  (step :restart-service "sudo service dnsmasq stop" "sudo service dnsmasq start"))
+  "sudo service dnsmasq stop && sudo service dnsmasq start")
 
 (defn add-host [{:keys [hostname ip dnsmasq]}]
-  (execute dnsmasq 
-      (step :add-host (<< "echo '~{ip} ~{hostname}' | sudo tee -a /etc/hosts >> /dev/null" ))
-      (ignore-code restart)))
+  (execute (<< "echo '~{ip} ~{hostname}' | sudo tee -a /etc/hosts >> /dev/null" ) dnsmasq)
+  (execute restart dnsmasq))
 
 
 (defn remove-host [{:keys [hostname ip dnsmasq]}]
-  (execute dnsmasq 
-    (step :remove-host (<< "sudo sed -ie \"\\|^~{ip} ~{hostname}\\$|d\" /etc/hosts"))
-    (ignore-code restart)))
+  (execute (<< "sudo sed -ie \"\\|^~{ip} ~{hostname}\\$|d\" /etc/hosts") dnsmasq)
+  (execute restart dnsmasq))
 
 ; (add-host "foo" "192.168.20.90")
 ; (remove-host "foo" "192.168.20.90")

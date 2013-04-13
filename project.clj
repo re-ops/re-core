@@ -5,7 +5,6 @@
 
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [org.clojure/tools.cli "0.2.1" ]
-                 [clj-ssh "0.5.0" ]
                  [clj-config "0.2.0" ]
                  [prismatic/plumbing "0.0.1"]
                  [me.raynes/fs "1.4.1"]

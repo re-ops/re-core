@@ -15,7 +15,7 @@
     [clojure.core.memoize :only (memo-ttl)]
     [clojure.core.strint :only (<<)]
     [celestial.core :only (Vm)]
-    [celestial.ssh :only (execute)]
+    [supernal.sshj :only (execute)]
     [celestial.common :only (get* import-logging)]
     [proxmox.remote :only (prox-post prox-delete prox-get)]
     [slingshot.slingshot :only  [throw+ try+]]
@@ -149,7 +149,7 @@
 
 (defn vzctl 
   [this action] 
-  (execute (get* :hypervisor :proxmox) [(<< "vzctl ~{action}")]))
+  (execute  (<< "vzctl ~{action}") (get* :hypervisor :proxmox)))
 
 (defn- key-select [v] (fn [m] (select-keys m (keys v))))
 

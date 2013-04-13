@@ -11,7 +11,6 @@
 
 (ns celestial.puppet-standalone
   "A standalone puppet provisioner"
-  (:import com.jcraft.jsch.JSchException)
   (:use 
     [clj-yaml.core :as yaml]
     [clojure.java.io :only (file)]
