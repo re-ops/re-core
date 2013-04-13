@@ -40,10 +40,13 @@
   [out host]
   (doseq [line (line-seq (clojure.java.io/reader out))] (debug  (<< "[~{host}]:") line)))
 
+(def ^:dynamic timeout (* 1000 60 10))
+
 (defnk ssh-strap [host {user (@config :user)}]
   (doto (SSHClient.)
     (.addHostKeyVerifier (PromiscuousVerifier.))
     (.loadKnownHosts)
+    (.setTimeout timeout)
     (.connect host)
     (.authPublickey user #^"[Ljava.lang.String;" (into-array [(@config :key)]))))
 
