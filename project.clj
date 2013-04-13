@@ -22,7 +22,7 @@
                  [com.narkisr/carmine "1.6.0"]
                  [org.clojure/core.memoize "0.5.2" :exclusions [org.clojure/core.cache]]
                  [metrics-clojure "0.9.2"]
-                 [clj-aws-ec2 "0.2.1" :exclusions  [org.codehaus.jackson/jackson-core-asl]]
+                 [narkisr/clj-aws-ec2 "0.2.0" :exclusions  [org.codehaus.jackson/jackson-core-asl]]
                  [narkisr/trammel "0.8.0-freez"]
                  [mississippi "1.0.1"]
                  [org.flatland/useful "0.9.5"]
