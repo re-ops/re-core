@@ -18,7 +18,7 @@
     [clojure.core.strint :only (<<)]
     [celestial.core :only (Provision)]
     [celestial.model :only (pconstruct)]
-    [supernal.sshj :only (copy batch)]
+    [supernal.sshj :only (copy batch execute)]
     [taoensso.timbre :only (debug info error warn)]
     ))
 
@@ -45,9 +45,9 @@
     (let [puppet-std (type :puppet-std) module (puppet-std :module) sudo ()]
      (try 
       (copy-module remote module) 
-      (batch "cd /tmp" (<< "tar -xzf ~(:name module).tar.gz") remote) 
+      (execute (<< " cd /tmp && tar -xzf ~(:name module).tar.gz") remote) 
       (copy-yml-type type remote)
-      (batch (<< "cd /tmp/~(:name module)") (as-root remote "./scripts/run.sh") remote)
+      (execute (str (<< "cd /tmp/~(:name module)") " && " (as-root remote "./scripts/run.sh")) remote)
       (finally 
         #_(execute remote (step :cleanup "cd /tmp" (<< "rm -rf ~(:name module)*")))))))) 
 
