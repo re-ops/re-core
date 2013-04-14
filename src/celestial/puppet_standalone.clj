@@ -21,17 +21,16 @@
     [taoensso.timbre :only (debug info error warn)]
     ))
 
-
 (defn copy-module [remote {:keys [src name]}]
   {:pre [(remote :host) src name]}
   "Copy a opsk module into server"
-  (copy src "/tmp" remote ))
+  (copy src "/tmp" remote))
 
 (defn copy-yml-type [{:keys [type hostname puppet-std] :as _type} remote]
   (let [path (<< "/tmp/~{hostname}.yml") f (file path)
         name (get-in puppet-std [:module :name])]
     (spit f (yaml/generate-string (select-keys _type [:classes])))
-    (copy path (<< "/tmp/~{name}/") remote )
+    (copy path (<< "/tmp/~{name}/") remote)
     (.delete f)))
 
 (defn as-root [remote cmd]
@@ -48,7 +47,7 @@
       (copy-yml-type type remote)
       (execute (str (<< "cd /tmp/~(:name module)") " && " (as-root remote "./scripts/run.sh")) remote)
       (finally 
-        #_(execute remote (step :cleanup "cd /tmp" (<< "rm -rf ~(:name module)*")))))))) 
+        (execute (<< "rm -rf /tmp/~(:name module)*") remote)))))) 
 
 
 (defmethod pconstruct :puppet-std [type {:keys [machine] :as spec}]
