@@ -131,7 +131,7 @@
          (ec2 start-instances (instance-id uuid))
          (wait-for-status this "running" [5 :minute])
          (update-pubdns this)
-         (wait-for-ssh this))
+         #_(wait-for-ssh this))
   (stop [this]
         (debug "stopping" uuid)
         (ec2 stop-instances  (instance-id uuid))

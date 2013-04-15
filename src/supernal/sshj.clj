@@ -95,7 +95,9 @@
       )))
 
 (defn ssh-up? [remote] 
-  (execute "date" remote) true)
+  (try 
+    (with-ssh remote (.isConnected ssh))
+    (catch java.net.ConnectException e false))) 
 
 (defn fname [uri] (-> uri (split '#"/") last))
 

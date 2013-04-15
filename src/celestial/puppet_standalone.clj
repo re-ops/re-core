@@ -17,37 +17,58 @@
     [clojure.core.strint :only (<<)]
     [celestial.core :only (Provision)]
     [celestial.model :only (pconstruct)]
-    [supernal.sshj :only (copy batch execute)]
     [taoensso.timbre :only (debug info error warn)]
+    [supernal.core :only (ns- lifecycle copy run execute env)]
     ))
 
 (defn copy-module [remote {:keys [src name]}]
   {:pre [(remote :host) src name]}
   "Copy a opsk module into server"
-  (copy src "/tmp" remote))
+  )
 
-(defn copy-yml-type [{:keys [type hostname puppet-std] :as _type} remote]
-  (let [path (<< "/tmp/~{hostname}.yml") f (file path)
-        name (get-in puppet-std [:module :name])]
-    (spit f (yaml/generate-string (select-keys _type [:classes])))
-    (copy path (<< "/tmp/~{name}/") remote)
-    (.delete f)))
+(env {})
 
 (defn as-root [remote cmd]
-   (if (remote :user)
-     (<< "sudo ~{cmd}") cmd))
+  (if (remote :user)
+    (<< "sudo ~{cmd}") cmd))
+
+(ns- puppet
+   (task copy-module
+     (let [{:keys [module]} args]
+       (copy (module :src) "/tmp") ))
+
+   (task extract-module 
+      (let [{:keys [module]} args]
+       (run (<< " cd /tmp && tar -xzf ~(:name module).tar.gz"))))
+    
+   (task copy-yaml
+     (let [{:keys [type module]} args path (<< "/tmp/~(type :hostname).yml") f (file path) ]
+       (spit f (yaml/generate-string (select-keys type [:classes])))
+       (copy path (<< "/tmp/~(module :name)/"))
+       (.delete f))) 
+   
+   (task run-puppet
+      (let [{:keys [module]} args]
+        (run (str (<< "cd /tmp/~(:name module)") " && " (as-root remote "./scripts/run.sh")))))
+
+   (task cleanup
+      (let [{:keys [module]} args]
+        (run (<< "rm -rf /tmp/~(:name module)*"))))) 
+
+(lifecycle puppet-provision
+  {puppet/copy-module #{puppet/extract-module}
+   puppet/extract-module #{puppet/copy-yaml}
+   puppet/copy-yaml #{puppet/run-puppet}
+   puppet/run-puppet #{puppet/cleanup}
+   })
+
 
 (defrecord Standalone [remote type]
   Provision
   (apply- [this]
-    (let [puppet-std (type :puppet-std) module (puppet-std :module) sudo ()]
-     (try 
-      (copy-module remote module) 
-      (execute (<< " cd /tmp && tar -xzf ~(:name module).tar.gz") remote) 
-      (copy-yml-type type remote)
-      (execute (str (<< "cd /tmp/~(:name module)") " && " (as-root remote "./scripts/run.sh")) remote)
-      (finally 
-        (execute (<< "rm -rf /tmp/~(:name module)*") remote)))))) 
+    (let [puppet-std (type :puppet-std) module (puppet-std :module)]
+        (execute puppet-provision {:module module :type type} :web :join true :env {:roles {:web #{remote}}})
+      ))) 
 
 
 (defmethod pconstruct :puppet-std [type {:keys [machine] :as spec}]
