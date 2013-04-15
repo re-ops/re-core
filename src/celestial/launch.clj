@@ -26,7 +26,6 @@
 
 (import-logging)
 
-
 (defn setup-logging 
   "Sets up logging configuration"
   []
