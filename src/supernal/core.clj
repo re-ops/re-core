@@ -79,15 +79,21 @@
   (assoc args :run-id (java.util.UUID/randomUUID)))
 
 
-(defmacro execute-template [role f opts] 
+(defmacro env-get 
+  "Get instance list from env"
+  [role opts-m]
+  (if-let [env-m (opts-m :env)]
+    `(get-in ~env-m [:roles ~role])
+    `(get-in @~'env- [:roles ~role])))
+
+(defmacro execute-template 
+  "Executions template form"
+  [role f opts] 
   (let [opts-m (apply hash-map opts) rsym (gensym)]
     (if (opts-m :join)
-      `(doseq 
-         [f# (map (fn [~rsym] (future ~(concat f (list rsym)))) (get-in @~'env- [:roles ~role]))]
-         (deref f#)
-         )
-      `(doseq [~rsym (get-in @~'env- [:roles ~role])] 
-         (future ~(concat f (list rsym)))))))
+      `(doseq [f# (map (fn [~rsym] (future ~(concat f (list rsym)))) (env-get ~role ~opts-m))]
+         (deref f#))
+      `(doseq [~rsym (env-get ~role ~opts-m)] (future ~(concat f (list rsym)))))))
 
 (defmacro execute [name* args role & opts]
   "Executes a lifecycle defintion on a given role"

@@ -12,14 +12,14 @@
    })
 
 (ns- deploy 
-     (task stop
-           (debug "stopping service" remote)
-           (run "hostname")))
+  (task stop
+     (debug "stopping service" remote)
+     (run "hostname")))
 
 (ns- bar 
-     (task stop2
-           (let [foo 1]
-             (debug "stoping in bar!"))))
+   (task stop2
+     (let [foo 1]
+       (debug "stoping in bar!"))))
 
 (def artifact "git://github.com/narkisr/swag.git")
 
@@ -28,3 +28,7 @@
 
 (fact "single task" :integration :supernal
    (execute-task deploy/stop {:app-name "foo" :src artifact} :web :join true))
+
+(fact "env option" :integration :supernal
+   (let [e {:roles {:web #{{:host "192.168.1.25" :user "vagrant" :sudo true}}} }]
+      (execute-task deploy/stop {:app-name "foo" :src artifact} :web :join true :env e)))
