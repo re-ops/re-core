@@ -27,7 +27,7 @@
       (copy "project.clj" "/tmp" remote) => nil 
       (execute "rm /tmp/project.clj" remote))
 
-(fact "git local clone"
+(fact "git local clone" :integration :sshj
       (copy "git://github.com/narkisr/cap-demo.git" "/tmp")
       (.exists (file "/tmp/cap-demo")) => truthy
       (sh- "rm" "-rf" "/tmp/cap-demo") )

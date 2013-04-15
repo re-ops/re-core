@@ -78,16 +78,25 @@
 (defn run-id [args]
   (assoc args :run-id (java.util.UUID/randomUUID)))
 
-(defmacro execute [name* args role]
+
+(defmacro execute-template [role f opts] 
+  (let [opts-m (apply hash-map opts) rsym (gensym)]
+    (if (opts-m :join)
+      `(doseq 
+         [f# (map (fn [~rsym] (future ~(concat f (list rsym)))) (get-in @~'env- [:roles ~role]))]
+         (deref f#)
+         )
+      `(doseq [~rsym (get-in @~'env- [:roles ~role])] 
+         (future ~(concat f (list rsym)))))))
+
+(defmacro execute [name* args role & opts]
   "Executes a lifecycle defintion on a given role"
-  `(doseq [remote# (get-in @~'env- [:roles ~role])] 
-     (future (run-cycle ~name* (run-id ~args) remote#))))
+  `(execute-template ~role (run-cycle ~name* (run-id ~args)) ~opts))
 
 (defmacro execute-task 
   "Executes a single task on a given role"
-  [name* args role]
-  `(doseq [remote# (get-in @~'env- [:roles ~role])] 
-     (future ((resolve- '~name*) (run-id ~args) remote#))))
+  [name* args role & opts]
+  `(execute-template ~role ((resolve- '~name*) (run-id ~args)) ~opts))
 
 (defmacro env 
   "A hash of running enviroment info and roles"
