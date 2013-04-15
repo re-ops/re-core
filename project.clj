@@ -32,6 +32,7 @@
                  [ring "1.1.8"]
                  [compojure "1.1.5" :exclusions  [ring/ring-core]]
                  [ring/ring-jetty-adapter "1.1.8"]
+                 [pallet-thread "0.1.0"]
                  [org.bouncycastle/bcprov-jdk16 "1.46"]
                  [com.cemerick/friend "0.1.4"]
                  [net.schmizz/sshj "0.8.1"]
@@ -57,9 +58,11 @@
              ["midje" ":autotest" ":filter" "-integration"] 
              "runtest"
              ["midje" ":filter" "-integration"] 
+             "supernal"
+             ["run" "-m" "supernal.launch" "fixtures/supernal-demo.clj"] 
             }
 
-  :aot [capistrano.remoter proxmox.provider celestial.core celestial.puppet-standalone celestial.launch]
+  :aot [supernal.launch capistrano.remoter proxmox.provider celestial.core celestial.puppet-standalone celestial.launch]
 
   :repositories  {"sonatype" "http://oss.sonatype.org/content/repositories/releases"}
 

@@ -16,19 +16,21 @@
      (debug "stopping service" remote)
      (run "hostname")))
 
-(ns- bar 
-   (task stop2
-     (let [foo 1]
-       (debug "stoping in bar!"))))
+(ns- error
+    (task zero-div
+      (/ 1 0)))
 
 (def artifact "git://github.com/narkisr/swag.git")
 
 (fact "basic deployment tasks" :integration :supernal
-    (execute basic-deploy {:app-name "foo" :src artifact} :web :join true))
+    (execute basic-deploy {:app-name "foo" :src artifact} :web ))
 
 (fact "single task" :integration :supernal
-   (execute-task deploy/stop {:app-name "foo" :src artifact} :web :join true))
+   (execute-task deploy/stop {:app-name "foo" :src artifact} :web))
 
 (fact "env option" :integration :supernal
-   (let [e {:roles {:web #{{:host "192.168.1.25" :user "vagrant" :sudo true}}} }]
-      (execute-task deploy/stop {:app-name "foo" :src artifact} :web :join true :env e)))
+   (let [e {:roles {:web #{{:host "192.168.1.26" :user "vagrant" :sudo true}}} }]
+      (execute-task deploy/stop {:app-name "foo" :src artifact} :web :env e)))
+
+(fact "with error" :integration :supernal
+  (execute-task error/zero-div {:app-name "foo" :src artifact} :web))

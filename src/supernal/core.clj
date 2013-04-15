@@ -21,10 +21,12 @@
   "
   (:require 
        [clojure.walk :as walk]
+       [pallet.thread.executor :as pallet]
        [supernal.sshj :as sshj]) 
   (:use 
     [clojure.core.strint :only (<<)]
     [celestial.topsort :only (kahn-sort)] 
+    [pallet.thread.executor :only (executor)]
     (clojure.pprint)))
 
 
@@ -86,14 +88,29 @@
     `(get-in ~env-m [:roles ~role])
     `(get-in @~'env- [:roles ~role])))
 
+(def pool
+  (executor {:prefix "supernal" :thread-group-name "supernal" :pool-size 4 :daemon true}))
+
+(defn bound-future [f]
+ {:pre [(ifn? f)]}; saves lots of errors
+  (pallet/execute pool f))
+
+(defn wait-on [futures]
+  "Waiting on a sequence of futures, limited by a constant pool of threads"
+  (while (some identity (map (comp not future-done?) futures))
+    (Thread/sleep 1000)
+    )) 
+
 (defmacro execute-template 
   "Executions template form"
   [role f opts] 
   (let [opts-m (apply hash-map opts) rsym (gensym)]
-    (if (opts-m :join)
-      `(doseq [f# (map (fn [~rsym] (future ~(concat f (list rsym)))) (env-get ~role ~opts-m))]
-         (deref f#))
-      `(doseq [~rsym (env-get ~role ~opts-m)] (future ~(concat f (list rsym)))))))
+    (if-not (opts-m :join)
+      `(map (fn [~rsym ] 
+              (bound-future (fn [] ~(concat f (list rsym))))) (env-get ~role ~opts-m))
+      `(wait-on 
+         (map (fn [~rsym ] 
+                (bound-future (fn [] ~(concat f (list rsym))))) (env-get ~role ~opts-m))))))
 
 (defmacro execute [name* args role & opts]
   "Executes a lifecycle defintion on a given role"
