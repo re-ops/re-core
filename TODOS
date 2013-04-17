@@ -1,11 +1,10 @@
+* Proxmox id gen
+* Machine template/more like this
 * Add success validation on wcar
-* Replace clj-ssh with jssh
-* Persist user in redis
-* Add user api and role managment
 * Supernal rollback
 * Supernal deployment api
 
-More todos
+More lengthy goals:
 
 * Stats on what was deleted registered etc..
 * Custom jobs (supernal jobs)
