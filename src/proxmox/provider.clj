@@ -11,15 +11,16 @@
 
 (ns proxmox.provider
   (:use 
+    [celestial.validations :only (hash-v str-v validate-nest vec-v)]
     [trammel.core :only  (defconstrainedrecord)]
     [clojure.core.memoize :only (memo-ttl)]
     [clojure.core.strint :only (<<)]
+    [bouncer [core :as b] [validators :as v]]
     [celestial.core :only (Vm)]
     [supernal.sshj :only (execute)]
     [celestial.common :only (get* import-logging)]
     [proxmox.remote :only (prox-post prox-delete prox-get)]
     [slingshot.slingshot :only  [throw+ try+]]
-    [mississippi.core :only (required numeric validate)]
     [clojure.set :only (difference)]
     [celestial.provider :only (str? vec?)]
     [celestial.model :only (translate vconstruct)])
@@ -27,28 +28,29 @@
 
 (import-logging)
 
-(def ct-valid
-  {
-   :vmid [(required) (numeric)] 
-   :ostemplate [str? (required)]
-   :cpus [(numeric)] :disk [(numeric)] :memory [(numeric)]
-   :ip_address [str? (required)]
-   :password [str? (required)]
-   :hostname [str? (required)]
-   :nameserver [str?]  
-   }
-  )
 
-(def extra-valid
+#_(def extra-valid
   {
-   :hypervisor [str? (required)]
    :features [vec?]
    :host [str?]
    :node [str?]
    } 
   )
 
+(defn ct-v [c]
+  (b/validate c 
+     :vmid [v/required v/number]
+     :ostemplate [v/required str-v] 
+     :cpus [v/number v/required]
+     :disk [v/number v/required]
+     :memory [v/number v/required]
+     :ip_address [v/required str-v]
+     :password [v/required str-v]
+     :hostname [v/required str-v]
+     :nameserver [str-v]))
 
+(defn ex-v [c]
+  (b/validate c :features [vec-v]))
 
 (def node-available? 
   "Node availability check, result is cached for one minute"
@@ -88,24 +90,33 @@
 (declare vzctl unmount)
 
 (defn enable-features [{:keys [ct extended] :as this}]
-   "vzctl set 170 --features \"nfs:on\" --save "
+  "vzctl set 170 --features \"nfs:on\" --save "
   (when-let [features (extended :features)]
     (doseq [f features] 
       (trace "enabling feature" f)
       (vzctl this (<< "set ~(ct :vmid) --features \"~{f}\" --save")))) () )
 
-
 (defn key-set [h] (->> h keys (into #{})))
 
-(defn validate-debug 
+(defn validate-ct
+  "Validates proxmox container configuration"
   [ct]
-  (let [es (:errors (validate ct ct-valid))]
-    (debug es)
-    (empty? es)))
+  (let [es (:bouncer.core/errors (second (ct-v ct)))]
+    (if-not (empty? es)
+      (throw+ {:type :container-conf-error :message es })
+      true)))
 
+(defn validate-ex
+  "Validates extended container properties"
+  [ct]
+  (let [es (:bouncer.core/errors (second (ex-v ct)))]
+    (if-not (empty? es)
+      (throw+ {:type :extended-conf-error :message es })
+
+      true)))
 (defconstrainedrecord Container [node ct extended]
   "ct should match proxmox expected input"
-  [(validate-debug ct) (not (nil? node))]
+  [(validate-ct ct) (validate-ex extended) (not (nil? node))]
   Vm
   (create [this] 
           (debug "creating" (:vmid ct))
@@ -170,7 +181,7 @@
       (apply get* ks)
       (catch [:type :celestial.common/missing-conf] e
         (throw+ {:type :missing-template :message 
-          (<< "no matching proxmox template found for ~{os}, add one to configuration under ~{ks} ")}) 
+                 (<< "no matching proxmox template found for ~{os}, add one to configuration under ~{ks} ")}) 
         ))))
 
 (defn transform 
@@ -178,7 +189,11 @@
   [res]
   (first (map (fn [[k v]] (update-in res [k] v )) {:ostemplate os->template})))
 
-(def selections (juxt (key-select ct-valid) (key-select extra-valid)))
+(def ct-ks [:vmid :ostemplate :cpus :disk :memory :ip_address :password :hostname :nameserver])
+
+(def ex-ks [:features :node])
+
+(def selections (juxt (fn [m] (select-keys m ct-ks)) (fn [m] (select-keys m ex-ks))))
 
 (defmethod translate :proxmox [{:keys [machine proxmox]}]
   "Convert the general model into a proxmox vz specific one"

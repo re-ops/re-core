@@ -26,6 +26,11 @@
   {:default-message-format "%s must be a set"}
   [c] (set? c))
 
+(defvalidator vec-v
+  {:default-message-format "%s must be a vector"}
+  [c] 
+  (vector? c))
+
 (defvalidator str-v
   {:default-message-format "%s must be a string"}
   [c] (string? c))
