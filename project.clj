@@ -28,19 +28,20 @@
                  [metrics-clojure-ring "0.9.2"]
                  [ch.qos.logback/logback-classic "1.0.9"]
                  [org.codehaus.groovy/groovy "2.1.2"]
+                 [supernal "0.1.0"]
                  [ring "1.1.8"]
                  [compojure "1.1.5" :exclusions  [ring/ring-core]]
                  [ring/ring-jetty-adapter "1.1.8"]
-                 [pallet-thread "0.1.0"]
-                 [org.bouncycastle/bcprov-jdk16 "1.46"]
                  [com.cemerick/friend "0.1.4"]
-                 [net.schmizz/sshj "0.8.1"]
                  [org.clojure/tools.macro "0.1.2"]
                  [ring-middleware-format "0.2.4"]]
 
   :exclusions [org.clojure/clojure]
 
-  :plugins  [[jonase/eastwood "0.0.2"] [lein-pedantic "0.0.5"] [lein-midje "3.0.0"]]
+  :plugins  [[jonase/eastwood "0.0.2"] [lein-pedantic "0.0.5"] [lein-midje "3.0.0"]
+             [lein-bin "0.3.2"] [org.timmc/lein-otf "2.0.1"]]
+
+  :bin {:name "celestial"}
 
   :profiles {:dev 
              {:dependencies [[org.clojure/tools.trace "0.7.5"] 
