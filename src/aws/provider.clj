@@ -13,6 +13,8 @@
   (:require [aws.sdk.ec2 :as ec2])
   (:import (java.util UUID))
   (:use 
+    [celestial.validations :only (hash-v str-v validate-nest vec-v)]
+    [bouncer [core :as b] [validators :as v]]
     [clojure.core.strint :only (<<)]
     [supernal.sshj :only (execute ssh-up?)]
     [flatland.useful.utils :only (defm)]
@@ -28,18 +30,24 @@
     [celestial.redis :only (synched-map)]
     [celestial.core :only (Vm)]
     [celestial.common :only (get* import-logging curr-time)]
-    [mississippi.core :only (required numeric validate)]
     [celestial.model :only (translate vconstruct)]))
 
 (import-logging)
 
-(def instance-valid
-  {
-   :min-count [(required) (numeric)] 
-   :max-count [(required) (numeric)] 
-   :instance-type [str? (required)]
-   :key-name [str? (required)]
-   })
+(defn instance-v [c]
+  (b/validate c 
+     :min-count [v/required v/number]
+     :max-count [v/required v/number]
+     :instance-type [v/required str-v] 
+     :key-name [v/required str-v] ))
+
+(defn validate-instance
+  "Validates instance configuration"
+  [ct]
+  (let [es (:bouncer.core/errors (second (instance-v ct)))]
+    (if-not (empty? es)
+      (throw+ {:type :instance-conf-error :message es })
+      true)))
 
 (defn creds [] (get* :hypervisor :aws))
 
@@ -107,7 +115,7 @@
 
 (defconstrainedrecord Instance [endpoint spec uuid user]
   "An Ec2 instance, uuid used for instance-id tracking"
-  [(empty? (:errors (validate (spec :aws) instance-valid))) 
+  [(validate-instance (spec :aws))
    (-> endpoint nil? not)  (-> uuid nil? not)]
   Vm
   (create [this] 

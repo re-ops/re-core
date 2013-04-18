@@ -29,14 +29,6 @@
 (import-logging)
 
 
-#_(def extra-valid
-  {
-   :features [vec?]
-   :host [str?]
-   :node [str?]
-   } 
-  )
-
 (defn ct-v [c]
   (b/validate c 
      :vmid [v/required v/number]
