@@ -1,10 +1,21 @@
+(comment 
+   Celestial, Copyright 2012 Ronen Narkis, narkisr.com
+   Licensed under the Apache License,
+   Version 2.0  (the "License") you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.)
+
 (ns proxmox.provider
   (:use 
     [trammel.core :only  (defconstrainedrecord)]
     [clojure.core.memoize :only (memo-ttl)]
     [clojure.core.strint :only (<<)]
     [celestial.core :only (Vm)]
-    [celestial.ssh :only (execute)]
+    [supernal.sshj :only (execute)]
     [celestial.common :only (get* import-logging)]
     [proxmox.remote :only (prox-post prox-delete prox-get)]
     [slingshot.slingshot :only  [throw+ try+]]
@@ -86,9 +97,15 @@
 
 (defn key-set [h] (->> h keys (into #{})))
 
+(defn validate-debug 
+  [ct]
+  (let [es (:errors (validate ct ct-valid))]
+    (debug es)
+    (empty? es)))
+
 (defconstrainedrecord Container [node ct extended]
   "ct should match proxmox expected input"
-  [(empty? (:errors (validate ct ct-valid))) (not (nil? node))]
+  [(validate-debug ct) (not (nil? node))]
   Vm
   (create [this] 
           (debug "creating" (:vmid ct))
@@ -132,23 +149,34 @@
 
 (defn vzctl 
   [this action] 
-  (execute (get* :hypervisor :proxmox) [(<< "vzctl ~{action}")]))
+  (execute  (<< "vzctl ~{action}") (get* :hypervisor :proxmox)))
 
 (defn- key-select [v] (fn [m] (select-keys m (keys v))))
 
 (defn mappings [res]
- "(mappings {:ip \"1234\" :os \"ubuntu\" :cpu 1})" 
+  "(mappings {:ip \"1234\" :os \"ubuntu\" :cpu 1})" 
   (let [ms {:ip :ip_address :os :ostemplate}
         vs ((key-select ms) res) ]
-     (merge 
-       (reduce (fn [r [k v]] (dissoc r k)) res ms)
-       (reduce (fn [r [k v]] (assoc r (ms k) v)) {} vs)) 
+    (merge 
+      (reduce (fn [r [k v]] (dissoc r k)) res ms)
+      (reduce (fn [r [k v]] (assoc r (ms k) v)) {} vs)) 
     ))
 
+(defn os->template 
+  "Converts os key to vz template" 
+  [os]
+  (let [ks [:hypervisor :proxmox :ostemplates os]]
+    (try+ 
+      (apply get* ks)
+      (catch [:type :celestial.common/missing-conf] e
+        (throw+ {:type :missing-template :message 
+          (<< "no matching proxmox template found for ~{os}, add one to configuration under ~{ks} ")}) 
+        ))))
 
-(defn transform [res]
-  (first (map (fn [[k v]] (update-in res [k] v ))
-              {:ostemplate (fn [os] (get* :hypervisor :proxmox :ostemplates os))})))
+(defn transform 
+  "manipulated the model making it proxmox ready "
+  [res]
+  (first (map (fn [[k v]] (update-in res [k] v )) {:ostemplate os->template})))
 
 (def selections (juxt (key-select ct-valid) (key-select extra-valid)))
 

@@ -11,3 +11,6 @@ pom.xml.asc
 .lein-repl-history
 celestial.log
 takadu-systems
+foo.keystore
+celestial.log 
+third-party.log

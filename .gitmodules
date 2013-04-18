@@ -1,3 +1,0 @@
-[submodule "checkouts/carmine"]
-	path = checkouts/carmine
-	url = git://github.com/narkisr/carmine.git

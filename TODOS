@@ -1,5 +1,15 @@
 * Add success validation on wcar
-* Make cpu/mem optional for ec2 
-* add friend auth 
-* basic UI
 * Replace clj-ssh with jssh
+* Persist user in redis
+* Add user api and role managment
+* Supernal rollback
+* Supernal deployment api
+
+More todos
+
+* Stats on what was deleted registered etc..
+* Custom jobs (supernal jobs)
+* Create ui with:
+  * Get List of machines by type
+  * Run job on a list of machines
+

@@ -1,3 +1,14 @@
+(comment 
+   Celestial, Copyright 2012 Ronen Narkis, narkisr.com
+   Licensed under the Apache License,
+   Version 2.0  (the "License") you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.)
+
 (ns supernal.core
   "A remote task execution framework (similar to fabric and capistrano) with follwing features:
   * Basic capistrano like functionality
@@ -6,14 +17,16 @@
   * Dynamic role and host lookup for tasks invocation targets
   * First class (java) package deployment lifecycle
   * can be used as a library and as a standalone tool  
-  * Zeromq agent for improved perforemance over basic ssh
+  * Zeromq (jeromq) agent for improved perforemance over basic ssh
   "
   (:require 
        [clojure.walk :as walk]
+       [pallet.thread.executor :as pallet]
        [supernal.sshj :as sshj]) 
   (:use 
     [clojure.core.strint :only (<<)]
     [celestial.topsort :only (kahn-sort)] 
+    [pallet.thread.executor :only (executor)]
     (clojure.pprint)))
 
 
@@ -67,16 +80,46 @@
 (defn run-id [args]
   (assoc args :run-id (java.util.UUID/randomUUID)))
 
-(defmacro execute [name* args role]
+
+(defmacro env-get 
+  "Get instance list from env"
+  [role opts-m]
+  (if-let [env-m (opts-m :env)]
+    `(get-in ~env-m [:roles ~role])
+    `(get-in @~'env- [:roles ~role])))
+
+(def pool
+  (executor {:prefix "supernal" :thread-group-name "supernal" :pool-size 4 :daemon true}))
+
+(defn bound-future [f]
+ {:pre [(ifn? f)]}; saves lots of errors
+  (pallet/execute pool f))
+
+(defn wait-on [futures]
+  "Waiting on a sequence of futures, limited by a constant pool of threads"
+  (while (some identity (map (comp not future-done?) futures))
+    (Thread/sleep 1000)
+    )) 
+
+(defmacro execute-template 
+  "Executions template form"
+  [role f opts] 
+  (let [opts-m (apply hash-map opts) rsym (gensym)]
+    (if-not (opts-m :join)
+      `(map (fn [~rsym ] 
+              (bound-future (fn [] ~(concat f (list rsym))))) (env-get ~role ~opts-m))
+      `(wait-on 
+         (map (fn [~rsym ] 
+                (bound-future (fn [] ~(concat f (list rsym))))) (env-get ~role ~opts-m))))))
+
+(defmacro execute [name* args role & opts]
   "Executes a lifecycle defintion on a given role"
-  `(doseq [remote# (get-in @~'env- [:roles ~role])] 
-     (future (run-cycle ~name* (run-id ~args) remote#))))
+  `(execute-template ~role (run-cycle ~name* (run-id ~args)) ~opts))
 
 (defmacro execute-task 
   "Executes a single task on a given role"
-  [name* args role]
-  `(doseq [remote# (get-in @~'env- [:roles ~role])] 
-     (future ((resolve- '~name*) (run-id ~args) remote#))))
+  [name* args role & opts]
+  `(execute-template ~role ((resolve- '~name*) (run-id ~args)) ~opts))
 
 (defmacro env 
   "A hash of running enviroment info and roles"

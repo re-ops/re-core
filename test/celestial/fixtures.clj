@@ -9,3 +9,15 @@
 (def redis-ec2-spec (slurp-edn "fixtures/redis-ec2-system.edn"))
 
 (def local-prox (slurp-edn "fixtures/.celestial.edn"))
+
+(def cap-deploy (slurp-edn "fixtures/cap-deploy.edn"))
+
+(defn is-type? [type]
+  (fn [exception] (= type (get-in (.getData exception) [:object :type]))))
+
+(defmacro with-conf 
+  "Using fixture/.celestial.edn conf file"
+  [body]
+ `(with-redefs [celestial.config/config celestial.fixtures/local-prox]
+   ~body
+    ))

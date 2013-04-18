@@ -9,26 +9,14 @@
    See the License for the specific language governing permissions and
    limitations under the License.)
 
-(ns celestial.common
-  (:import java.util.Date)
-  (:use 
-    [slingshot.slingshot :only  [throw+ try+]]
-    [celestial.config :only (config)]
-    [clojure.core.strint :only (<<)]
+(ns supernal.launch
+  (:gen-class true))
+
+(defn -main [& [script & r]]
+  (binding [*ns* (create-ns 'supernal.adhoc)] 
+    (use '[clojure.core])
+    (use '[supernal.baseline])
+    (use '[taoensso.timbre :only (warn debug)]) 
+    (use '[supernal.core :only (ns- execute execute-task run copy env)])
+    (load-string (slurp script))
     ))
-
-(defn import-logging []
-   (use '[taoensso.timbre :only (debug info error warn trace)]))
-
-(import-logging)
-
-(defn get* 
-  "Reading a keys path from configuration"
-  [& keys] 
-  (if-let [v (get-in config keys)]
-    v
-    (throw+ {:type ::missing-conf :message (<< "No matching configuration keys ~{keys} found")})))
-
-(defn slurp-edn [file] (read-string (slurp file)))
-
-(defn curr-time [] (.getTime (Date.)))

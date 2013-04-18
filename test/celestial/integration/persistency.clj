@@ -3,27 +3,56 @@
   (:refer-clojure :exclude [type])
   (:require 
     [celestial.persistency :as p])
-  (:use clojure.test
-    [celestial.fixtures :only (redis-prox-spec redis-type)]
+  (:use 
+    midje.sweet
+    [celestial.fixtures :only (redis-prox-spec redis-type is-type?)]
     [celestial.redis :only (clear-all)]))
 
 
-(use-fixtures :each (fn [f] (clear-all) (f)))
+(with-state-changes [(before :facts (clear-all))]
+   (fact "Persisting type and host sanity" :integration :redis 
+         (p/new-type "redis" redis-type) 
+         (p/register-host redis-prox-spec) 
+         (p/type-of "redis") => redis-type
+         (p/host "red1") => redis-prox-spec) 
 
-(deftest ^:redis sanity
-    (p/new-type "redis" redis-type) 
-    (p/register-host redis-prox-spec) 
-    (is (= (p/type-of "redis") redis-type))
-    (is (= (p/host "red1") redis-prox-spec)))
+   (fact "fuzzy host lookup" :integration :redis 
+         (p/new-type "redis" redis-type) 
+         (p/register-host redis-prox-spec) 
+         (p/fuzzy-host "red1") => redis-prox-spec) 
 
-(deftest ^:redis fuzzy-lookup 
-    (p/new-type "redis" redis-type) 
-    (p/register-host redis-prox-spec) 
-    (is (= (p/fuzzy-host "red1") redis-prox-spec)))
+   (fact "host update" :integration  :redis 
+         (p/new-type "redis" redis-type) 
+         (p/register-host redis-prox-spec) 
+         (p/update-host "red1" {:foo 2})
+         (:foo (p/host "red1")) => 2)) 
 
-(deftest ^:redis host-update 
-   (p/new-type "redis" redis-type) 
-   (p/register-host redis-prox-spec) 
-   (p/update-host "red1" {:foo 2})
-   (is (= (:foo (p/host "red1")) 2))
-  )
+(with-state-changes [(before :facts (clear-all))]
+  (fact "generated crud user ops" :integration :redis
+     (let [user {:username "foo" :password "bla" :roles #{::user}} id (p/add-user user)]
+          (p/get-user id) => user
+          (p/user-exists? id) => truthy
+          (p/update-user (merge user {:username "foo" :password "123"}))
+          (p/get-user id) => (merge user {:username "foo" :password "123"})
+          (p/delete-user id)
+          (p/user-exists? id) => falsey
+          ))
+
+   (fact "non valid user" :integration :redis
+      (let [user {:username "foo" :password "bla" :roles #{::user}} id (p/add-user user)]
+          (p/add-user (dissoc user :username)) => 
+               (throws clojure.lang.ExceptionInfo (is-type? :celestial.persistency/non-valid-user))
+          (p/update-user (dissoc user :username)) =>
+               (throws clojure.lang.ExceptionInfo (is-type? :celestial.persistency/non-valid-user)))))
+
+(with-state-changes [(before :facts (clear-all))]
+  (fact "id-less entity" :integration :redis
+    (p/entity foo)        
+    (defn validate-foo [foo] {})
+    (let [id (add-foo {:bar 1})]
+      (get-foo id) => {:bar 1}
+      (foo-exists? id) => truthy
+      (update-foo id {:bar 2}) 
+      (get-foo id) => {:bar 2}
+      (delete-foo id)
+      (foo-exists? id) => falsey))) 

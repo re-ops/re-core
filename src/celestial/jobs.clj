@@ -1,3 +1,14 @@
+(comment 
+   Celestial, Copyright 2012 Ronen Narkis, narkisr.com
+   Licensed under the Apache License,
+   Version 2.0  (the "License") you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.)
+
 (ns celestial.jobs
   (:refer-clojure :exclude [identity])
   (:use  
@@ -16,7 +27,8 @@
     (with-lock identity #(apply f args) {:expiry half-hour :wait-time minute}) 
     (apply f args)))
 
-(def jobs {:machine [reload 2] :provision [puppetize 2] :stage [full-cycle 2]})
+(def jobs 
+  (atom {:machine [reload 2] :provision [puppetize 2] :stage [full-cycle 2]}))
 
 (defn create-wks [queue f total]
   "create a count of workers for queue"
@@ -24,7 +36,7 @@
 
 (defn initialize-workers []
   (dosync 
-    (doseq [[q [f c]] jobs]
+    (doseq [[q [f c]] @jobs]
       (swap! workers assoc q (create-wks q f c)))))
 
 (defn clear-all []

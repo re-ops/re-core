@@ -1,9 +1,20 @@
+(comment 
+   Celestial, Copyright 2012 Ronen Narkis, narkisr.com
+   Licensed under the Apache License,
+   Version 2.0  (the "License") you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.)
+
 (ns aws.provider
   (:require [aws.sdk.ec2 :as ec2])
   (:import (java.util UUID))
   (:use 
     [clojure.core.strint :only (<<)]
-    [celestial.ssh :only (execute step)]
+    [supernal.sshj :only (execute ssh-up?)]
     [flatland.useful.utils :only (defm)]
     [flatland.useful.map :only (dissoc-in*)]
     [minderbinder.time :only (parse-time-unit)]
@@ -18,7 +29,6 @@
     [celestial.core :only (Vm)]
     [celestial.common :only (get* import-logging curr-time)]
     [mississippi.core :only (required numeric validate)]
-    [celestial.ssh :only (ssh-up?)]
     [celestial.model :only (translate vconstruct)]))
 
 (import-logging)
@@ -80,7 +90,7 @@
 (defn wait-for-ssh [{:keys [endpoint uuid user] :as instance}]
   (let [timeout [5 :minute]] 
     (wait-for timeout
-       #(ssh-up? (pub-dns endpoint uuid) 22 user)
+       #(ssh-up? {:host (pub-dns endpoint uuid) :port 22 :user user})
        {:type ::aws:ssh-failed :message "Timed out while waiting for ssh" :timeout timeout})))
 
 (defn update-pubdns [{:keys [spec endpoint uuid] :as instance}]
@@ -90,10 +100,10 @@
 
 (defn set-hostname [{:keys [spec endpoint uuid user] :as instance}]
   "Uses a generic method of setting hostname in Linux"
-  (let [hostname (get-in spec [:machine :hostname])]
-    (execute {:host (pub-dns endpoint uuid) :user user}
-     (step :run 
-      (<< "echo kernel.hostname=~{hostname} | sudo tee -a /etc/sysctl.conf") "sudo sysctl -p"))))
+  (let [hostname (get-in spec [:machine :hostname]) remote {:host (pub-dns endpoint uuid) :user user}]
+    (execute (<< "echo kernel.hostname=~{hostname} | sudo tee -a /etc/sysctl.conf") remote )
+    (execute "sudo sysctl -p" remote) 
+    ))
 
 (defconstrainedrecord Instance [endpoint spec uuid user]
   "An Ec2 instance, uuid used for instance-id tracking"
@@ -121,7 +131,7 @@
          (ec2 start-instances (instance-id uuid))
          (wait-for-status this "running" [5 :minute])
          (update-pubdns this)
-         (wait-for-ssh this))
+         #_(wait-for-ssh this))
   (stop [this]
         (debug "stopping" uuid)
         (ec2 stop-instances  (instance-id uuid))

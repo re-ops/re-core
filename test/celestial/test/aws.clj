@@ -1,13 +1,14 @@
 (ns celestial.test.aws
+  (:import clojure.lang.ExceptionInfo)
   (:use 
-    [celestial.fixtures :only (redis-ec2-spec)]
-    expectations.scenarios
+    midje.sweet
     aws.provider
-    [celestial.model :only (vconstruct)]
-    ))
+    [celestial.fixtures :only (redis-ec2-spec is-type?)]
+    [celestial.model :only (vconstruct)]))
 
-(scenario 
-  (with-redefs [ids (fn [] (atom {}))]
-    (let [instance (vconstruct redis-ec2-spec)] 
-      (expect clojure.lang.ExceptionInfo (.start instance)))))
+
+(with-redefs [ids (fn [] (atom {}))]
+  (let [instance (vconstruct redis-ec2-spec)] 
+    (fact "We cannot start a instance without an aws instance id"
+          (.start instance) => (throws ExceptionInfo (is-type? :aws.provider/aws:missing-id)))))
 
