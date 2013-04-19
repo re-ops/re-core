@@ -11,7 +11,7 @@
 
 (defn with-m? [m]
  (fn [actual]
-   (= (get-in (.getData actual) [:object :message]) m)))
+   (= (get-in (.getData actual) [:object :errors]) m)))
 
 (with-conf
   (let [{:keys [machine proxmox]} redis-prox-spec]
