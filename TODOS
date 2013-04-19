@@ -1,8 +1,8 @@
 * Proxmox id gen
 * Machine template/more like this api
 * Add success validation on wcar
-* Supernal rollback
 * Supernal deployment api
+* Scheduled jobs (using https://github.com/AdamClements/schejulure ?)
 
 More lengthy goals:
 
