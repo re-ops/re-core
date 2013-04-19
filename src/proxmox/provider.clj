@@ -11,7 +11,7 @@
 
 (ns proxmox.provider
   (:use 
-    [celestial.validations :only (hash-v str-v validate-nest vec-v)]
+    [celestial.validations :only (hash-v str-v validate! vec-v)]
     [trammel.core :only  (defconstrainedrecord)]
     [clojure.core.memoize :only (memo-ttl)]
     [clojure.core.strint :only (<<)]
@@ -27,7 +27,6 @@
   (:import clojure.lang.ExceptionInfo))
 
 (import-logging)
-
 
 (defn ct-v [c]
   (b/validate c 
@@ -90,25 +89,9 @@
 
 (defn key-set [h] (->> h keys (into #{})))
 
-(defn validate-ct
-  "Validates proxmox container configuration"
-  [ct]
-  (let [es (:bouncer.core/errors (second (ct-v ct)))]
-    (if-not (empty? es)
-      (throw+ {:type :container-conf-error :message es })
-      true)))
-
-(defn validate-ex
-  "Validates extended container properties"
-  [ct]
-  (let [es (:bouncer.core/errors (second (ex-v ct)))]
-    (if-not (empty? es)
-      (throw+ {:type :extended-conf-error :message es })
-
-      true)))
 (defconstrainedrecord Container [node ct extended]
   "ct should match proxmox expected input"
-  [(validate-ct ct) (validate-ex extended) (not (nil? node))]
+  [(validate! (ct-v ct) ::invalid-container) (validate! (ex-v extended) ::invalid-extended) (not (nil? node))]
   Vm
   (create [this] 
           (debug "creating" (:vmid ct))

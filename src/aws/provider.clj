@@ -13,7 +13,7 @@
   (:require [aws.sdk.ec2 :as ec2])
   (:import (java.util UUID))
   (:use 
-    [celestial.validations :only (hash-v str-v validate-nest vec-v)]
+    [celestial.validations :only (hash-v str-v validate! vec-v)]
     [bouncer [core :as b] [validators :as v]]
     [clojure.core.strint :only (<<)]
     [supernal.sshj :only (execute ssh-up?)]
@@ -40,14 +40,6 @@
      :max-count [v/required v/number]
      :instance-type [v/required str-v] 
      :key-name [v/required str-v] ))
-
-(defn validate-instance
-  "Validates instance configuration"
-  [ct]
-  (let [es (:bouncer.core/errors (second (instance-v ct)))]
-    (if-not (empty? es)
-      (throw+ {:type :instance-conf-error :message es })
-      true)))
 
 (defn creds [] (get* :hypervisor :aws))
 
@@ -115,7 +107,7 @@
 
 (defconstrainedrecord Instance [endpoint spec uuid user]
   "An Ec2 instance, uuid used for instance-id tracking"
-  [(validate-instance (spec :aws))
+  [(validate! (instance-v (spec :aws)) ::ec2-invalid-instance)
    (-> endpoint nil? not)  (-> uuid nil? not)]
   Vm
   (create [this] 

@@ -137,11 +137,11 @@
 (entity user :id username)
 
 (defn validate-user [user]
-  (validate! ::non-valid-user
+  (validate! 
       (b/validate user
          [:username] [v/required str-v]
          [:password] [v/required str-v]
-         [:roles] [v/required (v/every #(roles %) :message (<< "role must be either ~{roles}"))])))
+         [:roles] [v/required (v/every #(roles %) :message (<< "role must be either ~{roles}"))]) ::non-valid-user))
 
 (entity task)
 
@@ -156,9 +156,9 @@
 (defn validate-task 
   "Validates task model"
   [task]
-   (validate! ::non-valid-task
+   (validate! 
      (cond-> task
-       (task :capistrano) cap-v)))
+       (task :capistrano) cap-v) ::non-valid-task))
 
 (defn reset-admin
   "Resets admin password if non is defined"

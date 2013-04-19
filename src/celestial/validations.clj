@@ -41,6 +41,11 @@
   (let [with-prefix (reduce (fn [r [ks vs]] (cons (into pref ks) (cons vs  r))) '() (partition 2 body))]
   `(b/validate ~target ~@with-prefix)))
 
-(defn validate! [t r]
-   (when-let [e (:bouncer.core/errors (second r))] 
-      (throw+ {:type t :errors e})))
+(defn validate! 
+  "Checks validation result (r), throws exepction of type t in case errors are found else returns true"
+  [r t]
+   (if-let [e (:bouncer.core/errors (second r))] 
+      (throw+ {:type t :errors e}) 
+     true))
+
+
