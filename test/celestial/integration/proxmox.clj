@@ -24,4 +24,6 @@
      (.delete ct) 
      (.create ct) 
      (.start ct)
-     (.status ct) => "running")))
+     (.status ct) => "running"
+     (.stop ct)
+     (.delete ct))))
