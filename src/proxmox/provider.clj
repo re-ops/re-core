@@ -163,7 +163,7 @@
         ))))
 
 (defn generate
- "apply generated values (if missing)" 
+ "apply generated values (if not present)." 
   [res]
   (reduce (fn [res [k v]] (if (res k) res (update-in res [k] v ))) res {:vmid ct-id}))
 

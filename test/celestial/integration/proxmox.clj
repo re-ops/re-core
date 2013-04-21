@@ -25,12 +25,3 @@
      (.create ct) 
      (.start ct)
      (.status ct) => "running")))
-
-(fact "Generated values" :integration :proxmox 
-  (with-conf
-    (let [ct (vconstruct (dissoc-in* redis-prox-spec [:proxmox :vmid]))]
-     (.stop ct)
-     (.delete ct) 
-     (.create ct) 
-     (.start ct)
-     (.status ct) => "running")))
