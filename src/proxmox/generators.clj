@@ -21,16 +21,16 @@
   []
   (loop [i 5]
     (when (> i 0)
-      (let [id (gen-ct-id)]
+      (let [id (+ 100 (gen-ct-id))]
+        (debug id)
         (if-not (ct-exists id)
           id
           (recur (- i 1)))))))
 
 (defn ct-id
   "Generates a container id" 
-  [id]
-   (if (ct-exists id)
-    (if-let [gid (try-gen)]
+  [_]
+   (if-let [gid (try-gen)]
       gid
-     (throw+ {:type :id-gen-error} "Failed to generate id for container"))))
+     (throw+ {:type :id-gen-error} "Failed to generate id for container")))
 
