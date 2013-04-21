@@ -2,6 +2,7 @@
   "Integration tests assume a proxmox vm with local address make sure to configure it"
   (:use midje.sweet
         proxmox.provider
+        [flatland.useful.map :only  (dissoc-in*)]
         [celestial.common :only (slurp-edn)]
         [celestial.model :only (vconstruct)]
         [celestial.fixtures :only (with-conf redis-prox-spec)])
@@ -25,3 +26,11 @@
      (.start ct)
      (.status ct) => "running")))
 
+(fact "Generated values" :integration :proxmox 
+  (with-conf
+    (let [ct (vconstruct (dissoc-in* redis-prox-spec [:proxmox :vmid]))]
+     (.stop ct)
+     (.delete ct) 
+     (.create ct) 
+     (.start ct)
+     (.status ct) => "running")))

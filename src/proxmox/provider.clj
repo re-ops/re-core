@@ -14,6 +14,7 @@
     [celestial.validations :only (hash-v str-v validate! vec-v)]
     [trammel.core :only  (defconstrainedrecord)]
     [clojure.core.memoize :only (memo-ttl)]
+    [celestial.persistency :only (update-host)]
     [clojure.core.strint :only (<<)]
     [bouncer [core :as b] [validators :as v]]
     [celestial.core :only (Vm)]
@@ -23,6 +24,7 @@
     [slingshot.slingshot :only  [throw+ try+]]
     [clojure.set :only (difference)]
     [celestial.provider :only (str? vec?)]
+    [proxmox.generators :only (ct-id)]
     [celestial.model :only (translate vconstruct)])
   (:import clojure.lang.ExceptionInfo))
 
@@ -98,6 +100,7 @@
           (try+ 
             (check-task node (prox-post (str "/nodes/" node "/openvz") ct)) 
             (enable-features this)
+            (update-host (ct :hostname) {:proxmox {:vmid (ct :vmid)}})
             (catch [:status 500] e 
               (warn "Container already exists" e))))
 
@@ -159,10 +162,15 @@
                  (<< "no matching proxmox template found for ~{os}, add one to configuration under ~{ks} ")}) 
         ))))
 
+(defn generate
+ "apply generated values (if missing)" 
+  [res]
+  (reduce (fn [res [k v]] (if (res k) res (update-in res [k] v ))) res {:vmid ct-id}))
+
 (defn transform 
   "manipulated the model making it proxmox ready "
   [res]
-  (first (map (fn [[k v]] (update-in res [k] v )) {:ostemplate os->template})))
+  (reduce (fn [res [k v]] (update-in res [k] v )) res {:ostemplate os->template}))
 
 (def ct-ks [:vmid :ostemplate :cpus :disk :memory :ip_address :password :hostname :nameserver])
 
@@ -172,7 +180,7 @@
 
 (defmethod translate :proxmox [{:keys [machine proxmox]}]
   "Convert the general model into a proxmox vz specific one"
-  (-> (merge machine proxmox) mappings transform selections)) 
+  (-> (merge machine proxmox) mappings transform generate selections))
 
 (defmethod vconstruct :proxmox [{:keys [proxmox] :as spec}]
   (let [{:keys [type node]} proxmox]

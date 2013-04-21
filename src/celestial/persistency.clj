@@ -81,8 +81,6 @@
   "String interpulation into a keyword"
   [s] `(keyword (<< ~s)))
 
-
-
 (defn fn-ids [name*]
   {:id-fn (<<< "~{name*}-id") :exists-fn (<<< "~{name*}-exists?")
    :add-fn (<<< "add-~{name*}") :update-fn (<<< "update-~{name*}")
@@ -94,6 +92,12 @@
   (if-let [id-prop (opts :id)]
      {:up-args (vector {:keys [id-prop] :as 'v}) :up-id id-prop :add-k-fn (list 'v (keyword id-prop))}
      {:up-args ['id 'v] :up-id 'id :add-k-fn (list (:gen-fn (fn-ids name*)))}))
+
+(defmacro defgen 
+  "An id generator" 
+  [name*]
+  `(defn ~(<<< "gen-~{name*}") []
+    (wcar (car/incr ~(<< "~{name*}:ids")))))
 
 (defmacro write-fns 
   "Creates the add/update functions, both take into account if id is generated of provided"
@@ -138,10 +142,10 @@
 
 (defn validate-user [user]
   (validate! 
-      (b/validate user
-         [:username] [v/required str-v]
-         [:password] [v/required str-v]
-         [:roles] [v/required (v/every #(roles %) :message (<< "role must be either ~{roles}"))]) ::non-valid-user))
+    (b/validate user
+                [:username] [v/required str-v]
+                [:password] [v/required str-v]
+                [:roles] [v/required (v/every #(roles %) :message (<< "role must be either ~{roles}"))]) ::non-valid-user))
 
 (entity task)
 
@@ -149,16 +153,16 @@
   "Validates a capistrano task"
   [cap-task]
   (validate-nest cap-task [:capistrano]
-    [:src] [v/required str-v]
-    [:args] [v/required str-v]
-    [:name] [v/required str-v]))
+                 [:src] [v/required str-v]
+                 [:args] [v/required str-v]
+                 [:name] [v/required str-v]))
 
 (defn validate-task 
   "Validates task model"
   [task]
-   (validate! 
-     (cond-> task
-       (task :capistrano) cap-v) ::non-valid-task))
+  (validate! 
+    (cond-> task
+      (task :capistrano) cap-v) ::non-valid-task))
 
 (defn reset-admin
   "Resets admin password if non is defined"
