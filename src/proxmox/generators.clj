@@ -58,10 +58,10 @@
 (defn hosts-scan 
   "Uses nmap so scan a list of hosts (192.168.10.1-50)"
   [hosts]
-  (map ports-open? 
-    (get-in (from-java (raw-scan hosts)) [:result :hosts]))
+  (map :addresses  (filter ports-open? 
+    (get-in (from-java (raw-scan hosts)) [:result :hosts])))
   )
 
-;; (clojure.pprint/pprint (hosts-scan "192.168.5.1-55"))
+; (clojure.pprint/pprint (hosts-scan "192.168.20.64"))
 
 
