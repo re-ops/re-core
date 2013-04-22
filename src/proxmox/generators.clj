@@ -92,26 +92,37 @@
       (recur (+ i 1) (add-segment sb ip* i) (bit-shift-right ip* 8))
       (.toString sb)))) 
 
+
+(def range-keys [])
+
+(defn ip-range 
+  "" 
+  []
+  (try+ 
+    (let [[s e] (map ip-to-long (get* :hypervisor :proxmox :generators :ip-range))] 
+      [s e])
+    (catch [:type :celestial.common/missing-conf] e nil)))
+
 (defn initialize-range
-   []
-  (let [ip-range (map ip-to-long (get* :hypervisor :proxmox :generators :ip-range))]
+  "Initializes ip range zset 0 marks unused 1 marks used"
+  []
+  (if-let [[s e] (ip-range)]
     (when-not (= 1 (wcar (car/exists "ips")))
-      (doseq [])
-      )      
-    )
-  )
+      (doseq [ip (range s (+ 1 e))]
+        (wcar (car/zadd "ips" 0 (long-to-ip ip)))))))
+
+(wcar (car/del "ips"))
+(initialize-range)
 
 (defn generate-ip 
-   "Generates an ip address for a container" 
-   [_]
-         
-  )
+  "Fecthes an available ip address from range"
+  []
+  (wcar 
+    (when-let [ip (first (car/zrangebyscore "ips" 0 0 "LIMIT" 0 1))]
+      (car/zadd "ips" 1 ip)
+      (println "ba" ip "bl")
+      (identity ip))))
 
-(wcar (car/zadd "ips" 0 "192.168.5.1"))
-(wcar (car/zadd "ips" 1 "192.168.5.2"))
-(wcar (car/zadd "ips" 0 "192.168.5.3"))
-(wcar (car/zadd "ips" 1 "192.168.5.4"))
-(wcar (car/zscore "ips" "192.168.5.7"))
-(wcar (car/zrangebyscore "ips" 0 0 "LIMIT" 0 2))
+(println (generate-ip) "foo")
 
 (test #'long-to-ip)
