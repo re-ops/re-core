@@ -34,6 +34,8 @@
                  [ring/ring-jetty-adapter "1.1.8"]
                  [com.cemerick/friend "0.1.4"]
                  [org.clojure/tools.macro "0.1.2"]
+                 [org.clojure/java.data "0.1.1"]
+                 [org.nmap4j/org.nmap4j "1.0.4-SNAPSHOT"]
                  [ring-middleware-format "0.2.4"]]
 
   :exclusions [org.clojure/clojure]
