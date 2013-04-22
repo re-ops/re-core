@@ -35,7 +35,7 @@
                  [com.cemerick/friend "0.1.4"]
                  [org.clojure/tools.macro "0.1.2"]
                  [org.clojure/java.data "0.1.1"]
-                 [org.nmap4j/org.nmap4j "1.0.4-SNAPSHOT"]
+                 [org.nmap4j/org.nmap4j "1.0.4"]
                  [ring-middleware-format "0.2.4"]]
 
   :exclusions [org.clojure/clojure]
@@ -66,7 +66,9 @@
 
   :aot [supernal.launch capistrano.remoter proxmox.provider celestial.core celestial.puppet-standalone celestial.launch]
 
-  :repositories  {"sonatype" "http://oss.sonatype.org/content/repositories/releases"}
+  :repositories  {
+                  "bintray"  "http://dl.bintray.com/content/narkisr/narkisr-jars"
+                  "sonatype" "http://oss.sonatype.org/content/repositories/releases"}
 
   :resource-paths  ["src/main/resources/"]
 
