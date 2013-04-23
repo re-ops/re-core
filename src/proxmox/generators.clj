@@ -42,7 +42,7 @@
   [_]
   (if-let [gid (try-gen)]
     gid
-    (throw+ {:type :id-gen-error} "Failed to generate id for container")))
+    (throw+ {:type ::id-gen-error} "Failed to generate id for container")))
 
 
 (defn ports-open? [host]
@@ -112,32 +112,39 @@
           (car/zadd "ips" 0 ip))))))
 
 
-(defn generate-ip 
-  "Fetches an available ip address from range"
-  [] 
-  {:pre []}
-  (when (= 0 (wcar (car/exists "ips")))
-    (initialize-range))
+(defn fetch-ip
+  "Redis ip range fetcher"
+  []
   (some-> 
     (wcar 
       (car/lua-script
         "local next = redis.call('zrangebyscore', _:ips,0,0, 'LIMIT', 0,1) -- next available ip
         redis.call('zadd',_:ips,_:used, next[1]) -- mark as used
         return next[1]" 
-        {:ips "ips"} {:used "1"}))
-    Long/parseLong long-to-ip 
-    ))
+        {:ips "ips"} {:used "1"})) Long/parseLong long-to-ip))
+
+(defn gen-ip
+  "Associates an available ip address from range, fails if range is exhausted."
+  [ct] 
+  (when (= 0 (wcar (car/exists "ips"))) (initialize-range))
+  (if-let [ip (fetch-ip)]
+    (assoc ct :ip_address ip)
+    (throw+ {:type ::ip-gen-error} "Failed to obtain ip for container")))
 
 (defn release-ip [ip]
   (wcar 
-    (car/lua-script
-      "redis.call('zadd', 'ips', 0, _:ip) 
-      return _:ip"
-      {:ips "ips"} {:ip (ip-to-long ip)})))
+    (when ip
+     (car/lua-script
+      "if redis.call('zrank', 'ips', _:ip) then
+        redis.call('zadd', 'ips', 0, _:ip) 
+        return _:ip
+       end 
+       return nil "
+      {:ips "ips"} {:ip (ip-to-long ip)}))))
 
 (comment
-  (release-ip "192.168.5.91") 
-  (generate-ip) 
+  (release-ip "192.168.5.130") 
+  (gen-ip {}) 
   (wcar (car/del "ips"))) 
 
 (test #'long-to-ip)
