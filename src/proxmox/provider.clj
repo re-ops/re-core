@@ -14,7 +14,6 @@
     [celestial.validations :only (hash-v str-v validate! vec-v)]
     [trammel.core :only  (defconstrainedrecord)]
     [clojure.core.memoize :only (memo-ttl)]
-    [celestial.persistency :only (update-host)]
     [clojure.core.strint :only (<<)]
     [bouncer [core :as b] [validators :as v]]
     [celestial.core :only (Vm)]
@@ -24,8 +23,11 @@
     [slingshot.slingshot :only  [throw+ try+]]
     [clojure.set :only (difference)]
     [celestial.provider :only (str? vec?)]
-    [proxmox.generators :only (ct-id)]
+    [proxmox.generators :only (ct-id gen-ip release-ip)]
     [celestial.model :only (translate vconstruct)])
+  (:require 
+    [celestial.persistency :as p]
+    )
   (:import clojure.lang.ExceptionInfo))
 
 (import-logging)
@@ -37,7 +39,7 @@
      :cpus [v/number v/required]
      :disk [v/number v/required]
      :memory [v/number v/required]
-     :ip_address [v/required str-v]
+     ;; :ip_address [str-v]
      :password [v/required str-v]
      :hostname [v/required str-v]
      :nameserver [str-v]))
@@ -98,9 +100,11 @@
   (create [this] 
           (debug "creating" (:vmid ct))
           (try+ 
-            (check-task node (prox-post (str "/nodes/" node "/openvz") ct)) 
-            (enable-features this)
-            (update-host (ct :hostname) {:proxmox {:vmid (ct :vmid)}})
+            (let [ct* (gen-ip ct) {:keys [hostname vmid ip_address]} ct*] 
+              (check-task node (prox-post (str "/nodes/" node "/openvz") ct*)) 
+              (enable-features this) 
+              (when (p/host-exists? hostname)
+                (p/update-host hostname {:proxmox (select-keys ct* [:vmid :ip_address] )}))) 
             (catch [:status 500] e 
               (warn "Container already exists" e))))
 
@@ -108,7 +112,8 @@
           (debug "deleting" (:vmid ct))
           (unmount this)
           (safe
-            (prox-delete (str "/nodes/" node "/openvz/" (:vmid ct)))))
+            (prox-delete (str "/nodes/" node "/openvz/" (:vmid ct))))
+          (release-ip (:ip_address ct)))
 
   (start [this]
          (debug "starting" (:vmid ct))
@@ -143,7 +148,7 @@
 (defn- key-select [v] (fn [m] (select-keys m (keys v))))
 
 (defn mappings [res]
-  "(mappings {:ip \"1234\" :os \"ubuntu\" :cpu 1})" 
+  "Maps raw model to proxmox model: (mappings {:ip \"1234\" :os \"ubuntu\" :cpu 1})" 
   (let [ms {:ip :ip_address :os :ostemplate}
         vs ((key-select ms) res) ]
     (merge 
@@ -159,13 +164,12 @@
       (apply get* ks)
       (catch [:type :celestial.common/missing-conf] e
         (throw+ {:type :missing-template :message 
-                 (<< "no matching proxmox template found for ~{os}, add one to configuration under ~{ks} ")}) 
-        ))))
+         (<< "no matching proxmox template found for ~{os} add one to configuration under ~{ks}")})))))
 
 (defn generate
- "apply generated values (if not present)." 
+  "apply generated values (if not present)." 
   [res]
-  (reduce (fn [res [k v]] (if (res k) res (update-in res [k] v ))) res {:vmid ct-id}))
+  (reduce (fn [res [k v]] (if (res k) res (update-in res [k] v ))) res {:vmid ct-id }))
 
 (defn transform 
   "manipulated the model making it proxmox ready "
