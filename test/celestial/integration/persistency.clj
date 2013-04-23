@@ -29,7 +29,7 @@
 
 (with-state-changes [(before :facts (clear-all))]
   (fact "generated crud user ops" :integration :redis
-     (let [user {:username "foo" :password "bla" :roles #{::user}} id (p/add-user user)]
+     (let [user {:username "foo" :password "bla" :roles #{:celestial.roles/user}} id (p/add-user user)]
           (p/get-user id) => user
           (p/user-exists? id) => truthy
           (p/update-user (merge user {:username "foo" :password "123"}))
@@ -39,7 +39,7 @@
           ))
 
    (fact "non valid user" :integration :redis
-      (let [user {:username "foo" :password "bla" :roles #{::user}} id (p/add-user user)]
+      (let [user {:username "foo" :password "bla" :roles #{:celestial.roles/user}} id (p/add-user user)]
           (p/add-user (dissoc user :username)) => 
                (throws clojure.lang.ExceptionInfo (is-type? :celestial.persistency/non-valid-user))
           (p/update-user (dissoc user :username)) =>
