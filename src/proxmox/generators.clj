@@ -111,31 +111,33 @@
         (doseq [ip (range s (+ 1 e))]
           (car/zadd "ips" 0 ip))))))
 
-(initialize-range)
 
 (defn generate-ip 
   "Fetches an available ip address from range"
   [] 
-  {:pre [(= 1 (wcar (car/exists "ips")))]}
+  {:pre []}
+  (when (= 0 (wcar (car/exists "ips")))
+    (initialize-range))
   (some-> 
     (wcar 
       (car/lua-script
         "local next = redis.call('zrangebyscore', _:ips,0,0, 'LIMIT', 0,1) -- next available ip
-         redis.call('zadd',_:ips,_:used, next[1]) -- mark as used
-         return next[1]" 
+        redis.call('zadd',_:ips,_:used, next[1]) -- mark as used
+        return next[1]" 
         {:ips "ips"} {:used "1"}))
-      Long/parseLong long-to-ip 
+    Long/parseLong long-to-ip 
     ))
 
 (defn release-ip [ip]
-   (wcar 
+  (wcar 
     (car/lua-script
       "redis.call('zadd', 'ips', 0, _:ip) 
-       return _:ip"
-     {:ips "ips"} {:ip (ip-to-long ip)})))
+      return _:ip"
+      {:ips "ips"} {:ip (ip-to-long ip)})))
 
-;; (release-ip "192.168.5.91" )
-;; (generate-ip)
-;; (wcar (car/del "ips"))
+(comment
+  (release-ip "192.168.5.91") 
+  (generate-ip) 
+  (wcar (car/del "ips"))) 
 
 (test #'long-to-ip)
