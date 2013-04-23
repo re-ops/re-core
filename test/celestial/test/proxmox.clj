@@ -8,8 +8,7 @@
     [celestial.model :only (vconstruct)]
     [proxmox.generators :only (ct-id)]
     [celestial.fixtures :only (redis-prox-spec with-conf)])
-  (:import clojure.lang.ExceptionInfo)
-  )
+  (:import clojure.lang.ExceptionInfo))
 
 (defn with-m? [m]
  (fn [actual]
