@@ -34,7 +34,7 @@
 (def validity 1096)
 (def alias- "celestial-ops-jetty")
 
-(defn generate 
+(defn generate-store 
   "Generates a java keystore file with defined spec" 
   [output key-pass]
   (let [keystore (doto (KeyStore/getInstance "JKS") (.load nil nil)) 

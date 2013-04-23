@@ -14,7 +14,7 @@
   (:gen-class true)
   (:use 
     [celestial.persistency :as p]
-    [celestial.ssl :only (generate)]
+    [celestial.ssl :only (generate-store)]
     [clojure.java.io :only (file resource)]
     [celestial.api :only (app)]
     [gelfino.timbre :only (gelf-appender)]
@@ -55,7 +55,7 @@
   []
   (when-not (.exists (file (cert-conf :keystore)))
     (info "generating a default keystore")
-    (generate (cert-conf :keystore) (cert-conf :password))))
+    (generate-store (cert-conf :keystore) (cert-conf :password))))
 
 
 (defn -main [& args]
