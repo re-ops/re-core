@@ -27,3 +27,14 @@
      (.status ct) => "running"
      (.stop ct)
      (.delete ct))))
+
+(fact "ip and vmid generation" :integration :proxmox
+   (with-conf
+    (let [ct (vconstruct (-> redis-prox-spec (dissoc-in* [:machine :ip]) (dissoc-in* [:machine :vmid])))]
+     (.stop ct)
+     (.delete ct) 
+     (.create ct) 
+     (.start ct)
+     (.status ct) => "running"
+     (.stop ct)
+     (.delete ct))))
