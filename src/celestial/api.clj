@@ -88,20 +88,25 @@
 
 (defroutes- jobs {:path "/job" :description "Operations on async job scheduling"}
 
-  (POST- "/job/stage/:host" [^:string host] {:nickname "stageMachine" :summary "Complete end to end staging job"}
-         (jobs/enqueue "stage" {:identity host :args [(p/host host)]})
-         (success {:msg "submitted staging" :host host}))
+  (POST- "/job/stage/:id" [^:int id] {:nickname "stageSystem" :summary "Complete end to end staging job"}
+         (jobs/enqueue "stage" {:identity id :args [(p/get-system id)]})
+         (success {:msg "submitted staging" :id id}))
 
-  (POST- "/job/create/:host" [^:string host] {:nickname "createMachine" :summary "Machine creation job"}
+  (POST- "/job/create/:id" [^:int id] {:nickname "createSystem" :summary "System creation job"}
          (success 
-           {:msg "submited system creation" :host host 
-            :job (jobs/enqueue "machine" {:identity host :args [(p/host host)]})}))
+           {:msg "submited system creation" :id id 
+            :job (jobs/enqueue "machine" {:identity id :args [(p/get-system id)]})}))
 
-  (POST- "/job/provision/:host" [^:string host] {:nickname "provisionHost" :summary "Provisioning job"}
-         (let [machine (p/host host) type (p/type-of (:type machine)) ]
+  (POST- "/job/destroy/:id" [^:int id] {:nickname "destroySystem" :summary "System destruction job"}
+         (success 
+           {:msg "submited system destruction" :id id 
+            :job (jobs/enqueue "machine" {:identity id :args [(p/get-system id)]})}))
+
+  (POST- "/job/provision/:id" [^:int id] {:nickname "provisionSystem" :summary "Provisioning job"}
+         (let [system (p/get-system id) type (p/type-of (:type system)) ]
            (success 
-             {:msg "submitted provisioning" :host host :machine machine :type type 
-              :job (jobs/enqueue "provision" {:identity host :args [type machine]})})))
+             {:msg "submitted provisioning" :id id :machine machine :type type 
+              :job (jobs/enqueue "provision" {:identity id :args [type machine]})})))
 
   (GET- "/job/:queue/:uuid/status" [^:string queue ^:string uuid]
         {:nickname "jobStatus" :summary "job status tracking" 
@@ -149,36 +154,32 @@
 
 (defroutes- hosts {:path "/host" :description "Operations on hosts"}
 
-  (GET- "/host/machine/:host" [^:string host] {:nickname "getHostMachine" :summary "Get Host machine"}
-        (success (p/host host)))
+  (GET- "/host/system/:id" [^:int id] {:nickname "getSystem" :summary "Get system by id"}
+        (success (p/get-system id)))
 
-  (POST- "/host/machine" [& ^:system props] {:nickname "addHostMachine" :summary "Add Host machine" 
-                                             :errorResponses (errors {:conflict "Host already exists" :bad-req "Missing host type"})}
-         (let [host (get-in props [:machine :hostname])]
-           (if (p/host-exists? host)
-             (conflict {:msg "Host aleady exists, use PUT /host/machine instead"}) 
-             (try+ 
-               (p/register-host props)
-               (success {:msg "new host saved" :host host :props props})
-               (catch [:type :celestial.persistency/missing-type] e 
-                 (bad-req  {:msg (<< "Cannot create machine with missing type ~(e :t)}")}))) 
-             )))
+  (POST- "/host/system" [& ^:system props] {:nickname "addSystem" :summary "Add system" 
+                                            :errorResponses (errors {:bad-req "Missing system type"})}
+         (try+ 
+           (let [id (p/add-system props)]
+             (success {:msg "new system saved" :id id :props props})) 
+             (catch [:type :celestial.persistency/missing-type] e 
+               (bad-req {:msg (<< "Cannot create machine with missing type ~(e :t)}")}))))
 
-  (PUT- "/host/machine" [& ^:system props] {:nickname "updateHostMachine" :summary "Update Host machine" 
-                                            :errorResponses (errors {:conflict "Host does not exist"}) }
-        (let [host (get-in props [:machine :hostname])]
-          (if-not (p/host-exists? host)
-            (conflict {:msg "Host does not exists, use POST /host/machine first"}) 
-            (do (p/register-host props) 
-                (success {:msg "new host saved" :host host :props props})))))
+  (PUT- "/host/system/:id" [^:int id & ^:system system] {:nickname "updateSystem" :summary "Update system" 
+                                           :errorResponses (errors {:conflict "System does not exist"}) }
+          (if-not (p/system-exists? id)
+            (conflict {:msg "System does not exists, use POST /host/system first"}) 
+            (do (p/update-system id system) 
+                (success {:msg "system updated" :id id}))))
 
-  (DELETE- "/host/machine/:host" [^:string host] {:nickname "deleteHost" :summary "Delete Host" 
-                                                  :errorResponses (errors {:bad-req "Host does not exist"})}
-           (if (p/host-exists? host)
-             (do (p/delete-host host) (success {:msg "Host deleted"}))
+  (DELETE- "/host/system/:id" [^:int id] {:nickname "deleteSystem" :summary "Delete System" 
+                                           :errorResponses (errors {:bad-req "System does not exist"})}
+           (if (p/system-exists? id)
+             (do (p/delete-system id) 
+                 (success {:msg "System deleted"}))
              (bad-req {:msg "Host does not exist"})))
 
-  (GET- "/host/type/:host" [^:string host] {:nickname "getHostType" :summary "Fetch Host type"}
+  #_(GET- "/host/type/:id" [^:int id] {:nickname "getSystemType" :summary "Fetch type of provided system id"}
         (success (select-keys (p/type-of (:type (p/fuzzy-host host))) [:classes])))
 
   (POST- "/type" [^:string type & ^:type props] {:nickname "addType" :summary "Add type"}

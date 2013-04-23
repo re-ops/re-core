@@ -29,8 +29,7 @@
 
 (defn hk 
   "host key"
-  [id] (<< "host:~{id}"))
-
+  [id] (<< "host:~{id}")) 
 (defn type-of [t]
   "Reading a type"
   (if-let [res (wcar (car/get (tk t)))] res 
@@ -143,9 +142,10 @@
 (defn validate-user [user]
   (validate! 
     (b/validate user
-                [:username] [v/required str-v]
-                [:password] [v/required str-v]
-                [:roles] [v/required (v/every #(roles %) :message (<< "role must be either ~{roles}"))]) ::non-valid-user))
+       [:username] [v/required str-v]
+       [:password] [v/required str-v]
+       [:roles] [v/required (v/every #(roles %) :message (<< "role must be either ~{roles}"))]) 
+       ::non-valid-user))
 
 (entity task)
 
@@ -163,6 +163,16 @@
   (validate! 
     (cond-> task
       (task :capistrano) cap-v) ::non-valid-task))
+
+
+(entity system)
+
+(defn validate-system
+  [system]
+ (validate! 
+    (b/validate system
+      [:machine :hostname]  [v/required str-v])
+     ::non-valid-machine))
 
 (defn reset-admin
   "Resets admin password if non is defined"
