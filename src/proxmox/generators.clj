@@ -14,7 +14,6 @@
     ) 
   (:require 
     [taoensso.carmine :as car] 
-  
     )
   )
 
@@ -104,25 +103,39 @@
     (catch [:type :celestial.common/missing-conf] e nil)))
 
 (defn initialize-range
-  "Initializes ip range zset 0 marks unused 1 marks used"
+  "Initializes ip range zset 0 marks unused 1 marks used (only if missing)."
   []
   (if-let [[s e] (ip-range)]
-    (when-not (= 1 (wcar (car/exists "ips")))
-      (doseq [ip (range s (+ 1 e))]
-        (wcar (car/zadd "ips" 0 (long-to-ip ip)))))))
+    (wcar 
+      (when-not (= 1 (car/exists "ips"))
+        (doseq [ip (range s (+ 1 e))]
+          (car/zadd "ips" 0 ip))))))
 
-(wcar (car/del "ips"))
 (initialize-range)
 
 (defn generate-ip 
-  "Fecthes an available ip address from range"
-  []
-  (wcar 
-    (when-let [ip (first (car/zrangebyscore "ips" 0 0 "LIMIT" 0 1))]
-      (car/zadd "ips" 1 ip)
-      (println "ba" ip "bl")
-      (identity ip))))
+  "Fetches an available ip address from range"
+  [] 
+  {:pre [(= 1 (wcar (car/exists "ips")))]}
+  (some-> 
+    (wcar 
+      (car/lua-script
+        "local next = redis.call('zrangebyscore', _:ips,0,0, 'LIMIT', 0,1) -- next available ip
+         redis.call('zadd',_:ips,_:used, next[1]) -- mark as used
+         return next[1]" 
+        {:ips "ips"} {:used "1"}))
+      Long/parseLong long-to-ip 
+    ))
 
-(println (generate-ip) "foo")
+(defn release-ip [ip]
+   (wcar 
+    (car/lua-script
+      "redis.call('zadd', 'ips', 0, _:ip) 
+       return _:ip"
+     {:ips "ips"} {:ip (ip-to-long ip)})))
+
+;; (release-ip "192.168.5.91" )
+;; (generate-ip)
+;; (wcar (car/del "ips"))
 
 (test #'long-to-ip)
