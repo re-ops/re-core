@@ -99,21 +99,23 @@
   Vm
   (create [this] 
           (debug "creating" (:vmid ct))
-          (try+ 
-            (let [ct* (gen-ip ct) {:keys [hostname vmid ip_address]} ct*] 
+          (let [ct* (gen-ip ct) {:keys [hostname vmid ip_address]} ct*] 
+            (try+ 
               (check-task node (prox-post (str "/nodes/" node "/openvz") ct*)) 
               (enable-features this) 
               (when (p/host-exists? hostname)
-                (p/update-host hostname {:proxmox (select-keys ct* [:vmid :ip_address] )}))) 
-            (catch [:status 500] e 
-              (warn "Container already exists" e))))
+                (p/update-host hostname {:proxmox (select-keys ct* [:vmid :ip_address])})) 
+              (catch [:status 500] e 
+                (release-ip (ct* :ip_address))
+                (warn "Container already exists" e)))))
 
   (delete [this]
-          (debug "deleting" (:vmid ct))
-          (unmount this)
-          (safe
-            (prox-delete (str "/nodes/" node "/openvz/" (:vmid ct))))
-          (release-ip (:ip_address ct)))
+          (try 
+            (debug "deleting" (:vmid ct))
+            (unmount this) 
+            (safe
+              (prox-delete (str "/nodes/" node "/openvz/" (:vmid ct)))) 
+            (finally (release-ip (:ip_address ct)))))
 
   (start [this]
          (debug "starting" (:vmid ct))
@@ -164,7 +166,7 @@
       (apply get* ks)
       (catch [:type :celestial.common/missing-conf] e
         (throw+ {:type :missing-template :message 
-         (<< "no matching proxmox template found for ~{os} add one to configuration under ~{ks}")})))))
+                 (<< "no matching proxmox template found for ~{os} add one to configuration under ~{ks}")})))))
 
 (defn generate
   "apply generated values (if not present)." 
