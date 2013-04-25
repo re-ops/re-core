@@ -7,8 +7,8 @@
     [celestial.fixtures :only (with-conf)] 
     ))
 
-(def model (slurp-edn "fixtures/model.edn"))
+(def model (assoc (slurp-edn "fixtures/model.edn") :system-id 1))
 
 (fact "constructing a proxmox model"
   (with-conf 
-    (second (translate model))) => {:node "proxmox" :features ["nfs:on"]})
+    (second (translate model))) => {:node "proxmox" :features ["nfs:on"] :system-id 1})

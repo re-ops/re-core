@@ -183,8 +183,8 @@
                  (success {:msg "System deleted"}))
              (bad-req {:msg "Host does not exist"})))
 
-  #_(GET- "/host/type/:id" [^:int id] {:nickname "getSystemType" :summary "Fetch type of provided system id"}
-          (success (select-keys (p/type-of (:type (p/fuzzy-host host))) [:classes])))
+  (GET- "/host/type/:id" [^:int id] {:nickname "getSystemType" :summary "Fetch type of provided system id"}
+          (success (select-keys (p/type-of (:type (p/get-system id))) [:classes])))
 
   (POST- "/type" [^:string type & ^:type props] {:nickname "addType" :summary "Add type"}
          (p/new-type type props)
