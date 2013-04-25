@@ -107,10 +107,11 @@
             :job (jobs/enqueue "destroy" {:identity id :args [(p/get-system id)]})}))
 
   (POST- "/job/provision/:id" [^:int id] {:nickname "provisionSystem" :summary "Provisioning job"}
-         (let [system (p/get-system id) type (p/type-of (:type system)) ]
+         (let [system (p/get-system id) type (p/type-of (:type system)) 
+               job (jobs/enqueue "provision" {:identity id :args [type system]})]
+           (println job)
            (success 
-             {:msg "submitted provisioning" :id id :machine machine :type type 
-              :job (jobs/enqueue "provision" {:identity id :args [type machine]})})))
+             {:msg "submitted provisioning" :id id :machine machine :type type :job job})))
 
   (GET- "/job/:queue/:uuid/status" [^:string queue ^:string uuid]
         {:nickname "jobStatus" :summary "job status tracking" 

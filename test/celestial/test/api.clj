@@ -46,7 +46,7 @@
           (p/new-type "redis" (dissoc (slurp-edn "fixtures/redis-type.edn") :type)) => nil
           ))
 
-#_(let [machine {:type "redis" :machine {:host "foo"}} type {:classes {:redis {}}}]
+(let [machine {:type "redis" :machine {:host "foo"}} type {:classes {:redis {}}}]
     (fact "provisioning job"
           (non-sec-app (request :post "/job/provision/1")) => (contains {:status 200})
           (provided 
