@@ -170,6 +170,13 @@
            (catch [:type :celestial.persistency/missing-type] e 
              (bad-req {:msg (<< "Cannot create machine with missing type ~(e :t)}")}))))
 
+  #_(POST- "/host/system-clone" [^:id id] {:nickname "cloneSystem" :summary "Clone an existing system replacing unique identifiers along the way" 
+                                         :errorResponses (errors {:bad-req "Missing system type"})}
+         (if-not (p/system-exists? id)
+           (conflict {:msg "System does not exists, use POST /host/system first"}) 
+           (let [system (p/get-system id) clone-id (p/add-system system)]  
+             (success {:msg "system cloned" :id clone-id}))))
+
   (PUT- "/host/system/:id" [^:int id & ^:system system] {:nickname "updateSystem" :summary "Update system" 
                                                          :errorResponses (errors {:conflict "System does not exist"}) }
         (if-not (p/system-exists? id)
@@ -185,7 +192,7 @@
              (bad-req {:msg "Host does not exist"})))
 
   (GET- "/host/type/:id" [^:int id] {:nickname "getSystemType" :summary "Fetch type of provided system id"}
-          (success (select-keys (p/type-of (:type (p/get-system id))) [:classes])))
+        (success (select-keys (p/type-of (:type (p/get-system id))) [:classes])))
 
   (POST- "/type" [^:string type & ^:type props] {:nickname "addType" :summary "Add type"}
          (p/new-type type props)
