@@ -32,7 +32,6 @@
   (loop [i 5]
     (when (> i 0)
       (let [id (+ 100 (gen-ct-id))]
-        (debug id)
         (if-not (ct-exists id)
           id
           (recur (- i 1)))))))
