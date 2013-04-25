@@ -106,8 +106,7 @@
               (check-task node (prox-post (str "/nodes/" node "/openvz") ct*)) 
               (enable-features this) 
               (when (p/system-exists? id)
-                (p/update-system id 
-                  (merge-with merge {:proxmox (select-keys ct* [:vmid :ip_address])} (p/get-system id)))) 
+                (p/partial-system id {:proxmox (select-keys ct* [:vmid :ip_address])})) 
               (catch [:status 500] e 
                 (release-ip (ct* :ip_address))
                 (warn "Container already exists" e)))))

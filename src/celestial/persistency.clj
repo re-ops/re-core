@@ -85,6 +85,7 @@
    :add-fn (<<< "add-~{name*}") :update-fn (<<< "update-~{name*}")
    :validate-fn (<<< "validate-~{name*}") :gen-fn (<<< "gen-~{name*}-id") 
    :delete-fn (<<< "delete-~{name*}") :get-fn (<<< "get-~{name*}")
+   :partial-fn (<<< "partial-~{name*}")
    })
 
 (defn id-modifiers [name* opts]
@@ -101,7 +102,7 @@
 (defmacro write-fns 
   "Creates the add/update functions, both take into account if id is generated of provided"
   [name* opts]
-  (let [{:keys [id-fn exists-fn validate-fn add-fn update-fn gen-fn get-fn]} (fn-ids name*)
+  (let [{:keys [id-fn exists-fn validate-fn add-fn update-fn gen-fn get-fn partial-fn]} (fn-ids name*)
         missing (<<k ":~{*ns*}/missing-~{name*}") 
         {:keys [up-args up-id add-k-fn]} (id-modifiers name* (apply hash-map opts))]
     `(do 
@@ -115,6 +116,11 @@
          (let [id# ~add-k-fn]
            (wcar (hsetall* (~id-fn id#) ~'v)) 
            id#))
+
+       (defn ~partial-fn ~up-args
+         (when-not (~exists-fn ~up-id)
+           (throw+ {:type ~missing ~(keyword name*) ~'v }))
+         (wcar (hsetall* (~id-fn ~up-id) (merge-with merge (wcar (car/hgetall* (~id-fn ~up-id))) ~'v))))
 
        (defn ~update-fn ~up-args
          (~validate-fn ~'v)
