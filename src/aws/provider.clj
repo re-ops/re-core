@@ -1,17 +1,18 @@
 (comment 
-   Celestial, Copyright 2012 Ronen Narkis, narkisr.com
-   Licensed under the Apache License,
-   Version 2.0  (the "License") you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.)
+  Celestial, Copyright 2012 Ronen Narkis, narkisr.com
+  Licensed under the Apache License,
+  Version 2.0  (the "License") you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.)
 
 (ns aws.provider
   (:require [aws.sdk.ec2 :as ec2])
   (:import (java.util UUID))
+  (:require [celestial.persistency :as p])
   (:use 
     [celestial.validations :only (hash-v str-v validate! vec-v)]
     [bouncer [core :as b] [validators :as v]]
@@ -22,9 +23,8 @@
     [minderbinder.time :only (parse-time-unit)]
     [slingshot.slingshot :only  [throw+ try+]]
     [aws.sdk.ec2 :only 
-       (run-instances describe-instances terminate-instances start-instances
-        stop-instances instance-filter instance-id-filter)]
-    [celestial.persistency :only (update-host)]
+     (run-instances describe-instances terminate-instances start-instances
+                    stop-instances instance-filter instance-id-filter)]
     [trammel.core :only (defconstrainedrecord)]
     [celestial.provider :only (str? vec?)]
     [celestial.redis :only (synched-map)]
@@ -36,10 +36,10 @@
 
 (defn instance-v [c]
   (b/validate c 
-     :min-count [v/required v/number]
-     :max-count [v/required v/number]
-     :instance-type [v/required str-v] 
-     :key-name [v/required str-v] ))
+              :min-count [v/required v/number]
+              :max-count [v/required v/number]
+              :instance-type [v/required str-v] 
+              :key-name [v/required str-v] ))
 
 (defn creds [] (get* :hypervisor :aws))
 
@@ -58,7 +58,7 @@
 (defn wait-for-status [instance req-stat timeout]
   "Waiting for ec2 machine status timeout is in mili"
   (wait-for timeout #(= req-stat (.status instance))
-    {:type ::aws:status-failed :message "Timed out on waiting for status" :status req-stat :timeout timeout}))
+            {:type ::aws:status-failed :message "Timed out on waiting for status" :status req-stat :timeout timeout}))
 
 (defmacro ec2 [f & args]
   `(~f (assoc (creds) :endpoint ~'endpoint) ~@args))
@@ -81,8 +81,8 @@
 
 (defn wait-for-attach [endpoint uuid timeout]
   (wait-for timeout 
-    #(= "attached" (instance-desc endpoint uuid :block-device-mappings 0 :ebs :status)) 
-    {:type ::aws:ebs-attach-failed :message "Failed to wait for ebs root device attach"}))
+            #(= "attached" (instance-desc endpoint uuid :block-device-mappings 0 :ebs :status)) 
+            {:type ::aws:ebs-attach-failed :message "Failed to wait for ebs root device attach"}))
 
 (defn pub-dns [endpoint uuid]
   (instance-desc endpoint uuid :public-dns))
@@ -90,13 +90,13 @@
 (defn wait-for-ssh [{:keys [endpoint uuid user] :as instance}]
   (let [timeout [5 :minute]] 
     (wait-for timeout
-       #(ssh-up? {:host (pub-dns endpoint uuid) :port 22 :user user})
-       {:type ::aws:ssh-failed :message "Timed out while waiting for ssh" :timeout timeout})))
+              #(ssh-up? {:host (pub-dns endpoint uuid) :port 22 :user user})
+              {:type ::aws:ssh-failed :message "Timed out while waiting for ssh" :timeout timeout})))
 
 (defn update-pubdns [{:keys [spec endpoint uuid] :as instance}]
   "updates public dns in the machine persisted data"
-  (update-host (get-in spec [:machine :hostname]) 
-               {:machine {:ssh-host (pub-dns endpoint uuid)}}))
+  (when (p/system-exists? (spec :system-id))
+    (p/partial-system (spec :system-id) {:machine {:ssh-host (pub-dns endpoint uuid)}})))
 
 (defn set-hostname [{:keys [spec endpoint uuid user] :as instance}]
   "Uses a generic method of setting hostname in Linux"
