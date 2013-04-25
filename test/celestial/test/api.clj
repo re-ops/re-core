@@ -29,39 +29,40 @@
 
 (fact "getting host type"
       (non-sec-app 
-         (header 
+        (header 
           (request :get (<< "/host/type/1")) "accept" "application/json")) => (contains {:status 200})
-       (provided 
-         (p/get-system "1") => {:type "redis"} 
-         (p/type-of "redis") => {:classes {:redis {:append true}}}))
- 
- #_(def type-req
-     (merge {:params (slurp-edn "fixtures/redis-type.edn")}
-            (header (request :post "/type") "Content-type" "application/edn")))
- 
- ; TODO is seems that ring-mock isn't working correctly with '&' distructuing 
- #_(fact "type requests"
-         (non-sec-app type-req) => {:status 200}
-         (provided 
-           (p/new-type "redis" (dissoc (slurp-edn "fixtures/redis-type.edn") :type)) => nil
-           ))
+      (provided 
+        (p/get-system "1") => {:type "redis"} 
+        (p/type-of "redis") => {:classes {:redis {:append true}}}))
+
+#_(def type-req
+    (merge {:params (slurp-edn "fixtures/redis-type.edn")}
+           (header (request :post "/type") "Content-type" "application/edn")))
+
+; TODO is seems that ring-mock isn't working correctly with '&' distructuing 
+#_(fact "type requests"
+        (non-sec-app type-req) => {:status 200}
+        (provided 
+          (p/new-type "redis" (dissoc (slurp-edn "fixtures/redis-type.edn") :type)) => nil
+          ))
 
 #_(let [machine {:type "redis" :machine {:host "foo"}} type {:classes {:redis {}}}]
-  (fact "provisioning job"
-        (non-sec-app (request :post "/job/provision/1")) => (contains {:status 200})
-        (provided 
-          (p/get-system "1")  => machine
-          (p/type-of "redis") => type
-          (jobs/enqueue "provision" {:identity "1" :args [type machine]}) => nil)))
+    (fact "provisioning job"
+          (non-sec-app (request :post "/job/provision/1")) => (contains {:status 200})
+          (provided 
+            (p/get-system "1")  => machine
+            (p/type-of "redis") => type
+            (jobs/enqueue "provision" {:identity "1" :args [type machine]}) => nil)))
 
-;; (fact "staging job" 
-;;       (non-sec-app (request :post "/job/stage/redis-local")) => (contains {:status 200})
-;;       (provided
-;;         (p/host "redis-local") => "p/host result"
-;;         (jobs/enqueue "stage" {:identity "redis-local" :args ["p/host result"]}) => nil))
-;; 
-;; (fact "creation job"
-;;       (non-sec-app (request :post "/job/create/redis-local"))  => (contains {:status 200})
-;;       (provided 
-;;         (p/host "redis-local")  => "p/host result"
-;;         (jobs/enqueue "machine" {:identity "redis-local" :args ["p/host result"]}) => nil))
+(fact "staging job" 
+      (non-sec-app (request :post "/job/stage/1")) => (contains {:status 200})
+      (provided
+        (p/get-system "1") => "p/host result"
+        (jobs/enqueue "stage" {:identity "1" :args ["p/host result"]}) => nil))
+
+(fact "creation job"
+      (non-sec-app (request :post "/job/create/1"))  => (contains {:status 200})
+      (provided 
+        (p/system-exists? "1") => true
+        (p/get-system "1")  => {}
+        (jobs/enqueue "reload" {:identity "1" :args [{:system-id 1}]}) => nil))
