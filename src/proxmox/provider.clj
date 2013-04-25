@@ -101,15 +101,13 @@
   Vm
   (create [this] 
           (debug "creating" (:vmid ct))
-          (let [ct* (gen-ip ct) {:keys [hostname vmid ip_address]} ct* id (extended :id)] 
+          (let [ct* (gen-ip ct) {:keys [hostname vmid ip_address]} ct* id (extended :system-id)] 
             (try+ 
-              (debug "ct* is" ct* )
-              (debug "ct is" ct )
               (check-task node (prox-post (str "/nodes/" node "/openvz") ct*)) 
               (enable-features this) 
               (when (p/system-exists? id)
                 (p/update-system id 
-                  (merge-with merge (p/get-system id) {:proxmox (select-keys ct* [:vmid :ip_address])}))) 
+                  (merge-with merge {:proxmox (select-keys ct* [:vmid :ip_address])} (p/get-system id)))) 
               (catch [:status 500] e 
                 (release-ip (ct* :ip_address))
                 (warn "Container already exists" e)))))
