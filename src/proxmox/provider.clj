@@ -39,13 +39,15 @@
      :cpus [v/number v/required]
      :disk [v/number v/required]
      :memory [v/number v/required]
-     ;; :ip_address [str-v]
+     :ip_address [str-v]
      :password [v/required str-v]
      :hostname [v/required str-v]
      :nameserver [str-v]))
 
 (defn ex-v [c]
-  (b/validate c :features [vec-v]))
+  (b/validate c 
+    :id [v/number]          
+    :features [vec-v]))
 
 (def node-available? 
   "Node availability check, result is cached for one minute"
@@ -99,12 +101,15 @@
   Vm
   (create [this] 
           (debug "creating" (:vmid ct))
-          (let [ct* (gen-ip ct) {:keys [hostname vmid ip_address]} ct*] 
+          (let [ct* (gen-ip ct) {:keys [hostname vmid ip_address]} ct* id (extended :id)] 
             (try+ 
+              (debug "ct* is" ct* )
+              (debug "ct is" ct )
               (check-task node (prox-post (str "/nodes/" node "/openvz") ct*)) 
               (enable-features this) 
-              (when (p/host-exists? hostname)
-                (p/update-host hostname {:proxmox (select-keys ct* [:vmid :ip_address])})) 
+              (when (p/system-exists? id)
+                (p/update-system id 
+                  (merge-with merge (p/get-system id) {:proxmox (select-keys ct* [:vmid :ip_address])}))) 
               (catch [:status 500] e 
                 (release-ip (ct* :ip_address))
                 (warn "Container already exists" e)))))
@@ -180,13 +185,13 @@
 
 (def ct-ks [:vmid :ostemplate :cpus :disk :memory :ip_address :password :hostname :nameserver])
 
-(def ex-ks [:features :node])
+(def ex-ks [:features :node :system-id])
 
 (def selections (juxt (fn [m] (select-keys m ct-ks)) (fn [m] (select-keys m ex-ks))))
 
-(defmethod translate :proxmox [{:keys [machine proxmox]}]
+(defmethod translate :proxmox [{:keys [machine proxmox system-id]}]
   "Convert the general model into a proxmox vz specific one"
-  (-> (merge machine proxmox) mappings transform generate selections))
+  (-> (merge machine proxmox {:system-id system-id}) mappings transform generate selections))
 
 (defmethod vconstruct :proxmox [{:keys [proxmox] :as spec}]
   (let [{:keys [type node]} proxmox]

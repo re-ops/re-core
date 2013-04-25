@@ -92,15 +92,19 @@
          (jobs/enqueue "stage" {:identity id :args [(p/get-system id)]})
          (success {:msg "submitted staging" :id id}))
 
-  (POST- "/job/create/:id" [^:int id] {:nickname "createSystem" :summary "System creation job"}
-         (success 
-           {:msg "submited system creation" :id id 
-            :job (jobs/enqueue "machine" {:identity id :args [(p/get-system id)]})}))
+  (POST- "/job/create/:id" [^:int id] {:nickname "createSystem" :summary "System creation job"
+                                       :errorResponses (errors {:bad-req "Missing system"})}
+         (if-not (p/system-exists? id)
+           (bad-req {:msg (<< "No system found with given id ~{id}")})
+           (success 
+             {:msg "submited system creation" :id id 
+              :job (jobs/enqueue "reload" 
+              {:identity id :args [(assoc (p/get-system id) :system-id (Integer. id))]})})))
 
   (POST- "/job/destroy/:id" [^:int id] {:nickname "destroySystem" :summary "System destruction job"}
          (success 
            {:msg "submited system destruction" :id id 
-            :job (jobs/enqueue "machine" {:identity id :args [(p/get-system id)]})}))
+            :job (jobs/enqueue "destroy" {:identity id :args [(p/get-system id)]})}))
 
   (POST- "/job/provision/:id" [^:int id] {:nickname "provisionSystem" :summary "Provisioning job"}
          (let [system (p/get-system id) type (p/type-of (:type system)) ]
@@ -115,10 +119,10 @@
 
 
 (defn convert-roles [user]
-   (update-in user [:roles] (fn [v] #{(roles-m v)})))
+  (update-in user [:roles] (fn [v] #{(roles-m v)})))
 
 (defn hash-pass [user]
-   (update-in user [:password] (fn [v] (creds/hash-bcrypt v))))
+  (update-in user [:password] (fn [v] (creds/hash-bcrypt v))))
 
 (defroutes- tasks {:path "/tasks" :description "Tasks managment"}
   (POST- "/task" [& ^:task task] {:nickname "addTask" :summary "Adds a new task"}
@@ -162,25 +166,25 @@
          (try+ 
            (let [id (p/add-system props)]
              (success {:msg "new system saved" :id id :props props})) 
-             (catch [:type :celestial.persistency/missing-type] e 
-               (bad-req {:msg (<< "Cannot create machine with missing type ~(e :t)}")}))))
+           (catch [:type :celestial.persistency/missing-type] e 
+             (bad-req {:msg (<< "Cannot create machine with missing type ~(e :t)}")}))))
 
   (PUT- "/host/system/:id" [^:int id & ^:system system] {:nickname "updateSystem" :summary "Update system" 
-                                           :errorResponses (errors {:conflict "System does not exist"}) }
-          (if-not (p/system-exists? id)
-            (conflict {:msg "System does not exists, use POST /host/system first"}) 
-            (do (p/update-system id system) 
-                (success {:msg "system updated" :id id}))))
+                                                         :errorResponses (errors {:conflict "System does not exist"}) }
+        (if-not (p/system-exists? id)
+          (conflict {:msg "System does not exists, use POST /host/system first"}) 
+          (do (p/update-system id system) 
+              (success {:msg "system updated" :id id}))))
 
   (DELETE- "/host/system/:id" [^:int id] {:nickname "deleteSystem" :summary "Delete System" 
-                                           :errorResponses (errors {:bad-req "System does not exist"})}
+                                          :errorResponses (errors {:bad-req "System does not exist"})}
            (if (p/system-exists? id)
              (do (p/delete-system id) 
                  (success {:msg "System deleted"}))
              (bad-req {:msg "Host does not exist"})))
 
   #_(GET- "/host/type/:id" [^:int id] {:nickname "getSystemType" :summary "Fetch type of provided system id"}
-        (success (select-keys (p/type-of (:type (p/fuzzy-host host))) [:classes])))
+          (success (select-keys (p/type-of (:type (p/fuzzy-host host))) [:classes])))
 
   (POST- "/type" [^:string type & ^:type props] {:nickname "addType" :summary "Add type"}
          (p/new-type type props)

@@ -16,24 +16,21 @@
 
 (defvalidator hash-v
   {:default-message-format "%s must be a hash"}
-  [c] (map? c))
+  [c] 
+    (if c (map? c) true))
 
 (defvalidator set-v
   {:default-message-format "%s must be a set"}
-  [c] (set? c))
-
-(defvalidator set-v
-  {:default-message-format "%s must be a set"}
-  [c] (set? c))
+  [c] (if c (set? c) true))
 
 (defvalidator vec-v
   {:default-message-format "%s must be a vector"}
   [c] 
-  (vector? c))
+  (if c (vector? c) true))
 
 (defvalidator str-v
   {:default-message-format "%s must be a string"}
-  [c] (string? c))
+  [c] (if c (string? c) true))
 
 (defmacro validate-nest 
   "Bouncer nested maps validation with prefix key"

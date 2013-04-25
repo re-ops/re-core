@@ -55,6 +55,15 @@
      vm 
     ))
 
+(defn destroy 
+  "Deletes a system"
+  [{:keys [machine] :as spec}]
+  (let [vm (vconstruct spec)]
+    (when (.status vm)
+      (.stop vm) 
+      (.delete vm)) 
+    (info "system destruction done")))
+
 (defn puppetize [type spec]
   (info "starting to provision")
   (trace type spec) 
