@@ -55,6 +55,7 @@
     (let [res (call- client/post "/access/ticket" {:form-params (login-creds)})]
       (select-keys res [:CSRFPreventionToken :ticket]))
     (catch #(#{401 500} (:status %)) e
+      (debug e)
       (throw (ExceptionInfo. "Failed to login" (proxmox-conf))))
     (catch #(#{400} (:status %)) e
       (throw (ExceptionInfo. "Illegal request, check query params" (proxmox-conf))))))

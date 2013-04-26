@@ -18,8 +18,11 @@
     :proxmox {
       :username "root" :password "foobar" :host "localhost" :ssh-port 2222
       :ostemplates {
-         :ubuntu-12.10  "local:vztmpl/ubuntu-12.04-puppet_3-x86_64.tar.gz"
+         :ubuntu-12.04 "local:vztmpl/ubuntu-12.04-puppet_3-x86_64.tar.gz"
        }
+      :generators {
+        :ip-range ["192.168.5.100" "192.168.5.255"]
+      }
     }
 
     ;; :aws {

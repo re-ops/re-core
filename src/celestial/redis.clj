@@ -32,7 +32,11 @@
 
 (defmacro wcar [& body] 
   `(if-not wcar-disable 
-     (car/with-conn (pool) (spec-server) ~@body)
+     (try 
+       (car/with-conn (pool) (spec-server) ~@body)
+       (catch Exception e# 
+         (throw+ {:type ::redis:connection :redis-host (get* :redis :host)} "Redis connection error")
+         ))
      ~@body
      ))
 

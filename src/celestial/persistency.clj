@@ -11,6 +11,7 @@
 
 (ns celestial.persistency
   (:refer-clojure :exclude [type])
+  (:require proxmox.model aws.model)
   (:use 
     [celestial.roles :only (roles admin)]
     [cemerick.friend.credentials :as creds]
@@ -19,6 +20,7 @@
     [clojure.string :only (split join)]
     [celestial.redis :only (wcar hsetall*)]
     [slingshot.slingshot :only  [throw+ try+]]
+    [celestial.model :only (clone)] 
     [clojure.core.strint :only (<<)]) 
   (:require 
     [taoensso.carmine :as car]))
@@ -29,8 +31,7 @@
 
 (defn hk 
   "host key"
-  [id] (<< "host:~{id}"))
-
+  [id] (<< "host:~{id}")) 
 (defn type-of [t]
   "Reading a type"
   (if-let [res (wcar (car/get (tk t)))] res 
@@ -81,13 +82,12 @@
   "String interpulation into a keyword"
   [s] `(keyword (<< ~s)))
 
-
-
 (defn fn-ids [name*]
   {:id-fn (<<< "~{name*}-id") :exists-fn (<<< "~{name*}-exists?")
    :add-fn (<<< "add-~{name*}") :update-fn (<<< "update-~{name*}")
    :validate-fn (<<< "validate-~{name*}") :gen-fn (<<< "gen-~{name*}-id") 
    :delete-fn (<<< "delete-~{name*}") :get-fn (<<< "get-~{name*}")
+   :partial-fn (<<< "partial-~{name*}")
    })
 
 (defn id-modifiers [name* opts]
@@ -95,10 +95,16 @@
      {:up-args (vector {:keys [id-prop] :as 'v}) :up-id id-prop :add-k-fn (list 'v (keyword id-prop))}
      {:up-args ['id 'v] :up-id 'id :add-k-fn (list (:gen-fn (fn-ids name*)))}))
 
+(defmacro defgen 
+  "An id generator" 
+  [name*]
+  `(defn ~(<<< "gen-~{name*}") []
+    (wcar (car/incr ~(<< "~{name*}:ids")))))
+
 (defmacro write-fns 
   "Creates the add/update functions, both take into account if id is generated of provided"
   [name* opts]
-  (let [{:keys [id-fn exists-fn validate-fn add-fn update-fn gen-fn get-fn]} (fn-ids name*)
+  (let [{:keys [id-fn exists-fn validate-fn add-fn update-fn gen-fn get-fn partial-fn]} (fn-ids name*)
         missing (<<k ":~{*ns*}/missing-~{name*}") 
         {:keys [up-args up-id add-k-fn]} (id-modifiers name* (apply hash-map opts))]
     `(do 
@@ -112,6 +118,11 @@
          (let [id# ~add-k-fn]
            (wcar (hsetall* (~id-fn id#) ~'v)) 
            id#))
+
+       (defn ~partial-fn ~up-args
+         (when-not (~exists-fn ~up-id)
+           (throw+ {:type ~missing ~(keyword name*) ~'v }))
+         (wcar (hsetall* (~id-fn ~up-id) (merge-with merge (wcar (car/hgetall* (~id-fn ~up-id))) ~'v))))
 
        (defn ~update-fn ~up-args
          (~validate-fn ~'v)
@@ -137,11 +148,12 @@
 (entity user :id username)
 
 (defn validate-user [user]
-  (validate! ::non-valid-user
-      (b/validate user
-         [:username] [v/required str-v]
-         [:password] [v/required str-v]
-         [:roles] [v/required (v/every #(roles %) :message (<< "role must be either ~{roles}"))])))
+  (validate! 
+    (b/validate user
+       [:username] [v/required str-v]
+       [:password] [v/required str-v]
+       [:roles] [v/required (v/every #(roles %) :message (<< "role must be either ~{roles}"))]) 
+       ::non-valid-user))
 
 (entity task)
 
@@ -149,16 +161,31 @@
   "Validates a capistrano task"
   [cap-task]
   (validate-nest cap-task [:capistrano]
-    [:src] [v/required str-v]
-    [:args] [v/required str-v]
-    [:name] [v/required str-v]))
+                 [:src] [v/required str-v]
+                 [:args] [v/required str-v]
+                 [:name] [v/required str-v]))
 
 (defn validate-task 
   "Validates task model"
   [task]
-   (validate! ::non-valid-task
-     (cond-> task
-       (task :capistrano) cap-v)))
+  (validate! 
+    (cond-> task
+      (task :capistrano) cap-v) ::non-valid-task))
+
+
+(entity system)
+
+(defn validate-system
+  [system]
+ (validate! 
+    (b/validate system
+      [:machine :hostname]  [v/required str-v])
+     ::non-valid-machine))
+
+(defn clone-system 
+  "clones an existing system"
+  [id]
+  (add-system (clone (get-system id))))
 
 (defn reset-admin
   "Resets admin password if non is defined"

@@ -23,16 +23,16 @@
 
 (def non-sec-app (app false))
 
-(fact "host get"
-      (non-sec-app (request :get (<< "/host/machine/redis-local"))) => (contains {:status 200}) 
-      (provided (p/host "redis-local") => "foo"))
+(fact "system get"
+      (non-sec-app (request :get (<< "/host/system/1"))) => (contains {:status 200}) 
+      (provided (p/get-system "1") => "foo"))
 
 (fact "getting host type"
       (non-sec-app 
         (header 
-          (request :get (<< "/host/type/redis-local")) "accept" "application/json")) => (contains {:status 200})
+          (request :get (<< "/host/type/1")) "accept" "application/json")) => (contains {:status 200})
       (provided 
-        (p/fuzzy-host "redis-local") => {:type "redis"} 
+        (p/get-system "1") => {:type "redis"} 
         (p/type-of "redis") => {:classes {:redis {:append true}}}))
 
 #_(def type-req
@@ -47,22 +47,22 @@
           ))
 
 (let [machine {:type "redis" :machine {:host "foo"}} type {:classes {:redis {}}}]
-  (fact "provisioning job"
-        (non-sec-app (request :post "/job/provision/redis-local")) => (contains {:status 200})
-        (provided 
-          (p/host "redis-local")  => machine
-          (p/type-of "redis") => type
-          (jobs/enqueue "provision" 
-                        {:identity "redis-local" :args [type machine]}) => nil)))
+    (fact "provisioning job"
+          (non-sec-app (request :post "/job/provision/1")) => (contains {:status 200})
+          (provided 
+            (p/get-system "1")  => machine
+            (p/type-of "redis") => type
+            (jobs/enqueue "provision" {:identity "1" :args [type machine]}) => nil)))
 
 (fact "staging job" 
-      (non-sec-app (request :post "/job/stage/redis-local")) => (contains {:status 200})
+      (non-sec-app (request :post "/job/stage/1")) => (contains {:status 200})
       (provided
-        (p/host "redis-local") => "p/host result"
-        (jobs/enqueue "stage" {:identity "redis-local" :args ["p/host result"]}) => nil))
+        (p/get-system "1") => "p/host result"
+        (jobs/enqueue "stage" {:identity "1" :args ["p/host result"]}) => nil))
 
 (fact "creation job"
-      (non-sec-app (request :post "/job/create/redis-local"))  => (contains {:status 200})
+      (non-sec-app (request :post "/job/create/1"))  => (contains {:status 200})
       (provided 
-        (p/host "redis-local")  => "p/host result"
-        (jobs/enqueue "machine" {:identity "redis-local" :args ["p/host result"]}) => nil))
+        (p/system-exists? "1") => true
+        (p/get-system "1")  => {}
+        (jobs/enqueue "reload" {:identity "1" :args [{:system-id 1}]}) => nil))

@@ -11,44 +11,43 @@
 
 (ns proxmox.provider
   (:use 
+    [celestial.validations :only (hash-v str-v validate! vec-v)]
     [trammel.core :only  (defconstrainedrecord)]
     [clojure.core.memoize :only (memo-ttl)]
     [clojure.core.strint :only (<<)]
+    [bouncer [core :as b] [validators :as v]]
     [celestial.core :only (Vm)]
     [supernal.sshj :only (execute)]
     [celestial.common :only (get* import-logging)]
     [proxmox.remote :only (prox-post prox-delete prox-get)]
     [slingshot.slingshot :only  [throw+ try+]]
-    [mississippi.core :only (required numeric validate)]
     [clojure.set :only (difference)]
     [celestial.provider :only (str? vec?)]
+    [proxmox.generators :only (ct-id gen-ip release-ip)]
     [celestial.model :only (translate vconstruct)])
+  (:require 
+    [celestial.persistency :as p]
+    )
   (:import clojure.lang.ExceptionInfo))
 
 (import-logging)
 
-(def ct-valid
-  {
-   :vmid [(required) (numeric)] 
-   :ostemplate [str? (required)]
-   :cpus [(numeric)] :disk [(numeric)] :memory [(numeric)]
-   :ip_address [str? (required)]
-   :password [str? (required)]
-   :hostname [str? (required)]
-   :nameserver [str?]  
-   }
-  )
+(defn ct-v [c]
+  (b/validate c 
+     :vmid [v/required v/number]
+     :ostemplate [v/required str-v] 
+     :cpus [v/number v/required]
+     :disk [v/number v/required]
+     :memory [v/number v/required]
+     :ip_address [str-v]
+     :password [v/required str-v]
+     :hostname [v/required str-v]
+     :nameserver [str-v]))
 
-(def extra-valid
-  {
-   :hypervisor [str? (required)]
-   :features [vec?]
-   :host [str?]
-   :node [str?]
-   } 
-  )
-
-
+(defn ex-v [c]
+  (b/validate c 
+    :id [v/number]          
+    :features [vec-v]))
 
 (def node-available? 
   "Node availability check, result is cached for one minute"
@@ -88,38 +87,37 @@
 (declare vzctl unmount)
 
 (defn enable-features [{:keys [ct extended] :as this}]
-   "vzctl set 170 --features \"nfs:on\" --save "
+  "vzctl set 170 --features \"nfs:on\" --save "
   (when-let [features (extended :features)]
     (doseq [f features] 
       (trace "enabling feature" f)
       (vzctl this (<< "set ~(ct :vmid) --features \"~{f}\" --save")))) () )
 
-
 (defn key-set [h] (->> h keys (into #{})))
-
-(defn validate-debug 
-  [ct]
-  (let [es (:errors (validate ct ct-valid))]
-    (debug es)
-    (empty? es)))
 
 (defconstrainedrecord Container [node ct extended]
   "ct should match proxmox expected input"
-  [(validate-debug ct) (not (nil? node))]
+  [(validate! (ct-v ct) ::invalid-container) (validate! (ex-v extended) ::invalid-extended) (not (nil? node))]
   Vm
   (create [this] 
           (debug "creating" (:vmid ct))
-          (try+ 
-            (check-task node (prox-post (str "/nodes/" node "/openvz") ct)) 
-            (enable-features this)
-            (catch [:status 500] e 
-              (warn "Container already exists" e))))
+          (let [ct* (gen-ip ct) {:keys [hostname vmid ip_address]} ct* id (extended :system-id)] 
+            (try+ 
+              (check-task node (prox-post (str "/nodes/" node "/openvz") ct*)) 
+              (enable-features this) 
+              (when (p/system-exists? id)
+                (p/partial-system id {:proxmox {:vmid vmid} :machine {:ip ip_address} })) 
+              (catch [:status 500] e 
+                (release-ip (ct* :ip_address))
+                (warn "Container already exists" e)))))
 
   (delete [this]
-          (debug "deleting" (:vmid ct))
-          (unmount this)
-          (safe
-            (prox-delete (str "/nodes/" node "/openvz/" (:vmid ct)))))
+          (try 
+            (debug "deleting" (:vmid ct))
+            (unmount this) 
+            (safe
+              (prox-delete (str "/nodes/" node "/openvz/" (:vmid ct)))) 
+            (finally (release-ip (:ip_address ct)))))
 
   (start [this]
          (debug "starting" (:vmid ct))
@@ -154,7 +152,7 @@
 (defn- key-select [v] (fn [m] (select-keys m (keys v))))
 
 (defn mappings [res]
-  "(mappings {:ip \"1234\" :os \"ubuntu\" :cpu 1})" 
+  "Maps raw model to proxmox model: (mappings {:ip \"1234\" :os \"ubuntu\" :cpu 1})" 
   (let [ms {:ip :ip_address :os :ostemplate}
         vs ((key-select ms) res) ]
     (merge 
@@ -170,23 +168,33 @@
       (apply get* ks)
       (catch [:type :celestial.common/missing-conf] e
         (throw+ {:type :missing-template :message 
-          (<< "no matching proxmox template found for ~{os}, add one to configuration under ~{ks} ")}) 
-        ))))
+                 (<< "no matching proxmox template found for ~{os} add one to configuration under ~{ks}")})))))
+
+(defn generate
+  "apply generated values (if not present)." 
+  [res]
+  (reduce (fn [res [k v]] (if (res k) res (update-in res [k] v ))) res {:vmid ct-id }))
 
 (defn transform 
   "manipulated the model making it proxmox ready "
   [res]
-  (first (map (fn [[k v]] (update-in res [k] v )) {:ostemplate os->template})))
+  (reduce (fn [res [k v]] (update-in res [k] v )) res {:ostemplate os->template}))
 
-(def selections (juxt (key-select ct-valid) (key-select extra-valid)))
+(def ct-ks [:vmid :ostemplate :cpus :disk :memory :ip_address :password :hostname :nameserver])
 
-(defmethod translate :proxmox [{:keys [machine proxmox]}]
+(def ex-ks [:features :node :system-id])
+
+(def selections (juxt (fn [m] (select-keys m ct-ks)) (fn [m] (select-keys m ex-ks))))
+
+(defmethod translate :proxmox [{:keys [machine proxmox system-id]}]
   "Convert the general model into a proxmox vz specific one"
-  (-> (merge machine proxmox) mappings transform selections)) 
+  (-> (merge machine proxmox {:system-id system-id}) mappings transform generate selections))
 
 (defmethod vconstruct :proxmox [{:keys [proxmox] :as spec}]
   (let [{:keys [type node]} proxmox]
     (case type
       :ct  (let [[ct ex] (translate spec)] 
              (->Container node ct ex)))))
+
+
 

@@ -18,9 +18,8 @@
   (let [hostname (get-in redis-ec2-spec [:machine :hostname])]
     (clear-all) 
     (new-type "redis" type) 
-    (register-host spec) 
-    (let [vm (reload spec)] 
-      (puppetize type (host hostname))
+    (let [id (p/add-system spec) vm* (assoc spec :system-id id) vm (reload vm*)] 
+      (puppetize type vm*)
       (.stop vm)
       (.delete vm))))
 

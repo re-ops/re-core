@@ -17,6 +17,10 @@
 
 (defn figure-virt [spec] (first (filter hypervizors (keys spec))))
 
+(defmulti clone
+ "Clones an existing system map replacing unique identifiers in the process"
+  (fn [spec] (figure-virt spec)))
+
 (defmulti translate
   "Converts general model to specific virtualization model" 
   (fn [spec] (figure-virt spec)))

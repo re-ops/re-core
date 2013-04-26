@@ -32,14 +32,16 @@
      (catch java.io.FileNotFoundException e
        (throw+ {:type ::hook-missing :message (<<  "Could not locate hook ~{fqn-fn}")}))))) 
 
-(defn post-create-hooks [machine]
+(defn post-create-hooks 
+  "Runs post creation hooks"
+  [machine]
   (doseq [[f args] (get* :hooks :post-create)]
     (debug "running hook"  f (resolve f))
-    ((resolve- f) (merge machine args))    
-    ))
+    ((resolve- f) (merge machine args))))
 
-(defn reload [{:keys [machine] :as spec}]
+(defn reload 
   "Sets up a clean machine from scratch"
+  [{:keys [machine] :as spec}]
   (let [vm (vconstruct spec)]
     (info "setting up" machine)
     (when (.status vm)
@@ -53,6 +55,15 @@
      vm 
     ))
 
+(defn destroy 
+  "Deletes a system"
+  [{:keys [machine] :as spec}]
+  (let [vm (vconstruct spec)]
+    (when (.status vm)
+      (.stop vm) 
+      (.delete vm)) 
+    (info "system destruction done")))
+
 (defn puppetize [type spec]
   (info "starting to provision")
   (trace type spec) 
@@ -65,11 +76,5 @@
   ([system provision]
    (reload system) 
    (puppetize provision)))
-
-(defn -main [t spec & _]
-  (let [{:keys [system provision]} (slurp-edn spec)]
-    (case t
-      "reload" (reload system)
-      "puppetize" (puppetize provision))))
 
 
