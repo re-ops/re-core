@@ -134,12 +134,12 @@
   (wcar 
     (when ip
      (car/lua-script
-      "if redis.call('zrank', 'ips', _:ip) then
-        redis.call('zadd', 'ips', 0, _:ip) 
-        return _:ip
+      "if redis.call('zrank', 'ips', _:rel-ip) then
+        redis.call('zadd', 'ips', 0, _:rel-ip) 
+        return _:rel-ip
        end 
        return nil "
-      {:ips "ips"} {:ip (ip-to-long ip)}))))
+      {:ips "ips"} {:rel-ip (ip-to-long ip)}))))
 
 (comment
   (release-ip "192.168.5.130") 
