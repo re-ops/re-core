@@ -11,7 +11,7 @@
 
 (ns celestial.persistency
   (:refer-clojure :exclude [type])
-  (:require proxmox.model)
+  (:require proxmox.model aws.model)
   (:use 
     [celestial.roles :only (roles admin)]
     [cemerick.friend.credentials :as creds]

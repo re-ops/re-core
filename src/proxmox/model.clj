@@ -1,7 +1,7 @@
 (ns proxmox.model
   (:use 
     [flatland.useful.map :only  (dissoc-in*)]
-    [celestial.model :only (translate vconstruct clone)] 
+    [celestial.model :only (clone)] 
     )
  )
 

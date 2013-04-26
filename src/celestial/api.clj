@@ -80,7 +80,7 @@
 (defc [:machine :os] (keyword v))
 
 (defmodel aws :min-count :int :max-count :int :instance-type :string
-  :image-id :string :keyname :string :endpoint :string)
+  :image-id :string :key-name :string :endpoint :string)
 
 (defmodel capistrano :name :string :src :string :args :string)
 
