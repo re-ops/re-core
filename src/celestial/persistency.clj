@@ -11,6 +11,7 @@
 
 (ns celestial.persistency
   (:refer-clojure :exclude [type])
+  (:require proxmox.model)
   (:use 
     [celestial.roles :only (roles admin)]
     [cemerick.friend.credentials :as creds]
@@ -19,6 +20,7 @@
     [clojure.string :only (split join)]
     [celestial.redis :only (wcar hsetall*)]
     [slingshot.slingshot :only  [throw+ try+]]
+    [celestial.model :only (clone)] 
     [clojure.core.strint :only (<<)]) 
   (:require 
     [taoensso.carmine :as car]))
@@ -179,6 +181,11 @@
     (b/validate system
       [:machine :hostname]  [v/required str-v])
      ::non-valid-machine))
+
+(defn clone-system 
+  "clones an existing system"
+  [id]
+  (add-system (clone (get-system id))))
 
 (defn reset-admin
   "Resets admin password if non is defined"
