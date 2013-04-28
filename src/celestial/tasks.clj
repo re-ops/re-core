@@ -51,9 +51,7 @@
     (.start vm)
     (assert (= (.status vm) "running")); might not match all providers
     (post-create-hooks machine)
-    (info "done system setup")
-     vm 
-    ))
+    (info "done system setup")))
 
 (defn destroy 
   "Deletes a system"
