@@ -22,7 +22,8 @@
         (let [id (add-user {:name "me"})]
           (get-user "me") => {:name "me"}
           (user-exists? "me") => truthy
-          (update-user {:name "me"}) 
+          (update-user {:name "me" :blue "bar"}) 
+          (get-user "me") => {:name "me" :blue "bar"}
           (delete-user "me")
           (user-exists? "me") => falsey))
 
@@ -33,15 +34,36 @@
         (get-house-index :zip "1234") => ["5" "6"]
         (get-house-index :n 5) => ["5"]
         (clear-house-indices 5 {:zip "1234" :n 5})
-        (get-house-index :zip "1234")  => ["6"])
+        (get-house-index :zip "1234")  => ["6"]
+        (reindex-house 6 {:zip "1234" :n 6} {:zip "1235" :n 6}) 
+        (get-house-index :zip "1234")  => []
+        (get-house-index :zip "1235")  => ["6"]
+        )
 
-  #_(fact "property index" :integration :redis
-          (p/entity user-2 :id name :indices [city])        
-          (defn validate-user-2 [user] {})
-          (let [id (add-user-2 {:name "me"})]
-            (get-user-2 "me") => {:name "me"}
-            (user-2-exists? "me") => truthy
-            (update-user-2 {:name "me"}) 
-            (delete-user-2 "me")
-            (user-2-exists? "me") => falsey)))
+  (fact "indexed entity" :integration :redis
+        (p/entity position :indices [longi alti])        
+        (defn validate-position [postion] {})
+        (let [id (add-position {:longi 10 :alti 12})]
+          (get-position id) => {:longi 10 :alti 12}
+          (position-exists? id) => truthy
+          (update-position id {:longi 11 :alti 12}) 
+          (get-position-index :longi 11) => [(str id)]
+          (delete-position id)
+          (position-exists? id) => falsey
+          (get-position-index :longi 11) => []
+          ))
+
+  (fact "indexed entity with id" :integration :redis
+        (p/entity car :id license :indices [color])        
+        (defn validate-car [car] {})
+        (add-car {:license 123 :color "black"})
+        (get-car 123) => {:license 123 :color "black"}
+        (car-exists? 123) => truthy
+        (get-car-index :color "black") => ["123"]
+        (update-car {:license 123 :color "blue"}) 
+        (get-car-index :color "black") => []
+        (get-car-index :color "blue") => ["123"]
+        (delete-car 123)
+        (car-exists? 123) => falsey
+        (get-car-index :color "blue") => []))
 
