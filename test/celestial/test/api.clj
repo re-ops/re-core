@@ -19,7 +19,7 @@
 
 #_(scenario
     (expect {:status 200} (in (non-sec-app (request :post "/registry/host" host-req)))) 
-    (expect (interaction (p/register-host redis-prox-spec))))
+    (expect (interaction (p/add-system redis-prox-spec))))
 
 (def non-sec-app (app false))
 
@@ -33,7 +33,7 @@
           (request :get (<< "/host/type/1")) "accept" "application/json")) => (contains {:status 200})
       (provided 
         (p/get-system "1") => {:type "redis"} 
-        (p/type-of "redis") => {:classes {:redis {:append true}}}))
+        (p/get-type "redis") => {:classes {:redis {:append true}}}))
 
 #_(def type-req
     (merge {:params (slurp-edn "fixtures/redis-type.edn")}
@@ -43,7 +43,7 @@
 #_(fact "type requests"
         (non-sec-app type-req) => {:status 200}
         (provided 
-          (p/new-type "redis" (dissoc (slurp-edn "fixtures/redis-type.edn") :type)) => nil
+          (p/add-type (slurp-edn "fixtures/redis-type.edn") :type) => nil
           ))
 
 (let [machine {:type "redis" :machine {:host "foo"}} type {:classes {:redis {}}}]
@@ -51,7 +51,7 @@
           (non-sec-app (request :post "/job/provision/1")) => (contains {:status 200})
           (provided 
             (p/get-system "1")  => machine
-            (p/type-of "redis") => type
+            (p/get-type "redis") => type
             (jobs/enqueue "provision" {:identity "1" :args [type machine]}) => nil)))
 
 (fact "staging job" 

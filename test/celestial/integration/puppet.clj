@@ -11,12 +11,11 @@
     [celestial.tasks :only (reload puppetize destroy)]
     [celestial.config :only (path)]
     [celestial.redis :only (clear-all)]
-    [celestial.persistency :only (host register-host new-type)]  
     [celestial.fixtures :only (with-conf redis-prox-spec redis-ec2-spec redis-type)]))
 
 (defn run-cycle [spec type]
     (clear-all) 
-    (new-type "redis" type) 
+    (p/add-type type) 
     (let [id (p/add-system spec)] 
       (reload (assoc spec :system-id id))
       (puppetize type (p/get-system id))

@@ -107,7 +107,7 @@
             :job (jobs/enqueue "destroy" {:identity id :args [(p/get-system id)]})}))
 
   (POST- "/job/provision/:id" [^:int id] {:nickname "provisionSystem" :summary "Provisioning job"}
-         (let [system (p/get-system id) type (p/type-of (:type system)) 
+         (let [system (p/get-system id) type (p/get-type (:type system)) 
                job (jobs/enqueue "provision" {:identity id :args [type system]})]
            (println job)
            (success 
@@ -192,10 +192,10 @@
              (bad-req {:msg "Host does not exist"})))
 
   (GET- "/host/type/:id" [^:int id] {:nickname "getSystemType" :summary "Fetch type of provided system id"}
-        (success (select-keys (p/type-of (:type (p/get-system id))) [:classes])))
+        (success (select-keys (p/get-type (:type (p/get-system id))) [:classes])))
 
-  (POST- "/type" [^:string type & ^:type props] {:nickname "addType" :summary "Add type"}
-         (p/new-type type props)
+  (POST- "/type" [& ^:type props] {:nickname "addType" :summary "Add type"}
+         (p/add-type props)
          (success {:msg "new type saved" :type type :opts props}))) 
 
 (defroutes app-routes
