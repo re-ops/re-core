@@ -13,6 +13,7 @@
   (:refer-clojure :exclude [type])
   (:require proxmox.model aws.model)
   (:use 
+    [puny.core :only (entity)]
     [celestial.roles :only (roles admin)]
     [cemerick.friend.credentials :as creds]
     [bouncer [core :as b] [validators :as v]]
@@ -73,77 +74,6 @@
   (let [ks (reverse (reductions (fn [r v] (str r "." v)) (split h #"\.")))]
     (when-let [k (first (filter #(= 1 (wcar (car/exists (hk %)))) ks))]
       (host k))))
-
-(defmacro <<< 
-  "String interpulation into a symbol"
-  [s] `(symbol (<< ~s)))
-
-(defmacro <<k 
-  "String interpulation into a keyword"
-  [s] `(keyword (<< ~s)))
-
-(defn fn-ids [name*]
-  {:id-fn (<<< "~{name*}-id") :exists-fn (<<< "~{name*}-exists?")
-   :add-fn (<<< "add-~{name*}") :update-fn (<<< "update-~{name*}")
-   :validate-fn (<<< "validate-~{name*}") :gen-fn (<<< "gen-~{name*}-id") 
-   :delete-fn (<<< "delete-~{name*}") :get-fn (<<< "get-~{name*}")
-   :partial-fn (<<< "partial-~{name*}")
-   })
-
-(defn id-modifiers [name* opts]
-  (if-let [id-prop (opts :id)]
-     {:up-args (vector {:keys [id-prop] :as 'v}) :up-id id-prop :add-k-fn (list 'v (keyword id-prop))}
-     {:up-args ['id 'v] :up-id 'id :add-k-fn (list (:gen-fn (fn-ids name*)))}))
-
-(defmacro defgen 
-  "An id generator" 
-  [name*]
-  `(defn ~(<<< "gen-~{name*}") []
-    (wcar (car/incr ~(<< "~{name*}:ids")))))
-
-(defmacro write-fns 
-  "Creates the add/update functions, both take into account if id is generated of provided"
-  [name* opts]
-  (let [{:keys [id-fn exists-fn validate-fn add-fn update-fn gen-fn get-fn partial-fn]} (fn-ids name*)
-        missing (<<k ":~{*ns*}/missing-~{name*}") 
-        {:keys [up-args up-id add-k-fn]} (id-modifiers name* (apply hash-map opts))]
-    `(do 
-       (declare ~validate-fn)
-
-       (defn ~gen-fn []
-         (wcar (~id-fn (car/incr ~(<< "~{name*}:ids")))))
-
-       (defn ~add-fn [~'v]
-         (~validate-fn ~'v)
-         (let [id# ~add-k-fn]
-           (wcar (hsetall* (~id-fn id#) ~'v)) 
-           id#))
-
-       (defn ~partial-fn ~up-args
-         (when-not (~exists-fn ~up-id)
-           (throw+ {:type ~missing ~(keyword name*) ~'v }))
-         (wcar (hsetall* (~id-fn ~up-id) (merge-with merge (wcar (car/hgetall* (~id-fn ~up-id))) ~'v))))
-
-       (defn ~update-fn ~up-args
-         (~validate-fn ~'v)
-         (when-not (~exists-fn ~up-id)
-           (throw+ {:type ~missing ~(keyword name*) ~'v }))
-         (wcar (hsetall* (~id-fn ~up-id) (merge (wcar (car/hgetall* (~id-fn ~up-id))) ~'v)))))))
-
-(defmacro entity
-  "Generates all the persistency (add/delete/exists etc..) functions for given entity"
-  [name* & opts]
-  (let [{:keys [id-fn delete-fn get-fn exists-fn]} (fn-ids name*) ]
-    `(do 
-       (defn ~id-fn [~'id] (str '~name* ":" ~'id))
-
-       (defn ~exists-fn [~'id] (not= 0 (wcar (car/exists (~id-fn ~'id)))))
-
-       (write-fns ~name* ~opts)
-
-       (defn ~get-fn [~'id] (wcar (car/hgetall* (~id-fn ~'id))))
-
-       (defn ~delete-fn [~'id] (wcar (car/del (~id-fn ~'id)))))))
 
 (entity user :id username)
 

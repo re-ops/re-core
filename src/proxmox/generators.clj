@@ -1,21 +1,19 @@
 (ns proxmox.generators
   "proxomx generated valudes"
   (:use 
+    [puny.core :only (defgen)]
     [slingshot.slingshot :only  [throw+ try+]]
     [clojure.core.strint :only (<<)]
     [proxmox.remote :only (prox-get)]
     [celestial.common :only (get* import-logging)]
     [celestial.redis :only (wcar)]
     [clojure.java.data :only (from-java)]
-    [celestial.persistency :only (defgen)])
+    )
   (:import 
     org.nmap4j.Nmap4j 
-    org.nmap4j.parser.OnePassParser
-    ) 
+    org.nmap4j.parser.OnePassParser) 
   (:require 
-    [taoensso.carmine :as car] 
-    )
-  )
+    [taoensso.carmine :as car]))
 
 (import-logging)
 
