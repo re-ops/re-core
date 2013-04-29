@@ -1,5 +1,6 @@
 (ns puny.core
-  "A tiny redis based ORM, note that index operations are not atomic"
+  "A tiny redis based ORM,
+   Caveat: crud+index operations are not atomic, introducing lua procedures will fix that."
   (:use
     [slingshot.slingshot :only  [throw+ try+]]
     [celestial.redis :only (wcar hsetall*)]
@@ -21,8 +22,7 @@
    :add-fn (<<< "add-~{name*}") :update-fn (<<< "update-~{name*}")
    :validate-fn (<<< "validate-~{name*}") :gen-fn (<<< "gen-~{name*}-id") 
    :delete-fn (<<< "delete-~{name*}") :get-fn (<<< "get-~{name*}")
-   :partial-fn (<<< "partial-~{name*}")
-   })
+   :partial-fn (<<< "partial-~{name*}")})
 
 (defn id-modifiers [name* opts]
   (if-let [id-prop (opts :id)]
