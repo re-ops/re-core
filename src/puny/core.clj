@@ -35,7 +35,7 @@
   `(defn ~(<<< "gen-~{name*}") []
     (wcar (car/incr ~(<< "~{name*}:ids")))))
 
-(defn indices-fn-ids [name* ]
+(defn indices-fn-ids [name*]
   {:index-add (<<< "index-~{name*}") :index-del (<<< "clear-~{name*}-indices")
    :index-get (<<< "get-~{name*}-index") :reindex (<<< "reindex-~{name*}") })
 
