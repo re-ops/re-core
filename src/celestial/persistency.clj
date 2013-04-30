@@ -17,7 +17,7 @@
     [celestial.roles :only (roles admin)]
     [cemerick.friend.credentials :as creds]
     [bouncer [core :as b] [validators :as v]]
-    [celestial.validations :only (str-v set-v validate! validate-nest)]
+    [celestial.validations :only (str-v set-v hash-v validate! validate-nest)]
     [clojure.string :only (split join)]
     [celestial.redis :only (wcar hsetall*)]
     [slingshot.slingshot :only  [throw+ try+]]
@@ -55,16 +55,31 @@
 
 (entity type :id type)
 
-(defn validate-type [t])
+(defn type-base-v [v]
+  (b/validate v [:type] [v/required]))
+
+(defn puppet-std-v [t]
+  (validate-nest t [:puppet-std]
+    [:module :name] [v/required str-v]
+    [:module :src] [v/required str-v]))
+
+(defn classes-v [t]
+   (validate t [:classes] [hash-v]))
+
+(defn validate-type [t]
+  (validate! 
+    (cond-> (-> t type-base-v second)
+     (t :classes) (-> classes-v second)
+     (t :puppet-std) (-> puppet-std-v second)) ::non-valid-type))
 
 (entity system :indices [type])
 
 (defn validate-system
   [system]
- (validate! 
+  (validate! 
     (b/validate system
-      ;; [:type] [v/custom type-exists? :message "missing system type"]
-      [:machine :hostname]  [v/required str-v])
+       ;; [:type] [v/custom type-exists? :message "missing system type"]
+       [:machine :hostname]  [v/required str-v])
     ::non-valid-machine))
 
 (defn clone-system 
