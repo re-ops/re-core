@@ -64,13 +64,12 @@
     [:module :src] [v/required str-v]))
 
 (defn classes-v [t]
-   (validate t [:classes] [hash-v]))
+   (validate t [:classes] [v/required hash-v]))
 
 (defn validate-type [t]
   (validate! 
     (cond-> (-> t type-base-v second)
-     (t :classes) (-> classes-v second)
-     (t :puppet-std) (-> puppet-std-v second)) ::non-valid-type))
+     (t :puppet-std) (-> classes-v second puppet-std-v) ) ::non-valid-type))
 
 (entity system :indices [type])
 
