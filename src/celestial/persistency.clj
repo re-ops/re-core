@@ -77,7 +77,7 @@
   [system]
   (validate! 
     (b/validate system
-       ;; [:type] [v/custom type-exists? :message "missing system type"]
+       [:type] [(v/custom type-exists? :message "missing system type")]
        [:machine :hostname]  [v/required str-v])
     ::non-valid-machine))
 
