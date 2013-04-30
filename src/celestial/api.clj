@@ -10,7 +10,7 @@
    limitations under the License.)
 
 (ns celestial.api
-  (:use [celestial.hosts-api :only (hosts)]
+  (:use [celestial.hosts-api :only (hosts types)]
         [compojure.core :only (defroutes routes)] 
         [metrics.ring.expose :only  (expose-metrics-as-json)]
         [ring.middleware.format-params :only [wrap-restful-params]]
@@ -122,7 +122,7 @@
  
 
 (defroutes app-routes
-  hosts tasks jobs (friend/wrap-authorize users admin) (route/not-found "Not Found"))
+  hosts types tasks jobs (friend/wrap-authorize users admin) (route/not-found "Not Found"))
 
 (defn error-wrap
   "A catch all error handler"

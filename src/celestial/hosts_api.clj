@@ -80,14 +80,35 @@
            (if (p/system-exists? id)
              (do (p/delete-system id) 
                  (success {:msg "System deleted"}))
-             (bad-req {:msg "Host does not exist"})))
+             (bad-req {:msg "System does not exist"})))
 
   (GET- "/host/type/:id" [^:int id] {:nickname "getSystemType" :summary "Fetch type of provided system id"}
         (success (p/get-type (:type (p/get-system id))) ))
 
+  )
+
+
+(defroutes- types {:path "/type" :description "Operations on types"}
+
+  (GET- "/type/:type" [^:string type] {:nickname "getType" :summary "Get type"}
+        (success (p/get-type type)))
+
   (POST- "/type" [& ^:type props] {:nickname "addType" :summary "Add type"}
          (p/add-type props)
-         (success {:msg "new type saved" :type type :opts props})))
+         (success {:msg "new type saved" :type props}))
 
+  (PUT- "/type" [& ^:type props] {:nickname "updateType" :summary "Update type"}
+        (if-not (p/type-exists? (props :type))
+          (conflict {:msg "Type does not exists, use POST /type first"}) 
+          (do (p/update-type props) 
+              (success {:msg "type updated"}))))
+
+  (DELETE- "/type/:type" [^:string type] {:nickname "deleteType" :summary "Delete type" 
+                                          :errorResponses (errors {:bad-req "Type does not exist"})}
+           (if (p/type-exists? type)
+             (do (p/delete-system type) 
+                 (success {:msg "Type deleted"}))
+             (bad-req {:msg "Type does not exist"}))) 
+  )
 
 
