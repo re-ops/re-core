@@ -161,6 +161,11 @@
   (GET- "/host/system/:id" [^:int id] {:nickname "getSystem" :summary "Get system by id"}
         (success (p/get-system id)))
 
+  (GET- "/host/system-by/:type" [^:string type] {:nickname "getSystemsByType" 
+                                               :summary "Get systems by type"}
+
+        (success {:ids (p/get-system-index :type type)}))
+
   (POST- "/host/system" [& ^:system props] {:nickname "addSystem" :summary "Add system" 
                                             :errorResponses (errors {:bad-req "Missing system type"})}
          (try+ 

@@ -57,7 +57,7 @@
 
 (defn validate-type [t])
 
-(entity system)
+(entity system :indices [type])
 
 (defn validate-system
   [system]
