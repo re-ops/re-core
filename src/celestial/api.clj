@@ -109,9 +109,8 @@
   (POST- "/job/provision/:id" [^:int id] {:nickname "provisionSystem" :summary "Provisioning job"}
          (let [system (p/get-system id) type (p/get-type (:type system)) 
                job (jobs/enqueue "provision" {:identity id :args [type system]})]
-           (println job)
            (success 
-             {:msg "submitted provisioning" :id id :machine machine :type type :job job})))
+             {:msg "submitted provisioning" :id id :system system :type type :job job})))
 
   (GET- "/job/:queue/:uuid/status" [^:string queue ^:string uuid]
         {:nickname "jobStatus" :summary "job status tracking" 
