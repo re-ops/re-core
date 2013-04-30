@@ -14,6 +14,7 @@
   (:use 
     [slingshot.slingshot :only  [throw+ try+]]
     [celestial.config :only (config)]
+    [swag.core :only (http-codes)]
     [clojure.core.strint :only (<<)]
     ))
 
@@ -32,3 +33,14 @@
 (defn slurp-edn [file] (read-string (slurp file)))
 
 (defn curr-time [] (.getTime (Date.)))
+
+
+; common api functions
+(defn resp
+  "Http resposnse compositor"
+  [code data] {:status (http-codes code) :body data})
+
+(def bad-req (partial resp :bad-req))
+(def conflict (partial resp :conflict))
+(def success (partial resp :success))
+ 
