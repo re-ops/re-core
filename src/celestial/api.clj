@@ -119,8 +119,6 @@
            (p/delete-user name) 
            (success {:msg "user deleted" :name name})))
 
- 
-
 (defroutes app-routes
   hosts types tasks jobs (friend/wrap-authorize users admin) (route/not-found "Not Found"))
 
