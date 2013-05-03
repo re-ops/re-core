@@ -1,8 +1,8 @@
 (ns celestial.test.persistency
  (:use 
    midje.sweet 
-   [celestial.persistency :only (validate-type)]
-   [celestial.fixtures :only (redis-type is-type?)]
+   [celestial.persistency :only (validate-type validate-quota user-exists?)]
+   [celestial.fixtures :only (redis-type is-type? user-quota)]
    ))
 
 (fact "puppet std type validation"
@@ -15,6 +15,11 @@
     (validate-type (dissoc redis-type :classes)) => 
        (throws clojure.lang.ExceptionInfo (is-type? :celestial.persistency/non-valid-type)))
 
-
 (fact "non puppet type"
   (validate-type {:type "foo"}) => true)
+
+(fact "quotas validations"
+     (validate-quota user-quota) => true
+     (provided (user-exists? "foo") => true :times 1))
+
+

@@ -1,0 +1,4 @@
+{
+  :user "foo" 
+  :quotas {:aws 4 :proxmox 2}
+ }

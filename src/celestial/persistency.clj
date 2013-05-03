@@ -95,3 +95,17 @@
     (add-user {:username "admin" :password (creds/hash-bcrypt "changeme") :roles admin})))
 
 
+(entity quota)
+
+(defvalidator hypervisor-ks
+  {:default-message-format (<<  "quotas keys must be one of ~{hypervizors}")}
+  [qs]
+  (empty? (remove hypervizors (keys qs))))
+
+(defn validate-quota [q]
+  (validate! 
+    (b/validate q
+       [:user] [v/required (v/custom user-exists? :message "No matching user found")]
+       [:quotas]  [v/required cv/hash? hypervisor-ks ])
+    ::non-valid-quota)
+  )
