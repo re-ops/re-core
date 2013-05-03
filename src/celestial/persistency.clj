@@ -11,17 +11,19 @@
 
 (ns celestial.persistency
   (:refer-clojure :exclude [type])
-  (:require proxmox.model aws.model)
+  (:require 
+    [celestial.validations :as cv]
+    proxmox.model aws.model)
   (:use 
     [puny.core :only (entity)]
     [celestial.roles :only (roles admin)]
     [cemerick.friend.credentials :as creds]
     [bouncer [core :as b] [validators :as v]]
-    [celestial.validations :only (str-v set-v hash-v validate! validate-nest)]
+    [celestial.validations :only (validate! validate-nest)]
     [clojure.string :only (split join)]
     [celestial.redis :only (wcar hsetall*)]
     [slingshot.slingshot :only  [throw+ try+]]
-    [celestial.model :only (clone)] 
+    [celestial.model :only (clone hypervizors)] 
     [clojure.core.strint :only (<<)]) 
   (:require 
     [taoensso.carmine :as car]))
@@ -31,8 +33,8 @@
 (defn validate-user [user]
   (validate! 
     (b/validate user
-       [:username] [v/required str-v]
-       [:password] [v/required str-v]
+       [:username] [v/required cv/str?]
+       [:password] [v/required cv/str?]
        [:roles] [v/required (v/every #(roles %) :message (<< "role must be either ~{roles}"))]) 
        ::non-valid-user))
 
@@ -42,9 +44,9 @@
   "Validates a capistrano task"
   [cap-task]
   (validate-nest cap-task [:capistrano]
-                 [:src] [v/required str-v]
-                 [:args] [v/required str-v]
-                 [:name] [v/required str-v]))
+                 [:src] [v/required cv/str?]
+                 [:args] [v/required cv/str?]
+                 [:name] [v/required cv/str?]))
 
 (defn validate-task 
   "Validates task model"
@@ -60,11 +62,11 @@
 
 (defn puppet-std-v [t]
   (validate-nest t [:puppet-std]
-    [:module :name] [v/required str-v]
-    [:module :src] [v/required str-v]))
+    [:module :name] [v/required cv/str?]
+    [:module :src] [v/required cv/str?]))
 
 (defn classes-v [t]
-   (validate t [:classes] [v/required hash-v]))
+   (validate t [:classes] [v/required cv/hash?]))
 
 (defn validate-type [t]
   (validate! 
@@ -78,7 +80,7 @@
   (validate! 
     (b/validate system
        [:type] [(v/custom type-exists? :message "missing system type")]
-       [:machine :hostname]  [v/required str-v])
+       [:machine :hostname]  [v/required cv/str?])
     ::non-valid-machine))
 
 (defn clone-system 

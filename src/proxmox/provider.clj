@@ -11,7 +11,6 @@
 
 (ns proxmox.provider
   (:use 
-    [celestial.validations :only (hash-v str-v validate! vec-v)]
     [trammel.core :only  (defconstrainedrecord)]
     [clojure.core.memoize :only (memo-ttl)]
     [clojure.core.strint :only (<<)]
@@ -26,8 +25,8 @@
     [proxmox.generators :only (ct-id gen-ip release-ip)]
     [celestial.model :only (translate vconstruct)])
   (:require 
-    [celestial.persistency :as p]
-    )
+    [celestial.validations :as cv]
+    [celestial.persistency :as p])
   (:import clojure.lang.ExceptionInfo))
 
 (import-logging)
@@ -35,19 +34,19 @@
 (defn ct-v [c]
   (b/validate c 
      :vmid [v/required v/number]
-     :ostemplate [v/required str-v] 
+     :ostemplate [v/required cv/str?] 
      :cpus [v/number v/required]
      :disk [v/number v/required]
      :memory [v/number v/required]
-     :ip_address [str-v]
-     :password [v/required str-v]
-     :hostname [v/required str-v]
-     :nameserver [str-v]))
+     :ip_address [cv/str?]
+     :password [v/required cv/str?]
+     :hostname [v/required cv/str?]
+     :nameserver [cv/str?]))
 
 (defn ex-v [c]
   (b/validate c 
     :id [v/number]          
-    :features [vec-v]))
+    :features [cv/vec?]))
 
 (def node-available? 
   "Node availability check, result is cached for one minute"
@@ -97,7 +96,7 @@
 
 (defconstrainedrecord Container [node ct extended]
   "ct should match proxmox expected input"
-  [(validate! (ct-v ct) ::invalid-container) (validate! (ex-v extended) ::invalid-extended) (not (nil? node))]
+  [(cv/validate! (ct-v ct) ::invalid-container) (cv/validate! (ex-v extended) ::invalid-extended) (not (nil? node))]
   Vm
   (create [this] 
           (debug "creating" (:vmid ct))

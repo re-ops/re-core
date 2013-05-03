@@ -12,9 +12,10 @@
 (ns aws.provider
   (:require [aws.sdk.ec2 :as ec2])
   (:import (java.util UUID))
-  (:require [celestial.persistency :as p])
+  (:require [celestial.persistency :as p]
+            [celestial.validations :as cv])
   (:use 
-    [celestial.validations :only (hash-v str-v validate! vec-v)]
+    [celestial.validations :only (validate!)]
     [bouncer [core :as b] [validators :as v]]
     [clojure.core.strint :only (<<)]
     [supernal.sshj :only (execute ssh-up?)]
@@ -38,8 +39,8 @@
   (b/validate c 
               :min-count [v/required v/number]
               :max-count [v/required v/number]
-              :instance-type [v/required str-v] 
-              :key-name [v/required str-v] ))
+              :instance-type [v/required cv/str?] 
+              :key-name [v/required cv/str?] ))
 
 (defn creds [] (get* :hypervisor :aws))
 
