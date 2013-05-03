@@ -61,7 +61,7 @@
              "runtest"
              ["midje" ":filter" "-integration"] 
              "supernal"
-             ["run" "-m" "supernal.launch" "fixtures/supernal-demo.clj"] 
+             ["run" "-m" "supernal.launch" "fixtures/supernal-demo.clj" args] 
             }
 
   :aot [supernal.launch capistrano.remoter proxmox.provider celestial.core celestial.puppet-standalone celestial.launch]
