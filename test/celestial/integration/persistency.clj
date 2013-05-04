@@ -1,11 +1,12 @@
 (ns celestial.integration.persistency
   "Integration test for persistency that use a redis instance"
   (:refer-clojure :exclude [type])
+  (:import clojure.lang.ExceptionInfo)
   (:require 
     [celestial.persistency :as p])
   (:use 
     midje.sweet
-    [celestial.fixtures :only (redis-prox-spec redis-type is-type?)]
+    [celestial.fixtures :only (redis-prox-spec redis-type is-type? user-quota)]
     [celestial.redis :only (clear-all)]))
 
 
@@ -36,7 +37,15 @@
   (fact "non valid user" :integration :redis
         (let [user {:username "foo" :password "bla" :roles #{:celestial.roles/user}} id (p/add-user user)]
           (p/add-user (dissoc user :username)) => 
-          (throws clojure.lang.ExceptionInfo (is-type? :celestial.persistency/non-valid-user))
+          (throws ExceptionInfo (is-type? :celestial.persistency/non-valid-user))
           (p/update-user (dissoc user :username)) =>
-          (throws clojure.lang.ExceptionInfo (is-type? :celestial.persistency/non-valid-user)))))
+          (throws ExceptionInfo (is-type? :celestial.persistency/non-valid-user)))))
 
+(with-state-changes [(before :facts (clear-all))]
+  (fact "basic quota usage" :integration :redis :quota
+    (p/add-user {:username "foo" :password "bla" :roles {}})
+    (p/add-quota user-quota) 
+    (p/increase-use "foo" redis-prox-spec)
+    (:quotas (p/get-quota "foo"))  => (contains {:proxmox {:limit 2 :used 1}})
+    (p/increase-use "foo" redis-prox-spec)
+    (p/increase-use "foo" redis-prox-spec) => (throws ExceptionInfo (is-type? :celestial.persistency/quota-limit-reached)))) 

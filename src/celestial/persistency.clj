@@ -23,7 +23,7 @@
     [clojure.string :only (split join)]
     [celestial.redis :only (wcar hsetall*)]
     [slingshot.slingshot :only  [throw+ try+]]
-    [celestial.model :only (clone hypervizors)] 
+    [celestial.model :only (clone hypervizors figure-virt)] 
     [clojure.core.strint :only (<<)]) 
   (:require 
     [taoensso.carmine :as car]))
@@ -94,8 +94,7 @@
   (when (empty? (get-user "admin"))
     (add-user {:username "admin" :password (creds/hash-bcrypt "changeme") :roles admin})))
 
-
-(entity quota)
+(entity quota :id user)
 
 (defvalidator hypervisor-ks
   {:default-message-format (<<  "quotas keys must be one of ~{hypervizors}")}
@@ -107,5 +106,27 @@
     (b/validate q
        [:user] [v/required (v/custom user-exists? :message "No matching user found")]
        [:quotas]  [v/required cv/hash? hypervisor-ks ])
-    ::non-valid-quota)
-  )
+    ::non-valid-quota))
+
+(defn assert-quota
+  "checks if user has passed the numer of machines allowed in his quota (in case it exists)."
+  [user spec]
+   (when-let [q (get-quota user) ]
+     (let [hyp (figure-virt spec) {:keys [limit used]} (get-in q [:quotas hyp])]
+       (when (= used limit)
+        (throw+ {:type ::quota-limit-reached} (<< "Quota limit ~{limit} on ~{hyp} for ~{user} was reached"))))))
+
+(defn quota-change [user spec amount]
+  (when (quota-exists? user)
+    (update-quota (update-in (get-quota user) [:quotas (figure-virt spec) :used] + amount))))
+
+(defn increase-use 
+  "increases user quota use"
+  [user spec]
+  (assert-quota user spec)
+  (quota-change user spec 1))
+
+(defn decrease-use 
+  "decreases user usage"
+  [user spec]
+  (quota-change user spec -1))

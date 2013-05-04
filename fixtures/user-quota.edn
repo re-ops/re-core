@@ -1,4 +1,4 @@
-{
+{ 
   :user "foo" 
-  :quotas {:aws 4 :proxmox 2}
- }
+  :quotas {:aws {:limit 4 :used 3} :proxmox {:limit 2 :used 0}}
+}
