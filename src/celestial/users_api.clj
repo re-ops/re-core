@@ -19,6 +19,7 @@
 (defmodel user :username :string :password :string 
   :roles {:type :string :allowableValues {:valueType "LIST" :values (into [] (keys roles-m))}})
 
+
 (defroutes- users {:path "/user" :description "User managment"}
   (GET- "/user/:name" [^:string name] {:nickname "getUser" :summary "Get User"}
         (success (p/get-user name)))
@@ -34,3 +35,25 @@
   (DELETE- "/user/:name" [^:string name] {:nickname "deleteUser" :summary "Deleted a user"}
            (p/delete-user name) 
            (success {:msg "user deleted" :name name})))
+
+(defmodel quota :username :string :quotas {:type :Quotas})
+
+(defmodel quotas :proxmox {:type :Limit})
+
+(defmodel limit :limit :int)
+ 
+(defroutes- quotas {:path "/quota" :description "User quota managment"}
+  (GET- "/quota/:name" [^:string name] {:nickname "getQuota" :summary "Get users quota"}
+        (success (p/get-quota name)))
+
+  (POST- "/quota/" [& ^:quota quota] {:nickname "addQuota" :summary "Adds a user quota"}
+         (p/add-quota quota)
+         (success {:msg "added quota"}))
+
+  (PUT- "/quota/" [& ^:quota quota] {:nickname "updateQuota" :summary "Updates an existing quota"}
+        (p/update-quota quota)
+        (success {:msg "quota updated"}))
+
+  (DELETE- "/quota/:name" [^:string name] {:nickname "deleteQuota" :summary "Deleted users quota"}
+           (p/delete-quota name) 
+           (success {:msg "quota deleted"})))

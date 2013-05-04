@@ -94,7 +94,7 @@
   (when (empty? (get-user "admin"))
     (add-user {:username "admin" :password (creds/hash-bcrypt "changeme") :roles admin})))
 
-(entity quota :id user)
+(entity quota :id username)
 
 (defvalidator hypervisor-ks
   {:default-message-format (<<  "quotas keys must be one of ~{hypervizors}")}
@@ -104,7 +104,7 @@
 (defn validate-quota [q]
   (validate! 
     (b/validate q
-       [:user] [v/required (v/custom user-exists? :message "No matching user found")]
+       [:username] [v/required (v/custom user-exists? :message "No matching user found")]
        [:quotas]  [v/required cv/hash? hypervisor-ks ])
     ::non-valid-quota))
 

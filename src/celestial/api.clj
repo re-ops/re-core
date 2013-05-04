@@ -11,7 +11,7 @@
 
 (ns celestial.api
   (:use [celestial.hosts-api :only (hosts types)]
-        [celestial.users-api :only (users)]
+        [celestial.users-api :only (users quotas)]
         [compojure.core :only (defroutes routes)] 
         [metrics.ring.expose :only  (expose-metrics-as-json)]
         [ring.middleware.format-params :only [wrap-restful-params]]
@@ -36,12 +36,7 @@
 
 (import-logging)
 
-(defmodel module :name :string :src :string)
-
 (defmodel object)
-
-(defmodel aws :min-count :int :max-count :int :instance-type :string
-  :image-id :string :key-name :string :endpoint :string)
 
 (defmodel capistrano :name :string :src :string :args :string)
 
@@ -104,7 +99,7 @@
 
 
 (defroutes app-routes
-  hosts types tasks jobs (friend/wrap-authorize users admin) (route/not-found "Not Found"))
+  hosts types tasks jobs (friend/wrap-authorize users admin) (friend/wrap-authorize quotas admin) (route/not-found "Not Found"))
 
 (defn error-wrap
   "A catch all error handler"

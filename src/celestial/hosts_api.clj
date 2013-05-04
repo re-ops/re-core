@@ -29,6 +29,9 @@
   :disk {:type :int :description "Not relevant in ec2"}
   :hostname :string :user :string :os :string :ip {:type :string :description "Not relevant in ec2"})
 
+(defmodel aws :min-count :int :max-count :int :instance-type :string
+  :image-id :string :key-name :string :endpoint :string)
+
 (defmodel proxmox :nameserver :string :searchdomain :string :password :string :node :string 
   :type {:type :string :allowableValues {:valueType "LIST" :values ["ct" "vm"]}}
   :features {:type "List"})
