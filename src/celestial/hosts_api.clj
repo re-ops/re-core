@@ -1,6 +1,19 @@
+(comment 
+   Celestial, Copyright 2012 Ronen Narkis, narkisr.com
+   Licensed under the Apache License,
+   Version 2.0  (the "License") you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.)
+
 (ns celestial.hosts-api
   (:refer-clojure :exclude [type])
-  (:require [celestial.persistency :as p]) 
+  (:require 
+    [cemerick.friend :as friend]
+    [celestial.persistency :as p]) 
   (:use 
      [clojure.core.strint :only (<<)]
      [slingshot.slingshot :only  [throw+ try+]]
@@ -45,6 +58,8 @@
 
 (defc [:machine :os] (keyword v))
  
+(defn curr-user []
+  (:username (friend/current-authentication)))
 
 (defroutes- hosts {:path "/host" :description "Operations on hosts"}
 
@@ -56,11 +71,12 @@
 
         (success {:ids (p/get-system-index :type type)}))
 
-  (POST- "/host/system" [& ^:system props] {:nickname "addSystem" :summary "Add system" 
+  (POST- "/host/system" [& ^:system spec] {:nickname "addSystem" :summary "Add system" 
                                             :errorResponses (errors {:bad-req "Missing system type"})}
          (try+ 
-           (let [id (p/add-system props)]
-             (success {:msg "new system saved" :id id :props props})) 
+           (do
+             (p/increase-use (curr-user) spec)
+             (success {:msg "new system saved" :id (p/add-system spec)}))
            (catch [:type :celestial.persistency/missing-type] e 
              (bad-req {:msg (<< "Cannot create machine with missing type ~(e :t)}")}))))
 
@@ -68,8 +84,9 @@
                                          :errorResponses (errors {:bad-req "System missing"})}
          (if-not (p/system-exists? id)
            (conflict {:msg "System does not exists, use POST /host/system to create it first"}) 
-           (let [clone-id (p/clone-system id)]  
-             (success {:msg "system cloned" :id clone-id}))))
+           (do
+             (p/increase-use (curr-user) (p/get-system id))
+             (success {:msg "system cloned" :id (p/clone-system id)}))))
 
   (PUT- "/host/system/:id" [^:int id & ^:system system] {:nickname "updateSystem" :summary "Update system" 
                                                          :errorResponses (errors {:conflict "System does not exist"}) }
@@ -80,10 +97,13 @@
 
   (DELETE- "/host/system/:id" [^:int id] {:nickname "deleteSystem" :summary "Delete System" 
                                           :errorResponses (errors {:bad-req "System does not exist"})}
-           (if (p/system-exists? id)
-             (do (p/delete-system id) 
-                 (success {:msg "System deleted"}))
-             (bad-req {:msg "System does not exist"})))
+           (try+ 
+             (let [spec (p/get-system! id)]               
+               (p/delete-system! id) 
+               (p/decrease-use (curr-user) spec)
+               (success {:msg "System deleted"})) 
+             (catch [:type :celestial.persistency/missing-system] e 
+               (bad-req {:msg "System does not exist"}))))
 
   (GET- "/host/type/:id" [^:int id] {:nickname "getSystemType" :summary "Fetch type of provided system id"}
         (success (p/get-type (:type (p/get-system id))) ))
