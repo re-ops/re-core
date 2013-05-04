@@ -44,7 +44,7 @@
  
 (defroutes- quotas {:path "/quota" :description "User quota managment"}
   (GET- "/quota/:name" [^:string name] {:nickname "getQuota" :summary "Get users quota"}
-        (success (p/get-quota name)))
+        (success (p/get-quota! name)))
 
   (POST- "/quota/" [& ^:quota quota] {:nickname "addQuota" :summary "Adds a user quota"}
          (p/add-quota quota)
@@ -55,5 +55,5 @@
         (success {:msg "quota updated"}))
 
   (DELETE- "/quota/:name" [^:string name] {:nickname "deleteQuota" :summary "Deleted users quota"}
-           (p/delete-quota name) 
+           (p/delete-quota! name) 
            (success {:msg "quota deleted"})))
