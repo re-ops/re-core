@@ -1,7 +1,9 @@
 (ns celestial.integration.puny
   (:require [puny.core :as p])
+  (:import clojure.lang.ExceptionInfo)
   (:use  
      midje.sweet
+    [celestial.fixtures :only (is-type?)]
     [celestial.redis :only (clear-all)]))
 
 (with-state-changes [(before :facts (clear-all))]
@@ -65,5 +67,21 @@
         (get-car-index :color "blue") => ["123"]
         (delete-car 123)
         (car-exists? 123) => falsey
-        (get-car-index :color "blue") => []))
+        (get-car-index :color "blue") => [])
+
+  (fact "fail fase actions"
+        (p/entity planet :id name)
+        (defn validate-planet [planet] {})
+        (add-planet {:name "lunar"})
+        (get-planet "lunar") => {:name "lunar"}
+        (planet-exists! "lunar") => true
+        (planet-exists! "foo") => (throws ExceptionInfo (is-type? :celestial.integration.puny/missing-planet))
+        (delete-planet! "foo") => (throws ExceptionInfo (is-type? :celestial.integration.puny/missing-planet))
+        (update-planet {:name "foo"}) => (throws ExceptionInfo (is-type? :celestial.integration.puny/missing-planet))
+        (get-planet! "lunar") => {:name "lunar"}
+        (delete-planet! "lunar") 
+        (get-planet "lunar") => {} 
+        (get-planet! "lunar") => (throws ExceptionInfo (is-type? :celestial.integration.puny/missing-planet)) 
+        )
+  )
 

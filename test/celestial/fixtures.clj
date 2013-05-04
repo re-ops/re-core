@@ -15,7 +15,8 @@
 (def user-quota (slurp-edn "fixtures/user-quota.edn"))
 
 (defn is-type? [type]
-  (fn [exception] (= type (get-in (.getData exception) [:object :type]))))
+  (fn [exception] 
+    (= type (get-in (.getData exception) [:object :type]))))
 
 (defmacro with-conf 
   "Using fixture/.celestial.edn conf file"

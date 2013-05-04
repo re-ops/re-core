@@ -60,13 +60,50 @@
           (~index-del ~'id ~'old) 
           (~index-add ~'id ~'new)))))
 
+(defn bang-fn-ids [name*]
+  (let [{:keys [id-fn delete-fn get-fn exists-fn ]} (fn-ids name*)] 
+    {:missing-ex (<<k "~{*ns*}/missing-~{name*}") 
+     :exists! (<<< "~{name*}-exists!")  
+     :delete! (<<< "delete-~{name*}!")
+     :get! (<<< "get-~{name*}!")
+     }))
+
+(defmacro with-a-bang [exists! orig & args]
+   `(defn ~(<<< "~{orig}!") ~(into []  args)
+         (~exists! ~'id) 
+         (apply ~orig ~args)))
+
+
+(defmacro bang-fns
+  "A fail fast versions of read/delete functions (will fail if entity is missing), 
+  the 'u' part functions are '!' by default (meaning they always fails fast)." 
+  [name*]
+  (let [{:keys [id-fn delete-fn get-fn exists-fn]} (fn-ids name*)
+        {:keys [missing-ex exists! delete! get!]} (bang-fn-ids name*) ]
+
+    `(do 
+       (defn ~exists! [~'id]
+         (when-not (~exists-fn ~'id)
+           (throw+ {:type ~missing-ex}))
+         true)
+
+       (defn ~delete! [~'id] 
+         (~exists! ~'id) 
+         (~delete-fn ~'id))
+
+       (defn ~get! [~'id] 
+         (~exists! ~'id) 
+         (~get-fn ~'id))
+       )))
+
 (defmacro write-fns 
   "Creates the add/update functions both take into account if id is generated of provided"
   [name* opts]
-  (let [{:keys [id-fn exists-fn validate-fn add-fn update-fn gen-fn get-fn partial-fn]} (fn-ids name*)
-        missing (<<k ":~{*ns*}/missing-~{name*}") 
+  (let [{:keys [id-fn validate-fn add-fn update-fn gen-fn get-fn partial-fn]} (fn-ids name*)
+        {:keys [missing-ex]} (bang-fn-ids name*)
         {:keys [up-args up-id add-k-fn]} (id-modifiers name* (apply hash-map opts))
-        {:keys [index-add index-del reindex]} (indices-fn-ids name*) ]
+        {:keys [index-add index-del reindex]} (indices-fn-ids name*)
+        {:keys [exists!]} (bang-fn-ids name*)]
     `(do 
        (declare ~validate-fn)
 
@@ -81,19 +118,19 @@
            id#))
 
        (defn ~partial-fn ~up-args
-         (when-not (~exists-fn ~up-id)
-           (throw+ {:type ~missing ~(keyword name*) ~'v }))
+         (~exists! ~up-id)
          (let [orig# (wcar (car/hgetall* (~id-fn ~up-id))) updated# (merge-with merge orig# ~'v)]
            (~reindex ~up-id orig# updated#) 
            (wcar (hsetall* (~id-fn ~up-id) updated#))))
 
        (defn ~update-fn ~up-args
          (~validate-fn ~'v)
-         (when-not (~exists-fn ~up-id)
-           (throw+ {:type ~missing ~(keyword name*) ~'v }))
+         (~exists! ~up-id)
          (let [orig# (wcar (car/hgetall* (~id-fn ~up-id))) updated# (merge orig#  ~'v)]
            (~reindex ~up-id orig# updated#) 
            (wcar (hsetall* (~id-fn ~up-id) updated#)))))))
+
+
 
 (defmacro entity
   "Generates all the persistency (add/delete/exists etc..) functions for given entity"
@@ -109,10 +146,13 @@
 
        (write-fns ~name* ~opts)
 
+
        (defn ~get-fn [~'id] (wcar (car/hgetall* (~id-fn ~'id))))
 
        (defn ~delete-fn [~'id] 
          (~index-del ~'id (~get-fn ~'id)) 
-         (wcar (car/del (~id-fn ~'id)))
-         ))))
+         (wcar (car/del (~id-fn ~'id))))
+
+       (bang-fns ~name*)
+       )))
 
