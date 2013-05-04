@@ -69,7 +69,7 @@
         (car-exists? 123) => falsey
         (get-car-index :color "blue") => [])
 
-  (fact "fail fase actions"
+  (fact "fail fase actions" :integration :redis
         (p/entity planet :id name)
         (defn validate-planet [planet] {})
         (add-planet {:name "lunar"})
