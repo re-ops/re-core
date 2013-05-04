@@ -118,7 +118,7 @@
 
 (defn quota-change [user spec amount]
   (when (quota-exists? user)
-    (update-quota (update-in (get-quota user) [:quotas (figure-virt spec) :used] + amount))))
+    (update-quota (update-in (get-quota user) [:quotas (figure-virt spec) :used] (fnil + 0) amount))))
 
 (defn increase-use 
   "increases user quota use"
@@ -129,4 +129,5 @@
 (defn decrease-use 
   "decreases user usage"
   [user spec]
-  (quota-change user spec -1))
+  (when (> (get-in (get-quota user) [:quotas (figure-virt spec) :used]) 0)
+    (quota-change user spec -1)))
