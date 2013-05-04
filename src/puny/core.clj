@@ -79,7 +79,7 @@
     `(do 
        (defn ~exists! [~'id]
          (when-not (~exists-fn ~'id)
-           (throw+ {:type ~missing-ex}))
+           (throw+ {:type ~missing-ex} ~(<< "Missing ~{name*}")))
          true)
 
        (defn ~delete! [~'id] 
