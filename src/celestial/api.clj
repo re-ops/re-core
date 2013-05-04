@@ -11,6 +11,7 @@
 
 (ns celestial.api
   (:use [celestial.hosts-api :only (hosts types)]
+        [celestial.users-api :only (users)]
         [compojure.core :only (defroutes routes)] 
         [metrics.ring.expose :only  (expose-metrics-as-json)]
         [ring.middleware.format-params :only [wrap-restful-params]]
@@ -38,9 +39,6 @@
 (defmodel module :name :string :src :string)
 
 (defmodel object)
-
-(defmodel user :username :string :password :string 
-  :roles {:type :string :allowableValues {:valueType "LIST" :values (into [] (keys roles-m))}})
 
 (defmodel aws :min-count :int :max-count :int :instance-type :string
   :image-id :string :key-name :string :endpoint :string)
@@ -103,21 +101,7 @@
            (p/delete-task id)
            (success {:msg "delete task" :id id})))
 
-(defroutes- users {:path "/user" :description "User managment"}
-  (GET- "/user/:name" [^:string name] {:nickname "getUser" :summary "Get User"}
-        (success (p/get-user name)))
 
-  (POST- "/user/" [& ^:user user] {:nickname "addUser" :summary "Adds a new user"}
-         (p/add-user (-> user convert-roles hash-pass))
-         (success {:msg "added user"}))
-
-  (PUT- "/user/" [& ^:user user] {:nickname "updateUser" :summary "Updates an existing user"}
-        (p/update-user (-> user convert-roles hash-pass))
-        (success {:msg "user updated"}))
-
-  (DELETE- "/user/:name" [^:string name] {:nickname "deleteUser" :summary "Deleted a user"}
-           (p/delete-user name) 
-           (success {:msg "user deleted" :name name})))
 
 (defroutes app-routes
   hosts types tasks jobs (friend/wrap-authorize users admin) (route/not-found "Not Found"))
