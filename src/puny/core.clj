@@ -147,8 +147,5 @@
  
        (bang-fns ~name*)
 
-       (write-fns ~name* ~opts)
-
-
-       )))
+       (write-fns ~name* ~opts))))
 
