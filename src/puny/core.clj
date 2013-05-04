@@ -68,11 +68,6 @@
      :get! (<<< "get-~{name*}!")
      }))
 
-(defmacro with-a-bang [exists! orig & args]
-   `(defn ~(<<< "~{orig}!") ~(into []  args)
-         (~exists! ~'id) 
-         (apply ~orig ~args)))
-
 
 (defmacro bang-fns
   "A fail fast versions of read/delete functions (will fail if entity is missing), 
@@ -144,15 +139,16 @@
 
        (index-fns ~name* ~opts)
 
-       (write-fns ~name* ~opts)
-
-
        (defn ~get-fn [~'id] (wcar (car/hgetall* (~id-fn ~'id))))
 
        (defn ~delete-fn [~'id] 
          (~index-del ~'id (~get-fn ~'id)) 
          (wcar (car/del (~id-fn ~'id))))
-
+ 
        (bang-fns ~name*)
+
+       (write-fns ~name* ~opts)
+
+
        )))
 
