@@ -43,9 +43,16 @@
 
 (with-state-changes [(before :facts (clear-all))]
   (fact "basic quota usage" :integration :redis :quota
-    (p/add-user {:username "foo" :password "bla" :roles {}})
-    (p/add-quota user-quota) 
-    (p/increase-use "foo" redis-prox-spec)
-    (:quotas (p/get-quota "foo"))  => (contains {:proxmox {:limit 2 :used 1}})
-    (p/increase-use "foo" redis-prox-spec)
-    (p/increase-use "foo" redis-prox-spec) => (throws ExceptionInfo (is-type? :celestial.persistency/quota-limit-reached)))) 
+        (with-redefs [p/curr-user (fn [] "foo")]
+          (p/add-user {:username "foo" :password "bla" :roles {}})
+          (p/add-quota (assoc-in user-quota [:quotas :proxmox :used] nil)) 
+          (p/increase-use 1 redis-prox-spec) => nil 
+          (:quotas (p/get-quota "foo"))  => (contains {:proxmox {:limit 2 :used #{1}}}) 
+          (p/increase-use 2  redis-prox-spec) 
+          (:quotas (p/get-quota "foo"))  => (contains {:proxmox {:limit 2 :used #{1 2}}}) 
+          (p/with-quota (fn [] 1) redis-prox-spec) => (throws ExceptionInfo (is-type? :celestial.persistency/quota-limit-reached)) 
+          (p/decrease-use 2 redis-prox-spec) 
+          (:quotas (p/get-quota "foo"))  => (contains {:proxmox {:limit 2 :used #{1}}})  
+          (p/increase-use 3  redis-prox-spec) 
+          (:quotas (p/get-quota "foo"))  => (contains {:proxmox {:limit 2 :used #{1 3}}})) 
+        )) 

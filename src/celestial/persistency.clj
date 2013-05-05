@@ -12,6 +12,7 @@
 (ns celestial.persistency
   (:refer-clojure :exclude [type])
   (:require 
+    [cemerick.friend :as friend]
     [celestial.validations :as cv]
     proxmox.model aws.model)
   (:use 
@@ -108,26 +109,39 @@
        [:quotas]  [v/required cv/hash? hypervisor-ks ])
     ::non-valid-quota))
 
-(defn assert-quota
-  "checks if user has passed the numer of machines allowed in his quota (in case it exists)."
-  [user spec]
-   (when-let [q (get-quota user) ]
-     (let [hyp (figure-virt spec) {:keys [limit used]} (get-in q [:quotas hyp])]
-       (when (= used limit)
-        (throw+ {:type ::quota-limit-reached} (<< "Quota limit ~{limit} on ~{hyp} for ~{user} was reached"))))))
+(defn curr-user []
+  (:username (friend/current-authentication)))
 
-(defn quota-change [user spec amount]
-  (when (quota-exists? user)
-    (update-quota (update-in (get-quota user) [:quotas (figure-virt spec) :used] (fnil + 0) amount))))
+(defn used-key [spec]
+   [:quotas (figure-virt spec) :used])
+
+(defn quota-assert
+  [user spec]
+  (let [hyp (figure-virt spec) {:keys [limit used]} (get-in (get-quota user) [:quotas hyp])]
+    (when (= (count used) limit)
+      (throw+ {:type ::quota-limit-reached} (<< "Quota limit ~{limit} on ~{hyp} for ~{user} was reached")))))
+
+(defn quota-change [id spec f]
+  (let [user (curr-user)]
+    (when (quota-exists? user)
+      (update-quota 
+        (update-in (get-quota user) (used-key spec) f id)))))
 
 (defn increase-use 
   "increases user quota use"
-  [user spec]
-  (assert-quota user spec)
-  (quota-change user spec 1))
+  [id spec]
+  (quota-change id spec (fnil conj #{id})))
 
 (defn decrease-use 
-  "decreases user usage"
-  [user spec]
-  (when (> (get-in (get-quota user) [:quotas (figure-virt spec) :used]) 0)
-    (quota-change user spec -1)))
+  "decreases usage"
+  [id spec]
+  (when-not (empty? (get-in (get-quota (curr-user)) (used-key spec)))
+    (quota-change id spec (fn [old id] (clojure.set/difference old #{id})))))
+
+(defmacro with-quota [action spec & body]
+  `(do 
+     (quota-assert (curr-user) ~spec)
+     (let [~'id ~action]
+       (increase-use  ~'id ~spec)    
+       ~@body)))
+
