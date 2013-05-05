@@ -102,11 +102,16 @@
   [qs]
   (empty? (remove hypervizors (keys qs))))
 
+(defvalidator int-limits
+  {:default-message-format (<<  "quotas limits must be integers ")}
+  [qs]
+  (empty? (remove (fn [[k v]] (integer? (v :limit))) qs)))
+
 (defn validate-quota [q]
   (validate! 
     (b/validate q
        [:username] [v/required (v/custom user-exists? :message "No matching user found")]
-       [:quotas]  [v/required cv/hash? hypervisor-ks ])
+       [:quotas]  [v/required cv/hash? hypervisor-ks int-limits])
     ::non-valid-quota))
 
 (defn curr-user []
@@ -136,7 +141,7 @@
   "decreases usage"
   [id spec]
   (when-not (empty? (get-in (get-quota (curr-user)) (used-key spec)))
-    (quota-change id spec (fn [old id] (clojure.set/difference old #{id})))))
+    (quota-change id spec (fn [old id*] (clojure.set/difference old #{id*})))))
 
 (defmacro with-quota [action spec & body]
   `(do 

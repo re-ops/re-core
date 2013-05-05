@@ -93,9 +93,9 @@
   (DELETE- "/host/system/:id" [^:int id] {:nickname "deleteSystem" :summary "Delete System" 
                                           :errorResponses (errors {:bad-req "System does not exist"})}
            (try+ 
-             (let [spec (p/get-system! id)]               
+             (let [spec (p/get-system! id) int-id (Integer/valueOf id)]               
                (p/delete-system! id) 
-               (p/decrease-use id spec)
+               (p/decrease-use int-id spec)
                (success {:msg "System deleted"})) 
              (catch [:type :celestial.persistency/missing-system] e 
                (bad-req {:msg "System does not exist"}))))
