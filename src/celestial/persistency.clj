@@ -80,7 +80,7 @@
   [system]
   (validate! 
     (b/validate system
-       [:type] [(v/custom type-exists? :message "missing system type")]
+       [:type] [(v/custom type-exists? :message (<< "Given system type ~(system :type) not found, create it first"))]
        [:machine :hostname]  [v/required cv/str?])
     ::non-valid-machine))
 
