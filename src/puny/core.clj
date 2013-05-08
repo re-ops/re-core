@@ -94,11 +94,11 @@
          true)
 
        (defn ~delete! [~'id] 
-         (~exists! ~'id) 
+         (~exists! ~'id) ;TODO id should be locked here, otherwise deletion can take place between calls
          (~delete-fn ~'id))
 
        (defn ~get! [~'id] 
-         (~exists! ~'id) 
+         (~exists! ~'id) ;TODO id should be locked here, otherwise deletion can take place between calls
          (~get-fn ~'id))
        )))
 
