@@ -92,17 +92,24 @@
 (def range-keys [])
 
 (defn ip-range 
-  "" 
+  "Configured ip range" 
   []
   (try+ 
     (let [[s e] (map ip-to-long (get* :hypervisor :proxmox :generators :ip-range))] 
       [s e])
     (catch [:type :celestial.common/missing-conf] e nil)))
 
+(defn mark-used
+  "marks existing ips as used" 
+  []
+  (doseq [ip (map ip-to-long (get* :hypervisor :proxmox :generators :used-ips))]
+    (wcar (car/zadd "ips" 1 ip))))
+
 (defn initialize-range
   "Initializes ip range zset 0 marks unused 1 marks used (only if missing)."
   []
-  (if-let [[s e] (ip-range)]
+  (when-let [[s e] (ip-range)]
+    (mark-used)
     (wcar 
       (when-not (= 1 (car/exists "ips"))
         (doseq [ip (range s (+ 1 e))]
@@ -138,6 +145,8 @@
        end 
        return nil "
       {:ips "ips"} {:rel-ip (ip-to-long ip)}))))
+
+
 
 (comment
   (release-ip "192.168.5.130") 
