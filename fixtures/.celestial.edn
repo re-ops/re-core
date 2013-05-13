@@ -54,6 +54,9 @@
     ;celestial.dnsmasq/add-host {
      ;   :dnsmasq {:host "192.168.5.20" :user "ronen"}
     ;}             
+    ; celestial.hubot/notify-hubot {
+    ;     :hubot-host "http://192.168.20.124:8083"
+    ; }
   }
  }
 }
