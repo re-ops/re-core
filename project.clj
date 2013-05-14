@@ -6,6 +6,7 @@
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [org.clojure/tools.cli "0.2.1" ]
                  [clj-config "0.2.0" ]
+                 [com.vmware/vijava "5.1"]
                  [prismatic/plumbing "0.0.1"]
                  [me.raynes/fs "1.4.1"]
                  [bouncer "0.2.3-beta1"]
