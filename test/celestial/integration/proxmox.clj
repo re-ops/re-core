@@ -1,7 +1,10 @@
 (ns celestial.integration.proxmox
   "Integration tests assume a proxmox vm with local address make sure to configure it"
+  (:require [taoensso.carmine :as car])
   (:use midje.sweet
         proxmox.provider
+        [celestial.redis :only (wcar clear-all)]
+        [proxmox.generators :only (initialize-range long-to-ip)]
         [flatland.useful.map :only  (dissoc-in*)]
         [celestial.common :only (slurp-edn)]
         [celestial.model :only (vconstruct)]
@@ -16,6 +19,8 @@
     (let [ct (vconstruct fake-id)]
     (.stop ct)
     (.delete ct))))
+
+; generators 
 
 (fact "Full proxmox cycle" :integration :proxmox 
   (with-conf
@@ -38,3 +43,11 @@
      (.status ct) => "running"
      (.stop ct)
      (.delete ct))))
+
+(with-state-changes [(before :facts (clear-all))]
+  (fact "used up ips marking" :integration :redis
+    (with-conf
+      (do 
+        (initialize-range)
+        (map #(-> % Long/parseLong long-to-ip) (wcar (car/zrangebyscore "ips" 1 1))) => 
+            ["192.168.5.170" "192.168.5.171" "192.168.5.173"]))))
