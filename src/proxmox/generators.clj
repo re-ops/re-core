@@ -103,7 +103,6 @@
   "marks existing ips as used" 
   []
   (doseq [ip (map ip-to-long (get* :hypervisor :proxmox :generators :used-ips))]
-    (println ip)
     (wcar (car/zadd "ips" 1 ip))))
 
 (defn initialize-range
@@ -155,7 +154,7 @@
   (gen-ip {}) 
   (wcar (car/del "ips"))
   (mark-used) 
-  (wcar (car/zrangebyscore "ips" 1 1 "WITHSCORES" ))
+  (count (wcar (car/zrangebyscore "ips" 1 1 "WITHSCORES")))
   (wcar (car/del "ips"))
   ) 
 
