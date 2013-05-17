@@ -1,5 +1,7 @@
 (ns vmware.vijava
   (:use 
+    [slingshot.slingshot :only  [throw+ try+]]
+    [clojure.core.strint :only  (<<)]
     [celestial.common :only (get* import-logging)])
   (:import 
     java.net.URL
@@ -14,37 +16,52 @@
     com.vmware.vim25.mo.VirtualMachine )
  )
 
+(def ^:dynamic service)
+
 (defn connect [{:keys [url username password]}]
   (ServiceInstance. (URL. url) username password true))
 
+(defmacro with-service [body]
+  `(binding [service (connect (get* :hypervisor :vmware))]
+     ~body 
+    ))
+
+(defn navigator 
+  ([] (navigator (.getRootFolder service)))
+  ([root] (InventoryNavigator. root)))
+
 (defn find-all
   "Find all entities of type"
-  ([service type nav-root] 
-   (.searchManagedEntities (InventoryNavigator. (.getRootFolder service)) type)) )
+  ([type] (find-all type (navigator)))
+  ([type within] (.searchManagedEntities within type)))
 
-(defn find-by  
-  [service type name]
-  (.searchManagedEntity (InventoryNavigator. (.getRootFolder service)) type name) )
+(defn find*  
+  "Find entity by type and name"
+  ([type name] (find* type name (navigator)))
+  ([type name within] (.searchManagedEntity within type name)))
 
-(defn resource-pool [root dcname]
-  (let [dc  (.searchManagedEntity (InventoryNavigator. root) "Datacenter" dcname)]
-    (first (.searchManagedEntities (InventoryNavigator. dc) "ResourcePool"))))
+(defn resource-pools [dcname]
+  (first (find-all "ResourcePool" (navigator (find* "Datacenter" dcname)))))
 
-(defn clone-spec []
-  (doto 
-    (VirtualMachineCloneSpec.)
-    (.setLocation 
-      (doto 
-        (VirtualMachineRelocateSpec.)
-        (.setPool (.getMOR (resource-pool (.getRootFolder (connect (get* :hypervisor :vmware))) "playground")))))
+(defn relocation-spec [dcname]
+  (doto (VirtualMachineRelocateSpec.) 
+    (.setPool (.getMOR (first (resource-pools dcname))))))
+
+(defn clone-spec [dcname]
+  (doto (VirtualMachineCloneSpec.)
+    (.setLocation (relocation-spec dcname))
     (.setPowerOn false)
     (.setTemplate false)))
 
-(defn clone [template vmname]
-  (let [service (connect (get* :hypervisor :vmware)) vm (search- service template) 
-        task (.cloneVM_Task vm (.getParent vm) vmname (clone-spec)) status (.waitForMe task)]
-    (println status) 
-    ))
+(defmacro wait-for [task]
+  `(let [status# (.waitForMe ~task)]
+     (when-not (= status# "success")
+       (throw+ {:type ::task-fail :message (str "Vmware task failed with status:" status#)}))))
+
+(defn clone [template vmname dcname]
+  (with-service
+    (let [vm (find* "VirtualMachine" template)]
+      (wait-for (.cloneVM_Task vm (.getParent vm) vmname (clone-spec dcname))))))
 
 (comment
   (bean (.getGuest (first (list-vms (connect "https://192.168.5.23/sdk" "Administrator" "Oox1kai7")))))
