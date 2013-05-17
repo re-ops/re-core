@@ -9,7 +9,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.)
 
-(ns vmware.provider 
+(ns vsphere.provider 
   (:use 
     [trammel.core :only  (defconstrainedrecord)]
     [clojure.core.strint :only (<<)]
@@ -21,7 +21,7 @@
   )
 
 
-(defconstrainedrecord Template []
+(defconstrainedrecord VirtualMachine []
   "ct should match proxmox expected input"
   []
   Vm
@@ -35,5 +35,13 @@
 
   (status [this] ))
 
+(defmethod translate :vsphere [{:keys [machine vpshere]}]
+  "Convert the general model into a vsphere specific one"
+  #_(-> (merge machine proxmox {:system-id system-id}) mappings transform generate selections))
 
+(defmethod vconstruct :vsphere [{:keys [vmware] :as spec}]
+  #_(let [{:keys [type node]} proxmox]
+    (case type
+      :ct  (let [[ct ex] (translate spec)] 
+             (->Container node ct ex)))))
 

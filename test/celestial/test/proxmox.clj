@@ -11,8 +11,8 @@
   (:import clojure.lang.ExceptionInfo))
 
 (defn with-m? [m]
- (fn [actual]
-   (= (get-in (.getData actual) [:object :errors]) m)))
+  (fn [actual]
+    (= (get-in (.getData actual) [:object :errors]) m)))
 
 
 (with-conf

@@ -5,7 +5,9 @@
  }
 
  :vsphere {
-   :pool ""
+   :pool ""  :datacenter ""
+   :disk-format "sparse" ; or flat
+
  }
 
  :type "redis"

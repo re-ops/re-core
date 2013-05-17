@@ -1,4 +1,4 @@
-(ns vmware.vijava
+(ns vsphere.vijava
   (:use 
     [slingshot.slingshot :only  [throw+ try+]]
     [clojure.core.strint :only  (<<)]

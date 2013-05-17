@@ -8,6 +8,8 @@
 
 (def redis-ec2-spec (slurp-edn "fixtures/redis-ec2-system.edn"))
 
+(def redis-vsphere-spec (slurp-edn "fixtures/redis-vsphere-system.edn"))
+
 (def local-prox (slurp-edn "fixtures/.celestial.edn"))
 
 (def cap-deploy (slurp-edn "fixtures/cap-deploy.edn"))

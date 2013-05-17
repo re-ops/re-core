@@ -65,7 +65,7 @@
              ["run" "-m" "supernal.launch" "fixtures/supernal-demo.clj" args] 
             }
 
-  :aot [supernal.launch capistrano.remoter proxmox.provider
+  :aot [supernal.launch capistrano.remoter proxmox.provider vsphere.provider
         celestial.core celestial.puppet-standalone celestial.launch]
 
   :repositories  {
