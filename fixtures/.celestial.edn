@@ -30,10 +30,13 @@
     ;;   :secret-key ""
     ;;  } 
 
-    :vmware {
+    :vsphere {
       :url "https://192.168.5.23/sdk"
       :username "Administrator"
       :password "Oox1kai7"
+      :ostemplates {
+         :ubuntu-13.04 "ubuntu-13.04_puppet-3.1"
+      }
     }
  }
   

@@ -11,18 +11,20 @@
 
 (ns vsphere.provider 
   (:use 
+    [celestial.provider :only (str? vec? mappings)]
+    [celestial.common :only (get* import-logging)]
     [trammel.core :only  (defconstrainedrecord)]
     [clojure.core.strint :only (<<)]
     [bouncer [core :as b] [validators :as v]]
     [celestial.core :only (Vm)]
     [slingshot.slingshot :only  [throw+ try+]]
-    [celestial.provider :only (str? vec?)]
+    [celestial.provider :only (str? vec? mappings transform os->template)]
     [celestial.model :only (translate vconstruct)])
   )
 
 
-(defconstrainedrecord VirtualMachine []
-  "ct should match proxmox expected input"
+(defconstrainedrecord VirtualMachine [allocation machine]
+  ""
   []
   Vm
   (create [this])
@@ -35,13 +37,20 @@
 
   (status [this] ))
 
-(defmethod translate :vsphere [{:keys [machine vpshere]}]
-  "Convert the general model into a vsphere specific one"
-  #_(-> (merge machine proxmox {:system-id system-id}) mappings transform generate selections))
+(def machine-ks [:template :cpus :disk :memory])
 
-(defmethod vconstruct :vsphere [{:keys [vmware] :as spec}]
-  #_(let [{:keys [type node]} proxmox]
-    (case type
-      :ct  (let [[ct ex] (translate spec)] 
-             (->Container node ct ex)))))
+(def allocation-ks [:pool :datacenter :hostname])
+
+(def selections (juxt (fn [m] (select-keys m allocation-ks)) (fn [m] (select-keys m machine-ks))))
+
+(defmethod translate :vsphere [{:keys [machine vsphere system-id]}]
+  "Convert the general model into a vsphere specific one"
+  (-> (merge machine vsphere {:system-id system-id})
+      (mappings {:os :template})
+      (transform {:template (os->template :vsphere)})
+      selections
+      ))
+
+(defmethod vconstruct :vsphere [spec]
+   (let [[allocation machine] (translate spec)] (->VirtualMachine allocation machine)))
 

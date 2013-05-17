@@ -1,11 +1,11 @@
 {
  :machine {
   :cpus 1 :memory 512 :disk 10
-  :hostname "red1" :os :ubuntu-12.04
+  :hostname "red1" :os :ubuntu-13.04
  }
 
  :vsphere {
-   :pool ""  :datacenter ""
+   :pool ""  :datacenter "playground"
    :disk-format "sparse" ; or flat
 
  }

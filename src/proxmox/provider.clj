@@ -21,7 +21,7 @@
     [proxmox.remote :only (prox-post prox-delete prox-get)]
     [slingshot.slingshot :only  [throw+ try+]]
     [clojure.set :only (difference)]
-    [celestial.provider :only (str? vec?)]
+    [celestial.provider :only (str? vec? mappings transform os->template)]
     [proxmox.generators :only (ct-id gen-ip release-ip)]
     [celestial.model :only (translate vconstruct)])
   (:require 
@@ -148,36 +148,10 @@
   [this action] 
   (execute  (<< "vzctl ~{action}") (get* :hypervisor :proxmox)))
 
-(defn- key-select [v] (fn [m] (select-keys m (keys v))))
-
-(defn mappings [res]
-  "Maps raw model to proxmox model: (mappings {:ip \"1234\" :os \"ubuntu\" :cpu 1})" 
-  (let [ms {:ip :ip_address :os :ostemplate}
-        vs ((key-select ms) res) ]
-    (merge 
-      (reduce (fn [r [k v]] (dissoc r k)) res ms)
-      (reduce (fn [r [k v]] (assoc r (ms k) v)) {} vs)) 
-    ))
-
-(defn os->template 
-  "Converts os key to vz template" 
-  [os]
-  (let [ks [:hypervisor :proxmox :ostemplates os]]
-    (try+ 
-      (apply get* ks)
-      (catch [:type :celestial.common/missing-conf] e
-        (throw+ {:type :missing-template :message 
-                 (<< "no matching proxmox template found for ~{os} add one to configuration under ~{ks}")})))))
-
 (defn generate
   "apply generated values (if not present)." 
   [res]
   (reduce (fn [res [k v]] (if (res k) res (update-in res [k] v ))) res {:vmid ct-id }))
-
-(defn transform 
-  "manipulated the model making it proxmox ready "
-  [res]
-  (reduce (fn [res [k v]] (update-in res [k] v )) res {:ostemplate os->template}))
 
 (def ct-ks [:vmid :ostemplate :cpus :disk :memory :ip_address :password :hostname :nameserver])
 
@@ -187,7 +161,10 @@
 
 (defmethod translate :proxmox [{:keys [machine proxmox system-id]}]
   "Convert the general model into a proxmox vz specific one"
-  (-> (merge machine proxmox {:system-id system-id}) mappings transform generate selections))
+    (-> (merge machine proxmox {:system-id system-id})
+        (mappings {:ip :ip_address :os :ostemplate})
+        (transform {:ostemplate (os->template :proxmox)})
+        generate selections))
 
 (defmethod vconstruct :proxmox [{:keys [proxmox] :as spec}]
   (let [{:keys [type node]} proxmox]
