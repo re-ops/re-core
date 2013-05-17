@@ -29,6 +29,12 @@
     ;;   :access-key ""
     ;;   :secret-key ""
     ;;  } 
+
+    :vmware {
+      :url "https://192.168.5.23/sdk"
+      :username "Administrator"
+      :password "Oox1kai7"
+    }
  }
   
  :redis {

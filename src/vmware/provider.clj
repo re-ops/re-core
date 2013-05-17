@@ -15,18 +15,11 @@
     [clojure.core.strint :only (<<)]
     [bouncer [core :as b] [validators :as v]]
     [celestial.core :only (Vm)]
-    [celestial.common :only (get* import-logging)]
     [slingshot.slingshot :only  [throw+ try+]]
     [celestial.provider :only (str? vec?)]
     [celestial.model :only (translate vconstruct)])
-  (:import 
-    java.net.URL
-    com.vmware.vim25.mo.InventoryNavigator
-    com.vmware.vim25.mo.ServiceInstance))
+  )
 
-
-(defn connect [^String url ^String user ^String pwd]
-  (ServiceInstance. (URL. url) user pwd true))
 
 (defconstrainedrecord Template []
   "ct should match proxmox expected input"
@@ -42,7 +35,5 @@
 
   (status [this] ))
 
-#_(defn list-vms [service] 
-    (.searchManagedEntities (InventoryNavigator. (.getRootFolder service)) "VirtualMachine"))
 
-#_(bean (.getGuest (first (list-vms (connect "https://192.168.5.23/sdk" "Administrator" "Oox1kai7")))))
+

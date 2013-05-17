@@ -1,0 +1,12 @@
+{
+ :machine {
+  :cpus 1 :memory 512 :disk 10
+  :hostname "red1" :os :ubuntu-12.04
+ }
+
+ :vsphere {
+   :pool ""
+ }
+
+ :type "redis"
+}
