@@ -6,6 +6,7 @@
   (:import 
     java.net.URL
     com.vmware.vim25.mo.InventoryNavigator
+    com.vmware.vim25.VirtualMachineRelocateTransformation
     com.vmware.vim25.mo.ServiceInstance
     com.vmware.vim25.VirtualMachineCloneSpec
     com.vmware.vim25.VirtualMachineRelocateSpec
@@ -41,10 +42,11 @@
   ([type name within] (.searchManagedEntity within type name)))
 
 (defn resource-pools [dcname]
-  (first (find-all "ResourcePool" (navigator (find* "Datacenter" dcname)))))
+  (find-all "ResourcePool" (navigator (find* "Datacenter" dcname))))
 
 (defn relocation-spec [dcname]
   (doto (VirtualMachineRelocateSpec.) 
+    (.setTransform (VirtualMachineRelocateTransformation/sparse))
     (.setPool (.getMOR (first (resource-pools dcname))))))
 
 (defn clone-spec [dcname]
@@ -64,8 +66,7 @@
       (wait-for (.cloneVM_Task vm (.getParent vm) vmname (clone-spec dcname))))))
 
 (comment
-  (bean (.getGuest (first (list-vms (connect "https://192.168.5.23/sdk" "Administrator" "Oox1kai7")))))
-  (clone "ubuntu-13.04_puppet-3.1" "foo")
+  (clone "ubuntu-13.04_puppet-3.1" "foo" "playground")
   )
 
 
