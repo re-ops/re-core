@@ -2,11 +2,9 @@
   "Integration tests assume a proxmox vm with local address make sure to configure it"
   (:use midje.sweet
         proxmox.provider
-        [flatland.useful.map :only  (dissoc-in*)]
-        [celestial.common :only (slurp-edn)]
+        [flatland.useful.map :only (dissoc-in*)]
         [celestial.model :only (vconstruct)]
-        [celestial.fixtures :only (with-conf redis-prox-spec)])
-  (:import [proxmox.provider Container]))
+        [celestial.fixtures :only (with-conf redis-prox-spec)]))
 
 
 (def fake-id (update-in redis-prox-spec [:proxmox :vmid] (fn [o] 190)))

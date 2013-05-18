@@ -15,6 +15,7 @@
     [celestial.common :only (get* import-logging)]
     [trammel.core :only  (defconstrainedrecord)]
     [clojure.core.strint :only (<<)]
+    [vsphere.vijava :only (clone)]
     [bouncer [core :as b] [validators :as v]]
     [celestial.core :only (Vm)]
     [slingshot.slingshot :only  [throw+ try+]]
@@ -27,7 +28,7 @@
   ""
   []
   Vm
-  (create [this])
+  (create [this] (clone allocation machine))
 
   (delete [this])
 
@@ -37,9 +38,9 @@
 
   (status [this] ))
 
-(def machine-ks [:template :cpus :disk :memory])
+(def machine-ks [:template :cpus :disk :memory :hostname])
 
-(def allocation-ks [:pool :datacenter :hostname])
+(def allocation-ks [:pool :datacenter])
 
 (def selections (juxt (fn [m] (select-keys m allocation-ks)) (fn [m] (select-keys m machine-ks))))
 
@@ -48,7 +49,7 @@
   (-> (merge machine vsphere {:system-id system-id})
       (mappings {:os :template})
       (transform {:template (os->template :vsphere)})
-      selections
+        selections
       ))
 
 (defmethod vconstruct :vsphere [spec]

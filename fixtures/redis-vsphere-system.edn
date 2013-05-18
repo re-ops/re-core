@@ -1,7 +1,6 @@
 {
  :machine {
-  :cpus 1 :memory 512 :disk 10
-  :hostname "red1" :os :ubuntu-13.04
+  :cpus 1 :memory 512 :hostname "red1" :os :ubuntu-13.04
  }
 
  :vsphere {

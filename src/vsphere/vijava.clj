@@ -9,6 +9,7 @@
     com.vmware.vim25.VirtualMachineRelocateTransformation
     com.vmware.vim25.mo.ServiceInstance
     com.vmware.vim25.VirtualMachineCloneSpec
+    com.vmware.vim25.VirtualMachineConfigSpec
     com.vmware.vim25.VirtualMachineRelocateSpec
     com.vmware.vim25.mo.Folder
     com.vmware.vim25.mo.InventoryNavigator
@@ -23,7 +24,7 @@
   (ServiceInstance. (URL. url) username password true))
 
 (defmacro with-service [body]
-  `(binding [service (connect (get* :hypervisor :vmware))]
+  `(binding [service (connect (get* :hypervisor :vsphere))]
      ~body 
     ))
 
@@ -44,14 +45,25 @@
 (defn resource-pools [dcname]
   (find-all "ResourcePool" (navigator (find* "Datacenter" dcname))))
 
-(defn relocation-spec [dcname]
-  (doto (VirtualMachineRelocateSpec.) 
-    (.setTransform (VirtualMachineRelocateTransformation/sparse))
-    (.setPool (.getMOR (first (resource-pools dcname))))))
+(def disk-format-types
+  {:sparse VirtualMachineRelocateTransformation/sparse 
+   :flat VirtualMachineRelocateTransformation/flat})
 
-(defn clone-spec [dcname]
+(defn relocation-spec [{:keys [datacenter]} {:keys [disk-format]}]
+  (doto (VirtualMachineRelocateSpec.) 
+    (.setTransform (disk-format-types disk-format))
+    (.setPool (.getMOR (first (resource-pools datacenter))))))
+
+(defn config-spec [{:keys [cpus memory]}]
+  {:pre [(pos? cpus) (pos? memory)]}
+  (doto (VirtualMachineConfigSpec.)
+    (.setNumCPUs (int cpus)) 
+    (.setMemoryMB memory)))
+
+(defn clone-spec [allocation machine]
   (doto (VirtualMachineCloneSpec.)
-    (.setLocation (relocation-spec dcname))
+    (.setLocation (relocation-spec allocation machine))
+    (.setConfig (config-spec machine))
     (.setPowerOn false)
     (.setTemplate false)))
 
@@ -60,13 +72,22 @@
      (when-not (= status# "success")
        (throw+ {:type ::task-fail :message (str "Vmware task failed with status:" status#)}))))
 
-(defn clone [template vmname dcname]
+(defn clone [{:keys [datacenter] :as allocation} {:keys [template hostname] :as machine}]
   (with-service
     (let [vm (find* "VirtualMachine" template)]
-      (wait-for (.cloneVM_Task vm (.getParent vm) vmname (clone-spec dcname))))))
+      (wait-for (.cloneVM_Task vm (.getParent vm) hostname (clone-spec allocation machine))))))
 
-(comment
-  (clone "ubuntu-13.04_puppet-3.1" "foo" "playground")
+(defn status [hostname]
+  (with-service
+    (let [vm (find* "VirtualMachine" hostname)]
+     (-> (bean vm) :guest bean :guestState )
+      )
+    )
   )
 
+(comment
+  (clone {:datacenter "playground"} 
+         {:template "ubuntu-13.04_puppet-3.1" :hostname "foo" :disk-format :sparse :cpus 1 :memory 512})
+  (status "foo")
+  )
 
