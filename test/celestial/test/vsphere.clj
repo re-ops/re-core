@@ -10,5 +10,5 @@
 (with-conf
   (fact "basic construction"
     (let [vm (vconstruct redis-vsphere-spec)]
-      (:allocation vm ) => {:datacenter "playground" :hostname "red1"}
-      (:machine vm ) => {:cpus 1 :disk 10 :memory 512 :template "ubuntu-13.04_puppet-3.1"})))
+      (:allocation vm ) => {:datacenter "playground" :pool ""}
+      (:machine vm ) => {:cpus 1 :hostname "red1" :memory 512 :template "ubuntu-13.04_puppet-3.1"})))
