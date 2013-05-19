@@ -28,15 +28,17 @@
 (defn connect [{:keys [url username password]}]
   (ServiceInstance. (URL. url) username password true))
 
-(def services (into [] (repeatedly 2 #(agent (connect (get* :hypervisor :vsphere))))))
+(def services 
+  (memoize (fn []  (into [] (repeatedly 2 #(agent (connect (get* :hypervisor :vsphere))))))))
 
 (defmacro with-service 
-  "Uses recycled service instances see http://bit.ly/YRsiNo"
+  "Uses recycled service instances see http://bit.ly/YRsiNo, 
+  We try to keep all agents busy still rand isn't fair (cycle would work better)."
   [body]
-  `(let [a# (services (rand-int (count services))) p# (promise)]
+  `(let [a# ((services) (rand-int (count (services)))) p# (promise)]
      (send a# (fn [s#]  
                 (try 
-                  (binding [service s#] (deliver p# ~body) s#) 
+                  (binding [service s#] (debug (.hashCode service)) (deliver p# ~body) s#) 
                   (catch Throwable e# (deliver p# e#) s#)))) 
      (let [res# @p#]
        (when (instance? Throwable res#)
@@ -116,12 +118,10 @@
 (comment
   (clone {:datacenter "playground"} 
          {:template "ubuntu-13.04_puppet-3.1" :hostname "foo" :disk-format :sparse :cpus 1 :memory 512})
-  (repeatedly 40 (fn []  (future )))
+  (map deref (repeatedly 40 (fn []  (future (status "foo") ))))
   (status "foo")
   (power-on "foo")
-  (power-off "foo")
-
-  )
+  (power-off "foo"))
 
 
 
