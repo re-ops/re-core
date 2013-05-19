@@ -29,7 +29,9 @@
   (ServiceInstance. (URL. url) username password true))
 
 (def services 
-  (memoize (fn []  (into [] (repeatedly 2 #(agent (connect (get* :hypervisor :vsphere))))))))
+  (memoize 
+    (fn []  
+     (into [] (repeatedly 2 #(agent (connect (get* :hypervisor :vsphere))))))))
 
 (defmacro with-service 
   "Uses recycled service instances see http://bit.ly/YRsiNo, 
@@ -86,7 +88,7 @@
     (.setTemplate false)))
 
 (defmacro wait-for [task]
-  `(let [status# (.waitForMe ~task)]
+  `(let [status# (.waitForTask ~task 1000 1000)]
      (when-not (= status# "success")
        (throw+ {:type ::task-fail :message (str "Vmware task failed with status:" status#)}))))
 
