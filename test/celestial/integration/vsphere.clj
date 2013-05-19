@@ -9,4 +9,10 @@
 (with-conf
   (fact "creating a virtualmachine" :integration :vsphere
     (let [vm (vconstruct redis-vsphere-spec)]
-      (.create vm))))
+      (.create vm)
+      (.start vm)
+      (.status vm)  => :running
+      (.stop vm)
+      (.status vm)  => :stopped
+      (.delete vm)
+      )))

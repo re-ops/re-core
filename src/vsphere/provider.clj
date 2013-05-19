@@ -15,7 +15,7 @@
     [celestial.common :only (get* import-logging)]
     [trammel.core :only  (defconstrainedrecord)]
     [clojure.core.strint :only (<<)]
-    [vsphere.vijava :only (clone)]
+    [vsphere.vijava :only (clone power-on power-off status destroy)]
     [bouncer [core :as b] [validators :as v]]
     [celestial.core :only (Vm)]
     [slingshot.slingshot :only  [throw+ try+]]
@@ -30,13 +30,13 @@
   Vm
   (create [this] (clone allocation machine))
 
-  (delete [this])
+  (delete [this] (destroy (machine :hostname)))
 
-  (start [this])
+  (start [this] (power-on (machine :hostname)))
 
-  (stop [this])
+  (stop [this] (power-off (machine :hostname)))
 
-  (status [this] ))
+  (status [this] (status (machine :hostname)) ))
 
 (def machine-ks [:template :cpus :disk :memory :hostname])
 

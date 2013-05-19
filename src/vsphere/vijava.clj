@@ -115,13 +115,20 @@
     (let [vm (find* "VirtualMachine" hostname)]
       (wait-for (.powerOffVM_Task vm)))))
 
+(defn destroy [hostname]
+  (with-service
+    (let [vm (find* "VirtualMachine" hostname)]
+      (wait-for (.destroy_Task vm)))))
+
 (comment
   (clone {:datacenter "playground"} 
          {:template "ubuntu-13.04_puppet-3.1" :hostname "foo" :disk-format :sparse :cpus 1 :memory 512})
   (map deref (repeatedly 40 (fn []  (future (status "foo") ))))
   (status "foo")
   (power-on "foo")
-  (power-off "foo"))
+  (power-off "foo")
+  (destroy "foo") 
+  )
 
 
 
