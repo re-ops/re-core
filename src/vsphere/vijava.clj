@@ -12,21 +12,37 @@
     com.vmware.vim25.VirtualMachineConfigSpec
     com.vmware.vim25.VirtualMachineRelocateSpec
     com.vmware.vim25.mo.Folder
+    com.vmware.vim25.VirtualMachinePowerState
     com.vmware.vim25.mo.InventoryNavigator
     com.vmware.vim25.mo.ServiceInstance
     com.vmware.vim25.mo.Task
-    com.vmware.vim25.mo.VirtualMachine )
- )
+    com.vmware.vim25.mo.VirtualMachine 
+    java.lang.Throwable 
+    )
+  )
+
+(import-logging)
 
 (def ^:dynamic service)
 
 (defn connect [{:keys [url username password]}]
   (ServiceInstance. (URL. url) username password true))
 
-(defmacro with-service [body]
-  `(binding [service (connect (get* :hypervisor :vsphere))]
-     ~body 
-    ))
+(def services (into [] (repeatedly 2 #(agent (connect (get* :hypervisor :vsphere))))))
+
+(defmacro with-service 
+  "Uses recycled service instances see http://bit.ly/YRsiNo"
+  [body]
+  `(let [a# (services (rand-int (count services))) p# (promise)]
+     (send a# (fn [s#]  
+                (try 
+                  (binding [service s#] (deliver p# ~body) s#) 
+                  (catch Throwable e# (deliver p# e#) s#)))) 
+     (let [res# @p#]
+       (when (instance? Throwable res#)
+         (throw res#))
+       res# )
+     ))
 
 (defn navigator 
   ([] (navigator (.getRootFolder service)))
@@ -77,17 +93,38 @@
     (let [vm (find* "VirtualMachine" template)]
       (wait-for (.cloneVM_Task vm (.getParent vm) hostname (clone-spec allocation machine))))))
 
+(def power-to-s
+  {VirtualMachinePowerState/poweredOn :running 
+  VirtualMachinePowerState/poweredOff :stopped 
+  VirtualMachinePowerState/suspended :suspended})
+
 (defn status [hostname]
   (with-service
     (let [vm (find* "VirtualMachine" hostname)]
-     (-> (bean vm) :guest bean :guestState )
-      )
-    )
-  )
+      (-> (bean vm) :summary bean :runtime bean :powerState power-to-s ))))
+
+(defn power-on [hostname]
+  (with-service
+    (let [vm (find* "VirtualMachine" hostname)]
+      (wait-for (.powerOnVM_Task vm nil)))))
+
+(defn power-off [hostname]
+  (with-service
+    (let [vm (find* "VirtualMachine" hostname)]
+      (wait-for (.powerOffVM_Task vm)))))
 
 (comment
   (clone {:datacenter "playground"} 
          {:template "ubuntu-13.04_puppet-3.1" :hostname "foo" :disk-format :sparse :cpus 1 :memory 512})
+  (repeatedly 40 (fn []  (future )))
   (status "foo")
+  (power-on "foo")
+  (power-off "foo")
+
   )
+
+
+
+
+
 
