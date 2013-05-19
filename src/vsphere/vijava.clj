@@ -31,7 +31,8 @@
 (def services 
   (memoize 
     (fn []  
-     (into [] (repeatedly 2 #(agent (connect (get* :hypervisor :vsphere))))))))
+      (into [] 
+        (repeatedly (get* :hypervisor :vsphere :session-count) #(agent (connect (get* :hypervisor :vsphere))))))))
 
 (defn session-expired? [instance]
   (nil? (:currentSession (bean (.getSessionManager (deref (first (services))))))))
