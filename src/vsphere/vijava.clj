@@ -33,15 +33,29 @@
     (fn []  
      (into [] (repeatedly 2 #(agent (connect (get* :hypervisor :vsphere))))))))
 
+(defn session-expired? [instance]
+  (nil? (:currentSession (bean (.getSessionManager (deref (first (services))))))))
+
+(defn renew-session [s]
+  (if (session-expired? s)
+    (do 
+      (debug "Session expired renewing")
+      (connect (get* :hypervisor :vsphere)))
+    s))
+
+(defmacro execute [body p]
+  `(fn [s#]
+     (binding [service (renew-session s#)]
+       (try 
+         (deliver ~p ~body) service) 
+       (catch Throwable e# (deliver ~p e#) service))))
+
 (defmacro with-service 
   "Uses recycled service instances see http://bit.ly/YRsiNo, 
   We try to keep all agents busy still rand isn't fair (cycle would work better)."
   [body]
   `(let [a# ((services) (rand-int (count (services)))) p# (promise)]
-     (send a# (fn [s#]  
-                (try 
-                  (binding [service s#] (debug (.hashCode service)) (deliver p# ~body) s#) 
-                  (catch Throwable e# (deliver p# e#) s#)))) 
+     (send a# (execute ~body p#)) 
      (let [res# @p#]
        (when (instance? Throwable res#)
          (throw res#))
@@ -99,8 +113,8 @@
 
 (def power-to-s
   {VirtualMachinePowerState/poweredOn :running 
-  VirtualMachinePowerState/poweredOff :stopped 
-  VirtualMachinePowerState/suspended :suspended})
+   VirtualMachinePowerState/poweredOff :stopped 
+   VirtualMachinePowerState/suspended :suspended})
 
 (defn status [hostname]
   (with-service
@@ -123,13 +137,19 @@
       (wait-for (.destroy_Task vm)))))
 
 (comment
-  (clone {:datacenter "playground"} 
-         {:template "ubuntu-13.04_puppet-3.1" :hostname "foo" :disk-format :sparse :cpus 1 :memory 512})
+  (try 
+    (clone {:datacenter "playground"} 
+           {:template "ubuntu-13.04_puppet-3.1" :hostname "foo" :disk-format :sparse :cpus 1 :memory 512})
+    (catch Throwable e (error e)) 
+    )
   (map deref (repeatedly 40 (fn []  (future (status "foo") ))))
   (status "foo")
   (power-on "foo")
   (power-off "foo")
   (destroy "foo") 
+  (clojure.pprint/pprint  (bean (.getServerConnection (deref (first (services))))))
+  (clojure.pprint/pprint (.getKey (:currentSession (bean (.getSessionManager (deref (first (services))))))))
+  (clojure.pprint/pprint (.getKey (:currentSession (bean (.getSessionManager (deref (second (services))))))))
   )
 
 
