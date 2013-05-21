@@ -10,7 +10,7 @@
    limitations under the License.)
 
 (ns celestial.validations
-  (:refer-clojure :exclude (set?))
+  (:refer-clojure :exclude (set? sequential?))
   (:use 
     [slingshot.slingshot :only  [throw+]]
     [bouncer.validators :only (defvalidator)]))
@@ -28,6 +28,11 @@
   {:default-message-format "%s must be a vector"}
   [c] 
   (if c (vector? c) true))
+
+(defvalidator sequential?
+  {:default-message-format "%s must be a sequential (list or vector)"}
+  [c] 
+  (if c (clojure.core/sequential? c) true))
 
 (defvalidator str?
   {:default-message-format "%s must be a string"}

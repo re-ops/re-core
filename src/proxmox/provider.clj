@@ -46,7 +46,7 @@
 (defn ex-v [c]
   (b/validate c 
     :id [v/number]          
-    :features [cv/vec?]))
+    :features [cv/sequential?]))
 
 (def node-available? 
   "Node availability check, result is cached for one minute"
