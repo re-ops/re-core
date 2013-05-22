@@ -52,17 +52,19 @@
                              [junit/junit "4.8.1"] ]
 
               :jvm-opts ~(vec (map (fn [[p v]] (str "-D" (name p) "=" v)) {:disable-conf "true"}))}
-            :prod {} 
+             :prod {
+                    :resource-paths  ["src/main/resources/" "pkg/etc/celestial/"]
+                    } 
              }
 
   :aliases {"celestial" 
-              ["with-profile" "prod" "trampoline" "run"]
+            ["with-profile" "prod" "trampoline" "run"]
             "autotest"
-             ["midje" ":autotest" ":filter" "-integration"] 
-             "runtest"
-             ["midje" ":filter" "-integration"] 
-             "supernal"
-             ["run" "-m" "supernal.launch" "fixtures/supernal-demo.clj" args] 
+            ["midje" ":autotest" ":filter" "-integration"] 
+            "runtest"
+            ["midje" ":filter" "-integration"] 
+            "supernal"
+            ["run" "-m" "supernal.launch" "fixtures/supernal-demo.clj" args] 
             }
 
   :aot [supernal.launch capistrano.remoter proxmox.provider vsphere.provider
