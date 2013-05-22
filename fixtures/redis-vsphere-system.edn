@@ -1,0 +1,13 @@
+{
+ :machine {
+  :cpus 1 :memory 512 :hostname "red1" :os :ubuntu-13.04
+ }
+
+ :vsphere {
+   :pool ""  :datacenter "playground"
+   :disk-format "sparse" ; or flat
+
+ }
+
+ :type "redis"
+}

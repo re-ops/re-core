@@ -1,0 +1,4 @@
+{ 
+  :username "foo" 
+  :quotas {:aws {:limit 4 :used #{1 2}} :proxmox {:limit 2 :used #{3}}}
+}

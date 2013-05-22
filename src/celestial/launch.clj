@@ -18,6 +18,7 @@
     [clojure.java.io :only (file resource)]
     [celestial.api :only (app)]
     [gelfino.timbre :only (gelf-appender)]
+    [supernal.core :only [ssh-config]]
     [ring.adapter.jetty :only (run-jetty)] 
     [celestial.common :only (get* import-logging)]
     [celestial.redis :only (clear-locks)]
@@ -64,6 +65,7 @@
   (add-shutdown)
   (info (slurp (resource "main/resources/celestial.txt")))
   (info "version 0.0.1 see http://celestial-ops.com")
+  (ssh-config {:key (get* :ssh :private-key-path) :user "root"} )
   (jobs/initialize-workers)
   (default-key)
   (run-jetty (app true)

@@ -1,19 +1,25 @@
 (ns celestial.test.persistency
-  "Validating persistency layer"
-  (:require 
-    [celestial.persistency :as p]
-    [taoensso.carmine :as car])
-  (:use 
-    midje.sweet
-    [clojure.core.strint :only (<<)]
-    [celestial.redis :only (wcar-disable)]
-    ))
+ (:use 
+   midje.sweet 
+   [celestial.persistency :only (validate-type validate-quota user-exists?)]
+   [celestial.fixtures :only (redis-type is-type? user-quota)]
+   ))
+
+(fact "puppet std type validation"
+    
+    (validate-type redis-type) => true
+
+    (validate-type (assoc-in redis-type [:puppet-std :module :src] nil)) => 
+       (throws clojure.lang.ExceptionInfo (is-type? :celestial.persistency/non-valid-type))
+
+    (validate-type (dissoc redis-type :classes)) => 
+       (throws clojure.lang.ExceptionInfo (is-type? :celestial.persistency/non-valid-type)))
+
+(fact "non puppet type"
+  (validate-type {:type "foo"}) => true)
+
+(fact "quotas validations"
+     (validate-quota user-quota) => true
+     (provided (user-exists? "foo") => true :times 1))
 
 
-(with-redefs [car/hgetall* (fn [_] {:k "v"}) wcar-disable true]
- (fact "host get" 
-    (p/host "bar") =>  {:k "v"}))
-
-(with-redefs [car/hgetall* (fn [_] nil) wcar-disable true]
-    (fact "missing host error"
-      (p/host "bar") => (throws clojure.lang.ExceptionInfo)))

@@ -35,7 +35,8 @@
      (try 
        (car/with-conn (pool) (spec-server) ~@body)
        (catch Exception e# 
-         (throw+ {:type ::redis:connection :redis-host (get* :redis :host)} "Redis connection error")
+         (error e#)
+         #_(throw+ {:type ::redis:connection :redis-host (get* :redis :host)} "Redis connection error")
          ))
      ~@body
      ))

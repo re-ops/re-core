@@ -22,13 +22,23 @@
        }
       :generators {
         :ip-range ["192.168.5.100" "192.168.5.255"]
+        :used-ips ["192.168.5.170" "192.168.5.171" "192.168.5.173"]
       }
-    }
-
+   }
     ;; :aws {
     ;;   :access-key ""
     ;;   :secret-key ""
     ;;  } 
+
+    :vsphere {
+      :url "https://192.168.5.23/sdk"
+      :username "Administrator"
+      :password "Oox1kai7"
+      :ostemplates {
+         :ubuntu-13.04 "ubuntu-13.04_puppet-3.1"
+      }
+      :session-count 2
+    }
  }
   
  :redis {
@@ -44,6 +54,9 @@
     ;celestial.dnsmasq/add-host {
      ;   :dnsmasq {:host "192.168.5.20" :user "ronen"}
     ;}             
+    ; celestial.hubot/notify-hubot {
+    ;     :hubot-host "http://192.168.20.124:8083"
+    ; }
   }
  }
 }

@@ -34,6 +34,6 @@
      :unauthenticated-handler 
         #(assoc (workflows/http-basic-deny "celestial" %) :body {:message "login failed" } )
      :workflows [(workflows/http-basic
-                   :credential-fn #(creds/bcrypt-credential-fn p/get-user %)
+                   :credential-fn #(creds/bcrypt-credential-fn p/get-user! %)
                    :realm "celestial")]}))
 

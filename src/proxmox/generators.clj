@@ -1,21 +1,19 @@
 (ns proxmox.generators
   "proxomx generated valudes"
   (:use 
+    [puny.core :only (defgen)]
     [slingshot.slingshot :only  [throw+ try+]]
     [clojure.core.strint :only (<<)]
     [proxmox.remote :only (prox-get)]
     [celestial.common :only (get* import-logging)]
     [celestial.redis :only (wcar)]
     [clojure.java.data :only (from-java)]
-    [celestial.persistency :only (defgen)])
+    )
   (:import 
     org.nmap4j.Nmap4j 
-    org.nmap4j.parser.OnePassParser
-    ) 
+    org.nmap4j.parser.OnePassParser) 
   (:require 
-    [taoensso.carmine :as car] 
-    )
-  )
+    [taoensso.carmine :as car]))
 
 (import-logging)
 
@@ -26,13 +24,18 @@
     (prox-get (<< "/nodes/proxmox/openvz/~{id}")) true
     (catch [:status 500] e false)))
 
+(defn qm-exists [id]
+  (try+ 
+    (prox-get (<< "/nodes/proxmox/qemu/~{id}")) true
+    (catch [:status 500] e false)))
+
 (defn try-gen
   "Attempts to generate an id"
   []
   (loop [i 5]
     (when (> i 0)
       (let [id (+ 100 (gen-ct-id))]
-        (if-not (ct-exists id)
+        (if-not (or (ct-exists id) (qm-exists id)) 
           id
           (recur (- i 1)))))))
 
@@ -94,21 +97,29 @@
 (def range-keys [])
 
 (defn ip-range 
-  "" 
+  "Configured ip range" 
   []
   (try+ 
     (let [[s e] (map ip-to-long (get* :hypervisor :proxmox :generators :ip-range))] 
       [s e])
     (catch [:type :celestial.common/missing-conf] e nil)))
 
+(defn mark-used
+  "marks existing ips as used" 
+  []
+  (doseq [ip (map ip-to-long (get* :hypervisor :proxmox :generators :used-ips))]
+    (wcar (car/zadd "ips" 1 ip))))
+
 (defn initialize-range
   "Initializes ip range zset 0 marks unused 1 marks used (only if missing)."
   []
-  (if-let [[s e] (ip-range)]
+  (when-let [[s e] (ip-range)]
     (wcar 
       (when-not (= 1 (car/exists "ips"))
         (doseq [ip (range s (+ 1 e))]
-          (car/zadd "ips" 0 ip))))))
+          (car/zadd "ips" 0 ip))))
+    (mark-used)
+    ))
 
 
 (defn fetch-ip
@@ -141,9 +152,15 @@
        return nil "
       {:ips "ips"} {:rel-ip (ip-to-long ip)}))))
 
+
+
 (comment
   (release-ip "192.168.5.130") 
   (gen-ip {}) 
-  (wcar (car/del "ips"))) 
+  (wcar (car/del "ips"))
+  (mark-used) 
+  (count (wcar (car/zrangebyscore "ips" 1 1 "WITHSCORES")))
+  (wcar (car/del "ips"))
+  ) 
 
 (test #'long-to-ip)

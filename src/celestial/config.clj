@@ -11,8 +11,9 @@
 
 (ns celestial.config
   "Celetial configuration info"
+  (:require [celestial.validations :as cv])
   (:use 
-    [celestial.validations :only (hash-v str-v validate-nest)]
+    [celestial.validations :only (validate-nest)]
     [clojure.pprint :only (pprint)]
     [bouncer [core :as b] [validators :as v]]
     [bouncer.validators :only (defvalidator)]
@@ -26,8 +27,8 @@
 
 (defn base-v [c]
   (b/validate c 
-    [:redis :host] [v/required str-v]
-    [:ssh :private-key-path] [v/required str-v]))
+    [:redis :host] [v/required cv/str?]
+    [:ssh :private-key-path] [v/required cv/str?]))
 
 (defn celestial-v
   "Base config validation"
@@ -36,26 +37,26 @@
     [:port] [v/required v/number]
     [:https-port] [v/required v/number]
     [:log :level] [v/required (v/member levels :message (<< "log level must be either ~{levels}"))]
-    [:log :path] [v/required str-v]
-    [:cert :password] [v/required str-v]
-    [:cert :keystore] [v/required str-v] ))
+    [:log :path] [v/required cv/str?]
+    [:cert :password] [v/required cv/str?]
+    [:cert :keystore] [v/required cv/str?] ))
 
 (defn proxmox-v 
   "proxmox section validation"
   [c]
   (validate-nest c [:hypervisor :proxmox]
-    [:username] [v/required str-v]
-    [:password] [v/required str-v]
-    [:host] [v/required str-v]
+    [:username] [v/required cv/str?]
+    [:password] [v/required cv/str?]
+    [:host] [v/required cv/str?]
     [:ssh-port] [v/required v/number]))
 
 (defn aws-v 
   "proxmox section validation"
   [c]
   (validate-nest c [:hypervisor :aws]
-    [:access-key] [v/required str-v]
-    [:secret-key] [v/required str-v]
-    [:endpoint] [v/required str-v]))
+    [:access-key] [v/required cv/str?]
+    [:secret-key] [v/required cv/str?]
+    [:endpoint] [v/required cv/str?]))
 
 (defn validate-conf 
   "applies all validations on a configration map"

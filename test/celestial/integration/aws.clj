@@ -7,23 +7,21 @@
     midje.sweet
     [celestial.model :only (vconstruct)]
     [celestial.redis :only (clear-all)]
-    [celestial.persistency :only (host register-host new-type)]  
     [celestial.fixtures :only (redis-ec2-spec redis-type)]))
 
 
 (fact "aws full scenario works" :ec2 :integration
-      (let []
-        (clear-all)
-        (new-type "redis" redis-type)
-        (let [system-id (p/add-system redis-ec2-spec) 
-              instance (vconstruct (assoc redis-ec2-spec :system-id system-id))
-              hostname (get-in redis-ec2-spec [:machine :hostname])] 
-          (.create instance) 
-          (.start instance) 
-          (get-in (p/get-system system-id) [:machine :ssh-host]) => truthy 
-          (.status instance) => "running"
-          (.stop instance) 
-          (.status instance) => "stopped"
-          (.delete instance) 
-          (.status instance) => falsey)))
+      (clear-all)
+      (p/add-type "redis" redis-type)
+      (let [system-id (p/add-system redis-ec2-spec) 
+            instance (vconstruct (assoc redis-ec2-spec :system-id system-id))
+            hostname (get-in redis-ec2-spec [:machine :hostname])] 
+        (.create instance) 
+        (.start instance) 
+        (get-in (p/get-system system-id) [:machine :ssh-host]) => truthy 
+        (.status instance) => "running"
+        (.stop instance) 
+        (.status instance) => "stopped"
+        (.delete instance) 
+        (.status instance) => falsey))
 

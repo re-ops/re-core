@@ -1,4 +1,4 @@
-(defproject celestial "0.0.1"
+(defproject celestial "0.0.3"
   :description "A launching pad for virtualized applications"
   :url "https://github.com/celestial-ops/celestial-core"
   :license  {:name "Apache License, Version 2.0" :url "http://www.apache.org/licenses/LICENSE-2.0.html"}
@@ -6,6 +6,7 @@
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [org.clojure/tools.cli "0.2.1" ]
                  [clj-config "0.2.0" ]
+                 [com.vmware/vijava "5.1" :exclusions [xml-apis]]
                  [prismatic/plumbing "0.0.1"]
                  [me.raynes/fs "1.4.1"]
                  [bouncer "0.2.3-beta1"]
@@ -28,7 +29,7 @@
                  [metrics-clojure-ring "0.9.2"]
                  [ch.qos.logback/logback-classic "1.0.9"]
                  [org.codehaus.groovy/groovy "2.1.2"]
-                 [supernal "0.1.0"]
+                 [supernal "0.1.2"]
                  [ring "1.1.8"]
                  [compojure "1.1.5" :exclusions  [ring/ring-core]]
                  [ring/ring-jetty-adapter "1.1.8"]
@@ -41,7 +42,7 @@
   :exclusions [org.clojure/clojure]
 
   :plugins  [[jonase/eastwood "0.0.2"] [lein-pedantic "0.0.5"] [lein-midje "3.0.0"]
-             [lein-bin "0.3.2"] [org.timmc/lein-otf "2.0.1"]]
+             [lein-bin "0.3.2"] [org.timmc/lein-otf "2.0.1"]  [lein-tar "2.0.0" ]]
 
   :bin {:name "celestial"}
 
@@ -61,10 +62,11 @@
              "runtest"
              ["midje" ":filter" "-integration"] 
              "supernal"
-             ["run" "-m" "supernal.launch" "fixtures/supernal-demo.clj"] 
+             ["run" "-m" "supernal.launch" "fixtures/supernal-demo.clj" args] 
             }
 
-  :aot [supernal.launch capistrano.remoter proxmox.provider celestial.core celestial.puppet-standalone celestial.launch]
+  :aot [supernal.launch capistrano.remoter proxmox.provider vsphere.provider
+        celestial.core celestial.puppet-standalone celestial.launch]
 
   :repositories  {
                   "bintray"  "http://dl.bintray.com/content/narkisr/narkisr-jars"

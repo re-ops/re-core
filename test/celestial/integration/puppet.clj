@@ -8,20 +8,18 @@
     [taoensso.timbre :only (debug info error warn)]
     [celestial.api :only (app)]
     [ring.adapter.jetty :only (run-jetty)] 
-    [celestial.tasks :only (reload puppetize)]
+    [celestial.tasks :only (reload puppetize destroy)]
     [celestial.config :only (path)]
     [celestial.redis :only (clear-all)]
-    [celestial.persistency :only (host register-host new-type)]  
     [celestial.fixtures :only (with-conf redis-prox-spec redis-ec2-spec redis-type)]))
 
 (defn run-cycle [spec type]
-  (let [hostname (get-in redis-ec2-spec [:machine :hostname])]
     (clear-all) 
-    (new-type "redis" type) 
-    (let [id (p/add-system spec) vm* (assoc spec :system-id id) vm (reload vm*)] 
-      (puppetize type vm*)
-      (.stop vm)
-      (.delete vm))))
+    (p/add-type type) 
+    (let [id (p/add-system spec)] 
+      (reload (assoc spec :system-id id))
+      (puppetize type (p/get-system id))
+      (destroy (p/get-system id))))
 
 (fact "provisioning a proxmox instance" :integration :puppet
       (with-conf
