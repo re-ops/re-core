@@ -42,7 +42,7 @@
   :exclusions [org.clojure/clojure]
 
   :plugins  [[jonase/eastwood "0.0.2"] [lein-pedantic "0.0.5"] [lein-midje "3.0.0"]
-             [lein-bin "0.3.2"] [org.timmc/lein-otf "2.0.1"]]
+             [lein-bin "0.3.2"] [org.timmc/lein-otf "2.0.1"]  [lein-tar "2.0.0" ]]
 
   :bin {:name "celestial"}
 
