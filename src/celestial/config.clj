@@ -16,7 +16,7 @@
     [clojure.pprint :only (pprint)]
     [bouncer [core :as b] [validators :as v]]
     [bouncer.validators :only (defvalidator)]
-    [taoensso.timbre :only (debug info error warn trace)]
+    [taoensso.timbre :only (set-config! set-level! debug info error warn trace)]
     [clojure.core.strint :only (<<)]
     [clojure.java.io :only (file)]
     [clj-config.core :as conf])
@@ -72,16 +72,19 @@
 
 (defn pretty-error 
   "A pretty print error log"
-  [m]
+  [m c]
   (let [st (java.io.StringWriter.)]
     (binding [*out* st] 
       (clojure.pprint/pprint m))
+    (set-config! [:shared-appender-config :spit-filename] 
+          (get-in c [:celestial :log :path] "celestial.log")) 
+    (set-config! [:appenders :spit :enabled?] true) 
     (error "Following configuration errors found:\n" st))) 
 
 (defn read-and-validate []
   (let [c (conf/read-config path) ]
     (when-let [v (:bouncer.core/errors (validate-conf c))] 
-      (pretty-error v)
+      (pretty-error v c)
       (System/exit 1))
     c))
 
