@@ -11,10 +11,10 @@
 
 (ns proxmox.provider
   (:use 
+    [proxmox.validations :only (provider-validation)]
     [trammel.core :only  (defconstrainedrecord)]
     [clojure.core.memoize :only (memo-ttl)]
     [clojure.core.strint :only (<<)]
-    [bouncer [core :as b] [validators :as v]]
     [celestial.core :only (Vm)]
     [supernal.sshj :only (execute)]
     [celestial.common :only (get* import-logging)]
@@ -30,23 +30,6 @@
   (:import clojure.lang.ExceptionInfo))
 
 (import-logging)
-
-(defn ct-v [c]
-  (b/validate c 
-     :vmid [v/required v/number]
-     :ostemplate [v/required cv/str?] 
-     :cpus [v/number v/required]
-     :disk [v/number v/required]
-     :memory [v/number v/required]
-     :ip_address [cv/str?]
-     :password [v/required cv/str?]
-     :hostname [v/required cv/str?]
-     :nameserver [cv/str?]))
-
-(defn ex-v [c]
-  (b/validate c 
-    :id [v/number]          
-    :features [cv/sequential?]))
 
 (def node-available? 
   "Node availability check, result is cached for one minute"
@@ -96,7 +79,7 @@
 
 (defconstrainedrecord Container [node ct extended]
   "ct should match proxmox expected input"
-  [(cv/validate! (ct-v ct) ::invalid-container) (cv/validate! (ex-v extended) ::invalid-extended) (not (nil? node))]
+  [(provider-validation ct extended) (not (nil? node))]
   Vm
   (create [this] 
           (debug "creating" (:vmid ct))
@@ -161,10 +144,10 @@
 
 (defmethod translate :proxmox [{:keys [machine proxmox system-id]}]
   "Convert the general model into a proxmox vz specific one"
-    (-> (merge machine proxmox {:system-id system-id})
-        (mappings {:ip :ip_address :os :ostemplate})
-        (transform {:ostemplate (os->template :proxmox)})
-        generate selections))
+  (-> (merge machine proxmox {:system-id system-id})
+      (mappings {:ip :ip_address :os :ostemplate})
+      (transform {:ostemplate (os->template :proxmox)})
+      generate selections))
 
 (defmethod vconstruct :proxmox [{:keys [proxmox] :as spec}]
   (let [{:keys [type node]} proxmox]

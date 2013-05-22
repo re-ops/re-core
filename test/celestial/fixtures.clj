@@ -20,6 +20,10 @@
   (fn [exception] 
     (= type (get-in (.getData exception) [:object :type]))))
 
+(defn with-m? [m]
+  (fn [actual]
+    (= (get-in (.getData actual) [:object :errors]) m)))
+
 (defmacro with-conf 
   "Using fixture/.celestial.edn conf file"
   [body]

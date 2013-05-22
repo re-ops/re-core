@@ -10,10 +10,11 @@
    limitations under the License.)
 
 (ns celestial.validations
-  (:refer-clojure :exclude (set? sequential?))
+  (:refer-clojure :exclude (set? sequential? keyword?))
   (:use 
     [slingshot.slingshot :only  [throw+]]
-    [bouncer.validators :only (defvalidator)]))
+    [bouncer.validators :only (defvalidator)]
+    [bouncer.core :only (validate)]))
 
 (defvalidator hash?
   {:default-message-format "%s must be a hash"}
@@ -38,6 +39,10 @@
   {:default-message-format "%s must be a string"}
   [c] (if c (string? c) true))
 
+(defvalidator keyword?
+  {:default-message-format "%s must be a keyword"}
+  [c] (if c (clojure.core/keyword? c) true))
+
 (defmacro validate-nest 
   "Bouncer nested maps validation with prefix key"
   [target pref & body]
@@ -51,4 +56,9 @@
       (throw+ {:type t :errors e}) 
      true))
 
-
+(defmacro validate!!
+  "Checks validation result (r), throws exepction of type t in case errors are found else returns true"
+  [error-type target vset]
+   `(if-let [e# (:bouncer.core/errors (second (bouncer.core/validate ~target ~vset)))] 
+      (throw+ {:type ~error-type :errors e#}) 
+     true))

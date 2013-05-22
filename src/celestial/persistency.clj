@@ -72,7 +72,7 @@
 (defn validate-type [t]
   (validate! 
     (cond-> (-> t type-base-v second)
-     (t :puppet-std) (-> classes-v second puppet-std-v) ) ::non-valid-type))
+     (t :puppet-std) (-> classes-v second puppet-std-v)) ::non-valid-type))
 
 (entity system :indices [type])
 
@@ -81,7 +81,9 @@
   (validate! 
     (b/validate system
        [:type] [(v/custom type-exists? :message (<< "Given system type ~(system :type) not found, create it first"))]
-       [:machine :hostname]  [v/required cv/str?])
+       [:machine :hostname]  [v/required cv/str?]
+                
+                )
     ::non-valid-machine))
 
 (defn clone-system 

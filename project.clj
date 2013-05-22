@@ -4,12 +4,12 @@
   :license  {:name "Apache License, Version 2.0" :url "http://www.apache.org/licenses/LICENSE-2.0.html"}
 
   :dependencies [[org.clojure/clojure "1.5.1"]
-                 [org.clojure/tools.cli "0.2.1" ]
+                 [org.clojure/tools.cli "0.2.2" ]
                  [clj-config "0.2.0" ]
                  [com.vmware/vijava "5.1" :exclusions [xml-apis]]
                  [prismatic/plumbing "0.0.1"]
                  [me.raynes/fs "1.4.1"]
-                 [bouncer "0.2.3-beta1"]
+                 [bouncer "0.2.3-beta2"]
                  [cheshire "5.0.2"]
                  [com.taoensso/timbre "1.5.3"]
                  [com.narkisr/gelfino-client "0.4.0"]
@@ -29,7 +29,7 @@
                  [metrics-clojure-ring "0.9.2"]
                  [ch.qos.logback/logback-classic "1.0.9"]
                  [org.codehaus.groovy/groovy "2.1.2"]
-                 [supernal "0.1.2"]
+                 [supernal "0.1.3"]
                  [ring "1.1.8"]
                  [compojure "1.1.5" :exclusions  [ring/ring-core]]
                  [ring/ring-jetty-adapter "1.1.8"]
