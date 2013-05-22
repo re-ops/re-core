@@ -24,13 +24,18 @@
     (prox-get (<< "/nodes/proxmox/openvz/~{id}")) true
     (catch [:status 500] e false)))
 
+(defn qm-exists [id]
+  (try+ 
+    (prox-get (<< "/nodes/proxmox/qemu/~{id}")) true
+    (catch [:status 500] e false)))
+
 (defn try-gen
   "Attempts to generate an id"
   []
   (loop [i 5]
     (when (> i 0)
       (let [id (+ 100 (gen-ct-id))]
-        (if-not (ct-exists id)
+        (if-not (and (ct-exists id) (qm-exists id)) 
           id
           (recur (- i 1)))))))
 
