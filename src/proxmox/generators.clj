@@ -35,7 +35,7 @@
   (loop [i 5]
     (when (> i 0)
       (let [id (+ 100 (gen-ct-id))]
-        (if-not (and (ct-exists id) (qm-exists id)) 
+        (if-not (or (ct-exists id) (qm-exists id)) 
           id
           (recur (- i 1)))))))
 
