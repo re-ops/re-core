@@ -13,6 +13,7 @@
   (:refer-clojure :exclude [type])
   (:require 
     [proxmox.validations :as pv]
+    [aws.validations :as av]
     [taoensso.carmine :as car]
     [cemerick.friend :as friend]
     [celestial.validations :as cv]
@@ -81,7 +82,9 @@
   )
 
 (def hyp-to-v 
-  {:proxmox pv/validate-entity})
+  {:proxmox pv/validate-entity
+   :aws    av/validate-entity 
+   })
 
 (defn validate-system
   [system]
