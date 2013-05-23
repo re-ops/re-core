@@ -19,7 +19,7 @@
   )
 
 (defvalidatorset entity-validation
-  :aws aws 
+  :aws aws-entity 
   :machine machine-entity)
 
 (defn validate-entity 
