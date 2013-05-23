@@ -4,8 +4,7 @@
  }
 
  :aws {
-  :min-count 1 :max-count 1 
-  :instance-type "t1.micro" ; optional guessed from machine if missing
+  :instance-type "t1.micro" 
   :image-id "ami-64636a10"
   :key-name "Uranus" 
   :endpoint "ec2.eu-west-1.amazonaws.com"

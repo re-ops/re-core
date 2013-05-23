@@ -35,12 +35,7 @@
 
 (import-logging)
 
-(defn instance-v [c]
-  (b/validate c 
-              :min-count [v/required v/number]
-              :max-count [v/required v/number]
-              :instance-type [v/required cv/str?] 
-              :key-name [v/required cv/str?] ))
+
 
 (defn creds [] (get* :hypervisor :aws))
 

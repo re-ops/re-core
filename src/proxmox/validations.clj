@@ -1,5 +1,5 @@
 (ns proxmox.validations
-  "Proxmox provider based validations"
+  "Proxmox based validations"
   (:use 
     [clojure.core.strint :only (<<)]
     [bouncer [core :as b] [validators :as v :only (defvalidatorset )]])
