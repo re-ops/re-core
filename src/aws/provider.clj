@@ -136,8 +136,10 @@
             (instance-desc endpoint uuid :state :name)
             (catch [:type ::aws:missing-id] e false)))) 
 
+(def defaults {:min-count 1 :max-count 1})
+
 (defmethod translate :aws [{:keys [aws machine] :as spec}] 
-  [(aws :endpoint) (dissoc-in* spec [:aws :endpoint]) (str (UUID/randomUUID)) (or (machine :user) "root")])
+  [(aws :endpoint) (merge (dissoc-in* spec [:aws :endpoint]) defaults) (str (UUID/randomUUID)) (or (machine :user) "root")])
 
 (defmethod vconstruct :aws [spec]
   (apply ->Instance (translate spec)))

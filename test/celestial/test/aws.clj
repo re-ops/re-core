@@ -10,5 +10,7 @@
 (with-redefs [ids (fn [] (atom {}))]
   (let [instance (vconstruct redis-ec2-spec)] 
     (fact "We cannot start a instance without an aws instance id"
-          (.start instance) => (throws ExceptionInfo (is-type? :aws.provider/aws:missing-id)))))
+          (.start instance) => (throws ExceptionInfo (is-type? :aws.provider/aws:missing-id)))
+    (fact "min-count max-count"
+        (:spec instance)  => (contains {:min-count 1 :max-count 1}))))
 
