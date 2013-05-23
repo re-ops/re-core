@@ -12,7 +12,7 @@
 
 (fact "aws full scenario works" :ec2 :integration
       (clear-all)
-      (p/add-type "redis" redis-type)
+      (p/add-type redis-type)
       (let [system-id (p/add-system redis-ec2-spec) 
             instance (vconstruct (assoc redis-ec2-spec :system-id system-id))
             hostname (get-in redis-ec2-spec [:machine :hostname])] 
