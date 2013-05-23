@@ -12,6 +12,8 @@
 (ns celestial.persistency
   (:refer-clojure :exclude [type])
   (:require 
+    [proxmox.validations :as pv]
+    [taoensso.carmine :as car]
     [cemerick.friend :as friend]
     [celestial.validations :as cv]
     proxmox.model aws.model)
@@ -19,15 +21,13 @@
     [puny.core :only (entity)]
     [celestial.roles :only (roles admin)]
     [cemerick.friend.credentials :as creds]
-    [bouncer [core :as b] [validators :as v]]
-    [celestial.validations :only (validate! validate-nest)]
+    [bouncer [core :as b] [validators :as v :only (defvalidatorset defvalidator)]]
+    [celestial.validations :only (validate! validate!! validate-nest)]
     [clojure.string :only (split join)]
     [celestial.redis :only (wcar hsetall*)]
     [slingshot.slingshot :only  [throw+ try+]]
     [celestial.model :only (clone hypervizors figure-virt)] 
-    [clojure.core.strint :only (<<)]) 
-  (:require 
-    [taoensso.carmine :as car]))
+    [clojure.core.strint :only (<<)]))
 
 (entity user :id username)
 
@@ -76,15 +76,18 @@
 
 (entity system :indices [type])
 
+(defvalidatorset system-type
+  :type [(v/custom type-exists? :message (<< "Given system type ~(system :type) not found, create it first"))]
+  )
+
+(def hyp-to-v 
+  {:proxmox pv/validate-entity})
+
 (defn validate-system
   [system]
-  (validate! 
-    (b/validate system
-       [:type] [(v/custom type-exists? :message (<< "Given system type ~(system :type) not found, create it first"))]
-       [:machine :hostname]  [v/required cv/str?]
-                
-                )
-    ::non-valid-machine))
+  (validate!! ::non-valid-machine-type system system-type)
+  ((hyp-to-v (figure-virt system)) system))
+
 
 (defn clone-system 
   "clones an existing system"

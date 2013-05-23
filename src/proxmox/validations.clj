@@ -1,12 +1,10 @@
 (ns proxmox.validations
   "Proxmox provider based validations"
   (:use 
+    [clojure.core.strint :only (<<)]
     [bouncer [core :as b] [validators :as v :only (defvalidatorset )]])
   (:require 
-    [celestial.validations :as cv]
-    ))
-
-
+    [celestial.validations :as cv]))
 
 (defvalidatorset machine-common
     :cpus [v/number v/required]
@@ -14,7 +12,11 @@
     :memory [v/number v/required]
     :hostname [v/required cv/str?])
 
+(def prox-types [:ct :vm])
+
 (defvalidatorset proxmox-entity
+    :type [v/required 
+           (v/member prox-types  :message (<< "Proxmox VM type must be either ~{prox-types}" ))]
     :password [v/required cv/str?]
     :nameserver [cv/str?])
 

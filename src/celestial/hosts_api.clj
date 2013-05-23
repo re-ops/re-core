@@ -48,10 +48,6 @@
   :type {:type :string :allowableValues {:valueType "LIST" :values ["ct" "vm"]}}
   :features {:type "List"})
 
-(defv [:proxmox :type]
-  (let [allowed (get-in proxmox [:properties :type :allowableValues :values])]
-    (when-not (first (filter #{v} allowed))
-      (throw (clojure.lang.ExceptionInfo. (<< "Value ~{v} for proxmox type isn't valid") {:error :validation})))))
 
 (defc [:proxmox :type] (keyword v))
 

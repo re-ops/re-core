@@ -14,11 +14,10 @@
         [celestial.users-api :only (users quotas)]
         [compojure.core :only (defroutes routes)] 
         [metrics.ring.expose :only  (expose-metrics-as-json)]
-        [ring.middleware.format-params :only [wrap-restful-params]]
         [celestial.roles :only (roles roles-m admin)]
         [clojure.core.strint :only (<<)]
         [slingshot.slingshot :only  [throw+ try+]]
-        [ring.middleware.format-response :only [wrap-restful-response]]
+        [ring.middleware.format :only [wrap-restful-format]]
         [ring.middleware.params :only (wrap-params)]
         [metrics.ring.instrument :only  (instrument)]
         [swag.core :only (swagger-routes GET- POST- PUT- DELETE- defroutes- errors)]
@@ -125,8 +124,7 @@
   (-> (compose-routes secured?) 
       (wrap-swag) 
       (handler/api)
-      (wrap-restful-params) 
-      (wrap-restful-response)
+      (wrap-restful-format :formats [:json-kw :edn :yaml-kw :yaml-in-html])
       (mp/wrap-multipart-params)
       (expose-metrics-as-json)
       (instrument)
