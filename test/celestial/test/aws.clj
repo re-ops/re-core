@@ -12,5 +12,5 @@
     (fact "We cannot start a instance without an aws instance id"
           (.start instance) => (throws ExceptionInfo (is-type? :aws.provider/aws:missing-id)))
     (fact "min-count max-count"
-        (:spec instance)  => (contains {:min-count 1 :max-count 1}))))
+        (get-in instance [:spec :aws])  => (contains {:min-count 1 :max-count 1}))))
 
