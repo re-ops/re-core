@@ -15,7 +15,7 @@
   (:require [celestial.persistency :as p]
             [celestial.validations :as cv])
   (:use 
-    [celestial.validations :only (validate!)]
+    [aws.validations :only (provider-validation)]
     [bouncer [core :as b] [validators :as v]]
     [clojure.core.strint :only (<<)]
     [supernal.sshj :only (execute ssh-up?)]
@@ -103,8 +103,7 @@
 
 (defconstrainedrecord Instance [endpoint spec uuid user]
   "An Ec2 instance, uuid used for instance-id tracking"
-  [(validate! (instance-v (spec :aws)) ::ec2-invalid-instance)
-   (-> endpoint nil? not)  (-> uuid nil? not)]
+  [(provider-validation spec) (-> endpoint nil? not)  (-> uuid nil? not)]
   Vm
   (create [this] 
           (let [{:keys [aws]} spec]

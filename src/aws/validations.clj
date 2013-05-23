@@ -2,7 +2,7 @@
   "AWS based validations"
   (:use 
     [clojure.core.strint :only (<<)]
-    [bouncer [core :as b] [validators :as v :only (defvalidatorset )]])
+    [bouncer [core :as b] [validators :as v :only (defvalidatorset)]])
   (:require 
     [celestial.validations :as cv]))
 
@@ -11,14 +11,14 @@
   :user [v/required cv/str?]
   :os [v/required cv/keyword?])
 
-(defvalidator aws-entity
+(defvalidatorset aws-entity
   :instance-type [v/required cv/str?]
   :image-id [v/required cv/str?]
   :key-name [v/required cv/str?]
   :endpoint [v/required cv/str?]
   )
 
-(defvalidator entity-validation
+(defvalidatorset entity-validation
   :aws aws 
   :machine machine-entity)
 
@@ -26,3 +26,14 @@
  "aws based systems entity validation " 
   [aws]
   (cv/validate!! ::invalid-system aws entity-validation))
+
+
+(defvalidatorset aws-provider
+  :instance-type [v/required cv/str?]
+  :image-id [v/required cv/str?]
+  :key-name [v/required cv/str?]
+  )
+
+
+(defn provider-validation [{:keys [aws] :as spec}]
+  (cv/validate!! ::invalid-aws aws aws-provider))
