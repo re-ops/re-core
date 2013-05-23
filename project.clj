@@ -37,7 +37,7 @@
                  [org.clojure/tools.macro "0.1.2"]
                  [org.clojure/java.data "0.1.1"]
                  [org.nmap4j/org.nmap4j "1.0.4"]
-                 [ring-middleware-format "0.2.4"]]
+                 [ring-middleware-format "0.3.0"]]
 
   :exclusions [org.clojure/clojure]
 
@@ -49,14 +49,15 @@
   :bin {:name "celestial"}
 
   :profiles {:dev 
-             {:dependencies [[org.clojure/tools.trace "0.7.5"] 
-                             [ring-mock "0.1.3"]  [midje "1.5.1" :exclusions [org.clojure/core.unify]]
-                             [junit/junit "4.8.1"] ]
 
+             {
+              :resource-paths  ["src/main/resources/" "pkg/etc/celestial/"]
+              :dependencies [[org.clojure/tools.trace "0.7.5"] [ring-mock "0.1.3"]
+                             [midje "1.5.1" :exclusions [org.clojure/core.unify]]
+                             [junit/junit "4.8.1"]]
               :jvm-opts ~(vec (map (fn [[p v]] (str "-D" (name p) "=" v)) {:disable-conf "true"}))}
-             :prod {
-                    :resource-paths  ["src/main/resources/" "pkg/etc/celestial/"]
-                    } 
+
+             :prod { :resource-paths  ["src/main/resources/" "pkg/etc/celestial/"] } 
              }
 
   :aliases {"celestial" 
