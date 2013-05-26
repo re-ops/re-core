@@ -55,7 +55,7 @@
       (let [{:keys [module]} args]
         (run (<< "rm -rf /tmp/~(:name module)*"))))) 
 
-(lifecycle puppet-provision
+(lifecycle puppet-provision {:doc "basic puppet standalone provisioning"}
   {puppet/copy-module #{puppet/extract-module}
    puppet/extract-module #{puppet/copy-yaml}
    puppet/copy-yaml #{puppet/run-puppet}
