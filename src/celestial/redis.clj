@@ -14,7 +14,7 @@
   (:use  
     [clojure.set :only (difference)]
     [flatland.useful.utils :only (defm)]
-    [celestial.common :only (get* curr-time)]
+    [celestial.common :only (get! curr-time)]
     [clojure.core.strint :only (<<)]
     [slingshot.slingshot :only  [throw+]]
     [taoensso.timbre :only (debug trace info error warn)])
@@ -26,7 +26,7 @@
 
 (defm pool [] (car/make-conn-pool)) 
 
-(defm spec-server [] (car/make-conn-spec :host (get* :redis :host)))
+(defm spec-server [] (car/make-conn-spec :host (get! :redis :host)))
 
 (def wcar-disable false)
 
@@ -36,7 +36,7 @@
        (car/with-conn (pool) (spec-server) ~@body)
        (catch Exception e# 
          (error e#)
-         #_(throw+ {:type ::redis:connection :redis-host (get* :redis :host)} "Redis connection error")
+         #_(throw+ {:type ::redis:connection :redis-host (get! :redis :host)} "Redis connection error")
          ))
      ~@body
      ))

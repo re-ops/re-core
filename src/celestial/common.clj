@@ -23,12 +23,17 @@
 
 (import-logging)
 
-(defn get* 
-  "Reading a keys path from configuration"
+(defn get!
+  "Reading a keys path from configuration raises an error of keys not found"
   [& keys] 
   (if-let [v (get-in config keys)]
     v
     (throw+ {:type ::missing-conf :message (<< "No matching configuration keys ~{keys} found")})))
+
+(defn get* 
+  "Quite version of get!"
+  [& keys]
+   (get-in config keys))
 
 (defn slurp-edn [file] (read-string (slurp file)))
 

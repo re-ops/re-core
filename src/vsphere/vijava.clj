@@ -2,7 +2,7 @@
   (:use 
     [slingshot.slingshot :only  [throw+ try+]]
     [clojure.core.strint :only  (<<)]
-    [celestial.common :only (get* import-logging)])
+    [celestial.common :only (get! import-logging)])
   (:import 
     java.net.URL
     com.vmware.vim25.mo.InventoryNavigator
@@ -32,7 +32,7 @@
   (memoize 
     (fn []  
       (into [] 
-        (repeatedly (get* :hypervisor :vsphere :session-count) #(agent (connect (get* :hypervisor :vsphere))))))))
+        (repeatedly (get! :hypervisor :vsphere :session-count) #(agent (connect (get! :hypervisor :vsphere))))))))
 
 (defn session-expired? [instance]
   (nil? (:currentSession (bean (.getSessionManager (deref (first (services))))))))
@@ -41,7 +41,7 @@
   (if (session-expired? s)
     (do 
       (debug "Session expired renewing")
-      (connect (get* :hypervisor :vsphere)))
+      (connect (get! :hypervisor :vsphere)))
     s))
 
 (defmacro execute [body p]

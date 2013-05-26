@@ -14,13 +14,13 @@
     [cheshire.core :refer :all]
     [clj-http.client :as client])
   (:use [clojure.core.strint :only (<<)]
-        [celestial.common :only (get*)]
+        [celestial.common :only (get!)]
         [slingshot.slingshot :only  [try+]]
         [taoensso.timbre :only (debug info error) :as timbre])
   (:import clojure.lang.ExceptionInfo)) 
 
 
-(defn root [] (<< "https://~(get* :hypervisor :proxmox :host):8006/api2/json"))
+(defn root [] (<< "https://~(get! :hypervisor :proxmox :host):8006/api2/json"))
 
 (defn retry
   "A retry for http calls against proxmox, some operations lock machine even after completion"
@@ -43,7 +43,7 @@
   [verb api args]
   (:data (parse-string (:body (verb (<< "~(root)~{api}") (merge args http-opts))) true)))
 
-(defn proxmox-conf [] (get* :hypervisor :proxmox))
+(defn proxmox-conf [] (get! :hypervisor :proxmox))
 
 (defn login-creds []
   (select-keys 

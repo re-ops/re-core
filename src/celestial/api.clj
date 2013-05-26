@@ -22,7 +22,7 @@
         [metrics.ring.instrument :only  (instrument)]
         [swag.core :only (swagger-routes GET- POST- PUT- DELETE- defroutes- errors)]
         [swag.model :only (defmodel wrap-swag defv defc)]
-        [celestial.common :only (import-logging get* resp bad-req conflict success)])
+        [celestial.common :only (import-logging get! resp bad-req conflict success)])
   (:require 
     [ring.middleware [multipart-params :as mp] ]
     [celestial.security :as sec]
@@ -109,7 +109,7 @@
       (catch Throwable e {:body (.getMessage e) :status 500}))))
 
 (defn force-https [rs]
-  (binding [friend/*default-scheme-ports* {:http (get* :celestial :port) :https (get* :celestial :https-port)}]
+  (binding [friend/*default-scheme-ports* {:http (get! :celestial :port) :https (get! :celestial :https-port)}]
     (friend/requires-scheme rs :https)))
 
 (defn compose-routes

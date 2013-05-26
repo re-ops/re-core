@@ -12,7 +12,6 @@
 (ns vsphere.provider 
   (:use 
     [celestial.provider :only (str? vec? mappings)]
-    [celestial.common :only (get* import-logging)]
     [trammel.core :only  (defconstrainedrecord)]
     [clojure.core.strint :only (<<)]
     [vsphere.vijava :only (clone power-on power-off status destroy)]

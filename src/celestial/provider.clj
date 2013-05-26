@@ -12,7 +12,7 @@
 (ns celestial.provider
   "common providers functions"
     (:use 
-      [celestial.common :only (get* import-logging)]
+      [celestial.common :only (get! import-logging)]
       [clojure.core.strint :only (<<)]
       [slingshot.slingshot :only  [throw+ try+]]))
 
@@ -36,7 +36,7 @@
   (fn [os]
    (let [ks [:hypervisor hyp :ostemplates os]]
      (try+ 
-      (apply get* ks)
+      (apply get! ks)
       (catch [:type :celestial.common/missing-conf] e
         (throw+ {:type :missing-template :message 
           (<< "no matching vmware template found for ~{os} add one to configuration under ~{ks}")}))))))

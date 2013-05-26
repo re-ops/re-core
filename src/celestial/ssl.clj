@@ -21,9 +21,9 @@
     sun.security.x509.CertAndKeyGen
     sun.security.x509.X500Name)
   (:use 
-    [celestial.common :only (get*)]
     [clojure.core.strint :only (<<)]))
 
+; TODO enable more dynamic options here
 (def keysize 1024) 
 (def cname "celesital-ops.local") 
 (def org-unit "IT")

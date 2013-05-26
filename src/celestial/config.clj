@@ -39,7 +39,8 @@
     [:log :level] [v/required (v/member levels :message (<< "log level must be either ~{levels}"))]
     [:log :path] [v/required cv/str?]
     [:cert :password] [v/required cv/str?]
-    [:cert :keystore] [v/required cv/str?] ))
+    [:cert :keystore] [v/required cv/str?]
+    [:nrepl :port] [v/number]))
 
 (defn proxmox-v 
   "proxmox section validation"

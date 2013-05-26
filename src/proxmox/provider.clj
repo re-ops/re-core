@@ -17,7 +17,7 @@
     [clojure.core.strint :only (<<)]
     [celestial.core :only (Vm)]
     [supernal.sshj :only (execute)]
-    [celestial.common :only (get* import-logging)]
+    [celestial.common :only (get! import-logging)]
     [proxmox.remote :only (prox-post prox-delete prox-get)]
     [slingshot.slingshot :only  [throw+ try+]]
     [clojure.set :only (difference)]
@@ -129,7 +129,7 @@
 
 (defn vzctl 
   [this action] 
-  (execute  (<< "vzctl ~{action}") (get* :hypervisor :proxmox)))
+  (execute  (<< "vzctl ~{action}") (get! :hypervisor :proxmox)))
 
 (defn generate
   "apply generated values (if not present)." 

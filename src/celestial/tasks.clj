@@ -12,7 +12,7 @@
 (ns celestial.tasks
   "misc development tasks"
   (:use 
-    [celestial.common :only (get*)]
+    [celestial.common :only (get!)]
     [clojure.core.strint :only (<<)]
     [celestial.common :only (slurp-edn)]
     [taoensso.timbre :only (debug info trace)] 
@@ -35,7 +35,7 @@
 (defn post-create-hooks 
   "Runs post creation hooks"
   [machine]
-  (doseq [[f args] (get* :hooks :post-create)]
+  (doseq [[f args] (get! :hooks :post-create)]
     (debug "running hook"  f (resolve f))
     ((resolve- f) (merge machine args))))
 

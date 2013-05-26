@@ -30,14 +30,12 @@
     [celestial.provider :only (str? vec?)]
     [celestial.redis :only (synched-map)]
     [celestial.core :only (Vm)]
-    [celestial.common :only (get* import-logging curr-time)]
+    [celestial.common :only (get! import-logging curr-time)]
     [celestial.model :only (translate vconstruct)]))
 
 (import-logging)
 
-
-
-(defn creds [] (get* :hypervisor :aws))
+(defn creds [] (get! :hypervisor :aws))
 
 (defm ids [] (synched-map :aws-keys))
 

@@ -13,6 +13,8 @@
   "celestial lanching ground aka main"
   (:gen-class true)
   (:use 
+    [clojure.core.strint :only (<<)]
+    [clojure.tools.nrepl.server :only (start-server stop-server)]
     [celestial.persistency :as p]
     [celestial.ssl :only (generate-store)]
     [clojure.java.io :only (file resource)]
@@ -20,7 +22,7 @@
     [gelfino.timbre :only (gelf-appender)]
     [supernal.core :only [ssh-config]]
     [ring.adapter.jetty :only (run-jetty)] 
-    [celestial.common :only (get* import-logging)]
+    [celestial.common :only (get! get* import-logging)]
     [celestial.redis :only (clear-locks)]
     [taoensso.timbre :only (set-config! set-level!)])
   (:require [celestial.jobs :as jobs]))
@@ -30,7 +32,7 @@
 (defn setup-logging 
   "Sets up logging configuration"
   []
-  (let [log* (partial get* :celestial :log)]
+  (let [log* (partial get! :celestial :log)]
     (set-config! [:appenders :gelf] gelf-appender) 
     (set-config! [:shared-appender-config :gelf] {:host (log* :gelf-host)}) 
     (set-config! [:shared-appender-config :spit-filename] (log* :path)) 
@@ -49,7 +51,7 @@
 (defn cert-conf 
   "Celetial cert configuration" 
   [k]
-  (get* :celestial :cert k))
+  (get! :celestial :cert k))
 
 (defn default-key 
   "Generates a default keystore if missing" 
@@ -58,21 +60,27 @@
     (info "generating a default keystore")
     (generate-store (cert-conf :keystore) (cert-conf :password))))
 
+(defn start-nrepl
+  []
+  (when-let [port (get* :celestial :nrepl :port)]
+    (info (<< "starting nrepl on port ~{port}"))
+    (defonce server (start-server :port port))))
 
 (defn -main [& args]
   (setup-logging)
   (p/reset-admin)
   (add-shutdown)
   (info (slurp (resource "main/resources/celestial.txt")))
-  (info "version 0.0.1 see http://celestial-ops.com")
-  (ssh-config {:key (get* :ssh :private-key-path) :user "root"} )
+  (info "version 0.0.4 see http://celestial-ops.com")
+  (ssh-config {:key (get! :ssh :private-key-path) :user "root"} )
   (jobs/initialize-workers)
   (default-key)
+  (start-nrepl)
   (run-jetty (app true)
-             {:port (get* :celestial :port) :join? false
+             {:port (get! :celestial :port) :join? false
               :ssl? true :keystore (cert-conf :keystore)
               :key-password  (cert-conf :password)
-              :ssl-port (get* :celestial :https-port)}))
+              :ssl-port (get! :celestial :https-port)}))
 
 
 ; hack http://bit.ly/YfXnXG
@@ -81,7 +89,7 @@
 (defn reload-handler 
   "Re sets the handler passed to jetty see http://bit.ly/12NnSL4"
   [s handler]
-   (doto s (.setHandler (proxy-handler handler))))
+  (doto s (.setHandler (proxy-handler handler))))
 
 (defn jetty-reload 
   "Reloads jetty routes"

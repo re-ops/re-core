@@ -12,6 +12,10 @@
      :password "foobar" 
      :keystore "foo.keystore"
    }
+
+   ;; :nrepl {
+   ;;    :port 7888
+   ;;  }
  }
 
  :hypervisor {

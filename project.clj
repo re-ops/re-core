@@ -9,6 +9,7 @@
                  [com.vmware/vijava "5.1" :exclusions [xml-apis]]
                  [prismatic/plumbing "0.0.1"]
                  [me.raynes/fs "1.4.1"]
+                 [org.clojure/tools.nrepl "0.2.3"]
                  [bouncer "0.2.3-beta2"]
                  [cheshire "5.0.2"]
                  [com.taoensso/timbre "1.5.3"]
@@ -43,8 +44,7 @@
 
   :plugins  [[jonase/eastwood "0.0.2"] [lein-pedantic "0.0.5"] [lein-midje "3.0.0"]
              [lein-bin "0.3.2"] [org.timmc/lein-otf "2.0.1"]  [lein-tar "2.0.0" ]
-             [lein-tag "0.1.0"] 
-             ]
+             [lein-tag "0.1.0"] ]
 
   :bin {:name "celestial"}
 

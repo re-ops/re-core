@@ -5,7 +5,7 @@
     [slingshot.slingshot :only  [throw+ try+]]
     [clojure.core.strint :only (<<)]
     [proxmox.remote :only (prox-get)]
-    [celestial.common :only (get* import-logging)]
+    [celestial.common :only (get! import-logging)]
     [celestial.redis :only (wcar)]
     [clojure.java.data :only (from-java)]
     )
@@ -100,14 +100,14 @@
   "Configured ip range" 
   []
   (try+ 
-    (let [[s e] (map ip-to-long (get* :hypervisor :proxmox :generators :ip-range))] 
+    (let [[s e] (map ip-to-long (get! :hypervisor :proxmox :generators :ip-range))] 
       [s e])
     (catch [:type :celestial.common/missing-conf] e nil)))
 
 (defn mark-used
   "marks existing ips as used" 
   []
-  (doseq [ip (map ip-to-long (get* :hypervisor :proxmox :generators :used-ips))]
+  (doseq [ip (map ip-to-long (get! :hypervisor :proxmox :generators :used-ips))]
     (wcar (car/zadd "ips" 1 ip))))
 
 (defn initialize-range
@@ -161,6 +161,7 @@
   (mark-used) 
   (count (wcar (car/zrangebyscore "ips" 1 1 "WITHSCORES")))
   (wcar (car/del "ips"))
+  (map #( -> % (Long/parseLong) long-to-ip) (wcar (car/zrangebyscore "ips" 0 0))); list used
   ) 
 
 (test #'long-to-ip)
