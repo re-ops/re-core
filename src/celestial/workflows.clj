@@ -9,8 +9,8 @@
    See the License for the specific language governing permissions and
    limitations under the License.)
 
-(ns celestial.tasks
-  "misc development tasks"
+(ns celestial.workflows
+  "Main workflows"
   (:use 
     [celestial.common :only (get!)]
     [clojure.core.strint :only (<<)]

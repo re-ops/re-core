@@ -14,7 +14,7 @@
   (:use  
     [celestial.redis :only (create-worker wcar with-lock half-hour minute)]
     [taoensso.timbre :only (debug info error warn trace)]
-    [celestial.tasks :only (reload destroy puppetize full-cycle)]) 
+    [celestial.workflows :only (reload destroy puppetize full-cycle)]) 
   (:require  
     [taoensso.carmine :as car]
     [taoensso.carmine.message-queue :as carmine-mq]))

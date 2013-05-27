@@ -1,19 +1,18 @@
-(ns celestial.test.tasks
+(ns celestial.test.workflows
   (:use 
     midje.sweet
     [celestial.config :only (config)]
-    [celestial.tasks :only (resolve- post-create-hooks)])  
-  (:import clojure.lang.ExceptionInfo)
- )
+    [celestial.workflows :only (resolve- post-create-hooks)])  
+  (:import clojure.lang.ExceptionInfo))
 
 (defn foo-hook [v] v)
 
 (def identity-hook
-  {:hooks {:post-create {'celestial.test.tasks/foo-hook {:foo 1}}}})
+  {:hooks {:post-create {'celestial.test.workflows/foo-hook {:foo 1}}}})
 
 (let [machine {:machine {:hostname "foo" :ip_address "192.168.2.1"}} merged (merge machine {:foo 1})]
   (with-redefs [config identity-hook]
-    (fact ""
+    (fact "post hook invoke"
       (post-create-hooks machine) => nil
       (provided 
         (foo-hook merged) => merged :times 1))))

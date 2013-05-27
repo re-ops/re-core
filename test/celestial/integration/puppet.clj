@@ -8,7 +8,7 @@
     [taoensso.timbre :only (debug info error warn)]
     [celestial.api :only (app)]
     [ring.adapter.jetty :only (run-jetty)] 
-    [celestial.tasks :only (reload puppetize destroy)]
+    [celestial.workflows :only (reload puppetize destroy)]
     [celestial.config :only (path)]
     [celestial.redis :only (clear-all)]
     [celestial.fixtures :only (with-conf redis-prox-spec redis-ec2-spec redis-type)]))
