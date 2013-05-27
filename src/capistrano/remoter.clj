@@ -25,7 +25,7 @@
   (cleanup [this]
        (delete-dir (dest-path src "/tmp"))))
 
-(defmethod rconstruct :capistrano [spec]
-  (let [{:keys [src args name] :as spec} (spec :capistrano)]
+(defmethod rconstruct :capistrano [task]
+  (let [{:keys [src args name] :as task} (task :capistrano)]
     (->Capistrano src args name)))
 

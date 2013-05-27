@@ -17,8 +17,10 @@
     [celestial.common :only (slurp-edn)]
     [taoensso.timbre :only (debug info trace)] 
     [slingshot.slingshot :only  [throw+ try+]]
-    [celestial.model :only (vconstruct pconstruct)]) 
-  (:require proxmox.provider aws.provider celestial.puppet_standalone); loading defmethods
+    [celestial.model :only (vconstruct pconstruct rconstruct)]) 
+  (:require ; loading defmethods
+    proxmox.provider aws.provider vsphere.provider
+    celestial.puppet_standalone capistrano.remoter)
   (:import 
     [celestial.puppet_standalone Standalone]
     [proxmox.provider Container]))
@@ -62,7 +64,9 @@
       (.delete vm)) 
     (info "system destruction done")))
 
-(defn puppetize [type spec]
+(defn puppetize 
+  "Provisions an instance"
+  [type spec]
   (info "starting to provision")
   (trace type spec) 
   (.apply- (pconstruct type spec))
@@ -75,4 +79,14 @@
    (reload system) 
    (puppetize provision)))
 
+(defn run-task 
+  "Runs a remote task"
+  [task]
+ (let [remote (rconstruct task)]
+   (info (<< "seting up task ~(task :name)"))
+   (.setup remote)
+   (info (<< "running up task ~(task :name)"))
+   (.run remote)
+   (info (<< "cleaning up task ~(task :name)"))
+   (.cleanup remote)))
 

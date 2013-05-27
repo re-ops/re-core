@@ -67,6 +67,9 @@
            (success 
              {:msg "submitted provisioning" :id id :system system :type type :job job})))
 
+  (POST- "/job/:action/:id" [^:string actions ^:int id] {:nickname "runAction" :summary "Run an adhoc remote action (like deployment, service restart etc) "}
+         )
+
   (GET- "/job/:queue/:uuid/status" [^:string queue ^:string uuid]
         {:nickname "jobStatus" :summary "job status tracking" 
          :notes "job status can be pending, processing, done or nil"}
@@ -79,21 +82,21 @@
 (defn hash-pass [user]
   (update-in user [:password] (fn [v] (creds/hash-bcrypt v))))
 
-(defroutes- tasks {:path "/tasks" :description "Tasks managment"}
-  (POST- "/task" [& ^:task task] {:nickname "addTask" :summary "Adds a new task"}
+(defroutes- actions {:path "/actions" :description "Adhoc actions managment"}
+  (POST- "/action" [& ^:task task] {:nickname "addActions" :summary "Adds an actions set"}
          (let [id (p/add-task task)]
-           (success {:msg "added new task" :id id})))
+           (success {:msg "added actions" :id id})))
 
-  (PUT- "/task/:id" [^:int id & ^:task task] {:nickname "updateTask" :summary "Update a task"}
+  (PUT- "/action/:id" [^:int id & ^:task task] {:nickname "updateActions" :summary "Update an actions set"}
         (p/update-task id task)
-        (success {:msg "updated task" :task task}))
+        (success {:msg "updated actions" :task task}))
 
-  (GET- "/task/:id" [^:int id] {:nickname "getTask" :summary "Get a task"}
+  (GET- "/action/:id" [^:int id] {:nickname "getActions" :summary "Gets actions descriptor"}
         (success {:task (p/get-task id)}))
 
-  (DELETE- "/task/:id" [^:int id] {:nickname "deleteTask" :summary "Deletes a task"}
+  (DELETE- "/action/:id" [^:int id] {:nickname "deleteActions" :summary "Deletes an action set"}
            (p/delete-task id)
-           (success {:msg "delete task" :id id})))
+           (success {:msg "deleted actions" :id id})))
 
 
 

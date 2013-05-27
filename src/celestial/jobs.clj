@@ -14,7 +14,7 @@
   (:use  
     [celestial.redis :only (create-worker wcar with-lock half-hour minute)]
     [taoensso.timbre :only (debug info error warn trace)]
-    [celestial.workflows :only (reload destroy puppetize full-cycle)]) 
+    [celestial.workflows :only (reload destroy puppetize full-cycle run-task)]) 
   (:require  
     [taoensso.carmine :as car]
     [taoensso.carmine.message-queue :as carmine-mq]))
@@ -28,7 +28,9 @@
     (apply f args)))
 
 (def jobs 
-  (atom {:reload [reload 2] :destroy [destroy 2] :provision [puppetize 2] :stage [full-cycle 2]}))
+  (atom 
+    {:reload [reload 2] :destroy [destroy 2] :provision [puppetize 2]
+     :stage [full-cycle 2] :remote [run-task 2] }))
 
 (defn create-wks [queue f total]
   "create a count of workers for queue"
