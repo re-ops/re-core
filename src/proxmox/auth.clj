@@ -45,6 +45,7 @@
       (throw (ExceptionInfo. "Illegal request, check query params" (proxmox-conf))))))
 
 (defn fetch-headers []
+  (trace "Refetching auth headers")
   (let [{:keys [CSRFPreventionToken ticket]} (login)]
     {"Cookie" (str "PVEAuthCookie=" ticket) "CSRFPreventionToken" CSRFPreventionToken}))
 
