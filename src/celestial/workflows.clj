@@ -79,14 +79,14 @@
    (reload system) 
    (puppetize provision)))
 
-(defn run-task 
-  "Runs a remote task"
-  [task]
- (let [remote (rconstruct task)]
-   (info (<< "seting up task ~(task :name)"))
+(defn run-action
+  "Runs an action"
+  [{:keys [actions run-info] :as spec}]
+ (let [remote (rconstruct spec) {:keys [action]} run-info]
+   (info (<< "setting up task ~{action}"))
    (.setup remote)
-   (info (<< "running up task ~(task :name)"))
+   (info (<< "running up task ~{action}"))
    (.run remote)
-   (info (<< "cleaning up task ~(task :name)"))
+   (info (<< "cleanning up task ~{action}"))
    (.cleanup remote)))
 
