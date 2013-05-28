@@ -77,13 +77,18 @@
 
 (defn key-set [h] (->> h keys (into #{})))
 
+(defn lazy-gen-ip
+  "Generate ip only if missing"
+  [ct]
+  (if-not (ct :ip_address) (gen-ip ct) ct))
+
 (defconstrainedrecord Container [node ct extended]
   "ct should match proxmox expected input"
   [(provider-validation ct extended) (not (nil? node))]
   Vm
   (create [this] 
           (debug "creating" (:vmid ct))
-          (let [ct* (gen-ip ct) {:keys [hostname vmid ip_address]} ct* id (extended :system-id)] 
+          (let [ct* (lazy-gen-ip ct) {:keys [hostname vmid ip_address]} ct* id (extended :system-id)] 
             (try+ 
               (check-task node (prox-post (str "/nodes/" node "/openvz") ct*)) 
               (enable-features this) 
