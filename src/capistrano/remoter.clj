@@ -30,7 +30,7 @@
        (with-sh-dir (dest-path src dst)
          (apply sh- (into ["cap"] args))))
   (cleanup [this]
-           (delete-dir (dest-path src dst))))
+           (delete-dir dst)))
 
 (defmethod rconstruct :capistrano [{:keys [actions src] :as spec} {:keys [action target] :as run-info}]
   (let [task (get-in actions [action :capistrano])]
