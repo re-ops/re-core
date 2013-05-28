@@ -12,7 +12,7 @@
 
 (def local-prox (slurp-edn "fixtures/.celestial.edn"))
 
-(def cap-deploy (slurp-edn "fixtures/cap-deploy.edn"))
+(def redis-actions (slurp-edn "fixtures/redis-actions.edn"))
 
 (def user-quota (slurp-edn "fixtures/user-quota.edn"))
 
