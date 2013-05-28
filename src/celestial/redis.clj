@@ -14,7 +14,7 @@
   (:use  
     [clojure.set :only (difference)]
     [flatland.useful.utils :only (defm)]
-    [celestial.common :only (get! curr-time gen-uuid)]
+    [celestial.common :only (get! curr-time gen-uuid half-hour minute)]
     [clojure.core.strint :only (<<)]
     [slingshot.slingshot :only  [throw+]]
     [taoensso.timbre :only (debug trace info error warn)])
@@ -94,10 +94,6 @@
   (trace "clearing locks")
   (doseq [k (wcar (car/keys (lock-id "*")))]
     (wcar (car/del k))))
-
-(def minute (* 1000 60))
-
-(def half-hour (* minute 30))
 
 (defn atom-key [k] (str "atom" k))
 

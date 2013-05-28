@@ -12,7 +12,8 @@
 (ns celestial.jobs
   (:refer-clojure :exclude [identity])
   (:use  
-    [celestial.redis :only (create-worker wcar with-lock half-hour minute)]
+    [celestial.common :only (half-hour minute)]
+    [celestial.redis :only (create-worker wcar with-lock)]
     [taoensso.timbre :only (debug info error warn trace)]
     [celestial.workflows :only (reload destroy puppetize full-cycle run-action)]) 
   (:require  

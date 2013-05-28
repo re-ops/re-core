@@ -37,9 +37,13 @@
 
 (defn slurp-edn [file] (read-string (slurp file)))
 
+; basic time manipulation
 (defn curr-time [] (.getTime (Date.)))
 
+(def minute (* 1000 60))
 
+(def half-hour (* minute 30))
+ 
 ; common api functions
 (defn resp
   "Http resposnse compositor"
