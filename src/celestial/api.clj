@@ -101,7 +101,7 @@
 
 
 (defroutes app-routes
-  hosts types tasks jobs (friend/wrap-authorize users admin) (friend/wrap-authorize quotas admin) (route/not-found "Not Found"))
+  hosts types actions jobs (friend/wrap-authorize users admin) (friend/wrap-authorize quotas admin) (route/not-found "Not Found"))
 
 (defn error-wrap
   "A catch all error handler"
