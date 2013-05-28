@@ -1,4 +1,4 @@
-(defproject celestial "0.0.5"
+(defproject celestial "0.0.6"
   :description "A launching pad for virtualized applications"
   :url "https://github.com/celestial-ops/celestial-core"
   :license  {:name "Apache License, Version 2.0" :url "http://www.apache.org/licenses/LICENSE-2.0.html"}
