@@ -49,3 +49,10 @@
 (def conflict (partial resp :conflict))
 (def success (partial resp :success))
  
+(defn gen-uuid [] (str (java.util.UUID/randomUUID)))
+
+(defn interpulate
+  "basic string interpulation"
+  [text m]
+  (clojure.string/replace text #"~\{\w+\}" 
+    (fn [groups] ((keyword (subs groups 2 (dec (.length groups)))) m))))

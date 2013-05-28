@@ -14,7 +14,7 @@
   (:use  
     [clojure.set :only (difference)]
     [flatland.useful.utils :only (defm)]
-    [celestial.common :only (get! curr-time)]
+    [celestial.common :only (get! curr-time gen-uuid)]
     [clojure.core.strint :only (<<)]
     [slingshot.slingshot :only  [throw+]]
     [taoensso.timbre :only (debug trace info error warn)])
@@ -43,8 +43,6 @@
 
 
 (defn lock-id [k] (<< "lock.~{k}"))
-
-(defn- gen-uuid [] (str (java.util.UUID/randomUUID)))
 
 (defn- expire [lid expiry]
   (wcar (car/expire lid expiry)))
