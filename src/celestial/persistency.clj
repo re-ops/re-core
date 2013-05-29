@@ -40,22 +40,26 @@
        [:roles] [v/required (v/every #(roles %) :message (<< "role must be either ~{roles}"))]) 
        ::non-valid-user))
 
-(entity task)
+(entity action :indices [operates-on])
 
-(defn cap-v
-  "Validates a capistrano task"
-  [cap-task]
-  (validate-nest cap-task [:capistrano]
-                 [:src] [v/required cv/str?]
-                 [:args] [v/required cv/str?]
-                 [:name] [v/required cv/str?]))
+(defn find-action-for [action-key type]
+  (let [ids (get-action-index :operates-on type) 
+        actions (map #(-> % Long/parseLong  get-action) ids)]
+    (first (filter #(-> % :actions action-key nil? not) actions))))
 
-(defn validate-task 
-  "Validates task model"
-  [task]
-  (validate! 
-    (cond-> task
-      (task :capistrano) cap-v) ::non-valid-task))
+(defn cap? [m] (contains? m :capistrano))
+
+(defvalidatorset nested-action-validation
+  [:capistrano :args] [(v/required :pre cap?) cv/vec?])
+
+(defvalidatorset action-base-validation
+  :src [v/required cv/str?]
+  :operates-on [v/required cv/str?])
+
+(defn validate-action [{:keys [actions] :as action}]
+  (doseq [[k m] actions] 
+    (cv/validate!! ::invalid-action m nested-action-validation))
+  (cv/validate!! ::invalid-nested-action action action-base-validation))
 
 (entity type :id type)
 
@@ -64,16 +68,16 @@
 
 (defn puppet-std-v [t]
   (validate-nest t [:puppet-std]
-    [:module :name] [v/required cv/str?]
-    [:module :src] [v/required cv/str?]))
+                 [:module :name] [v/required cv/str?]
+                 [:module :src] [v/required cv/str?]))
 
 (defn classes-v [t]
-   (validate t [:classes] [v/required cv/hash?]))
+  (validate t [:classes] [v/required cv/hash?]))
 
 (defn validate-type [t]
   (validate! 
     (cond-> (-> t type-base-v second)
-     (t :puppet-std) (-> classes-v second puppet-std-v)) ::non-valid-type))
+      (t :puppet-std) (-> classes-v second puppet-std-v)) ::non-valid-type))
 
 (entity system :indices [type])
 
@@ -118,15 +122,15 @@
 (defn validate-quota [q]
   (validate! 
     (b/validate q
-       [:username] [v/required (v/custom user-exists? :message "No matching user found")]
-       [:quotas]  [v/required cv/hash? hypervisor-ks int-limits])
+                [:username] [v/required (v/custom user-exists? :message "No matching user found")]
+                [:quotas]  [v/required cv/hash? hypervisor-ks int-limits])
     ::non-valid-quota))
 
 (defn curr-user []
   (:username (friend/current-authentication)))
 
 (defn used-key [spec]
-   [:quotas (figure-virt spec) :used])
+  [:quotas (figure-virt spec) :used])
 
 (defn quota-assert
   [user spec]

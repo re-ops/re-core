@@ -6,7 +6,7 @@
     [celestial.persistency :as p])
   (:use 
     midje.sweet
-    [celestial.fixtures :only (redis-prox-spec redis-type is-type? user-quota)]
+    [celestial.fixtures :only (redis-prox-spec redis-type is-type? user-quota redis-actions)]
     [celestial.redis :only (clear-all)]))
 
 
@@ -56,3 +56,11 @@
           (p/increase-use 3  redis-prox-spec) 
           (:quotas (p/get-quota "foo"))  => (contains {:proxmox {:limit 2 :used #{1 3}}})) 
         )) 
+
+(with-state-changes [(before :facts (clear-all))]
+  (fact "basic actions usage" :integration :redis :actions
+        (let [id (p/add-action redis-actions)]
+          (p/get-action id) => redis-actions
+          (p/get-action-index :operates-on "redis") => [(str id)]
+          (p/find-action-for :deploy "redis") => redis-actions
+         )))
