@@ -52,7 +52,7 @@
 (def auth-store (atom {}))
 
 (defn auth-expired? []
-  (> (- (:modified @auth-store) (curr-time)) (* 5 minute)))
+  (> (- (curr-time) (:modified @auth-store)) (* 5 minute)))
 
 (defn auth-headers []
   (when (or (not (contains? @auth-store :headers)) (auth-expired?))
