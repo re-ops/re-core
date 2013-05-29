@@ -16,7 +16,7 @@
 
 (with-conf
   (let [{:keys [machine proxmox]} redis-prox-spec]
-    (with-redefs [ct-id (fn [_] nil)]
+    (with-redefs [ct-id (fn [_] (fn [_] nil))]
       (fact "missing vmid"
             (vconstruct (assoc-in redis-prox-spec [:proxmox :vmid] nil)) => 
             (throws ExceptionInfo (with-m? {:machine {:vmid '("vmid must be present")}} ))))
