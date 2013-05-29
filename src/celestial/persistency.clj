@@ -40,27 +40,6 @@
        [:roles] [v/required (v/every #(roles %) :message (<< "role must be either ~{roles}"))]) 
        ::non-valid-user))
 
-(entity action :indices [operates-on])
-
-(defn find-action-for [action-key type]
-  (let [ids (get-action-index :operates-on type) 
-        actions (map #(-> % Long/parseLong  get-action) ids)]
-    (first (filter #(-> % :actions action-key nil? not) actions))))
-
-(defn cap? [m] (contains? m :capistrano))
-
-(defvalidatorset nested-action-validation
-  [:capistrano :args] [(v/required :pre cap?) cv/vec?])
-
-(defvalidatorset action-base-validation
-  :src [v/required cv/str?]
-  :operates-on [v/required cv/str?])
-
-(defn validate-action [{:keys [actions] :as action}]
-  (doseq [[k m] actions] 
-    (cv/validate!! ::invalid-action m nested-action-validation))
-  (cv/validate!! ::invalid-nested-action action action-base-validation))
-
 (entity type :id type)
 
 (defn type-base-v [v]
@@ -79,6 +58,29 @@
     (cond-> (-> t type-base-v second)
       (t :puppet-std) (-> classes-v second puppet-std-v)) ::non-valid-type))
 
+(entity action :indices [operates-on])
+
+(defn find-action-for [action-key type]
+  (let [ids (get-action-index :operates-on type) 
+        actions (map #(-> % Long/parseLong  get-action) ids)]
+    (first (filter #(-> % :actions action-key nil? not) actions))))
+
+(defn cap? [m] (contains? m :capistrano))
+
+(defvalidatorset nested-action-validation
+  [:capistrano :args] [(v/required :pre cap?) cv/vec?])
+
+(defvalidatorset action-base-validation
+  :src [v/required cv/str?]
+  :operates-on [v/required cv/str?]
+  :operates-on [(v/custom type-exists? :message (<< "Given actions target type ~(action :operates-on) not found, create it first"))]
+  )
+
+(defn validate-action [{:keys [actions] :as action}]
+  (doseq [[k m] actions] 
+    (cv/validate!! ::invalid-action m nested-action-validation))
+  (cv/validate!! ::invalid-nested-action action action-base-validation))
+ 
 (entity system :indices [type])
 
 (defvalidatorset system-type

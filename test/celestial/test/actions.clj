@@ -4,7 +4,7 @@
     [flatland.useful.map :only  (dissoc-in*)]
     midje.sweet
     [celestial.model :only (rconstruct)]
-    [celestial.persistency :only (validate-action)]
+    [celestial.persistency :only (validate-action type-exists?)]
     [celestial.fixtures :only (redis-actions with-m?)] 
     )
   (:import clojure.lang.ExceptionInfo)
@@ -17,8 +17,9 @@
 
 
 (fact "action validations"
-      (validate-action redis-actions)  => true
-      (validate-action (assoc-in redis-actions [:actions :deploy :capistrano :args] nil))
-         => (throws ExceptionInfo (with-m? {:capistrano {:args '("args must be present")}}))
-      (validate-action (assoc-in redis-actions [:actions :stop :supernal :args] nil)) => true
+    (with-redefs [type-exists? (fn [_] true)]
+      (validate-action redis-actions)  => true 
+      (validate-action (assoc-in redis-actions [:actions :deploy :capistrano :args] nil)) 
+         => (throws ExceptionInfo (with-m? {:capistrano {:args '("args must be present")}})) 
+      (validate-action (assoc-in redis-actions [:actions :stop :supernal :args] nil)) => true) 
 )
