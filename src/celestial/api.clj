@@ -37,18 +37,26 @@
 
 (defmodel object)
 
-(defmodel capistrano :name :string :src :string :args :string)
+(defmodel capistrano :args {:type "List" :items {"$ref" "String"}})
 
-(defmodel task :capistrano {:type "Capistrano" :description "For capistrano based tasks"})
+(defmodel ccontainer :capistrano {:type "Capistrano"} )
+
+(defmodel actions :action-a {:type "Ccontainer"})
+
+(defmodel action :operates-on :string :src :string :actions {:type "Actions"})
 
 (defroutes- jobs {:path "/job" :description "Operations on async job scheduling"}
 
-  (POST- "/job/stage/:id" [^:int id] {:nickname "stageSystem" :summary "Complete end to end staging job"}
+  (POST- "/job/stage/:id" [^:int id] 
+    {:nickname "stageSystem" :summary "Complete end to end staging job"
+     :notes "Combined system creation and provisioning, seperate actions are available also."}
          (jobs/enqueue "stage" {:identity id :args [(p/get-system id)]})
          (success {:msg "submitted staging" :id id}))
 
-  (POST- "/job/create/:id" [^:int id] {:nickname "createSystem" :summary "System creation job"
-                                       :errorResponses (errors {:bad-req "Missing system"})}
+  (POST- "/job/create/:id" [^:int id] 
+     {:nickname "createSystem" :summary "System creation job"
+      :errorResponses (errors {:bad-req "Missing system"})
+      :notes "Creates a new system on remote hypervisor (usually followed by provisioning)."}
          (if-not (p/system-exists? id)
            (bad-req {:msg (<< "No system found with given id ~{id}")})
            (success 
@@ -56,18 +64,29 @@
               :job (jobs/enqueue "reload" 
               {:identity id :args [(assoc (p/get-system id) :system-id (Integer. id))]})})))
 
-  (POST- "/job/destroy/:id" [^:int id] {:nickname "destroySystem" :summary "System destruction job"}
+  (POST- "/job/destroy/:id" [^:int id] 
+    {:nickname "destroySystem" :summary "System destruction job"
+     :notes "Destroys a system, clearing it both from Celestial's model storage and hypervisor"}
          (success 
            {:msg "submited system destruction" :id id 
             :job (jobs/enqueue "destroy" {:identity id :args [(p/get-system id)]})}))
 
-  (POST- "/job/provision/:id" [^:int id] {:nickname "provisionSystem" :summary "Provisioning job"}
+  (POST- "/job/provision/:id" [^:int id] 
+    {:nickname "provisionSystem" :summary "Provisioning job"
+     :notes "Starts a provisioning workflow on a remote system using the provisioner configured in system type"}
          (let [system (p/get-system id) type (p/get-type (:type system)) 
                job (jobs/enqueue "provision" {:identity id :args [type system]})]
            (success 
              {:msg "submitted provisioning" :id id :system system :type type :job job})))
 
-  (POST- "/job/:action/:id" [^:string actions ^:int id] {:nickname "runAction" :summary "Run an adhoc remote action (like deployment, service restart etc) "}
+  (POST- "/job/:action/:id" [^:string action ^:int id] 
+     {:nickname "runAction" :summary "Run remote action" 
+      :notes "Runs adhoc remote opertions on system (like deployment, service restart etc)
+             using matching remoting capable tool like Capisrano/Supernal/Fabric"}
+       (let [system (p/get-system id) type (p/find-action-for action (:type system)) 
+               job (jobs/enqueue "provision" {:identity id :args [type system]})]
+           (success 
+             {:msg "submitted action" :id id :system system :action action :job job}))
          )
 
   (GET- "/job/:queue/:uuid/status" [^:string queue ^:string uuid]
@@ -83,22 +102,20 @@
   (update-in user [:password] (fn [v] (creds/hash-bcrypt v))))
 
 (defroutes- actions {:path "/actions" :description "Adhoc actions managment"}
-  (POST- "/action" [& ^:task task] {:nickname "addActions" :summary "Adds an actions set"}
-         (let [id (p/add-task task)]
+  (POST- "/action" [& ^:action action] {:nickname "addActions" :summary "Adds an actions set"}
+         (let [id (p/add-action action)]
            (success {:msg "added actions" :id id})))
 
-  (PUT- "/action/:id" [^:int id & ^:task task] {:nickname "updateActions" :summary "Update an actions set"}
-        (p/update-task id task)
-        (success {:msg "updated actions" :task task}))
+  (PUT- "/action/:id" [^:int id & ^:action action] {:nickname "updateActions" :summary "Update an actions set"}
+        (p/update-action id action)
+        (success {:msg "updated actions" :action action}))
 
   (GET- "/action/:id" [^:int id] {:nickname "getActions" :summary "Gets actions descriptor"}
-        (success {:task (p/get-task id)}))
+        (success {:action (p/get-action id)}))
 
   (DELETE- "/action/:id" [^:int id] {:nickname "deleteActions" :summary "Deletes an action set"}
-           (p/delete-task id)
+           (p/delete-action id)
            (success {:msg "deleted actions" :id id})))
-
-
 
 (defroutes app-routes
   hosts types actions jobs (friend/wrap-authorize users admin) (friend/wrap-authorize quotas admin) (route/not-found "Not Found"))
