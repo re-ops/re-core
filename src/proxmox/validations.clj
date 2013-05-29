@@ -2,7 +2,7 @@
   "Proxmox based validations"
   (:use 
     [clojure.core.strint :only (<<)]
-    [bouncer [core :as b] [validators :as v :only (defvalidatorset )]])
+    [bouncer [core :as b] [validators :as v :only (defvalidatorset)]])
   (:require 
     [celestial.validations :as cv]))
 
