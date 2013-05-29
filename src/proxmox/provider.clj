@@ -139,7 +139,7 @@
 (defn generate
   "apply generated values (if not present)." 
   [res]
-  (reduce (fn [res [k v]] (if (res k) res (update-in res [k] v ))) res {:vmid ct-id }))
+  (reduce (fn [res [k v]] (if (res k) res (update-in res [k] v ))) res {:vmid (ct-id (:node res))}))
 
 (def ct-ks [:vmid :ostemplate :cpus :disk :memory :ip_address :password :hostname :nameserver])
 
@@ -152,7 +152,7 @@
   (-> (merge machine proxmox {:system-id system-id})
       (mappings {:ip :ip_address :os :ostemplate})
       (transform {:ostemplate (os->template :proxmox)})
-      generate selections))
+       generate selections))
 
 (defmethod vconstruct :proxmox [{:keys [proxmox] :as spec}]
   (let [{:keys [type node]} proxmox]

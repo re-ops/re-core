@@ -19,33 +19,34 @@
 
 (defgen ct-id)
 
-(defn ct-exists [id]
+(defn ct-exists [id node]
   (try+ 
-    (prox-get (<< "/nodes/proxmox/openvz/~{id}")) true
+    (prox-get (<< "/nodes/~{node}/openvz/~{id}/status/current")) true
     (catch [:status 500] e false)))
 
-(defn qm-exists [id]
+(defn qm-exists [id node]
   (try+ 
-    (prox-get (<< "/nodes/proxmox/qemu/~{id}")) true
+    (prox-get (<< "/nodes/~{node}/qemu/~{id}/status/current")) true
     (catch [:status 500] e false)))
 
 (defn try-gen
   "Attempts to generate an id"
-  []
+  [node]
   (loop [i 5]
     (when (> i 0)
       (let [id (+ 100 (gen-ct-id))]
-        (if-not (or (ct-exists id) (qm-exists id)) 
+        (trace (<< "testing ~{id} availability"))
+        (if-not (or (ct-exists id node) (qm-exists id node)) 
           id
           (recur (- i 1)))))))
 
 (defn ct-id
-  "Generates a container id" 
-  [_]
-  (if-let [gid (try-gen)]
-    gid
-    (throw+ {:type ::id-gen-error} "Failed to generate id for container")))
-
+  "Generates a container id for machine on node" 
+  [node]
+  (fn [_] 
+    (if-let [gid (try-gen node)]
+      gid
+      (throw+ {:type ::id-gen-error} "Failed to generate id for container"))))
 
 (defn ports-open? [host]
   (not (nil? (first (filter #(= % "open") 
@@ -82,7 +83,7 @@
   [sb ip* i]
   (.insert sb 0 (Long/toString (bit-and ip* 0xff)))
   (when (< i 3) (.insert sb 0 ".")) 
-   sb)
+  sb)
 
 (defn long-to-ip 
   {:test #(assert (= "172.168.10.60" (long-to-ip (ip-to-long "172.168.10.60")))) 
@@ -144,13 +145,13 @@
 (defn release-ip [ip]
   (wcar 
     (when ip
-     (car/lua-script
-      "if redis.call('zrank', 'ips', _:rel-ip) then
+      (car/lua-script
+        "if redis.call('zrank', 'ips', _:rel-ip) then
         redis.call('zadd', 'ips', 0, _:rel-ip) 
         return _:rel-ip
-       end 
-       return nil "
-      {:ips "ips"} {:rel-ip (ip-to-long ip)}))))
+        end 
+        return nil "
+        {:ips "ips"} {:rel-ip (ip-to-long ip)}))))
 
 
 
