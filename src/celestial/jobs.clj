@@ -43,8 +43,7 @@
       (swap! workers assoc q (create-wks q f c)))))
 
 (defn clear-all []
-  (let [queues (wcar (car/keys ((car/make-keyfn "mqueue") "*")))]
-    (when (seq queues) (wcar (apply car/del queues)))))
+  (wcar (carmine-mq/clear-all)))
 
 (defn enqueue 
   "Placing job in redis queue"
