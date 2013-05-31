@@ -59,6 +59,7 @@
 
 (with-state-changes [(before :facts (clear-all))]
   (fact "basic actions usage" :integration :redis :actions
+        (p/add-type redis-type) 
         (let [id (p/add-action redis-actions)]
           (p/get-action id) => redis-actions
           (p/get-action-index :operates-on "redis") => [(str id)]
