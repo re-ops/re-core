@@ -66,12 +66,14 @@
     (info (<< "starting nrepl on port ~{port}"))
     (defonce server (start-server :port port))))
 
+(def version "0.0.8")
+
 (defn -main [& args]
   (setup-logging)
   (p/reset-admin)
   (add-shutdown)
   (info (slurp (resource "main/resources/celestial.txt")))
-  (info "version 0.0.4 see http://celestial-ops.com")
+  (info (<<  "version ~{version} see http://celestial-ops.com"))
   (ssh-config {:key (get! :ssh :private-key-path) :user "root"} )
   (jobs/initialize-workers)
   (default-key)

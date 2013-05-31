@@ -1,4 +1,4 @@
-(defproject celestial "0.0.7"
+(defproject celestial "0.0.8"
   :description "A launching pad for virtualized applications"
   :url "https://github.com/celestial-ops/celestial-core"
   :license  {:name "Apache License, Version 2.0" :url "http://www.apache.org/licenses/LICENSE-2.0.html"}
@@ -44,20 +44,24 @@
 
   :plugins  [[jonase/eastwood "0.0.2"] [lein-pedantic "0.0.5"] [lein-midje "3.0.0"]
              [lein-bin "0.3.2"] [org.timmc/lein-otf "2.0.1"]  [lein-tar "2.0.0" ]
-             [lein-tag "0.1.0"] ]
+             [lein-tag "0.1.0"] [lein-set-version "0.3.0"] ]
 
   :bin {:name "celestial"}
 
-  :profiles {:dev 
+  :profiles {:dev {
+               :resource-paths  ["src/main/resources/" "pkg/etc/celestial/"]
+               :dependencies [[org.clojure/tools.trace "0.7.5"] [ring-mock "0.1.3"]
+                              [midje "1.5.1" :exclusions [org.clojure/core.unify]]
+                              [junit/junit "4.8.1"]]
+               :jvm-opts ~(vec (map (fn [[p v]] (str "-D" (name p) "=" v)) {:disable-conf "true" }))
+               :set-version {
+                  :updates [{
+                    :path "src/celestial/launch.clj" :search-regex #"\"\d+\.\d+\.\d+\""}]}
+              }
 
-             {
-              :resource-paths  ["src/main/resources/" "pkg/etc/celestial/"]
-              :dependencies [[org.clojure/tools.trace "0.7.5"] [ring-mock "0.1.3"]
-                             [midje "1.5.1" :exclusions [org.clojure/core.unify]]
-                             [junit/junit "4.8.1"]]
-              :jvm-opts ~(vec (map (fn [[p v]] (str "-D" (name p) "=" v)) {:disable-conf "true"}))}
-
-             :prod { :resource-paths  ["src/main/resources/" "pkg/etc/celestial/"] } 
+              :prod {
+                :resource-paths  ["src/main/resources/" "pkg/etc/celestial/"] 
+              } 
              }
 
   :aliases {"celestial" 
