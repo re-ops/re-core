@@ -1,4 +1,4 @@
-(defproject celestial "0.0.9"
+(defproject celestial "0.0.10"
   :description "A launching pad for virtualized applications"
   :url "https://github.com/celestial-ops/celestial-core"
   :license  {:name "Apache License, Version 2.0" :url "http://www.apache.org/licenses/LICENSE-2.0.html"}
@@ -56,7 +56,7 @@
                :jvm-opts ~(vec (map (fn [[p v]] (str "-D" (name p) "=" v)) {:disable-conf "true" }))
                :set-version {
                   :updates [{
-                    :path "src/celestial/launch.clj" :search-regex #"\"\d+\.\d+\.\d+\""}]}
+                    :path "src/celestial/common.clj" :search-regex #"\"\d+\.\d+\.\d+\""}]}
               }
 
               :prod {
