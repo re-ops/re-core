@@ -22,7 +22,7 @@
     [gelfino.timbre :only (gelf-appender)]
     [supernal.core :only [ssh-config]]
     [ring.adapter.jetty :only (run-jetty)] 
-    [celestial.common :only (get! get* import-logging)]
+    [celestial.common :only (get! get* import-logging version)]
     [celestial.redis :only (clear-locks)]
     [taoensso.timbre :only (set-config! set-level!)])
   (:require [celestial.jobs :as jobs]))
@@ -65,8 +65,6 @@
   (when-let [port (get* :celestial :nrepl :port)]
     (info (<< "starting nrepl on port ~{port}"))
     (defonce server (start-server :port port))))
-
-(def version "0.0.8")
 
 (defn -main [& args]
   (setup-logging)

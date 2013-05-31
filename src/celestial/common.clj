@@ -60,3 +60,5 @@
   [text m]
   (clojure.string/replace text #"~\{\w+\}" 
     (fn [groups] ((keyword (subs groups 2 (dec (.length groups)))) m))))
+
+(def version "0.0.9")

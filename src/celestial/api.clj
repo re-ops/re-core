@@ -22,7 +22,7 @@
         [metrics.ring.instrument :only  (instrument)]
         [swag.core :only (swagger-routes GET- POST- PUT- DELETE- defroutes- errors)]
         [swag.model :only (defmodel wrap-swag defv defc)]
-        [celestial.common :only (import-logging get! resp bad-req conflict success)])
+        [celestial.common :only (import-logging get! resp bad-req conflict success version)])
   (:require 
     [ring.middleware [multipart-params :as mp] ]
     [celestial.security :as sec]
@@ -136,7 +136,7 @@
 (defn compose-routes
   "Composes celetial apps" 
   [secured?]
-  (let [rs (routes (swagger-routes) (if secured? (sec/secured-app app-routes) app-routes))]
+  (let [rs (routes (swagger-routes version) (if secured? (sec/secured-app app-routes) app-routes))]
     (if secured? 
       (force-https rs) rs)))
 
