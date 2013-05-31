@@ -81,8 +81,8 @@
 
 (defn run-action
   "Runs an action"
-  [{:keys [actions run-info] :as spec}]
- (let [remote (rconstruct spec) {:keys [action]} run-info]
+  [actions run-info]
+ (let [remote (rconstruct actions run-info) {:keys [action]} run-info]
    (info (<< "setting up task ~{action}"))
    (.setup remote)
    (info (<< "running up task ~{action}"))
