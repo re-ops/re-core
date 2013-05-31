@@ -31,7 +31,7 @@
 (def jobs 
   (atom 
     {:reload [reload 2] :destroy [destroy 2] :provision [puppetize 2]
-     :stage [full-cycle 2] :remote [run-action 2] }))
+     :stage [full-cycle 2] :run-action [run-action 2] }))
 
 (defn create-wks [queue f total]
   "create a count of workers for queue"
@@ -46,7 +46,10 @@
   (let [queues (wcar (car/keys ((car/make-keyfn "mqueue") "*")))]
     (when (seq queues) (wcar (apply car/del queues)))))
 
-(defn enqueue [queue payload] 
+(defn enqueue 
+  "Placing job in redis queue"
+  [queue payload] 
+  {:pre [(contains? @jobs (keyword queue))]}
   (trace "submitting" payload "to" queue) 
   (wcar (carmine-mq/enqueue queue payload)))
 
