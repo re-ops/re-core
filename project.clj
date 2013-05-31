@@ -1,4 +1,4 @@
-(defproject celestial "0.0.8"
+(defproject celestial "0.0.9"
   :description "A launching pad for virtualized applications"
   :url "https://github.com/celestial-ops/celestial-core"
   :license  {:name "Apache License, Version 2.0" :url "http://www.apache.org/licenses/LICENSE-2.0.html"}
@@ -17,7 +17,7 @@
                  [org.clojure/core.incubator "0.1.2"]
                  [slingshot "0.10.3" ]
                  [clj-http "0.6.5"]
-                 [swag "0.2.1"]
+                 [swag "0.2.2"]
                  [clj-yaml "0.4.0"]
                  [org.clojure/data.json "0.2.1" ]
                  [narkisr/carmine "1.8.1"]
