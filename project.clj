@@ -20,7 +20,7 @@
                  [swag "0.2.1"]
                  [clj-yaml "0.4.0"]
                  [org.clojure/data.json "0.2.1" ]
-                 [com.narkisr/carmine "1.7.0"]
+                 [com.taoensso/carmine "1.8.0"]
                  [org.clojure/core.memoize "0.5.2" :exclusions [org.clojure/core.cache]]
                  [metrics-clojure "0.9.2"]
                  [narkisr/clj-aws-ec2 "0.2.0" :exclusions  [org.codehaus.jackson/jackson-core-asl]]
