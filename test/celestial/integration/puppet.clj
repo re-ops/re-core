@@ -19,13 +19,13 @@
     (let [id (p/add-system spec)] 
       (reload (assoc spec :system-id id))
       (puppetize type (p/get-system id))
-      (destroy (p/get-system id))))
+      (destroy id (p/get-system id))))
 
 (fact "provisioning a proxmox instance" :integration :puppet
       (with-conf
         (run-cycle redis-prox-spec redis-type)))
 
-(fact "provisioning an ec2 instance" :integration :puppet 
+#_(fact "provisioning an ec2 instance" :integration :puppet 
       "assumes a working ec2 defs in ~/.celestial.edn"
       (let [puppet-ami (assoc-in redis-ec2-spec [:aws :image-id] "ami-4eb1ba3a")]
         path => truthy

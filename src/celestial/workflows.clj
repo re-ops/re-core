@@ -20,7 +20,8 @@
     [celestial.model :only (vconstruct pconstruct rconstruct)]) 
   (:require ; loading defmethods
     proxmox.provider aws.provider vsphere.provider
-    celestial.puppet_standalone capistrano.remoter)
+    celestial.puppet_standalone capistrano.remoter
+    [celestial.persistency :as p])
   (:import 
     [celestial.puppet_standalone Standalone]
     [proxmox.provider Container]))
@@ -57,11 +58,12 @@
 
 (defn destroy 
   "Deletes a system"
-  [{:keys [machine] :as spec}]
+  [id {:keys [machine] :as spec}]
   (let [vm (vconstruct spec)]
     (when (.status vm)
       (.stop vm) 
       (.delete vm)) 
+    (p/delete-system id)
     (info "system destruction done")))
 
 (defn puppetize 

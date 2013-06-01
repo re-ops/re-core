@@ -69,7 +69,7 @@
      :notes "Destroys a system, clearing it both from Celestial's model storage and hypervisor"}
          (success 
            {:msg "submited system destruction" :id id 
-            :job (jobs/enqueue "destroy" {:identity id :args [(p/get-system id)]})}))
+            :job (jobs/enqueue "destroy" {:identity id :args [id (p/get-system id)]})}))
 
   (POST- "/job/provision/:id" [^:int id] 
     {:nickname "provisionSystem" :summary "Provisioning job"
