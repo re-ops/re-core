@@ -156,7 +156,7 @@
 (defn list-used-ips
   "List used ips in human readable form (mainly for debugging)."
   []
-   (map #( -> % (Long/parseLong) long-to-ip) (wcar (car/zrangebyscore "ips" 0 0))))
+   (map #( -> % (Long/parseLong) long-to-ip) (wcar (car/zrangebyscore "ips" 1 1))))
 
 
 (comment
