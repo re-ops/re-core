@@ -100,8 +100,8 @@
 
 (defn clone-system 
   "clones an existing system"
-  [id]
-  (add-system (clone (get-system id))))
+  [id hostname]
+  (add-system (clone (assoc-in (get-system id) [:machine :hostname] hostname))))
 
 (defn reset-admin
   "Resets admin password if non is defined"

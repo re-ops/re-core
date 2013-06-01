@@ -71,13 +71,15 @@
            (catch [:type :celestial.persistency/missing-type] e 
              (bad-req {:msg (<< "Cannot create machine with missing type ~(e :t)}")}))))
 
-  (POST- "/host/system-clone/:id" [^:int id] {:nickname "cloneSystem" :summary "Clone an existing system replacing unique identifiers along the way" 
-                                              :errorResponses (errors {:bad-req "System missing"})}
+  (POST- "/host/system-clone/:id/:hostname" [^:int id ^:string hostname] 
+         {:nickname "cloneSystem" :summary "Clone an existing system " 
+          :notes "Clones a system replacing unique identifiers along the way,
+                 the only user provided value is the dest hostname"
+           :errorResponses (errors {:bad-req "System missing"})}
          (if (p/system-exists? id)
-           (p/with-quota (p/clone-system id) (p/get-system id)
+           (p/with-quota (p/clone-system id hostname) (p/get-system id)
              (success {:msg "system cloned" :id id}))
-           (conflict {:msg "System does not exists, use POST /host/system to create it first"}) 
-           ))
+           (conflict {:msg "System does not exists, use POST /host/system to create it first"})))
 
   (PUT- "/host/system/:id" [^:int id & ^:system system] {:nickname "updateSystem" :summary "Update system" 
                                                          :errorResponses (errors {:conflict "System does not exist"}) }
