@@ -5,6 +5,7 @@
   (:require 
     [celestial.persistency :as p])
   (:use 
+    [flatland.useful.map :only  (dissoc-in*)]
     midje.sweet
     [celestial.fixtures :only (redis-prox-spec redis-type is-type? user-quota redis-actions)]
     [celestial.redis :only (clear-all)]))
@@ -65,3 +66,14 @@
           (p/get-action-index :operates-on "redis") => [(str id)]
           (p/find-action-for :deploy "redis") => redis-actions
          )))
+
+(with-state-changes [(before :facts (clear-all))]
+  (fact "simple clone" :integration :redis 
+        (p/add-type redis-type) 
+        (let [id (p/add-system redis-prox-spec)
+              cloned (p/clone-system id "foo")] 
+          (p/get-system cloned) => 
+             (-> redis-prox-spec 
+                 (dissoc-in* [:proxmox :vmid])
+                 (dissoc-in* [:machine :ip]) 
+                 (assoc-in [:machine :hostname] "foo")))))
