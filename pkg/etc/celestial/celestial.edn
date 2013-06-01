@@ -13,6 +13,11 @@
      :keystore "celestial.keystore"
    }
 
+   ; :nrepl {
+    ;:port 7888
+   ;}
+    
+
  }
 
  :hypervisor {
