@@ -153,6 +153,10 @@
         return nil "
         {:ips "ips"} {:rel-ip (ip-to-long ip)}))))
 
+(defn list-used-ips
+  "List used ips in human readable form (mainly for debugging)."
+  []
+   (map #( -> % (Long/parseLong) long-to-ip) (wcar (car/zrangebyscore "ips" 0 0))))
 
 
 (comment
@@ -162,7 +166,6 @@
   (mark-used) 
   (count (wcar (car/zrangebyscore "ips" 1 1 "WITHSCORES")))
   (wcar (car/del "ips"))
-  (map #( -> % (Long/parseLong) long-to-ip) (wcar (car/zrangebyscore "ips" 0 0))); list used
   ) 
 
 (test #'long-to-ip)
