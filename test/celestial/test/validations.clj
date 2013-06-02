@@ -17,6 +17,9 @@
    (validate-entity (assoc-in redis-prox-spec [:machine :os] "ubutnu-12.04")) => ; entity validation 
       (throws ExceptionInfo (with-m? {:machine {:os '("os must be a keyword")}}))
 
+   (validate-entity (assoc-in redis-prox-spec [:proxmox :vmid] 33)) => 
+      (throws ExceptionInfo (with-m? {:proxmox {:vmid '("vmid must be greater then 100")}}))
+
    (validate-entity (assoc-in redis-prox-spec [:proxmox :password] nil)) => ; proxmox validation
       (throws ExceptionInfo (with-m? {:proxmox {:password '("password must be present")}})))
 

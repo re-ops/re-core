@@ -14,5 +14,5 @@
     (second (translate model))) => {:node "proxmox" :features ["nfs:on"] :system-id 1})
 
 (fact "cloning purge"
-   (:proxmox (clone model)) =not=> (contains [[:vmid 33]])
+   (:proxmox (clone model)) =not=> (contains [[:vmid 101]])
    (:machine (clone model)) =not=> (contains [[:ip "192.168.5.33"]]))

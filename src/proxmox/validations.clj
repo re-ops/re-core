@@ -14,21 +14,23 @@
 
 (def prox-types [:ct :vm])
 
+(defn greater-then [from i] (> i from))
+
 (defvalidatorset proxmox-entity
     :type [v/required 
            (v/member prox-types  :message (<< "Proxmox VM type must be either ~{prox-types}" ))]
+    :vmid [(v/custom (partial greater-then 100) :message "vmid must be greater then 100")]
     :password [v/required cv/str?]
     :nameserver [cv/str?])
 
 (defvalidatorset machine-entity
      :ip [cv/str?]
-     :os [v/required cv/keyword?] )
+     :os [v/required cv/keyword?])
 
 (defvalidatorset entity-validation
    :machine machine-common 
    :machine machine-entity
-   :proxmox proxmox-entity
-  )
+   :proxmox proxmox-entity)
 
 (defn validate-entity
  "proxmox based system entity validation for persistence layer" 
@@ -40,7 +42,7 @@
     :features [cv/sequential?])
 
 (defvalidatorset machine-provider
-     :vmid [v/required v/number]
+     :vmid [v/required v/number ]
      :password [v/required cv/str?]
      :nameserver [cv/str?] 
      :ip_address [cv/str?]

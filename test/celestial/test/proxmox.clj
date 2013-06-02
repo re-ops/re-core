@@ -23,12 +23,12 @@
     (fact "non int vmid"
           (vconstruct (assoc-in redis-prox-spec [:proxmox :vmid] "string")) => 
           (throws ExceptionInfo (with-m? {:machine {:vmid '("vmid must be a number")}})))
-    (with-redefs [ct-id (fn [_] 33)]
+    (with-redefs [ct-id (fn [_] 101)]
       (let [ct (vconstruct (assoc-in redis-prox-spec [:proxmox :features] ["nfs:on"]))]
         (fact "vzctl usage"
               (enable-features ct) => '()
               (provided 
-                (vzctl ct "set 33 --features \"nfs:on\" --save") => nil :times 1)))))) 
+                (vzctl ct "set 101 --features \"nfs:on\" --save") => nil :times 1)))))) 
 
 (with-conf
   (let [headers {"Cookie" "PVEAuthCookie=" "CSRFPreventionToken" "foobar"}]
