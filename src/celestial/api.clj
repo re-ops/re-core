@@ -60,7 +60,7 @@
          (if-not (p/system-exists? id)
            (bad-req {:msg (<< "No system found with given id ~{id}")})
            (success 
-             {:msg "submited system creation" :id id 
+             {:msg "submitted system creation" :id id 
               :job (jobs/enqueue "reload" 
               {:identity id :args [(assoc (p/get-system id) :system-id (Integer. id))]})})))
 
@@ -68,7 +68,7 @@
     {:nickname "destroySystem" :summary "System destruction job"
      :notes "Destroys a system, clearing it both from Celestial's model storage and hypervisor"}
          (success 
-           {:msg "submited system destruction" :id id 
+           {:msg "submitted system destruction" :id id 
             :job (jobs/enqueue "destroy" {:identity id :args [id (p/get-system id)]})}))
 
   (POST- "/job/provision/:id" [^:int id] 
