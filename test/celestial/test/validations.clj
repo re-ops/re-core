@@ -20,6 +20,8 @@
    (validate-entity (assoc-in redis-prox-spec [:proxmox :vmid] 33)) => 
       (throws ExceptionInfo (with-m? {:proxmox {:vmid '("vmid must be greater then 100")}}))
 
+   (validate-entity (assoc-in redis-prox-spec [:proxmox :vmid] nil)) => truthy
+
    (validate-entity (assoc-in redis-prox-spec [:proxmox :password] nil)) => ; proxmox validation
       (throws ExceptionInfo (with-m? {:proxmox {:password '("password must be present")}})))
 

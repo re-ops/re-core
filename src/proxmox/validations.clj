@@ -19,7 +19,8 @@
 (defvalidatorset proxmox-entity
     :type [v/required 
            (v/member prox-types  :message (<< "Proxmox VM type must be either ~{prox-types}" ))]
-    :vmid [(v/custom (partial greater-then 100) :message "vmid must be greater then 100")]
+    :vmid [(v/custom (partial greater-then 100) :message "vmid must be greater then 100"
+                     :pre #(-> % :proxmox :vmid nil? not) )]
     :password [v/required cv/str?]
     :nameserver [cv/str?])
 
