@@ -127,7 +127,9 @@
   (fn [req]
     (try 
       (app req)
-      (catch Throwable e {:body (.getMessage e) :status 500}))))
+      (catch Throwable e 
+        (error e)
+        {:body (<< "Unexpected error ~(.getMessage e) of type ~(class e) contact celestial admin for more info") :status 500}))))
 
 (defn force-https [rs]
   (binding [friend/*default-scheme-ports* {:http (get! :celestial :port) :https (get! :celestial :https-port)}]
