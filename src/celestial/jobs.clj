@@ -12,6 +12,7 @@
 (ns celestial.jobs
   (:refer-clojure :exclude [identity])
   (:use  
+    [clojure.core.strint :only (<<)]
     [celestial.common :only (half-hour minute)]
     [celestial.redis :only (create-worker wcar with-lock)]
     [taoensso.timbre :only (debug info error warn trace)]
@@ -26,7 +27,7 @@
   "Executes a job function tries to lock identity first (if used)"
   (if identity
     (with-lock identity #(apply f args) {:expiry half-hour :wait-time minute}) 
-    (apply f args)))
+    (do (apply f args) :success)))
 
 (def jobs 
   (atom 
@@ -43,7 +44,9 @@
       (swap! workers assoc q (create-wks q f c)))))
 
 (defn clear-all []
-  (wcar (carmine-mq/clear-all)))
+  (doseq [q (map name (keys @jobs))]
+    (trace (<< "clearing ~{q} queue"))
+    (wcar (carmine-mq/clear q))))
 
 (defn enqueue 
   "Placing job in redis queue"
@@ -53,7 +56,7 @@
   (wcar (carmine-mq/enqueue queue payload)))
 
 (defn status [queue uuid]
-   (wcar (carmine-mq/status queue uuid)))
+  (wcar (carmine-mq/status queue uuid)))
 
 (defn shutdown-workers []
   (doseq [[k ws] @workers]
