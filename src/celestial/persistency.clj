@@ -47,11 +47,13 @@
 
 (defn puppet-std-v [t]
   (validate-nest t [:puppet-std]
+                 [:args]         [(cv/vec? :pre (comp not nil?))]
                  [:module :name] [v/required cv/str?]
-                 [:module :src] [v/required cv/str?]))
+                 [:module :src]  [v/required cv/str?]))
 
 (defn classes-v [t]
-  (validate t [:classes] [v/required cv/hash?]))
+  (validate t 
+      [:classes] [v/required cv/hash?]))
 
 (defn validate-type [t]
   (validate! 

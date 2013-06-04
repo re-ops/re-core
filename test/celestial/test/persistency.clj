@@ -12,6 +12,13 @@
     (validate-type (assoc-in redis-type [:puppet-std :module :src] nil)) => 
        (throws clojure.lang.ExceptionInfo (is-type? :celestial.persistency/non-valid-type))
 
+    (validate-type (assoc-in redis-type [:puppet-std :args] nil)) => truthy 
+    (validate-type (assoc-in redis-type [:puppet-std :args] [])) => truthy 
+    
+    (validate-type (assoc-in redis-type [:puppet-std :args] {})) => 
+       (throws clojure.lang.ExceptionInfo (is-type? :celestial.persistency/non-valid-type))
+      
+
     (validate-type (dissoc redis-type :classes)) => 
        (throws clojure.lang.ExceptionInfo (is-type? :celestial.persistency/non-valid-type)))
 

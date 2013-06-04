@@ -12,6 +12,7 @@
 (ns celestial.puppet-standalone
   "A standalone puppet provisioner"
   (:use 
+    clojure.pprint
     [clj-yaml.core :as yaml]
     [clojure.java.io :only (file)]
     [clojure.core.strint :only (<<)]
@@ -19,7 +20,7 @@
     [celestial.model :only (pconstruct)]
     [taoensso.timbre :only (debug info error warn)]
     [supernal.core :only (ns- lifecycle copy run execute env)]
-    ))
+    [clojure.string :only (join)]))
 
 (defn copy-module [remote {:keys [src name]}]
   {:pre [(remote :host) src name]}
@@ -31,6 +32,9 @@
 (defn as-root [remote cmd]
   (if (remote :user)
     (<< "sudo ~{cmd}") cmd))
+
+(defn args-of [type]
+   (or (some->> (get-in type [:puppet-std :args]) (join " ")) ""))
 
 (ns- puppet
    (task copy-module
@@ -49,8 +53,8 @@
        (.delete f))) 
    
    (task run-puppet
-      (let [{:keys [module]} args]
-        (run (str (<< "cd /tmp/~(:name module)") " && " (as-root remote "./scripts/run.sh")))))
+      (let [{:keys [module type]} args]
+        (run (str (<< "cd /tmp/~(:name module)") " && " (as-root remote (<< "./scripts/run.sh ~(args-of type)"))))))
 
    (task cleanup
       (let [{:keys [module]} args]

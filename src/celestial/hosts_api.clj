@@ -25,7 +25,7 @@
 
 (defmodel type :type :string :puppet-std {:type "Puppetstd"} :classes {:type "Object"})
 
-(defmodel puppetstd :module {:type "Module"})
+(defmodel puppetstd :module {:type "Module"} :args {:type "List"})
 
 (defmodel module :name :string :src :string)
 

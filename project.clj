@@ -65,7 +65,7 @@
              }
 
   :aliases {"celestial" 
-            ["with-profile" "prod" "trampoline" "run"]
+            [ "with-profile" "prod" "do" "compile," "trampoline" "run"]
             "autotest"
             ["midje" ":autotest" ":filter" "-integration"] 
             "runtest"
