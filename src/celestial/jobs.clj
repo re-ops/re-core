@@ -26,7 +26,9 @@
 (defn job-exec [f {:keys [identity args] :as spec}]
   "Executes a job function tries to lock identity first (if used)"
   (if identity
-    (with-lock identity #(apply f args) {:expiry half-hour :wait-time minute}) 
+    (with-lock identity 
+      (fn [] (apply f args) :success)
+     {:expiry half-hour :wait-time minute}) 
     (do (apply f args) :success)))
 
 (def jobs 
