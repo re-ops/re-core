@@ -83,12 +83,13 @@
      {:nickname "runAction" :summary "Run remote action" 
       :notes "Runs adhoc remote opertions on system (like deployment, service restart etc)
              using matching remoting capable tool like Capisrano/Supernal/Fabric"}
-       (let [{:keys [machine] :as system} (p/get-system id)
-             actions (p/find-action-for (keyword action) (:type system)) 
-             args {:identity id :args [actions {:action (keyword action) :target (machine :ip)}]}
-             job (jobs/enqueue "run-action" args)]
-           (success 
-             {:msg "submitted action" :action action :job job})))
+       (let [{:keys [machine] :as system} (p/get-system id)]
+         (if-let [actions (p/find-action-for (keyword action) (:type system))]
+           (let [args {:identity id :args [actions {:action (keyword action) :target (machine :ip)}]}
+                 job (jobs/enqueue "run-action" args)]
+             (success {:msg "submitted action" :action action :job job}))
+           (bad-req {:msg (<< "No action ~{action} found for id ~{id}")})
+           )))
 
   (GET- "/job/:queue/:uuid/status" [^:string queue ^:string uuid]
         {:nickname "jobStatus" :summary "job status tracking" 
