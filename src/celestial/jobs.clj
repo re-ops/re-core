@@ -19,7 +19,7 @@
     [celestial.workflows :only (reload destroy puppetize full-cycle run-action)]) 
   (:require  
     [taoensso.carmine :as car]
-    [taoensso.carmine.message-queue :as carmine-mq]))
+    [taoensso.carmine.message-queue :as mq]))
 
 (def workers (atom {}))
 
@@ -48,21 +48,29 @@
 (defn clear-all []
   (doseq [q (map name (keys @jobs))]
     (trace (<< "clearing ~{q} queue"))
-    (wcar (carmine-mq/clear q))))
+    (wcar (mq/clear q))))
 
 (defn enqueue 
   "Placing job in redis queue"
   [queue payload] 
   {:pre [(contains? @jobs (keyword queue))]}
   (trace "submitting" payload "to" queue) 
-  (wcar (carmine-mq/enqueue queue payload)))
+  (wcar (mq/enqueue queue payload)))
 
 (defn status [queue uuid]
-  (wcar (carmine-mq/status queue uuid)))
+  (wcar (mq/status queue uuid)))
 
 (defn shutdown-workers []
   (doseq [[k ws] @workers]
     (doseq [w ws]
       (debug "shutting down" k w) 
-      (carmine-mq/stop w))))
+      (mq/stop w))))
+
+(defn queue-metadata "Returns given queue's current metadata."
+   [qname]
+   {:backoff?  (wcar (car/get      (mq/qkey qname "backoff?")))
+    :id-circle (wcar (car/lrange   (mq/qkey qname "id-circle") 0 -1))
+    :messsages (wcar (car/hgetall* (mq/qkey qname "messages")))
+    :recently-done (wcar (car/smembers (mq/qkey qname "recently-done")))
+    :locks     (wcar (car/hgetall* (mq/qkey qname "locks")))})
 
