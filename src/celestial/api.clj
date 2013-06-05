@@ -87,7 +87,7 @@
          (if-let [actions (p/find-action-for (keyword action) (:type system))]
            (let [args {:identity id :args [actions {:action (keyword action) :target (machine :ip)}]}
                  job (jobs/enqueue "run-action" args)]
-             (success {:msg "submitted action" :action action :job job}))
+             (success {:msg "submitted action" :id id :action action :job job}))
            (bad-req {:msg (<< "No action ~{action} found for id ~{id}")})
            )))
 
