@@ -35,17 +35,18 @@
      (catch java.io.FileNotFoundException e
        (throw+ {:type ::hook-missing :message (<<  "Could not locate hook ~{fqn-fn}")}))))) 
 
-(defn post-create-hooks 
-  "Runs post creation hooks"
-  [machine]
-  (doseq [[f args] (get! :hooks :post-create)]
+(defn run-hooks 
+  "Runs hooks"
+  [machine hook-type]
+  (doseq [[f args] (get! :hooks hook-type)]
     (debug "running hook"  f (resolve f))
     ((resolve- f) (merge machine args))))
 
 (defn reload 
   "Sets up a clean machine from scratch"
   [{:keys [machine] :as spec}]
-  (let [vm (vconstruct spec)]
+  (try 
+    (let [vm (vconstruct spec)]
     (info "setting up" machine)
     (when (.status vm)
       (.stop vm) 
@@ -53,8 +54,11 @@
     (.create vm) 
     (.start vm)
     (assert (= (.status vm) "running")); might not match all providers
-    (post-create-hooks machine)
-    (info "done system setup")))
+    (run-hooks machine :post-create)
+    (info "done system setup"))
+    (catch Throwable t 
+     (run-hooks machine :post-error)
+     (throw t))))
 
 (defn destroy 
   "Deletes a system"

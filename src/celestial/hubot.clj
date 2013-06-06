@@ -8,9 +8,9 @@
 
 (defn notify-hubot 
   "notify a hubot instance that a machine is up" 
-  [{:keys [id hubot-host]}]
+  [{:keys [id hubot-host msg]}]
   (client/post (<< "~{hubot-host}/hubot/creation-notify") 
-       {:body (<< "{\"id\": \"~{id}\"}") :content-type :json
+       {:body (<< "{\"id\": \"~{id}\", \"msg\": \"~{msg}\"}") :content-type :json
          :socket-timeout 1000 :conn-timeout 1000 :accept :json})) 
 
 

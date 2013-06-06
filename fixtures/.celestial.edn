@@ -58,9 +58,15 @@
     ;celestial.dnsmasq/add-host {
      ;   :dnsmasq {:host "192.168.5.20" :user "ronen"}
     ;}             
-    ; celestial.hubot/notify-hubot {
-    ;     :hubot-host "http://192.168.20.124:8083"
-    ; }
+     celestial.hubot/notify-hubot {
+         :hubot-host "http://192.168.5.26:8083" :msg "successful system creation"
+     }
+  }
+  :post-error {
+    celestial.hubot/notify-hubot {
+         :hubot-host "http://192.168.5.26:8083" :msg "failed to create system"
+    }
+
   }
  }
 }
