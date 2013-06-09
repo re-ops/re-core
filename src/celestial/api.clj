@@ -51,7 +51,7 @@
     (success 
       {:msg msg :id id 
        :job (jobs/enqueue action 
-                  {:identity id :args [(assoc (p/get-system id) :system-id (Integer. id))]})})))
+              {:identity id :args [(assoc (p/get-system id) :system-id (Integer. id))]})})))
 
 (defroutes- jobs {:path "/job" :description "Operations on async job scheduling"}
 
