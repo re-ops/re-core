@@ -54,19 +54,20 @@
  }
 
  :hooks {
-  :post-create {
-    ;celestial.dnsmasq/add-host {
-     ;   :dnsmasq {:host "192.168.5.20" :user "ronen"}
-    ;}             
-     celestial.hubot/notify-hubot {
-         :hubot-host "http://192.168.5.26:8083" :msg "successful system creation"
+  :reload {
+    :post-success {
+     ;celestial.dnsmasq/add-host {
+      ;   :dnsmasq {:host "192.168.5.20" :user "ronen"}
+     ;}             
+      hooks.hubot/notify-hubot {
+        :hubot-host "http://192.168.5.14:8083" :msg "Managed to create system"
+      }
      }
-  }
-  :post-error {
-    celestial.hubot/notify-hubot {
-         :hubot-host "http://192.168.5.26:8083" :msg "failed to create system"
-    }
-
+     :post-error {
+       hooks.hubot/notify-hubot {
+         :hubot-host "http://192.168.5.14:8083" :msg "Failed to create system"
+     }
+   }
   }
  }
 }

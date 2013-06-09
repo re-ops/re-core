@@ -21,10 +21,14 @@
   (:require ; loading defmethods
     proxmox.provider aws.provider vsphere.provider
     celestial.puppet_standalone capistrano.remoter
-    [celestial.persistency :as p])
+    [celestial.persistency :as p]
+    [clojure.tools.macro :as tm]
+   )
   (:import 
     [celestial.puppet_standalone Standalone]
     [proxmox.provider Container]))
+
+
 
 (defn resolve- [fqn-fn]
   ;(resolve- (first (keys (get-in config [:hooks :post-create]))))
@@ -37,28 +41,52 @@
 
 (defn run-hooks 
   "Runs hooks"
-  [machine hook-type]
-  (doseq [[f args] (get! :hooks hook-type)]
+  [machine flow hook-type]
+  (doseq [[f args] (get! :hooks flow hook-type)]
     (debug "running hook"  f (resolve f))
     ((resolve- f) (merge machine args))))
 
-(defn reload 
+(defmacro deflow
+  [fname & args]
+  (let [[name* attrs] (tm/name-with-attributes fname args)
+        meta-map (meta name*) args (first attrs) body (next attrs)]
+    `(defn ~name* ~@(when (seq meta-map) [meta-map]) ~args
+       (try ~@body
+         (run-hooks ~'args ~(keyword name*) :post-success)
+         (catch Throwable t#
+           (run-hooks ~'args ~(keyword name*) :post-error) 
+           (throw t#))))))
+
+(deflow reload 
   "Sets up a clean machine from scratch"
-  [{:keys [machine] :as spec}]
-  (try 
-    (let [vm (vconstruct spec)]
+  [{:keys [machine] :as args}]
+  (let [vm (vconstruct args)]
     (info "setting up" machine)
     (when (.status vm)
       (.stop vm) 
       (.delete vm)) 
     (.create vm) 
-    (.start vm)
-    (assert (= (.status vm) "running")); might not match all providers
-    (run-hooks machine :post-create)
-    (info "done system setup"))
-    (catch Throwable t 
-     (run-hooks machine :post-error)
-     (throw t))))
+    (.start vm) 
+    (assert (= (.status vm) "running")) ; might not match all providers
+    (info "done system setup")))
+
+#_(defn reload 
+    "Sets up a clean machine from scratch"
+    [{:keys [machine] :as spec}]
+    (try 
+      (let [vm (vconstruct spec)]
+        (info "setting up" machine)
+        (when (.status vm)
+          (.stop vm) 
+          (.delete vm)) 
+        (.create vm) 
+        (.start vm)
+        (assert (= (.status vm) "running")); might not match all providers
+        (run-hooks machine :post-create)
+        (info "done system setup"))
+      (catch Throwable t 
+        (run-hooks machine :post-error)
+        (throw t))))
 
 (defn destroy 
   "Deletes a system"
@@ -79,7 +107,7 @@
   (info "done provisioning"))
 
 (defn full-cycle
-  ([{:keys [system hypervisor provision]}]
+  ([{:keys [system hypervisor provision]}] 
    (full-cycle system hypervisor))
   ([system provision]
    (reload system) 
@@ -88,11 +116,11 @@
 (defn run-action
   "Runs an action"
   [actions run-info]
- (let [remote (rconstruct actions run-info) {:keys [action]} run-info]
-   (info (<< "setting up task ~{action}"))
-   (.setup remote)
-   (info (<< "running up task ~{action}"))
-   (.run remote)
-   (info (<< "cleanning up task ~{action}"))
-   (.cleanup remote)))
+  (let [remote (rconstruct actions run-info) {:keys [action]} run-info]
+    (info (<< "setting up task ~{action}"))
+    (.setup remote)
+    (info (<< "running up task ~{action}"))
+    (.run remote)
+    (info (<< "cleanning up task ~{action}"))
+    (.cleanup remote)))
 
