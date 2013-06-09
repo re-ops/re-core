@@ -47,6 +47,7 @@
     ((resolve- f) (merge machine args))))
 
 (defmacro deflow
+  "Defines a basic flow functions with post-success and post-error hooks"
   [fname & args]
   (let [[name* attrs] (tm/name-with-attributes fname args)
         meta-map (meta name*) args (first attrs) body (next attrs)]
@@ -70,32 +71,14 @@
     (assert (= (.status vm) "running")) ; might not match all providers
     (info "done system setup")))
 
-#_(defn reload 
-    "Sets up a clean machine from scratch"
-    [{:keys [machine] :as spec}]
-    (try 
-      (let [vm (vconstruct spec)]
-        (info "setting up" machine)
-        (when (.status vm)
-          (.stop vm) 
-          (.delete vm)) 
-        (.create vm) 
-        (.start vm)
-        (assert (= (.status vm) "running")); might not match all providers
-        (run-hooks machine :post-create)
-        (info "done system setup"))
-      (catch Throwable t 
-        (run-hooks machine :post-error)
-        (throw t))))
-
-(defn destroy 
+(deflow destroy 
   "Deletes a system"
-  [id {:keys [machine] :as spec}]
-  (let [vm (vconstruct spec)]
+  [{:keys [system-id machine] :as args}]
+  (let [vm (vconstruct args)]
     (when (.status vm)
       (.stop vm) 
       (.delete vm)) 
-    (p/delete-system id)
+    (p/delete-system system-id)
     (info "system destruction done")))
 
 (defn puppetize 
