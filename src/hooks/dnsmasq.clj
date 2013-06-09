@@ -9,7 +9,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.)
 
-(ns celestial.dnsmasq
+(ns hooks.dnsmasq
   "A basic dnsmasq registration api for static addresses using hosts file, 
    expects an Ubuntu and dnsmasq on the other end "
   (:use 
