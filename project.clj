@@ -49,6 +49,7 @@
   :bin {:name "celestial"}
 
   :profiles {:dev {
+               :source-paths  ["dev"]
                :resource-paths  ["src/main/resources/" "pkg/etc/celestial/"]
                :dependencies [[org.clojure/tools.trace "0.7.5"] [ring-mock "0.1.3"]
                               [midje "1.5.1" :exclusions [org.clojure/core.unify]]
