@@ -57,8 +57,8 @@
 (fact "staging job" 
       (non-sec-app (request :post "/job/stage/1")) => (contains {:status 200})
       (provided
-        (p/get-system "1") => "p/host result"
-        (jobs/enqueue "stage" {:identity "1" :args ["p/host result"]}) => nil))
+        (p/get-system "1") => {}
+        (jobs/enqueue "stage" {:identity "1" :args [{:system-id 1}]}) => nil))
 
 (fact "creation job"
       (non-sec-app (request :post "/job/create/1"))  => (contains {:status 200})

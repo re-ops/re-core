@@ -45,35 +45,36 @@
 
 (defmodel action :operates-on :string :src :string :actions {:type "Actions"})
 
+(defn system-job [id action msg]
+  (if-not (p/system-exists? id)
+    (bad-req {:msg (<< "No system found with given id ~{id}")})
+    (success 
+      {:msg msg :id id 
+       :job (jobs/enqueue action 
+                  {:identity id :args [(assoc (p/get-system id) :system-id (Integer. id))]})})))
+
 (defroutes- jobs {:path "/job" :description "Operations on async job scheduling"}
 
   (POST- "/job/stage/:id" [^:int id] 
     {:nickname "stageSystem" :summary "Complete end to end staging job"
      :notes "Combined system creation and provisioning, seperate actions are available also."}
-         (jobs/enqueue "stage" {:identity id :args [(p/get-system id)]})
-         (success {:msg "submitted staging" :id id}))
+         (system-job id "stage" "submitted system staging"))
 
   (POST- "/job/create/:id" [^:int id] 
      {:nickname "createSystem" :summary "System creation job"
       :errorResponses (errors {:bad-req "Missing system"})
       :notes "Creates a new system on remote hypervisor (usually followed by provisioning)."}
-         (if-not (p/system-exists? id)
-           (bad-req {:msg (<< "No system found with given id ~{id}")})
-           (success 
-             {:msg "submitted system creation" :id id 
-              :job (jobs/enqueue "reload" 
-              {:identity id :args [(assoc (p/get-system id) :system-id (Integer. id))]})})))
+         (system-job id "reload" "submitted system creation"))
 
   (POST- "/job/destroy/:id" [^:int id] 
     {:nickname "destroySystem" :summary "System destruction job"
      :notes "Destroys a system, clearing it both from Celestial's model storage and hypervisor"}
-         (success 
-           {:msg "submitted system destruction" :id id 
-            :job (jobs/enqueue "destroy" {:identity id :args [id (p/get-system id)]})}))
+         (system-job id "destroy" "submitted system destruction"))
 
   (POST- "/job/provision/:id" [^:int id] 
     {:nickname "provisionSystem" :summary "Provisioning job"
-     :notes "Starts a provisioning workflow on a remote system using the provisioner configured in system type"}
+     :notes "Starts a provisioning workflow on a remote system
+             using the provisioner configured in system type"}
          (let [system (p/get-system id) type (p/get-type (:type system)) 
                job (jobs/enqueue "provision" {:identity id :args [type system]})]
            (success 
@@ -82,7 +83,7 @@
   (POST- "/job/:action/:id" [^:string action ^:int id] 
      {:nickname "runAction" :summary "Run remote action" 
       :notes "Runs adhoc remote opertions on system (like deployment, service restart etc)
-             using matching remoting capable tool like Capisrano/Supernal/Fabric"}
+              using matching remoting capable tool like Capisrano/Supernal/Fabric"}
        (let [{:keys [machine] :as system} (p/get-system id)]
          (if-let [actions (p/find-action-for (keyword action) (:type system))]
            (let [args {:identity id :args [actions {:action (keyword action) :target (machine :ip)}]}
