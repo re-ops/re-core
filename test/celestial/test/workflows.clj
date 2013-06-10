@@ -15,7 +15,6 @@
       success (merge machine {:foo 1} {:event :success :workflow :reload})
       fail   (merge machine {:foo 1} {:event :error :workflow :reload})]
   (with-redefs [config identity-hook]
-    (println config)
     (fact "post hook invoke"
       (run-hooks machine :reload :success) => nil
       (provided 
@@ -29,4 +28,3 @@
 (fact "missing fn resolution error"
   (resolve- "non.existing/fn") => (throws ExceptionInfo))
 
-(run-hooks {} :reload :post-success)
