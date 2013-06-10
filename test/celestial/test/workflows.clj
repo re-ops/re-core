@@ -5,26 +5,28 @@
     [celestial.workflows :only (resolve- run-hooks)])  
   (:import clojure.lang.ExceptionInfo))
 
-(defn post-hook [v] v)
-(defn error-hook [v] v)
+(defn hook [v] v)
 
 (def identity-hook
-  {:hooks {
-    :reload {
-      :post-success {'celestial.test.workflows/post-hook {:foo 1}}
-      :post-error {'celestial.test.workflows/error-hook {:foo 1}}}}})
+  {:hooks {'celestial.test.workflows/hook {:foo 1} }})
 
-(let [machine {:machine {:hostname "foo" :ip_address "192.168.2.1"}} merged (merge machine {:foo 1})]
+
+(let [machine {:machine {:hostname "foo" :ip_address "192.168.2.1"}}
+      success (merge machine {:foo 1} {:event :success :workflow :reload})
+      fail   (merge machine {:foo 1} {:event :error :workflow :reload})]
   (with-redefs [config identity-hook]
+    (println config)
     (fact "post hook invoke"
-      (run-hooks machine :reload :post-success) => nil
+      (run-hooks machine :reload :success) => nil
       (provided 
-        (post-hook merged) => merged :times 1))
+        (hook success) => success :times 1))
     (fact "post error hook invoke"
-      (run-hooks machine :reload :post-error) => nil
+      (run-hooks machine :reload :error) => nil
       (provided 
-        (error-hook merged) => merged :times 1))
+        (hook fail) => fail :times 1))
     ))
 
 (fact "missing fn resolution error"
   (resolve- "non.existing/fn") => (throws ExceptionInfo))
+
+(run-hooks {} :reload :post-success)

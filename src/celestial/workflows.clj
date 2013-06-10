@@ -28,8 +28,6 @@
     [celestial.puppet_standalone Standalone]
     [proxmox.provider Container]))
 
-
-
 (defn resolve- [fqn-fn]
   ;(resolve- (first (keys (get-in config [:hooks :post-create]))))
   (let [[n f] (.split (str fqn-fn) "/")] 
@@ -41,27 +39,28 @@
 
 (defn run-hooks 
   "Runs hooks"
-  [machine flow hook-type]
-  (doseq [[f args] (get! :hooks flow hook-type)]
+  [args workflow event]
+  (doseq [[f conf] (get! :hooks)]
     (debug "running hook"  f (resolve f))
-    ((resolve- f) (merge machine args))))
+    ((resolve- f) (merge args conf {:workflow workflow :event event}))))
 
 (defmacro deflow
   "Defines a basic flow functions with post-success and post-error hooks"
   [fname & args]
   (let [[name* attrs] (tm/name-with-attributes fname args)
-        meta-map (meta name*) args (first attrs) body (next attrs)]
-    `(defn ~name* ~@(when (seq meta-map) [meta-map]) ~args
-       (try ~@body
-         (run-hooks ~'args ~(keyword name*) :post-success)
+        meta-map (meta name*) 
+        hook-args (or (some-> (meta-map :hook-args) name symbol) 'spec)]
+    `(defn ~name* ~@(when (seq meta-map) [meta-map]) ~(first attrs)
+       (try ~@(next attrs)
+         (run-hooks ~hook-args ~(keyword name*) :success)
          (catch Throwable t#
-           (run-hooks ~'args ~(keyword name*) :post-error) 
+           (run-hooks ~hook-args ~(keyword name*) :error) 
            (throw t#))))))
 
 (deflow reload 
   "Sets up a clean machine from scratch"
-  [{:keys [machine] :as args}]
-  (let [vm (vconstruct args)]
+  [{:keys [machine] :as spec}]
+  (let [vm (vconstruct spec)]
     (info "setting up" machine)
     (when (.status vm)
       (.stop vm) 
@@ -73,21 +72,21 @@
 
 (deflow destroy 
   "Deletes a system"
-  [{:keys [system-id machine] :as args}]
-  (let [vm (vconstruct args)]
+  [{:keys [system-id machine] :as spec}]
+  (let [vm (vconstruct spec)]
     (when (.status vm)
       (.stop vm) 
       (.delete vm)) 
     (p/delete-system system-id)
     (info "system destruction done")))
 
-(defn puppetize 
+(deflow puppetize 
   "Provisions an instance"
-  [type spec]
-  (info "starting to provision")
-  (trace type spec) 
-  (.apply- (pconstruct type spec))
-  (info "done provisioning"))
+  [type {:keys [machine] :as spec}]
+    (info "starting to provision") 
+    (trace type spec) 
+    (.apply- (pconstruct type spec)) 
+    (info "done provisioning"))
 
 (defn full-cycle
   ([{:keys [system hypervisor provision]}] 
@@ -96,7 +95,7 @@
    (reload system) 
    (puppetize provision)))
 
-(defn run-action
+(deflow ^{:hook-args :run-info} run-action
   "Runs an action"
   [actions run-info]
   (let [remote (rconstruct actions run-info) {:keys [action]} run-info]
