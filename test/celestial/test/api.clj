@@ -52,7 +52,7 @@
           (provided 
             (p/get-system "1")  => machine
             (p/get-type "redis") => type
-            (jobs/enqueue "provision" {:identity "1" :args [type machine]}) => nil)))
+            (jobs/enqueue "provision" {:identity "1" :args [type (assoc machine :system-id 1)]}) => nil)))
 
 (fact "staging job" 
       (non-sec-app (request :post "/job/stage/1")) => (contains {:status 200})
