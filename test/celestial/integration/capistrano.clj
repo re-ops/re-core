@@ -14,13 +14,13 @@
 (fact "basic deploy" :integration :capistrano
    (p/add-type redis-type) 
    (let [id (p/add-system redis-prox-spec)
-         cap (rconstruct redis-actions {:action :deploy :target "192.168.5.100"})]
+         cap (rconstruct redis-actions {:action :deploy :target "192.168.5.200"})]
      (reload redis-prox-spec)
      (.setup cap)
      (exists? (:dst cap)) => truthy 
      (.run cap)
      (.cleanup cap)
-     (destroy id redis-prox-spec) 
+     (destroy (assoc redis-prox-spec :system-id id)) 
      (exists? (:dst cap))  => falsey 
      (p/system-exists? id)  => falsey 
      ))
