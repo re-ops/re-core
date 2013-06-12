@@ -12,10 +12,8 @@
 (ns celestial.workflows
   "Main workflows"
   (:use 
-    [celestial.common :only (get!)]
+    [celestial.common :only (get! import-logging)]
     [clojure.core.strint :only (<<)]
-    [celestial.common :only (slurp-edn)]
-    [taoensso.timbre :only (debug info trace)] 
     [slingshot.slingshot :only  [throw+ try+]]
     [celestial.model :only (vconstruct pconstruct rconstruct)]) 
   (:require ; loading defmethods
@@ -28,6 +26,7 @@
     [celestial.puppet_standalone Standalone]
     [proxmox.provider Container]))
 
+(import-logging)
 (defn resolve- [fqn-fn]
   ;(resolve- (first (keys (get-in config [:hooks :post-create]))))
   (let [[n f] (.split (str fqn-fn) "/")] 
@@ -42,7 +41,10 @@
   [args workflow event]
   (doseq [[f conf] (get! :hooks)]
     (debug "running hook"  f (resolve f))
-    ((resolve- f) (merge args conf {:workflow workflow :event event}))))
+    (try 
+      ((resolve- f) (merge args conf {:workflow workflow :event event}))
+      (catch Throwable t (error t)) 
+      )))
 
 (defmacro deflow
   "Defines a basic flow functions with post-success and post-error hooks"
