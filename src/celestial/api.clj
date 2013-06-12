@@ -10,6 +10,7 @@
    limitations under the License.)
 
 (ns celestial.api
+  (:refer-clojure :exclude [hash])
   (:use [celestial.hosts-api :only (hosts types)]
         [celestial.users-api :only (users quotas)]
         [compojure.core :only (defroutes routes)] 
@@ -45,9 +46,9 @@
 
 (defmodel action :operates-on :string :src :string :actions {:type "Actions"})
 
-(defmodel arg :key :string :value :string)
+(defmodel hash)
 
-(defmodel arguments :args {:type "List" :items {"$ref" "Arg"}})
+(defmodel arguments :args {:type "Hash" :description "key value pairs {'foo':1 , 'bar':2 , ...}" })
 
 (defn schedule-job 
   ([id action msg]
@@ -84,16 +85,14 @@
            (schedule-job id "provision" "submitted provisioning" 
               [type (assoc system :system-id (Integer. id))])))
 
-  (POST- "/job/:action/:id" [^:string action ^:int id & ^:arguments args] 
+  (POST- "/job/:action/:id" [^:string action ^:int id & ^:hash args] 
      {:nickname "runAction" :summary "Run remote action" 
       :notes "Runs adhoc remote opertions on system (like deployment, service restart etc)
               using matching remoting capable tool like Capisrano/Supernal/Fabric"}
-       (let [{:keys [machine] :as system} (p/get-system id) 
-            args-m (apply merge (map #(into {} %) args))]
+       (let [{:keys [machine] :as system} (p/get-system id)]
          (if-let [actions (p/find-action-for (keyword action) (:type system))]
            (schedule-job id "run-action" "submitted action" 
-             [actions (merge args-m 
-                        {:action (keyword action) :target (machine :ip) :system-id (Integer. id)})])
+             [actions (merge args {:action (keyword action) :target (machine :ip) :system-id (Integer. id)})])
            (bad-req {:msg (<< "No action ~{action} found for id ~{id}")})
            )))
 
