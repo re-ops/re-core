@@ -32,7 +32,8 @@
   (cleanup [this]
            (delete-dir dst)))
 
-(defmethod rconstruct :capistrano [{:keys [actions src] :as spec} {:keys [action target] :as run-info}]
+(defmethod rconstruct :capistrano [{:keys [actions src] :as spec} 
+                                   {:keys [action] :as run-info}]
   (let [task (get-in actions [action :capistrano])]
     (->Capistrano src (mapv #(interpulate % run-info) (task :args)) (<< "~(tmpdir)/~(gen-uuid)/~(name action)"))))
 

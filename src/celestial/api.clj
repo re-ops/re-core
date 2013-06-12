@@ -45,6 +45,10 @@
 
 (defmodel action :operates-on :string :src :string :actions {:type "Actions"})
 
+(defmodel arg :key :string :value :string)
+
+(defmodel arguments :args {:type "List" :items {"$ref" "Arg"}})
+
 (defn schedule-job 
   ([id action msg]
     (schedule-job id action msg [(assoc (p/get-system id) :system-id (Integer. id))])) 
@@ -80,14 +84,16 @@
            (schedule-job id "provision" "submitted provisioning" 
               [type (assoc system :system-id (Integer. id))])))
 
-  (POST- "/job/:action/:id" [^:string action ^:int id] 
+  (POST- "/job/:action/:id" [^:string action ^:int id & ^:arguments args] 
      {:nickname "runAction" :summary "Run remote action" 
       :notes "Runs adhoc remote opertions on system (like deployment, service restart etc)
               using matching remoting capable tool like Capisrano/Supernal/Fabric"}
-       (let [{:keys [machine] :as system} (p/get-system id)]
+       (let [{:keys [machine] :as system} (p/get-system id) 
+            args-m (apply merge (map #(into {} %) args))]
          (if-let [actions (p/find-action-for (keyword action) (:type system))]
            (schedule-job id "run-action" "submitted action" 
-             [actions {:action (keyword action) :target (machine :ip) :system-id (Integer. id)}])
+             [actions (merge args-m 
+                        {:action (keyword action) :target (machine :ip) :system-id (Integer. id)})])
            (bad-req {:msg (<< "No action ~{action} found for id ~{id}")})
            )))
 
