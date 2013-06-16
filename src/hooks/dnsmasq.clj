@@ -12,6 +12,7 @@
 (ns hooks.dnsmasq
   "A basic dnsmasq registration api for static addresses using hosts file, 
    expects an Ubuntu and dnsmasq on the other end "
+  (:require [celestial.persistency :as p])
   (:use 
     [clojure.core.strint :only (<<)]
     [supernal.sshj :only (execute)]))
@@ -22,18 +23,24 @@
 (def restart 
   "sudo service dnsmasq stop && sudo service dnsmasq start")
 
+
 (defn add-host 
-  "Will add host to hosts file only if missing"
-  [{:keys [dnsmasq user domain machine]}]
-  (let [remote {:host dnsmasq :user user} {:keys [hostname ip]} machine 
+  "Will add host to hosts file only if missing, 
+   note that we p/get-system since the provider might updated the system during create."
+  [{:keys [dnsmasq user domain system-id]}]
+  (let [remote {:host dnsmasq :user user} 
+        {:keys [hostname ip]} (:machine (p/get-system system-id))
         hostline (<< "'~{ip} ~{hostname} ~{hostname}.~{domain}'")]
     (execute 
       (<< "grep -q ~{hostline} /etc/hosts || (echo ~{hostline} | sudo tee -a /etc/hosts >> /dev/null)") remote)
     (execute restart remote)))
 
 
-(defn remove-host [{:keys [dnsmasq user domain machine]}]
-  (let [remote {:host dnsmasq :user user} {:keys [hostname ip]} machine 
+(defn remove-host 
+  "Removes host, 
+   here we use the original machine since the last step in destroy is clearing the system" 
+  [{:keys [dnsmasq user domain machine]}]
+  (let [remote {:host dnsmasq :user user} {:keys [hostname ip]} machine
         hostline (<< "~{ip} ~{hostname} ~{hostname}.~{domain}")]
     (execute (<< "sudo sed -ie \"\\|^~{hostline}\\$|d\" /etc/hosts") remote) 
     (execute restart remote)))
