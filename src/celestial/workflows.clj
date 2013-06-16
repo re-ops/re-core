@@ -27,6 +27,7 @@
     [proxmox.provider Container]))
 
 (import-logging)
+
 (defn resolve- [fqn-fn]
   ;(resolve- (first (keys (get-in config [:hooks :post-create]))))
   (let [[n f] (.split (str fqn-fn) "/")] 
