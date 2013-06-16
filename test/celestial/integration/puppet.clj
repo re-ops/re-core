@@ -19,7 +19,7 @@
     (let [id (p/add-system spec)] 
       (reload (assoc spec :system-id id))
       (puppetize type (p/get-system id))
-      (destroy id (p/get-system id))))
+      (destroy (assoc (p/get-system id) :system-id id))))
 
 (fact "provisioning a proxmox instance" :integration :puppet
       (with-conf
