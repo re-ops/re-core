@@ -22,14 +22,28 @@
 (def restart 
   "sudo service dnsmasq stop && sudo service dnsmasq start")
 
-(defn add-host [{:keys [hostname ip dnsmasq]}]
-  (execute (<< "echo '~{ip} ~{hostname}' | sudo tee -a /etc/hosts >> /dev/null" ) dnsmasq)
-  (execute restart dnsmasq))
+(defn add-host 
+  "Will add host to hosts file only if missing"
+  [{:keys [dnsmasq user domain machine]}]
+  (let [remote {:host dnsmasq :user user} {:keys [hostname ip]} machine 
+        hostline (<< "'~{ip} ~{hostname} ~{hostname}.~{domain}'")]
+    (execute 
+      (<< "grep -q ~{hostline} /etc/hosts || (echo ~{hostline} | sudo tee -a /etc/hosts >> /dev/null)") remote)
+    (execute restart remote)))
 
 
-(defn remove-host [{:keys [hostname ip dnsmasq]}]
-  (execute (<< "sudo sed -ie \"\\|^~{ip} ~{hostname}\\$|d\" /etc/hosts") dnsmasq)
-  (execute restart dnsmasq))
+(defn remove-host [{:keys [dnsmasq user domain machine]}]
+  (let [remote {:host dnsmasq :user user} {:keys [hostname ip]} machine 
+        hostline (<< "~{ip} ~{hostname} ~{hostname}.~{domain}")]
+    (execute (<< "sudo sed -ie \"\\|^~{hostline}\\$|d\" /etc/hosts") remote) 
+    (execute restart remote)))
 
-; (add-host "foo" "192.168.20.90")
+(def actions {:reload {:success add-host} :destroy {:success remove-host}})
+
+(defn update-dns [{:keys [event workflow] :as args}]
+  ((get-in actions [workflow event] identity) args))
+
+#_(add-host {:hostname "foo" :ip "192.168.1.1" :domain "local" :dnsmasq "192.168.20.180" :user "ronen"})
+
+#_(remove-host {:hostname "foo" :ip "192.168.1.1" :domain "local" :dnsmasq "192.168.20.180" :user "ronen"})
 ; (remove-host "foo" "192.168.20.90")
