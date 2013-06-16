@@ -15,7 +15,7 @@
 
 (defn notify-hubot 
   "notify a hubot instance that a machine is up" 
-  [{:keys [event workflow system-id hubot-host msg]}]
+  [{:keys [event workflow system-id hubot-host]}]
   {:pre [hubot-host]}
   (client/post (<< "~{hubot-host}/hubot/creation-notify") 
                {:body (<< "{\"id\": \"~{system-id}\", \"msg\": \"~(reply workflow event)\"}")
