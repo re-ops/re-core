@@ -1,6 +1,7 @@
 (ns proxmox.generators
   "proxomx generated valudes"
   (:use 
+    [clojure.data :only (diff)]
     [puny.core :only (defgen)]
     [slingshot.slingshot :only  [throw+ try+]]
     [clojure.core.strint :only (<<)]
@@ -52,22 +53,23 @@
   (not (nil? (first (filter #(= % "open") 
                             (map #(get-in % [:state :state]) (get-in host [:ports :ports])))))))
 
-(defn raw-scan [ip]
+(defn raw-scan 
+  "runs raw scan, require nmap bin to be symlinked to /usr/local"
+  [ip]
   (let [nmap (Nmap4j. "/usr/local")]
     (doto nmap 
       (.includeHosts ip)
       (.addFlags "-n -T5 -p U:1194,T:21,22,25,53,80,110,111")
       (.execute) 
-      (.getResult)
-      )))
-
+      (.getResult))))
 
 (defn hosts-scan 
   "Uses nmap so scan a list of hosts (192.168.10.1-50)"
   [hosts]
-  (map :addresses  (filter ports-open? 
-                           (get-in (from-java (raw-scan hosts)) [:result :hosts])))
-  )
+  (map :addresses 
+       (filter ports-open?  (get-in (from-java (raw-scan hosts)) [:result :hosts]))))
+
+
 
 (defn ip-to-long 
   "Converts an ip address to long number" 
@@ -153,14 +155,24 @@
         return nil "
         {:ips "ips"} {:rel-ip (ip-to-long ip)}))))
 
+
+; debugging fn's
 (defn list-used-ips
   "List used ips in human readable form (mainly for debugging)."
   []
    (map #( -> % (Long/parseLong) long-to-ip) (wcar (car/zrangebyscore "ips" 1 1))))
 
+(defn correlate
+  "compares stored ips to scan result"
+  []
+   (let [scanned (map (fn [[{:keys [addr]}]] addr) (hosts-scan "192.168.20.170-254"))]
+     (zipmap [:scanned :listed :common] (diff (into #{} scanned) (into #{} (list-used-ips))))
+    )
+  )
 
 (comment
-  (release-ip "192.168.5.130") 
+  (clojure.pprint/pprint (correlate))
+  (release-ip "192.168.20.185") 
   (gen-ip {}) 
   (wcar (car/del "ips"))
   (mark-used) 
