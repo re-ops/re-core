@@ -2,7 +2,7 @@
   (:require [celestial.jobs :as jobs])
   (:use 
     midje.sweet
-    [celestial.common :only (half-hour minute)]
+    [celestial.common :only (minute)]
     [clojure.core.strint :only (<<)]
     [celestial.jobs :only (initialize-workers workers job-exec create-wks enqueue)]
     [celestial.redis :only (with-lock)])
