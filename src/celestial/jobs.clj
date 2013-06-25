@@ -12,6 +12,8 @@
 (ns celestial.jobs
   (:refer-clojure :exclude [identity])
   (:use  
+    [celestial.common :only (get*)]
+    [flatland.useful.map :on map-vals]
     [clojure.core.strint :only (<<)]
     [celestial.common :only (half-hour minute)]
     [celestial.redis :only (create-worker wcar with-lock)]
@@ -23,12 +25,14 @@
 
 (def workers (atom {}))
 
+(def defaults {:wait-time 5 :expiry 30})
+
 (defn job-exec [f {:keys [identity args] :as spec}]
   "Executes a job function tries to lock identity first (if used)"
   (if identity
     (with-lock identity 
       (fn [] (apply f args) :success)
-     {:expiry half-hour :wait-time minute}) 
+      (map-vals (or (get* :job) defaults) #(* minute %) )) 
     (do (apply f args) :success)))
 
 (def jobs 
@@ -67,10 +71,10 @@
       (mq/stop w))))
 
 (defn queue-metadata "Returns given queue's current metadata."
-   [qname]
-   {:backoff?  (wcar (car/get      (mq/qkey qname "backoff?")))
-    :id-circle (wcar (car/lrange   (mq/qkey qname "id-circle") 0 -1))
-    :messsages (wcar (car/hgetall* (mq/qkey qname "messages")))
-    :recently-done (wcar (car/smembers (mq/qkey qname "recently-done")))
-    :locks     (wcar (car/hgetall* (mq/qkey qname "locks")))})
+  [qname]
+  {:backoff?  (wcar (car/get      (mq/qkey qname "backoff?")))
+   :id-circle (wcar (car/lrange   (mq/qkey qname "id-circle") 0 -1))
+   :messsages (wcar (car/hgetall* (mq/qkey qname "messages")))
+   :recently-done (wcar (car/smembers (mq/qkey qname "recently-done")))
+   :locks     (wcar (car/hgetall* (mq/qkey qname "locks")))})
 

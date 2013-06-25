@@ -40,6 +40,8 @@
     [:log :path] [v/required cv/str?]
     [:cert :password] [v/required cv/str?]
     [:cert :keystore] [v/required cv/str?]
+    [:job :expiry] [v/number]
+    [:job :wait-time] [v/number]
     [:nrepl :port] [v/number]))
 
 (defn proxmox-v 
