@@ -31,7 +31,7 @@
     (throw+ {:type ::missing-conf :message (<< "No matching configuration keys ~{keys} found")})))
 
 (defn get* 
-  "Quite version of get!"
+  "nil on missing version of get!"
   [& keys]
    (get-in config keys))
 
