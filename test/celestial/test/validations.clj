@@ -14,8 +14,8 @@
    (validate-entity (assoc-in redis-prox-spec [:machine :cpus] nil)) => ; common validation 
       (throws ExceptionInfo (with-m? {:machine {:cpus '("cpus must be present")}}))
 
-   (validate-entity (assoc-in redis-prox-spec [:machine :hostname] "foo")) => ; non fqdn
-      (throws ExceptionInfo (with-m? {:machine {:hostname '("hostname must be fully qualified")}}))
+   (validate-entity (assoc-in redis-prox-spec [:machine :domain] nil)) => ; non fqdn
+      (throws ExceptionInfo (with-m? {:machine {:domain '("domain must be present")}}))
 
    (validate-entity (assoc-in redis-prox-spec [:machine :os] "ubutnu-12.04")) => ; entity validation 
       (throws ExceptionInfo (with-m? {:machine {:os '("os must be a keyword")}}))

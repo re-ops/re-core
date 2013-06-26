@@ -151,7 +151,7 @@
   "Convert the general model into a proxmox vz specific one"
   (-> (merge machine proxmox {:system-id system-id})
       (mappings {:ip :ip_address :os :ostemplate})
-      (transform {:ostemplate (os->template :proxmox)})
+      (transform {:ostemplate (os->template :proxmox) :hostname (fn [host] (<< "~{host}.~(machine :domain)"))})
        generate selections))
 
 (defmethod vconstruct :proxmox [{:keys [proxmox] :as spec}]

@@ -10,9 +10,8 @@
     :cpus [v/number v/required]
     :disk [v/number v/required]
     :memory [v/number v/required]
-    :hostname [v/required cv/str? 
-               ; proxmox uses this for /etc/hosts file
-               (v/custom (partial re-find #".*\.\w*") :message "hostname must be fully qualified")])
+    :hostname [v/required cv/str?]
+  )
 
 (def prox-types [:ct :vm])
 
@@ -27,6 +26,7 @@
     :nameserver [cv/str?])
 
 (defvalidatorset machine-entity
+     :domain [v/required cv/str?]
      :ip [cv/str?]
      :os [v/required cv/keyword?])
 
@@ -48,6 +48,7 @@
      :vmid [v/required v/number ]
      :password [v/required cv/str?]
      :nameserver [cv/str?] 
+     :hostname [(v/custom (partial re-find #".*\.\w*") :message "hostname must be fully qualified")]
      :ip_address [cv/str?]
      :ostemplate [v/required cv/str?] )
 
