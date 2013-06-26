@@ -7,7 +7,7 @@
     [celestial.redis :only (clear-all)]))
 
 (with-state-changes [(before :facts (clear-all))]
-  (fact "id-less entity" :integration :redis
+  (fact "id-less entity" :integration :puny
         (p/entity foo)        
         (defn validate-foo [foo] {})
         (let [id (add-foo {:bar 1})]
@@ -18,8 +18,8 @@
           (delete-foo id)
           (foo-exists? id) => falsey))
 
-  (fact "entity with id" :integration :redis
-        (p/entity user :id name)        
+  (fact "entity with id" :integration :puny
+        (p/entity {:ver 1} user :id name)        
         (defn validate-user [user] {})
         (let [id (add-user {:name "me"})]
           (get-user "me") => {:name "me"}
@@ -29,7 +29,7 @@
           (delete-user "me")
           (user-exists? "me") => falsey))
 
-  (fact "basic index actions" :integration :redis
+  (fact "basic index actions" :integration :puny
         (p/index-fns house {:indices [zip n]})
         (index-house 5 {:zip "1234" :n 5})
         (index-house 6 {:zip "1234" :n 6})
@@ -42,7 +42,7 @@
         (get-house-index :zip "1235")  => ["6"]
         )
 
-  (fact "indexed entity" :integration :redis
+  (fact "indexed entity" :integration :puny
         (p/entity position :indices [longi alti])        
         (defn validate-position [postion] {})
         (let [id (add-position {:longi 10 :alti 12})]
@@ -55,7 +55,7 @@
           (get-position-index :longi 11) => []
           ))
 
-  (fact "indexed entity with id" :integration :redis
+  (fact "indexed entity with id" :integration :puny
         (p/entity car :id license :indices [color])        
         (defn validate-car [car] {})
         (add-car {:license 123 :color "black"})
@@ -69,7 +69,7 @@
         (car-exists? 123) => falsey
         (get-car-index :color "blue") => [])
 
-  (fact "fail fase actions" :integration :redis
+  (fact "fail fase actions" :integration :puny
         (p/entity planet :id name)
         (defn validate-planet [planet] {})
         (add-planet {:name "lunar"})
@@ -82,6 +82,15 @@
         (delete-planet! "lunar") 
         (get-planet "lunar") => {} 
         (get-planet! "lunar") => (throws ExceptionInfo (is-type? :celestial.integration.puny/missing-planet)) 
+        )
+
+  (fact "entity metadata" :integration :puny
+     (p/entity {:ver 1} metable :id name)
+     (defn validate-metable [metable] {})
+     (add-metable {:name "foo"}) 
+     (get-metable "foo") => {:name "foo"}
+     (meta (get-metable "foo")) => {:ver 1}
+    
         )
   )
 

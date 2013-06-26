@@ -102,9 +102,10 @@
          (~get-fn ~'id))
        )))
 
+
 (defmacro write-fns 
   "Creates the add/update functions both take into account if id is generated of provided"
-  [name* opts]
+  [name* opts meta*]
   (let [{:keys [id-fn validate-fn add-fn update-fn gen-fn get-fn partial-fn]} (fn-ids name*)
         {:keys [missing-ex]} (bang-fn-ids name*)
         {:keys [up-args up-id add-k-fn]} (id-modifiers name* (apply hash-map opts))
@@ -119,7 +120,7 @@
        (defn ~add-fn [~'v]
          (~validate-fn ~'v)
          (let [id# ~add-k-fn]
-           (wcar (hsetall* (~id-fn id#) ~'v)) 
+           (wcar (hsetall* (~id-fn id#) (assoc ~'v :meta ~meta*))) 
            (~index-add id# ~'v)
            id#))
 
@@ -127,21 +128,22 @@
          (~exists! ~up-id)
          (let [orig# (wcar (car/hgetall* (~id-fn ~up-id))) updated# (merge-with merge orig# ~'v)]
            (~reindex ~up-id orig# updated#) 
-           (wcar (hsetall* (~id-fn ~up-id) updated#))))
+           (wcar (hsetall* (~id-fn ~up-id) (assoc updated# :meta ~meta*)))))
 
        (defn ~update-fn ~up-args
          (~validate-fn ~'v)
          (~exists! ~up-id)
          (let [orig# (wcar (car/hgetall* (~id-fn ~up-id))) updated# (merge orig#  ~'v)]
            (~reindex ~up-id orig# updated#) 
-           (wcar (hsetall* (~id-fn ~up-id) updated#)))))))
+           (wcar (hsetall* (~id-fn ~up-id) (assoc updated# :meta ~meta*))))))))
 
 
 
 (defmacro entity
   "Generates all the persistency (add/delete/exists etc..) functions for given entity"
-  [name* & opts]
-  (let [{:keys [id-fn delete-fn get-fn exists-fn]} (fn-ids name*)
+  [f & r]
+  (let [[meta* name* opts] (if (map? f) [f (first r) (rest r)] [{} f r])
+        {:keys [id-fn delete-fn get-fn exists-fn]} (fn-ids name*)
         {:keys [index-del]} (indices-fn-ids name*)]
     `(do 
        (defn ~id-fn [~'id] (str '~name* ":" ~'id))
@@ -150,7 +152,9 @@
 
        (index-fns ~name* ~opts)
 
-       (defn ~get-fn [~'id] (wcar (car/hgetall* (~id-fn ~'id))))
+       (defn ~get-fn [~'id] 
+          (let [e# (wcar (car/hgetall* (~id-fn ~'id)))]
+            (with-meta (dissoc e# :meta) (e# :meta)) ))
 
        (defn ~delete-fn [~'id] 
          (~index-del ~'id (~get-fn ~'id)) 
@@ -158,5 +162,5 @@
  
        (bang-fns ~name*)
 
-       (write-fns ~name* ~opts))))
+       (write-fns ~name* ~opts ~meta*))))
 
