@@ -72,8 +72,7 @@
   Provision
   (apply- [this]
     (let [puppet-std (type :puppet-std) module (puppet-std :module)]
-        (execute puppet-provision {:module module :type type} :web :join true :env {:roles {:web #{remote}}})
-      ))) 
+        (execute puppet-provision {:module module :type type} :web :env {:roles {:web #{remote}}})))) 
 
 
 (defmethod pconstruct :puppet-std [type {:keys [machine] :as spec}]
