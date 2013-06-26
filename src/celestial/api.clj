@@ -115,7 +115,7 @@
 
   (PUT- "/action/:id" [^:int id & ^:action action] {:nickname "updateActions" :summary "Update an actions set"}
         (p/update-action id action)
-        (success {:msg "updated actions" :action action}))
+        (success {:msg "updated actions"}))
 
   (GET- "/action/:id" [^:int id] {:nickname "getActions" :summary "Gets actions descriptor"}
         (success {:action (p/get-action id)}))
