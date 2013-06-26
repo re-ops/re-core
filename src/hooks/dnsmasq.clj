@@ -17,22 +17,23 @@
     [clojure.core.strint :only (<<)]
     [supernal.sshj :only (execute)]))
 
-(defn ignore-code [s]
+(defn- ignore-code [s]
   (with-meta s (merge (meta s) {:ignore-code true})))
 
 (def restart 
   "sudo service dnsmasq stop && sudo service dnsmasq start")
 
 
+(defn hostline [domain {:keys [ip hostname] :as machine}]
+  (<< "'~{ip} ~{hostname} ~{hostname}.~(get machine :domain domain)'"))
+
 (defn add-host 
   "Will add host to hosts file only if missing, 
    note that we p/get-system since the provider might updated the system during create."
   [{:keys [dnsmasq user domain system-id]}]
-  (let [remote {:host dnsmasq :user user} 
-        {:keys [hostname ip]} (:machine (p/get-system system-id))
-        hostline (<< "'~{ip} ~{hostname} ~{hostname}.~{domain}'")]
+  (let [remote {:host dnsmasq :user user} line (hostline domain (:machine (p/get-system system-id)))]
     (execute 
-      (<< "grep -q ~{hostline} /etc/hosts || (echo ~{hostline} | sudo tee -a /etc/hosts >> /dev/null)") remote)
+      (<< "grep -q ~{line} /etc/hosts || (echo ~{line} | sudo tee -a /etc/hosts >> /dev/null)") remote)
     (execute restart remote)))
 
 
@@ -40,9 +41,8 @@
   "Removes host, 
    here we use the original machine since the last step in destroy is clearing the system" 
   [{:keys [dnsmasq user domain machine]}]
-  (let [remote {:host dnsmasq :user user} {:keys [hostname ip]} machine
-        hostline (<< "~{ip} ~{hostname} ~{hostname}.~{domain}")]
-    (execute (<< "sudo sed -ie \"\\|^~{hostline}\\$|d\" /etc/hosts") remote) 
+  (let [remote {:host dnsmasq :user user} line (hostline domain machine)]
+    (execute (<< "sudo sed -ie \"\\|^~{line}\\$|d\" /etc/hosts") remote) 
     (execute restart remote)))
 
 (def actions {:reload {:success add-host} :destroy {:success remove-host}})
@@ -50,7 +50,3 @@
 (defn update-dns [{:keys [event workflow] :as args}]
   ((get-in actions [workflow event] identity) args))
 
-#_(add-host {:hostname "foo" :ip "192.168.1.1" :domain "local" :dnsmasq "192.168.20.180" :user "ronen"})
-
-#_(remove-host {:hostname "foo" :ip "192.168.1.1" :domain "local" :dnsmasq "192.168.20.180" :user "ronen"})
-; (remove-host "foo" "192.168.20.90")
