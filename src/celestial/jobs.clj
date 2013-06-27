@@ -12,10 +12,11 @@
 (ns celestial.jobs
   (:refer-clojure :exclude [identity])
   (:use  
+    [gelfino.timbre :only (set-tid)]
     [celestial.common :only (get*)]
     [flatland.useful.map :on map-vals]
     [clojure.core.strint :only (<<)]
-    [celestial.common :only (half-hour minute)]
+    [celestial.common :only (minute import-logging gen-uuid)]
     [celestial.redis :only (create-worker wcar with-lock)]
     [taoensso.timbre :only (debug info error warn trace)]
     [celestial.workflows :only (reload destroy puppetize full-cycle run-action)]) 
@@ -23,17 +24,22 @@
     [taoensso.carmine :as car]
     [taoensso.carmine.message-queue :as mq]))
 
+(import-logging)
+
 (def workers (atom {}))
 
 (def defaults {:wait-time 5 :expiry 30})
 
 (defn job-exec [f {:keys [identity args] :as spec}]
   "Executes a job function tries to lock identity first (if used)"
-  (if identity
-    (with-lock identity 
-      (fn [] (apply f args) :success)
-      (map-vals (or (get* :job) defaults) #(* minute %) )) 
-    (do (apply f args) :success)))
+  (set-tid (gen-uuid)
+    (try 
+      (if identity
+        (with-lock identity 
+         (fn [] (apply f args) :success)
+         (map-vals (or (get* :job) defaults) #(* minute %) )) 
+        (do (apply f args) :success))
+      (catch Throwable e (error e) :error))))
 
 (def jobs 
   (atom 
