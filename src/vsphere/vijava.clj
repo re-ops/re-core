@@ -109,8 +109,10 @@
 
 (defn clone [{:keys [datacenter] :as allocation} {:keys [template hostname] :as machine}]
   (with-service
-    (let [vm (find* "VirtualMachine" template)]
-      (wait-for (.cloneVM_Task vm (.getParent vm) hostname (clone-spec allocation machine))))))
+    (if-let [vm (find* "VirtualMachine" template)]
+      (wait-for (.cloneVM_Task vm (.getParent vm) hostname (clone-spec allocation machine)))
+      (throw+ {:type ::missing-template :message (str "No matching template found " template)})
+      )))
 
 (def power-to-s
   {VirtualMachinePowerState/poweredOn :running 
@@ -140,7 +142,7 @@
 (comment
   (try 
     (clone {:datacenter "playground"} 
-           {:template "ubuntu-13.04_puppet-3.1" :hostname "foo" :disk-format :sparse :cpus 1 :memory 512})
+           {:template "ubuntu-13.04_puppet-3.1" :hostname "bar" :disk-format :sparse :cpus 1 :memory 512})
     (catch Throwable e (error e)) 
     )
   (map deref (repeatedly 40 (fn []  (future (status "foo") ))))
