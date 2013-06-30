@@ -65,7 +65,8 @@
   (POST- "/job/stage/:id" [^:int id] 
     {:nickname "stageSystem" :summary "Complete end to end staging job"
      :notes "Combined system creation and provisioning, seperate actions are available also."}
-         (schedule-job id "stage" "submitted system staging"))
+      (let [system (p/get-system id) type (p/get-type (:type system))]
+           (schedule-job id "stage" "submitted system staging" [type system])))
 
   (POST- "/job/create/:id" [^:int id] 
      {:nickname "createSystem" :summary "System creation job"

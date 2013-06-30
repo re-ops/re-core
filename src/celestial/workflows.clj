@@ -91,12 +91,11 @@
     (.apply- (pconstruct type spec)) 
     (info "done provisioning"))
 
-(defn full-cycle
-  ([{:keys [system hypervisor provision]}] 
-   (full-cycle system hypervisor))
-  ([system provision]
-   (reload system) 
-   (puppetize provision)))
+(defn stage
+  "create and provision"
+  [type spec] 
+  (reload spec) 
+  (puppetize type spec))
 
 (deflow ^{:hook-args :run-info} run-action
   "Runs an action"
