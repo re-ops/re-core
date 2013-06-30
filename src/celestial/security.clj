@@ -11,6 +11,8 @@
 
 (ns celestial.security
   (:use 
+    [celestial.common :only (gen-uuid)]
+    [gelfino.timbre :only (set-tid)]
     [celestial.common :only (import-logging)])
   (:require 
     [celestial.roles :as roles]
@@ -24,8 +26,9 @@
 (defn user-tracking [app]
   "A tiny middleware to track api access"
   (fn [{:keys [uri request-method] :as req}]
-    (debug request-method " on " uri "by" (friend/current-authentication) )
-    (app req)))
+    (set-tid (gen-uuid)
+      (debug request-method " on " uri "by" (friend/current-authentication))
+      (app req))))
 
 (defn secured-app [routes]
   (friend/authenticate 
