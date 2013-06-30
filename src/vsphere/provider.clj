@@ -25,7 +25,7 @@
 
 (defconstrainedrecord VirtualMachine [allocation machine]
   ""
-  []
+  [(not (nil? allocation))]
   Vm
   (create [this] (clone allocation machine))
 
@@ -52,5 +52,6 @@
       ))
 
 (defmethod vconstruct :vsphere [spec]
-   (let [[allocation machine] (translate spec)] (->VirtualMachine allocation machine)))
+   (let [[allocation machine] (translate spec)]
+     (->VirtualMachine allocation machine)))
 
