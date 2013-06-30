@@ -39,6 +39,7 @@
   :cpus {:type :int :description "Not relevant in ec2"}
   :memory {:type :int :description "Not relevant in ec2"}
   :disk {:type :int :description "Not relevant in ec2"}
+  :domain {:type :string :description "dns domain"}
   :hostname :string :user :string :os :string :ip {:type :string :description "Not relevant in ec2"})
 
 (defmodel aws :min-count :int :max-count :int :instance-type :string
