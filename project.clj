@@ -13,7 +13,7 @@
                  [bouncer "0.2.3-beta2"]
                  [cheshire "5.0.2"]
                  [com.taoensso/timbre "1.6.0"]
-                 [com.narkisr/gelfino-client "0.4.1"]
+                 [com.narkisr/gelfino-client "0.4.2"]
                  [org.clojure/core.incubator "0.1.2"]
                  [slingshot "0.10.3" ]
                  [clj-http "0.6.5"]
