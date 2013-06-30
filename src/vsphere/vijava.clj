@@ -32,7 +32,7 @@
   (memoize 
     (fn []  
       (into [] 
-        (repeatedly (get! :hypervisor :vsphere :session-count) #(agent (connect (get! :hypervisor :vsphere))))))))
+            (repeatedly (get! :hypervisor :vsphere :session-count) #(agent (connect (get! :hypervisor :vsphere))))))))
 
 (defn session-expired? [instance]
   (nil? (:currentSession (bean (.getSessionManager (deref (first (services))))))))
@@ -60,7 +60,7 @@
      (let [res# @p#]
        (when (instance? Throwable res#)
          (throw res#))
-       res# )
+       res#)
      ))
 
 (defn navigator 
@@ -74,8 +74,16 @@
 
 (defn find*  
   "Find entity by type and name"
-  ([type name] (find* type name (navigator)))
-  ([type name within] (.searchManagedEntity within type name)))
+  ([type name*] (find* type name* (navigator)))
+  ([type name* within] 
+   (if-let [entity (.searchManagedEntity within type name*)]
+     entity 
+     (throw+ {:type ::missing-entity :message (str "No matching entity found " name*)}))))
+
+(defn find-vm 
+  "locates a vm or a template" 
+  [name*]
+  (find* "VirtualMachine" name*))
 
 (defn resource-pools [dcname]
   (find-all "ResourcePool" (navigator (find* "Datacenter" dcname))))
@@ -109,47 +117,46 @@
 
 (defn clone [{:keys [datacenter] :as allocation} {:keys [template hostname] :as machine}]
   (with-service
-    (if-let [vm (find* "VirtualMachine" template)]
-      (wait-for (.cloneVM_Task vm (.getParent vm) hostname (clone-spec allocation machine)))
-      (throw+ {:type ::missing-template :message (str "No matching template found " template)})
-      )))
+    (let [vm (find-vm template)]
+      (wait-for (.cloneVM_Task vm (.getParent vm) hostname (clone-spec allocation machine))))))
 
 (def power-to-s
   {VirtualMachinePowerState/poweredOn :running 
    VirtualMachinePowerState/poweredOff :stopped 
    VirtualMachinePowerState/suspended :suspended})
 
-(defn status [hostname]
+(defn status 
+  "Get VM status"
+  [hostname]
   (with-service
-    (let [vm (find* "VirtualMachine" hostname)]
-      (-> (bean vm) :summary bean :runtime bean :powerState power-to-s ))))
+    (-> hostname find-vm bean :summary bean :runtime bean :powerState power-to-s )))
 
-(defn power-on [hostname]
+(defn power-on 
+  "Power on VM"
+  [hostname]
   (with-service
-    (let [vm (find* "VirtualMachine" hostname)]
-      (wait-for (.powerOnVM_Task vm nil)))))
+    (wait-for (.powerOnVM_Task (find-vm hostname) nil))))
 
-(defn power-off [hostname]
+(defn power-off 
+  "Power off VM"
+  [hostname]
   (with-service
-    (let [vm (find* "VirtualMachine" hostname)]
-      (wait-for (.powerOffVM_Task vm)))))
+    (wait-for (.powerOffVM_Task (find-vm hostname)))))
 
-(defn destroy [hostname]
-  (with-service
-    (let [vm (find* "VirtualMachine" hostname)]
-      (wait-for (.destroy_Task vm)))))
+(defn destroy 
+  "Destroy a vm, requires vm to be stopped"
+  [hostname]
+  {:pre [(= (status hostname) :stopped)]}
+  (with-service (wait-for (.destroy_Task (find-vm hostname)))))
 
 (comment
-  (try 
-    (clone {:datacenter "playground"} 
-           {:template "ubuntu-13.04_puppet-3.1" :hostname "bar" :disk-format :sparse :cpus 1 :memory 512})
-    (catch Throwable e (error e)) 
-    )
-  (map deref (repeatedly 40 (fn []  (future (status "foo") ))))
-  (status "foo")
-  (power-on "foo")
-  (power-off "foo")
-  (destroy "foo") 
+  (clone {:datacenter "playground"} {:template "ubuntu-13.04_puppet-3.1-with-tools" :hostname "bar" :disk-format :sparse :cpus 2 :memory 512}) 
+  (with-service
+    (:guestState (bean (.getGuest (find-vm "bar")))))
+  (status "bar")
+  (power-on "bar")
+  (power-off "bar")
+  (destroy "bar") 
   (clojure.pprint/pprint  (bean (.getServerConnection (deref (first (services))))))
   (clojure.pprint/pprint (.getKey (:currentSession (bean (.getSessionManager (deref (first (services))))))))
   (clojure.pprint/pprint (.getKey (:currentSession (bean (.getSessionManager (deref (second (services))))))))
