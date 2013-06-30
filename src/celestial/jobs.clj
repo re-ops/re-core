@@ -32,7 +32,6 @@
 
 (defn job-exec [f {:keys [identity args tid] :as spec}]
   "Executes a job function tries to lock identity first (if used)"
-  (debug tid)
   (set-tid tid 
     (try 
       (if identity
