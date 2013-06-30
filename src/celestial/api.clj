@@ -13,6 +13,7 @@
   (:refer-clojure :exclude [hash])
   (:use [celestial.hosts-api :only (hosts types)]
         [celestial.users-api :only (users quotas)]
+        [gelfino.timbre :only (get-tid)]
         [compojure.core :only (defroutes routes)] 
         [metrics.ring.expose :only  (expose-metrics-as-json)]
         [celestial.roles :only (roles roles-m admin)]
@@ -57,7 +58,7 @@
     (if-not (p/system-exists? id)
      (bad-req {:msg (<< "No system found with given id ~{id}")})
      (success 
-       {:msg msg :id id :job (jobs/enqueue action {:identity id :args args})}))))
+       {:msg msg :id id :job (jobs/enqueue action {:identity id :args args :tid (get-tid)})}))))
 
 (defroutes- jobs {:path "/job" :description "Operations on async job scheduling"}
 
