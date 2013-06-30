@@ -61,7 +61,7 @@
         (p/system-exists? "1") => true
         (p/get-type "redis") => {:puppet-module "bar"}
         (p/get-system "1") => {:type "redis"}
-        (jobs/enqueue "stage" {:identity "1" :args [{:puppet-module "bar"} {:type "redis"}] :tid nil}) => nil))
+        (jobs/enqueue "stage" {:identity "1" :args [{:puppet-module "bar"} {:system-id 1 :type "redis"}] :tid nil}) => nil))
 
 (fact "creation job"
       (non-sec-app (request :post "/job/create/1"))  => (contains {:status 200})

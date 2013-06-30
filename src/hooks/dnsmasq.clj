@@ -33,7 +33,7 @@
   [{:keys [dnsmasq user domain system-id]}]
   (let [remote {:host dnsmasq :user user} line (hostline domain (:machine (p/get-system system-id)))]
     (execute 
-      (<< "grep -q '~{line}' /etc/hosts || (echo ~{line} | sudo tee -a /etc/hosts >> /dev/null)") remote)
+      (<< "grep -q '~{line}' /etc/hosts || (echo '~{line}' | sudo tee -a /etc/hosts >> /dev/null)") remote)
     (execute restart remote)))
 
 
