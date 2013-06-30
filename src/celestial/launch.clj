@@ -13,9 +13,11 @@
   "celestial lanching ground aka main"
   (:gen-class true)
   (:use 
+    [robert.hooke :only (add-hook)]
     [clojure.core.strint :only (<<)]
     [clojure.tools.nrepl.server :only (start-server stop-server)]
     [celestial.persistency :as p]
+    [gelfino.timbre :only (set-tid get-tid)]
     [celestial.ssl :only (generate-store)]
     [clojure.java.io :only (file resource)]
     [celestial.api :only (app)]
@@ -38,6 +40,15 @@
     (set-config! [:shared-appender-config :spit-filename] (log* :path)) 
     (set-config! [:appenders :spit :enabled?] true) 
     (set-level! (log* :level))))
+
+(defn tid-hook
+  "sets up env binding for a Java based thread see http://bit.ly/14F7clG"
+  [b & [f & _]] (b (bound-fn* f)))
+
+(defn setup-hooks 
+   "setting up misc hooks" 
+   []
+  (add-hook #'supernal.core/bound-future #'tid-hook))
 
 (defn clean-up []
   (debug "Shutting down...")
@@ -70,6 +81,7 @@
   (setup-logging)
   (p/reset-admin)
   (add-shutdown)
+  (setup-hooks)
   (info (slurp (resource "main/resources/celestial.txt")))
   (info (<<  "version ~{version} see http://celestial-ops.com"))
   (ssh-config {:key (get! :ssh :private-key-path) :user "root"} )
