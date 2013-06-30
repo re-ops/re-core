@@ -53,18 +53,18 @@
             (p/system-exists? "1") => true
             (p/get-system "1")  => machine
             (p/get-type "redis") => type
-            (jobs/enqueue "provision" {:identity "1" :args [type (assoc machine :system-id 1)]}) => nil)))
+            (jobs/enqueue "provision" {:identity "1" :args [type (assoc machine :system-id 1)] :tid nil}) => nil)))
 
 (fact "staging job" 
       (non-sec-app (request :post "/job/stage/1")) => (contains {:status 200})
       (provided
         (p/system-exists? "1") => true
         (p/get-system "1") => {}
-        (jobs/enqueue "stage" {:identity "1" :args [{:system-id 1}]}) => nil))
+        (jobs/enqueue "stage" {:identity "1" :args [{:system-id 1}] :tid nil}) => nil))
 
 (fact "creation job"
       (non-sec-app (request :post "/job/create/1"))  => (contains {:status 200})
       (provided 
         (p/system-exists? "1") => true
         (p/get-system "1")  => {}
-        (jobs/enqueue "reload" {:identity "1" :args [{:system-id 1}]}) => nil))
+        (jobs/enqueue "reload" {:identity "1" :args [{:system-id 1}] :tid nil}) => nil))
