@@ -25,7 +25,7 @@
 
 
 (defn hostline [domain {:keys [ip hostname] :as machine}]
-  (<< "'~{ip} ~{hostname} ~{hostname}.~(get machine :domain domain)'"))
+  (<< "~{ip} ~{hostname} ~{hostname}.~(get machine :domain domain)"))
 
 (defn add-host 
   "Will add host to hosts file only if missing, 
@@ -33,7 +33,7 @@
   [{:keys [dnsmasq user domain system-id]}]
   (let [remote {:host dnsmasq :user user} line (hostline domain (:machine (p/get-system system-id)))]
     (execute 
-      (<< "grep -q ~{line} /etc/hosts || (echo ~{line} | sudo tee -a /etc/hosts >> /dev/null)") remote)
+      (<< "grep -q '~{line}' /etc/hosts || (echo ~{line} | sudo tee -a /etc/hosts >> /dev/null)") remote)
     (execute restart remote)))
 
 
