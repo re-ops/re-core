@@ -14,24 +14,36 @@
     [celestial.provider :only (str? vec? mappings)]
     [trammel.core :only  (defconstrainedrecord)]
     [clojure.core.strint :only (<<)]
-    [vsphere.vijava :only (clone power-on power-off status destroy)]
+    [vsphere.vijava :only (clone power-on power-off status destroy guest-status)]
     [bouncer [core :as b] [validators :as v]]
     [celestial.core :only (Vm)]
+    [celestial.common :only (import-logging)]
     [slingshot.slingshot :only  [throw+ try+]]
     [celestial.provider :only (str? vec? mappings transform os->template)]
     [celestial.model :only (translate vconstruct)])
   )
+
+(import-logging)
+
+(defn wait-for-guest [hostname]
+  (while (not= :running (guest-status hostname))
+    (Thread/sleep 500)
+    (debug "Waiting for guest os under" hostname "to boot")))
 
 
 (defconstrainedrecord VirtualMachine [allocation machine]
   ""
   [(not (nil? allocation))]
   Vm
-  (create [this] (clone allocation machine))
+  (create [this] 
+    (clone allocation machine))
 
   (delete [this] (destroy (machine :hostname)))
 
-  (start [this] (power-on (machine :hostname)))
+  (start [this] 
+    (let [{:keys [hostname]} machine]
+      (power-on hostname) 
+      (wait-for-guest hostname)))
 
   (stop [this] (power-off (machine :hostname)))
 
@@ -48,10 +60,10 @@
   (-> (merge machine vsphere {:system-id system-id})
       (mappings {:os :template})
       (transform {:template (os->template :vsphere)})
-        selections
+      selections
       ))
 
 (defmethod vconstruct :vsphere [spec]
-   (let [[allocation machine] (translate spec)]
-     (->VirtualMachine allocation machine)))
+  (let [[allocation machine] (translate spec)]
+    (->VirtualMachine allocation machine)))
 

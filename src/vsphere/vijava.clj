@@ -12,14 +12,13 @@
     com.vmware.vim25.VirtualMachineConfigSpec
     com.vmware.vim25.VirtualMachineRelocateSpec
     com.vmware.vim25.mo.Folder
+    com.vmware.vim25.mo.GuestOperationsManager
     com.vmware.vim25.VirtualMachinePowerState
     com.vmware.vim25.mo.InventoryNavigator
-    com.vmware.vim25.mo.ServiceInstance
     com.vmware.vim25.mo.Task
     com.vmware.vim25.mo.VirtualMachine 
     java.lang.Throwable 
-    )
-  )
+    ))
 
 (import-logging)
 
@@ -131,6 +130,29 @@
   (with-service
     (-> hostname find-vm bean :summary bean :runtime bean :powerState power-to-s )))
 
+(defn guest-info 
+   "Guest info map" 
+   [hostname]
+    (with-service 
+      (-> (find-vm hostname) (.getGuest) bean)))
+
+(defn tools-installed?
+   "checks if vmware tools are installed on the host" 
+   [hostname]
+   (not (nil? (:toolsVersion (guest-info hostname)))))
+
+(defn guest-status 
+   "Get guest os status (requires vmware tools to be installed)" 
+   [hostname]
+  {:pre [(tools-installed? hostname)]}
+    (some-> (guest-info hostname) :guestState keyword))
+
+#_(defn upload-file  
+   "uploads a file into a guest system" 
+   [src dst hostname]
+  {:pre [(tools-installed? hostname)]}
+  )
+
 (defn power-on 
   "Power on VM"
   [hostname]
@@ -150,16 +172,15 @@
   (with-service (wait-for (.destroy_Task (find-vm hostname)))))
 
 (comment
-  (clone {:datacenter "playground"} {:template "ubuntu-13.04_puppet-3.1-with-tools" :hostname "bar" :disk-format :sparse :cpus 2 :memory 512}) 
-  (with-service
-    (:guestState (bean (.getGuest (find-vm "bar")))))
+  #_(with-service 
+    (.getGuestOperationsManager service) )
+  (clone {:datacenter "playground"} {:template "ubuntu-13.04_puppet-3.1" :hostname "123" :disk-format :sparse :cpus 2 :memory 512}) 
+  (guest-status "bar")
+  (clojure.pprint/pprint (guest-info "123"))
   (status "bar")
   (power-on "bar")
   (power-off "bar")
-  (destroy "bar") 
-  (clojure.pprint/pprint  (bean (.getServerConnection (deref (first (services))))))
-  (clojure.pprint/pprint (.getKey (:currentSession (bean (.getSessionManager (deref (first (services))))))))
-  (clojure.pprint/pprint (.getKey (:currentSession (bean (.getSessionManager (deref (second (services))))))))
+  (destroy "red1") 
   )
 
 
