@@ -147,11 +147,7 @@
   {:pre [(tools-installed? hostname)]}
     (some-> (guest-info hostname) :guestState keyword))
 
-#_(defn upload-file  
-   "uploads a file into a guest system" 
-   [src dst hostname]
-  {:pre [(tools-installed? hostname)]}
-  )
+#_
 
 (defn power-on 
   "Power on VM"
@@ -172,12 +168,11 @@
   (with-service (wait-for (.destroy_Task (find-vm hostname)))))
 
 (comment
-  #_(with-service 
-    (.getGuestOperationsManager service) )
+  #_
   (clone {:datacenter "playground"} {:template "ubuntu-13.04_puppet-3.1" :hostname "123" :disk-format :sparse :cpus 2 :memory 512}) 
   (guest-status "bar")
   (clojure.pprint/pprint (guest-info "123"))
-  (status "bar")
+  (tools-installed? "bar")
   (power-on "bar")
   (power-off "bar")
   (destroy "red1") 
