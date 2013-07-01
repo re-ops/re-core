@@ -21,16 +21,15 @@
     [supernal.sshj :only (execute ssh-up?)]
     [flatland.useful.utils :only (defm)]
     [flatland.useful.map :only (dissoc-in*)]
-    [minderbinder.time :only (parse-time-unit)]
     [slingshot.slingshot :only  [throw+ try+]]
     [aws.sdk.ec2 :only 
      (run-instances describe-instances terminate-instances start-instances
                     stop-instances instance-filter instance-id-filter)]
     [trammel.core :only (defconstrainedrecord)]
-    [celestial.provider :only (str? vec?)]
+    [celestial.provider :only (str? vec? wait-for)]
     [celestial.redis :only (synched-map)]
     [celestial.core :only (Vm)]
-    [celestial.common :only (get! import-logging curr-time)]
+    [celestial.common :only (get! import-logging )]
     [celestial.model :only (translate vconstruct)]))
 
 (import-logging)
@@ -39,20 +38,10 @@
 
 (defm ids [] (synched-map :aws-keys))
 
-(defn wait-for [timeout pred err]
-  "A general wait for pred function"
-  (let [wait (+ (curr-time) (parse-time-unit timeout))]
-    (loop []
-      (if (> wait (curr-time))
-        (if (pred) 
-          true
-          (do (Thread/sleep 2000) (recur))) 
-        (throw+ err)))))
-
 (defn wait-for-status [instance req-stat timeout]
   "Waiting for ec2 machine status timeout is in mili"
   (wait-for timeout #(= req-stat (.status instance))
-            {:type ::aws:status-failed :message "Timed out on waiting for status" :status req-stat :timeout timeout}))
+    {:type ::aws:status-failed :message "Timed out on waiting for status" :status req-stat :timeout timeout}))
 
 (defmacro ec2 [f & args]
   `(~f (assoc (creds) :endpoint ~'endpoint) ~@args))

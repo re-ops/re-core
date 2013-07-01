@@ -12,7 +12,8 @@
 (ns celestial.provider
   "common providers functions"
     (:use 
-      [celestial.common :only (get! import-logging)]
+      [minderbinder.time :only (parse-time-unit)]
+      [celestial.common :only (get! import-logging curr-time)]
       [clojure.core.strint :only (<<)]
       [slingshot.slingshot :only  [throw+ try+]]))
 
@@ -47,3 +48,12 @@
     (reduce 
       (fn [res [k v]] (update-in res [k] v )) res ts))
 
+(defn wait-for [timeout pred err]
+  "A general wait for pred function"
+  (let [wait (+ (curr-time) (parse-time-unit timeout))]
+    (loop []
+      (if (> wait (curr-time))
+        (if (pred) 
+          true
+          (do (Thread/sleep 2000) (recur))) 
+        (throw+ err)))))

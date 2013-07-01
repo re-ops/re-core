@@ -19,16 +19,17 @@
     [celestial.core :only (Vm)]
     [celestial.common :only (import-logging)]
     [slingshot.slingshot :only  [throw+ try+]]
-    [celestial.provider :only (str? vec? mappings transform os->template)]
+    [celestial.provider :only (str? vec? mappings transform os->template wait-for)]
     [celestial.model :only (translate vconstruct)])
   )
 
 (import-logging)
 
-(defn wait-for-guest [hostname]
-  (while (not= :running (guest-status hostname))
-    (Thread/sleep 500)
-    (debug "Waiting for guest os under" hostname "to boot")))
+(defn wait-for-guest
+  "waiting for guest to boot up"
+  [hostname timeout]
+  (wait-for timeout #(= :running (guest-status hostname))
+    {:type ::vsphere:guest-failed :message "Timed out on waiting for guest to start" :hostname hostname :timeout timeout}))
 
 
 (defconstrainedrecord VirtualMachine [allocation machine]
@@ -43,7 +44,7 @@
   (start [this] 
     (let [{:keys [hostname]} machine]
       (power-on hostname) 
-      (wait-for-guest hostname)))
+      (wait-for-guest hostname [10 :minute])))
 
   (stop [this] (power-off (machine :hostname)))
 
