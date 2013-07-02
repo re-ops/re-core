@@ -147,8 +147,6 @@
   {:pre [(tools-installed? hostname)]}
     (some-> (guest-info hostname) :guestState keyword))
 
-#_
-
 (defn power-on 
   "Power on VM"
   [hostname]
