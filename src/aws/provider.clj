@@ -94,27 +94,26 @@
   [(provider-validation spec) (-> endpoint nil? not)  (-> uuid nil? not)]
   Vm
   (create [this] 
-          (let [{:keys [aws]} spec]
-            (debug "creating" uuid) 
-            (swap! (ids) assoc uuid 
-                   (-> (ec2 run-instances aws) :instances first :id)) 
-            (when (= (image-desc endpoint (aws :image-id) :root-device-type) "ebs")
-              (wait-for-attach endpoint uuid [10 :minute])) 
-            (update-pubdns this)
-            (wait-for-ssh this)
-            (set-hostname this)
-            this))
+         (let [{:keys [aws]} spec]
+           (debug "creating" uuid) 
+           (swap! (ids) assoc uuid 
+             (-> (ec2 run-instances aws) :instances first :id)) 
+          (when (= (image-desc endpoint (aws :image-id) :root-device-type) "ebs")
+            (wait-for-attach endpoint uuid [10 :minute])) 
+          (update-pubdns this)
+          (wait-for-ssh this)
+          (set-hostname this)
+          this))
   (delete [this]
-          (debug "deleting" uuid)
-          (ec2 terminate-instances (instance-id uuid))
-          (wait-for-status this "terminated" [5 :minute]) 
-          (swap! (ids) dissoc uuid))
+        (debug "deleting" uuid)
+        (ec2 terminate-instances (instance-id uuid))
+        (wait-for-status this "terminated" [5 :minute]) 
+        (swap! (ids) dissoc uuid))
   (start [this]
-         (debug "starting" (instance-id uuid))
-         (ec2 start-instances (instance-id uuid))
-         (wait-for-status this "running" [5 :minute])
-         (update-pubdns this)
-         #_(wait-for-ssh this))
+        (debug "starting" (instance-id uuid))
+        (ec2 start-instances (instance-id uuid))
+        (wait-for-status this "running" [5 :minute])
+        (update-pubdns this))
   (stop [this]
         (debug "stopping" uuid)
         (ec2 stop-instances  (instance-id uuid))
