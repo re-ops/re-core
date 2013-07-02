@@ -94,10 +94,10 @@
   [(provider-validation spec) (-> endpoint nil? not)  (-> uuid nil? not)]
   Vm
   (create [this] 
-         (let [{:keys [aws]} spec]
-           (debug "creating" uuid) 
-           (swap! (ids) assoc uuid 
-             (-> (ec2 run-instances aws) :instances first :id)) 
+        (let [{:keys [aws]} spec]
+          (debug "creating" uuid) 
+          (swap! (ids) assoc uuid 
+            (-> (ec2 run-instances aws) :instances first :id)) 
           (when (= (image-desc endpoint (aws :image-id) :root-device-type) "ebs")
             (wait-for-attach endpoint uuid [10 :minute])) 
           (update-pubdns this)
@@ -119,9 +119,9 @@
         (ec2 stop-instances  (instance-id uuid))
         (wait-for-status this "stopped" [5 :minute]))
   (status [this] 
-          (try+ 
-            (instance-desc endpoint uuid :state :name)
-            (catch [:type ::aws:missing-id] e false)))) 
+        (try+ 
+          (instance-desc endpoint uuid :state :name)
+          (catch [:type ::aws:missing-id] e false)))) 
 
 (def defaults {:aws {:min-count 1 :max-count 1}})
 
