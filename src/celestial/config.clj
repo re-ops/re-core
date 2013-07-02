@@ -58,8 +58,7 @@
   [c]
   (validate-nest c [:hypervisor :aws]
     [:access-key] [v/required cv/str?]
-    [:secret-key] [v/required cv/str?]
-    [:endpoint] [v/required cv/str?]))
+    [:secret-key] [v/required cv/str?]))
 
 (defn validate-conf 
   "applies all validations on a configration map"
