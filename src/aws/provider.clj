@@ -24,7 +24,7 @@
     [slingshot.slingshot :only  [throw+ try+]]
     [aws.sdk.ec2 :only 
      (run-instances describe-instances terminate-instances start-instances
-                    stop-instances instance-filter instance-id-filter)]
+                     create-tags stop-instances instance-filter instance-id-filter)]
     [trammel.core :only (defconstrainedrecord)]
     [celestial.provider :only (str? vec? wait-for)]
     [celestial.redis :only (synched-map)]
@@ -86,6 +86,7 @@
   (let [hostname (get-in spec [:machine :hostname]) remote {:host (pub-dns endpoint uuid) :user user}]
     (execute (<< "echo kernel.hostname=~{hostname} | sudo tee -a /etc/sysctl.conf") remote )
     (execute "sudo sysctl -p" remote) 
+    (ec2 create-tags [(instance-desc endpoint uuid :id)] {:Name hostname})
     ))
 
 (defconstrainedrecord Instance [endpoint spec uuid user]
@@ -125,8 +126,13 @@
 
 (def defaults {:aws {:min-count 1 :max-count 1}})
 
+(defn aws-spec 
+   "creates an ec2 spec" 
+   [{:keys [aws machine] :as spec}]
+  (merge-with merge (dissoc-in* spec [:aws :endpoint]) defaults))
+
 (defmethod translate :aws [{:keys [aws machine] :as spec}] 
-  [(aws :endpoint) (merge-with merge (dissoc-in* spec [:aws :endpoint]) defaults) (str (UUID/randomUUID)) (or (machine :user) "root")])
+  [(aws :endpoint) (aws-spec spec)  (str (UUID/randomUUID)) (or (machine :user) "root")])
 
 (defmethod vconstruct :aws [spec]
   (apply ->Instance (translate spec)))
@@ -135,7 +141,7 @@
   (use 'celestial.fixtures)
   (def m (.create (vconstruct celestial.fixtures/redis-ec2-spec))) 
   (.start m)
-
+  ;; (instance-desc "ec2.eu-west-1.amazonaws.com" "ca5efc38-2483-4e1e-8c09-428252f82d12" :block-device-mappings 0 :ebs :status)
   (-> (ec2/describe-images (assoc (creds) :endpoint "ec2.eu-west-1.amazonaws.com") (ec2/image-id-filter "ami-64636a10"))
       first :root-device-type  
       )
