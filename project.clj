@@ -77,7 +77,7 @@
             }
 
   :aot [supernal.launch capistrano.remoter proxmox.provider vsphere.provider
-        celestial.core celestial.puppet-standalone celestial.launch]
+        aws.provider celestial.core celestial.puppet-standalone celestial.launch]
 
   :repositories  {
                   "bintray"  "http://dl.bintray.com/content/narkisr/narkisr-jars"
