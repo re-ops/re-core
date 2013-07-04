@@ -31,7 +31,7 @@
                  [metrics-clojure-ring "0.9.2"]
                  [ch.qos.logback/logback-classic "1.0.9"]
                  [org.codehaus.groovy/groovy "2.1.2"]
-                 [supernal "0.2.3"]
+                 [supernal "0.2.4"]
                  [ring "1.1.8"]
                  [compojure "1.1.5" :exclusions  [ring/ring-core]]
                  [ring/ring-jetty-adapter "1.1.8"]
