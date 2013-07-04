@@ -21,14 +21,16 @@
       (puppetize type (p/get-system id))
       (destroy (assoc (p/get-system id) :system-id id))))
 
-(fact "provisioning a proxmox instance" :integration :puppet
+#_(fact "provisioning a proxmox instance" :integration :puppet
       (with-conf
         (run-cycle redis-prox-spec redis-type)))
 
-#_(fact "provisioning an ec2 instance" :integration :puppet 
+(def host (.getHostName (java.net.InetAddress/getLocalHost)))
+
+(fact "provisioning an ec2 instance" :integration :puppet 
       "assumes a working ec2 defs in ~/.celestial.edn"
-      (let [puppet-ami (assoc-in redis-ec2-spec [:aws :image-id] "ami-4eb1ba3a")]
-        path => truthy
+      (let [puppet-ami (merge-with merge redis-ec2-spec {:aws {:image-id "ami-4eb1ba3a" :key-name host}})]
+         path => truthy
         (run-cycle puppet-ami redis-type)))
 
 
