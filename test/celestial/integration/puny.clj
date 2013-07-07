@@ -58,7 +58,8 @@
   (fact "indexed entity with id" :integration :puny
         (p/entity car :id license :indices [color])        
         (defn validate-car [car] {})
-        (add-car {:license 123 :color "black"})
+        (add-car {:license 123 :color "black"}) => 123
+        (add-car {:license 123 :color "black"}) => (throws ExceptionInfo (is-type? :celestial.integration.puny/conflicting-car))
         (get-car 123) => {:license 123 :color "black"}
         (car-exists? 123) => truthy
         (get-car-index :color "black") => ["123"]
@@ -89,8 +90,6 @@
      (defn validate-metable [metable] {})
      (add-metable {:name "foo"}) 
      (get-metable "foo") => {:name "foo"}
-     (meta (get-metable "foo")) => {:ver 1}
-    
-        )
+     (meta (get-metable "foo")) => {:ver 1})
   )
 
