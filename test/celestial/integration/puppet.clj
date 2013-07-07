@@ -23,20 +23,22 @@
       (finally 
         (destroy (assoc (p/get-system id) :system-id id))))))
 
+(def host (.getHostName (java.net.InetAddress/getLocalHost)))
+
+(def puppet-ami (merge-with merge redis-ec2-spec {:aws {:image-id "ami-f5e2ff81" key-name host}}))
+
 (fact "provisioning a proxmox instance" :integration :puppet :proxmox
       (with-conf
         (run-cycle redis-prox-spec redis-type)))
 
 (fact "provisioning an ec2 instance" :integration :puppet :ec2
       "assumes a working ec2 defs in ~/.celestial.edn"
-      (let [puppet-ami (assoc-in redis-ec2-spec [:aws :image-id] "ami-f5e2ff81")]
-        path => truthy
-        (run-cycle puppet-ami redis-type)))
+       path => truthy
+      (run-cycle puppet-ami redis-type))
 
 (fact "ec2 with s3 source url type" :integration :puppet :ec2 :s3
       "assumes a working ec2 defs in ~/.celestial.edn"
-      (let [puppet-ami (assoc-in redis-ec2-spec [:aws :image-id] "ami-f5e2ff81")
-            s3-redis (assoc-in redis-type [:puppet-std :module :src] "s3://opsk-sandboxes/redis-sandbox-0.3.4.tar.gz")]
+      (let [s3-redis (assoc-in redis-type [:puppet-std :module :src] "s3://opsk-sandboxes/redis-sandbox-0.3.4.tar.gz")]
         path => truthy
         (run-cycle puppet-ami s3-redis)))
 
