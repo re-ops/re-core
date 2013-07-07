@@ -28,18 +28,13 @@
 
 (defm spec-server [] (car/make-conn-spec :host (get! :redis :host)))
 
-(def wcar-disable false)
-
 (defmacro wcar [& body] 
-  `(if-not wcar-disable 
-     (try 
+   `(try 
        (car/with-conn (pool) (spec-server) ~@body)
        (catch Exception e# 
          (error e#)
          #_(throw+ {:type ::redis:connection :redis-host (get! :redis :host)} "Redis connection error")
-         ))
-     ~@body
-     ))
+         )))
 
 
 (defn lock-id [k] (<< "lock.~{k}"))
