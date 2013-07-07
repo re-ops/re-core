@@ -65,6 +65,10 @@
               } 
              }
 
+  :repl-options {
+    :init-ns user               
+  }
+
   :aliases {"celestial" 
             [ "with-profile" "prod" "do" "compile," "trampoline" "run"]
             "autotest"
