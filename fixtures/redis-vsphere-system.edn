@@ -6,7 +6,9 @@
  :vsphere {
    :pool ""  :datacenter "playground"
    :disk-format "sparse" ; or flat
-
+   :guest {
+     :user "ronen" :pass "foobar"
+   }
  }
 
  :type "redis"

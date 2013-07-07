@@ -54,7 +54,9 @@
 
 (def allocation-ks [:pool :datacenter])
 
-(def selections (juxt (fn [m] (select-keys m allocation-ks)) (fn [m] (select-keys m machine-ks))))
+(defn select-from [ks] (fn[m] (select-keys m ks)))
+
+(def selections (juxt (select-from allocation-ks) (select-from machine-ks) (select-from [:guest])))
 
 (defmethod translate :vsphere [{:keys [machine vsphere system-id]}]
   "Convert the general model into a vsphere specific one"
@@ -65,6 +67,6 @@
       ))
 
 (defmethod vconstruct :vsphere [spec]
-  (let [[allocation machine] (translate spec)]
+  (let [[allocation machine guest] (translate spec)]
     (->VirtualMachine allocation machine)))
 
