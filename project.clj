@@ -7,7 +7,6 @@
                  [org.clojure/tools.cli "0.2.2" ]
                  [clj-config "0.2.0" ]
                  [com.vmware/vijava "5.1" :exclusions [xml-apis]]
-                 [prismatic/plumbing "0.0.1"]
                  [me.raynes/fs "1.4.1"]
                  [org.clojure/tools.nrepl "0.2.3"]
                  [bouncer "0.2.3-beta2"]
