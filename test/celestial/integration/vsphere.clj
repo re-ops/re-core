@@ -3,6 +3,7 @@
   (:use 
      midje.sweet 
      vsphere.provider 
+     vsphere.guest
      [vsphere.vijava :only (guest-status)]
      [celestial.fixtures :only (redis-vsphere-spec with-conf)]
      [celestial.model :only (vconstruct)]))
