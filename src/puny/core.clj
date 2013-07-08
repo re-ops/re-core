@@ -133,14 +133,14 @@
 
        (defn ~partial-fn ~up-args
          (~exists! ~up-id)
-         (let [orig# (wcar (car/hgetall* (~id-fn ~up-id))) updated# (merge-with merge orig# ~'v)]
+         (let [orig# (wcar (car/hgetall* (~id-fn ~up-id) true)) updated# (merge-with merge orig# ~'v)]
            (~reindex ~up-id orig# updated#) 
            (wcar (hsetall* (~id-fn ~up-id) (assoc updated# :meta ~meta*)))))
 
        (defn ~update-fn ~up-args
          (~validate-fn ~'v)
          (~exists! ~up-id)
-         (let [orig# (wcar (car/hgetall* (~id-fn ~up-id))) updated# (merge orig#  ~'v)]
+         (let [orig# (wcar (car/hgetall* (~id-fn ~up-id) true)) updated# (merge orig#  ~'v)]
            (~reindex ~up-id orig# updated#) 
            (wcar (hsetall* (~id-fn ~up-id) (assoc updated# :meta ~meta*))))))))
 
@@ -160,7 +160,7 @@
        (index-fns ~name* ~opts)
 
        (defn ~get-fn [~'id] 
-          (let [e# (wcar (car/hgetall* (~id-fn ~'id)))]
+          (let [e# (wcar (car/hgetall* (~id-fn ~'id) true))]
             (with-meta (dissoc e# :meta) (e# :meta)) ))
 
        (defn ~delete-fn [~'id] 

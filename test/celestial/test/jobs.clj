@@ -20,7 +20,7 @@
 (fact "with-lock used if :identity key was provided" 
    (job-exec identity {:identity "red1" :args {:machine {:hostname "red1"}}}) => :success
    (provided 
-     (acquire-lock "red1" 300000 1800000) => nil :times 1))
+     (acquire-lock {:pool {}, :spec {:host "localhost"}} "red1" 300000 1800000) => nil :times 1))
 
 
 (fact "enqueue to workless queue should fail"

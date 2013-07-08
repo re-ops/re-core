@@ -20,18 +20,17 @@
     [taoensso.carmine.locks :only (with-lock)]
     [taoensso.timbre :only (debug trace info error warn)])
   (:require  
+    
     [taoensso.nippy :as nippy]
     [taoensso.carmine.message-queue :as carmine-mq]
     [taoensso.carmine :as car])
   (:import java.util.Date))
 
-(defm pool [] (car/make-conn-pool)) 
-
-(defm spec-server [] (car/make-conn-spec :host (get! :redis :host)))
+(defm server-conn [] {:pool {} :spec {:host (get! :redis :host)}})
 
 (defmacro wcar [& body] 
    `(try 
-       (car/with-conn (pool) (spec-server) ~@body)
+       (car/wcar (server-conn) ~@body)
        (catch Exception e# 
          (error e#)
          #_(throw+ {:type ::redis:connection :redis-host (get! :redis :host)} "Redis connection error")
@@ -60,18 +59,18 @@
 (defn sync-watch [map-key r]
   (add-watch r map-key
      (fn [_key _ref old _new] 
-       (with-lock _key half-hour minute 
+       (with-lock (server-conn) _key half-hour minute 
          (apply-diff map-key _new old)) r)))
 
 (defn synched-map [k]
   "Lock backed atom map watcher that persists changes into redis takes the backing redis hash key."
   (sync-watch (atom-key k)
-    (if-let [data (wcar (car/hgetall* (atom-key k)))]
+    (if-let [data (wcar (car/hgetall* (atom-key k) ) )]
        (atom data)  
        (atom {}))))
 
 (defn create-worker [name f]
-  (carmine-mq/make-dequeue-worker (pool) (spec-server) name :handler-fn f))
+  (carmine-mq/worker (server-conn) name :handler-fn f))
 
 (defn hsetall* [rk m]
   "The persistency of hgetall*"

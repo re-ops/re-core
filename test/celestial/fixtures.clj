@@ -1,4 +1,7 @@
 (ns celestial.fixtures
+  (:import 
+     java.awt.datatransfer.StringSelection
+     java.awt.Toolkit)
   (:refer-clojure :exclude [type])
   (:use [celestial.common :only (slurp-edn)]))
 
@@ -16,7 +19,14 @@
 
 (def user-quota (slurp-edn "fixtures/user-quota.edn"))
 
-;; (println (clojure.data.json/write-str redis-prox-spec :escape-slash false))
+(defn clipboard-copy [s]
+  (let [clp (.getSystemClipboard (Toolkit/getDefaultToolkit))]
+    (.setContents clp (StringSelection. s) nil)
+   )
+  )
+
+;; (clipboard-copy (clojure.data.json/write-str redis-type :escape-slash false))
+;; (clipboard-copy (clojure.data.json/write-str redis-prox-spec :escape-slash false))
 
 (defn is-type? [type]
   (fn [exception] 

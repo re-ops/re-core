@@ -166,3 +166,5 @@
        (increase-use  ~'id ~spec)    
        ~@body)))
 
+;; (add-type celestial.fixtures/redis-type) 
+;; (get-type "redis")

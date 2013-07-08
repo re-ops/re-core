@@ -17,7 +17,7 @@
     [flatland.useful.map :on map-vals]
     [clojure.core.strint :only (<<)]
     [celestial.common :only (minute import-logging)]
-    [celestial.redis :only (create-worker wcar)]
+    [celestial.redis :only (create-worker wcar server-conn)]
     [taoensso.timbre :only (debug info error warn trace)]
     [taoensso.carmine.locks :as with-lock]
     [celestial.workflows :only (reload destroy puppetize stage run-action)]) 
@@ -37,7 +37,7 @@
    (let [{:keys [wait-time expiry]} (map-vals (or (get* :job) defaults) #(* minute %) )]
      (try 
       (if identity
-        (do (with-lock identity wait-time expiry (apply f args)) :success) 
+        (do (with-lock (server-conn) identity wait-time expiry (apply f args)) :success) 
         (do (apply f args) :success)) 
       (catch Throwable e (error e) :error)))))
 
@@ -56,9 +56,7 @@
       (swap! workers assoc q (create-wks q f c)))))
 
 (defn clear-all []
-  (doseq [q (map name (keys @jobs))]
-    (trace (<< "clearing ~{q} queue"))
-    (wcar (mq/clear q))))
+  (apply mq/clear-queues (server-conn) (mapv name (keys @jobs))))
 
 (defn enqueue 
   "Placing job in redis queue"
@@ -68,7 +66,7 @@
   (wcar (mq/enqueue queue payload)))
 
 (defn status [queue uuid]
-  (wcar (mq/status queue uuid)))
+  (mq/message-status (server-conn) queue uuid))
 
 (defn shutdown-workers []
   (doseq [[k ws] @workers]

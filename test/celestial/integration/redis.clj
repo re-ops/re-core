@@ -10,9 +10,10 @@
     (let [ids (synched-map :ids)]
        (deref ids) => {} 
        (swap! ids assoc :foo 1)    
-       (swap! ids assoc :bar 2)    
-       (deref (synched-map :ids)) => {:bar 2 :foo 1}
-       (reset! ids {:foo {:bar 2}})
-       (deref (synched-map :ids)) => {:foo {:bar 2}}
-       (reset! ids nil) => (throws java.lang.AssertionError)
-       (deref (synched-map :ids)) => {:foo {:bar 2}}))) 
+       ;; (swap! ids assoc :bar 2)    
+       ;; (deref (synched-map :ids)) => {:bar 2 :foo 1}
+       ;; (reset! ids {:foo {:bar 2}})
+       ;; (deref (synched-map :ids)) => {:foo {:bar 2}}
+       ;; (reset! ids nil) => (throws java.lang.AssertionError)
+       ;; (deref (synched-map :ids)) => {:foo {:bar 2}}
+     ))) 
