@@ -111,7 +111,7 @@
 
   (POST- "/type" [& ^:type props] {:nickname "addType" :summary "Add type"}
          (p/add-type props)
-         (success {:msg "new type saved" :type props}))
+         (success {:msg "new type saved"}))
 
   (PUT- "/type" [& ^:type props] {:nickname "updateType" :summary "Update type"}
         (if-not (p/type-exists? (props :type))
