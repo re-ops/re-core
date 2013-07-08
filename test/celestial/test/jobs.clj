@@ -4,6 +4,7 @@
     [celestial.jobs :as jobs])
   (:use 
     midje.sweet
+    [celestial.redis :only (server-conn)]
     [taoensso.carmine.locks :only (with-lock acquire-lock)]
     [celestial.common :only (minute)]
     [clojure.core.strint :only (<<)]
@@ -18,9 +19,10 @@
     ))
 
 (fact "with-lock used if :identity key was provided" 
-   (job-exec identity {:identity "red1" :args {:machine {:hostname "red1"}}}) => :success
+   (job-exec identity {:identity "red1" :args {:machine {:hostname "red1"}}}) => {:status :success}
    (provided 
-     (acquire-lock {:pool {}, :spec {:host "localhost"}} "red1" 300000 1800000) => nil :times 1))
+     (server-conn) => {}
+     (acquire-lock {} "red1" 300000 1800000) => nil :times 1))
 
 
 (fact "enqueue to workless queue should fail"

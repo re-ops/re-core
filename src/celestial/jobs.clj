@@ -37,9 +37,9 @@
    (let [{:keys [wait-time expiry]} (map-vals (or (get* :job) defaults) #(* minute %) )]
      (try 
       (if identity
-        (do (with-lock (server-conn) identity wait-time expiry (apply f args)) :success) 
-        (do (apply f args) :success)) 
-      (catch Throwable e (error e) :error)))))
+        (do (with-lock (server-conn) identity wait-time expiry (apply f args)) {:status :success}) 
+        (do (apply f args) {:status :success})) 
+      (catch Throwable e (error e) {:status  :error})))))
 
 (def jobs 
   (atom 
