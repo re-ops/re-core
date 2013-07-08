@@ -87,6 +87,7 @@
                   "sonatype" "http://oss.sonatype.org/content/repositories/releases"}
 
   :resource-paths  ["src/main/resources/"]
+  :target-path "target/"
 
   :main celestial.launch
   )
