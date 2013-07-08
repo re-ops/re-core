@@ -31,15 +31,16 @@
 
 (def defaults {:wait-time 5 :expiry 30})
 
-(defn job-exec [f {:keys [identity args tid] :as spec}]
+(defn job-exec [f  {:keys [message attempt]}]
   "Executes a job function tries to lock identity first (if used)"
-  (set-tid tid 
-   (let [{:keys [wait-time expiry]} (map-vals (or (get* :job) defaults) #(* minute %) )]
-     (try 
-      (if identity
-        (do (with-lock (server-conn) identity wait-time expiry (apply f args)) {:status :success}) 
-        (do (apply f args) {:status :success})) 
-      (catch Throwable e (error e) {:status  :error})))))
+  (let [{:keys [identity args tid] :as spec} message]
+   (set-tid tid 
+    (let [{:keys [wait-time expiry]} (map-vals (or (get* :job) defaults) #(* minute %) )]
+      (try 
+       (if identity
+         (do (with-lock (server-conn) identity wait-time expiry (apply f args)) {:status :success}) 
+         (do (apply f args) {:status :success})) 
+       (catch Throwable e (error e) {:status  :error}))))))
 
 (def jobs 
   (atom 
