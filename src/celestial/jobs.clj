@@ -17,8 +17,9 @@
     [flatland.useful.map :on map-vals]
     [clojure.core.strint :only (<<)]
     [celestial.common :only (minute import-logging)]
-    [celestial.redis :only (create-worker wcar with-lock)]
+    [celestial.redis :only (create-worker wcar)]
     [taoensso.timbre :only (debug info error warn trace)]
+    [taoensso.carmine.locks :as with-lock]
     [celestial.workflows :only (reload destroy puppetize stage run-action)]) 
   (:require  
     [taoensso.carmine :as car]
@@ -33,13 +34,12 @@
 (defn job-exec [f {:keys [identity args tid] :as spec}]
   "Executes a job function tries to lock identity first (if used)"
   (set-tid tid 
-    (try 
+   (let [{:keys [wait-time expiry]} (map-vals (or (get* :job) defaults) #(* minute %) )]
+     (try 
       (if identity
-        (with-lock identity 
-         (fn [] (apply f args) :success)
-         (map-vals (or (get* :job) defaults) #(* minute %) )) 
-        (do (apply f args) :success))
-      (catch Throwable e (error e) :error))))
+        (do (with-lock identity wait-time expiry (apply f args)) :success) 
+        (do (apply f args) :success)) 
+      (catch Throwable e (error e) :error)))))
 
 (def jobs 
   (atom 

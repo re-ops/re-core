@@ -1,11 +1,13 @@
 (ns celestial.test.jobs
-  (:require [celestial.jobs :as jobs])
+  (:require 
+    [taoensso.carmine :as car]
+    [celestial.jobs :as jobs])
   (:use 
     midje.sweet
+    [taoensso.carmine.locks :only (with-lock acquire-lock)]
     [celestial.common :only (minute)]
     [clojure.core.strint :only (<<)]
-    [celestial.jobs :only (initialize-workers workers job-exec create-wks enqueue)]
-    [celestial.redis :only (with-lock)])
+    [celestial.jobs :only (initialize-workers workers job-exec create-wks enqueue)])
   (:import java.lang.AssertionError))
 
 
@@ -16,9 +18,9 @@
     ))
 
 (fact "with-lock used if :identity key was provided" 
-   (job-exec identity {:identity "red1" :args {:machine {:hostname "red1"}}}) => nil
+   (job-exec identity {:identity "red1" :args {:machine {:hostname "red1"}}}) => :success
    (provided 
-     (with-lock "red1" anything {:expiry (* minute 30) :wait-time (* minute 5)}) => nil :times 1))
+     (acquire-lock "red1" 300000 1800000) => nil :times 1))
 
 
 (fact "enqueue to workless queue should fail"
