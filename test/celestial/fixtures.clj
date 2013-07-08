@@ -16,6 +16,8 @@
 
 (def user-quota (slurp-edn "fixtures/user-quota.edn"))
 
+;; (println (clojure.data.json/write-str redis-prox-spec :escape-slash false))
+
 (defn is-type? [type]
   (fn [exception] 
     (= type (get-in (.getData exception) [:object :type]))))
