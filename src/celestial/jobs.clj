@@ -75,11 +75,3 @@
       (debug "shutting down" k w) 
       (mq/stop w))))
 
-(defn queue-metadata "Returns given queue's current metadata."
-  [qname]
-  {:backoff?  (wcar (car/get      (mq/qkey qname "backoff?")))
-   :id-circle (wcar (car/lrange   (mq/qkey qname "id-circle") 0 -1))
-   :messsages (wcar (car/hgetall* (mq/qkey qname "messages")))
-   :recently-done (wcar (car/smembers (mq/qkey qname "recently-done")))
-   :locks     (wcar (car/hgetall* (mq/qkey qname "locks")))})
-
