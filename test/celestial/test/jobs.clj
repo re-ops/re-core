@@ -19,7 +19,7 @@
     ))
 
 (fact "with-lock used if :identity key was provided" 
-   (job-exec identity {:identity "red1" :args {:machine {:hostname "red1"}}}) => {:status :success}
+   (job-exec identity {:message {:identity "red1" :args {:machine {:hostname "red1"}}} :attempt 1}) => {:status :success}
    (provided 
      (server-conn) => {}
      (acquire-lock {} "red1" 300000 1800000) => nil :times 1))
