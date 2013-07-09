@@ -70,7 +70,7 @@
        (atom {}))))
 
 (defn create-worker [name f]
-  (carmine-mq/worker (server-conn) name {:handler f}))
+  (carmine-mq/worker (server-conn) name {:handler f :eoq-backoff-ms minute}))
 
 (defn hsetall* [rk m]
   "The persistency of hgetall*"
