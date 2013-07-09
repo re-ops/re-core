@@ -77,23 +77,26 @@
     (info (<< "starting nrepl on port ~{port}"))
     (defonce server (start-server :port port))))
 
-(defn -main [& args]
+(def jetty (atom nil))
+
+(defn setup 
+  "one time setup" 
+  []
   (setup-logging)
   (p/reset-admin)
   (add-shutdown)
   (setup-hooks)
   (info (slurp (resource "main/resources/celestial.txt")))
   (info (<<  "version ~{version} see http://celestial-ops.com"))
-  (ssh-config {:key (get! :ssh :private-key-path) :user "root"} )
-  (jobs/initialize-workers)
+  (ssh-config {:key (get! :ssh :private-key-path) :user "root"} ) 
   (default-key)
   (start-nrepl)
-  (run-jetty (app true)
-             {:port (get! :celestial :port) :join? false
-              :ssl? true :keystore (cert-conf :keystore)
-              :key-password  (cert-conf :password)
-              :ssl-port (get! :celestial :https-port)}))
-
+  (reset! jetty 
+          (run-jetty (app true)
+                     {:port (get! :celestial :port) :join? false
+                      :ssl? true :keystore (cert-conf :keystore)
+                      :key-password  (cert-conf :password)
+                      :ssl-port (get! :celestial :https-port)})))
 
 ; hack http://bit.ly/YfXnXG
 (def proxy-handler #'ring.adapter.jetty/proxy-handler)
@@ -103,13 +106,25 @@
   [s handler]
   (doto s (.setHandler (proxy-handler handler))))
 
-(defn jetty-reload 
-  "Reloads jetty routes"
-  [jetty]
-  (.stop jetty)
-  (reload-handler jetty (app true))
-  (.start jetty))
+(defn start 
+  "main componenets startup (jetty, job workers etc..)"
+  []
+  (jobs/initialize-workers)
+  (when-not (.isStarted @jetty) (.start @jetty)))
+
+(defn stop 
+  "stopping the application"
+  []
+  (clean-up)
+  (.stop @jetty)
+  (reload-handler @jetty (app true)))
+
+(defn -main [& args]
+  (setup)
+  (start))
 
 (comment
-  (def jetty (-main))
-  (jetty-reload jetty))
+  (setup)
+  (start)
+  (stop)
+  )
