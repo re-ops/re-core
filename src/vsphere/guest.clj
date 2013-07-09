@@ -6,6 +6,7 @@
   (:require 
     [clj-http.client :as client])
   (:use 
+    [celestial.provider :only (wait-for)]
     [celestial.common :only (gen-uuid import-logging)]
     [clostache.parser :only (render-resource)] 
     [clojure.core.strint :only (<<)]
@@ -46,33 +47,38 @@
 
 (defn guest-run  
   "Runs a remote command using out of band guest access, 
-    log - true means logging will take place
     wait - how much to wait before logging output
-    uuid - the log file uuid
-  "
-  [hostname cmd args auth {:keys [uuid log wait]}]
+    uuid - the log file uuid, if missing no logging will take place"
+  [hostname cmd args auth uuid timeout]
   {:pre [(tools-installed? hostname)]}
   (with-service
     (let [m (manager hostname :proc) 
-          args* (if log (<< "~{args} >> /tmp/run-~{uuid}.log") args) 
-          spec (doto (GuestProgramSpec.) (.setProgramPath cmd) (.setArguments args*)) ]
-      (.startProgramInGuest m (npa auth) spec))) 
-    (when log (Thread/sleep wait) 
-         (debug (slurp (download-file (<< "/tmp/run-~{uuid}.log") hostname auth)))))
+          args* (if uuid (<< "~{args} >> /tmp/run-~{uuid}.log") args) 
+          spec (doto (GuestProgramSpec.) (.setProgramPath cmd) (.setArguments args*)) 
+          pid (.startProgramInGuest m (npa auth) spec)]
+         (wait-for {:timeout timeout :sleep [200 :ms]}
+           #(-> (.listProcessesInGuest m (npa auth) (long-array [pid])) first bean :exitCode nil? not) 
+           {:type ::vsphere:guest-run-timeout :message (<< "Timed out on running ~{cmd} ~{args} in guest") :timeout timeout} ))))
 
+(defn fetch-log 
+   "fetched remote log file by uuid"
+   [hostname uuid auth]
+  (slurp (download-file (<< "/tmp/run-~{uuid}.log") hostname auth)))
 
 (defn set-ip 
   "set guest static ip" 
   [hostname auth config]
   (let [uuid (gen-uuid) tmp-file (<< "/tmp/intrefaces_~{uuid}")]
-    (upload-file (render-resource "static-ip.mustache" config) tmp-file  hostname auth)  
-    (guest-run hostname "/bin/rm" (<< " -v ~{tmp-file}") auth {:uuid uuid :log true :wait 1000})))
+    (upload-file (render-resource "static-ip.mustache" config) tmp-file hostname auth)
+    (guest-run hostname "/bin/cp" (<< "-v ~{tmp-file} /etc/network/interfaces") auth uuid [2 :seconds])
+    (guest-run hostname "/usr/sbin/service" "networking restart" auth uuid [3 :seconds])
+    (guest-run hostname "/bin/rm" (<< "-v ~{tmp-file}") auth uuid [2 :seconds])
+    (debug (fetch-log hostname uuid auth))))
 
 (comment
-  (set-ip "foo" {:user "ronen" :pass "foobar"} 
-          {:ip "192.168.5.6" :mask "255.255.255.0" :network "192.168.20.0" :gateway "192.168.20.254" :search "local" :names ["192.168.5.0"]}) 
-  (download-file "/tmp/project.clj" "/tmp/project.clj" "foo" {:user "ronen" :pass "foobar"})
-  (guest-run "foo" "/usr/bin/touch" "/tmp/foo" {:user "ronen" :pass "foobar"} {:uuid (gen-uuid) :log true :wait 1000}) 
+  (set-ip "foo" {:user "root" :pass "foobar"} 
+     {:ip "192.168.5.91" :mask "255.255.255.0" :network "192.168.5.0" :gateway "192.168.5.1" :search "local" :names ["192.168.5.1"]}) 
+  (download-file "/tmp/project.clj" "/tmp/project.clj" "foo" {:user "root" :pass "foobar"})
   (upload-file "project.clj" "/tmp/project.clj" "foo" {:user "ronen" :pass "foobar"}) 
   (download-file "/tmp/project.clj" "/tmp/project.clj" "foo" {:user "ronen" :pass "foobar"}) 
   (tools-installed? "foo")) 
