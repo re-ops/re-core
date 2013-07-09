@@ -9,6 +9,7 @@
                  [com.vmware/vijava "5.1" :exclusions [xml-apis]]
                  [me.raynes/fs "1.4.1"]
                  [org.clojure/tools.nrepl "0.2.3"]
+                 [de.ubercode.clostache/clostache "1.3.1"]
                  [bouncer "0.2.3-beta2"]
                  [cheshire "5.0.2"]
                  [com.taoensso/timbre "1.6.0"]
