@@ -40,7 +40,7 @@
 
 (defn wait-for-status [instance req-stat timeout]
   "Waiting for ec2 machine status timeout is in mili"
-  (wait-for timeout #(= req-stat (.status instance))
+  (wait-for {:timeout timeout} #(= req-stat (.status instance))
     {:type ::aws:status-failed :message "Timed out on waiting for status" :status req-stat :timeout timeout}))
 
 (defmacro ec2 [f & args]

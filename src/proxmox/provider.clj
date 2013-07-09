@@ -21,7 +21,7 @@
     [proxmox.remote :only (prox-post prox-delete prox-get)]
     [slingshot.slingshot :only  [throw+ try+]]
     [clojure.set :only (difference)]
-    [celestial.provider :only (str? vec? mappings transform os->template)]
+    [celestial.provider :only (str? vec? mappings transform os->template wait-for)]
     [proxmox.generators :only (ct-id gen-ip release-ip)]
     [celestial.model :only (translate vconstruct)])
   (:require 
@@ -43,15 +43,14 @@
 (defn task-status [node upid]
   (prox-get (str "/nodes/" node  "/tasks/" upid "/status")))
 
-(defn wait-for [node upid]
-  (while (= "running" (:status (task-status node upid)))
-    (Thread/sleep 500)
-    (debug "Waiting for task" upid "to end")))
-
 (defn check-task
   "Checking that a proxmox task has succeeded"
   [node upid]
-  (wait-for node upid)  
+  (wait-for {:timeout [5 :minute]} 
+      (fn [] 
+        (debug "Waiting for task" upid "to end")
+        (not= "running" (:status (task-status node upid))))      
+     {:type ::proxmo:task-timeout :message "Timed out while waiting for proxmox task" :upid upid :node node})
   (let [{:keys [exitstatus] :as res} (task-status node upid)]
     (when (not= exitstatus "OK")
       (throw+ (assoc res :type ::task-failed)))))

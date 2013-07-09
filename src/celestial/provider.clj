@@ -48,12 +48,12 @@
     (reduce 
       (fn [res [k v]] (update-in res [k] v )) res ts))
 
-(defn wait-for [timeout pred err]
+(defn wait-for [{:keys [timeout sleep] :or {sleep [1 :seconds]}} pred err]
   "A general wait for pred function"
-  (let [wait (+ (curr-time) (parse-time-unit timeout))]
+  (let [wait (+ (curr-time) (parse-time-unit timeout))  ]
     (loop []
       (if (> wait (curr-time))
         (if (pred) 
           true
-          (do (Thread/sleep 2000) (recur))) 
+          (do (Thread/sleep (parse-time-unit sleep)) (recur))) 
         (throw+ err)))))
