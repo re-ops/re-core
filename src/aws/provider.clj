@@ -15,6 +15,7 @@
   (:require [celestial.persistency :as p]
             [celestial.validations :as cv])
   (:use 
+    [clojure.string :only (join)]
     [aws.validations :only (provider-validation)]
     [bouncer [core :as b] [validators :as v]]
     [clojure.core.strint :only (<<)]
@@ -74,12 +75,18 @@
   (let [timeout [5 :minute]] 
     (wait-for timeout
               #(ssh-up? {:host (pub-dns endpoint uuid) :port 22 :user user})
-              {:type ::aws:ssh-failed :message "Timed out while waiting for ssh" :timeout timeout})))
+              {:type ::aws:ssh-failed :message "Timed out while waiting for ssh" :timeout timeout}))
+
+(defn pubdns-to-ip
+  "Grabs public ip from dnsname ec2-54-216-121-122.eu-west-1.compute.amazonaws.com"
+   [pubdns]
+    (join "." (rest (re-find #"ec2\-(\d+)-(\d+)-(\d+)-(\d+).*" pubdns))))
 
 (defn update-pubdns [{:keys [spec endpoint uuid] :as instance}]
   "updates public dns in the machine persisted data"
   (when (p/system-exists? (spec :system-id))
-    (p/partial-system (spec :system-id) {:machine {:ssh-host (pub-dns endpoint uuid)}})))
+    (let [ec2-host (pub-dns endpoint uuid)]
+      (p/partial-system (spec :system-id) {:machine {:ssh-host ec2-host :ip (pubdns-to-ip ec2-host)}}))))
 
 (defn set-hostname [{:keys [spec endpoint uuid user] :as instance}]
   "Uses a generic method of setting hostname in Linux"
