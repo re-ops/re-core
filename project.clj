@@ -45,7 +45,7 @@
 
   :plugins  [[jonase/eastwood "0.0.2"] [lein-midje "3.0.0"] [lein-ancient "0.4.2"]
              [lein-bin "0.3.2"] [org.timmc/lein-otf "2.0.1"]  [lein-tar "2.0.0" ]
-             [lein-tag "0.1.0"] [lein-set-version "0.3.0"] [topping "0.0.1-SNAPSHOT"]]
+             [lein-tag "0.1.0"] [lein-set-version "0.3.0"] [topping "0.0.1"]]
 
   :bin {:name "celestial"}
 
