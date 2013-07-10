@@ -35,7 +35,7 @@
   "Executes a job function tries to lock identity first (if used)"
   (let [{:keys [identity args tid] :as spec} message]
    (set-tid tid 
-    (let [{:keys [wait-time expiry]} (map-vals (or (get* :job) defaults) #(* minute %) )]
+    (let [{:keys [wait-time expiry]} (map-vals (or (get* :celestial :job) defaults) #(* minute %) )]
       (try 
        (if identity
          (do (with-lock (server-conn) identity wait-time expiry (apply f args)) {:status :success}) 
