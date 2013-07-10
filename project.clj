@@ -45,7 +45,7 @@
 
   :plugins  [[jonase/eastwood "0.0.2"] [lein-midje "3.0.0"] [lein-ancient "0.4.2"]
              [lein-bin "0.3.2"] [org.timmc/lein-otf "2.0.1"]  [lein-tar "2.0.0" ]
-             [lein-tag "0.1.0"] [lein-set-version "0.3.0"] ]
+             [lein-tag "0.1.0"] [lein-set-version "0.3.0"] [topping "0.0.1-SNAPSHOT"]]
 
   :bin {:name "celestial"}
 
@@ -86,6 +86,11 @@
   :repositories  {
                   "bintray"  "http://dl.bintray.com/content/narkisr/narkisr-jars"
                   "sonatype" "http://oss.sonatype.org/content/repositories/releases"}
+
+  :topping 
+     {:service "celestial"
+      :app {:app-name "celestial" :src "target/celestial-0.1.4.jar"}
+      :env {:roles {:web #{{:host "192.168.5.6" :user "vagrant" :sudo true}}}}} 
 
   :resource-paths  ["src/main/resources/"]
   :target-path "target/"
