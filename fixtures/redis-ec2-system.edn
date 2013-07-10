@@ -5,7 +5,7 @@
 
  :aws {
   :instance-type "t1.micro" 
-  :image-id "ami-f6e2ff81"
+  :image-id "ami-f5e2ff81"
   :key-name "Uranus" 
   :endpoint "ec2.eu-west-1.amazonaws.com"
   }
