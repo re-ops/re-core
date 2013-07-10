@@ -86,8 +86,6 @@
   (p/reset-admin)
   (add-shutdown)
   (setup-hooks)
-  (info (slurp (resource "main/resources/celestial.txt")))
-  (info (<<  "version ~{version} see http://celestial-ops.com"))
   (ssh-config {:key (get! :ssh :private-key-path) :user "root"} ) 
   (default-key)
   (start-nrepl)
@@ -110,7 +108,10 @@
   "main componenets startup (jetty, job workers etc..)"
   []
   (jobs/initialize-workers)
-  (when-not (.isStarted @jetty) (.start @jetty)))
+  (when-not (.isStarted @jetty) (.start @jetty))
+  (info (slurp (resource "main/resources/celestial.txt")))
+  (info (<<  "version ~{version} see http://celestial-ops.com"))
+  )
 
 (defn stop 
   "stopping the application"
