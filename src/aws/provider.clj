@@ -64,16 +64,15 @@
       first :instances first (get-in ks)))
 
 (defn wait-for-attach [endpoint uuid timeout]
-  (wait-for timeout 
+  (wait-for {:timeout timeout} 
             #(= "attached" (instance-desc endpoint uuid :block-device-mappings 0 :ebs :status)) 
             {:type ::aws:ebs-attach-failed :message "Failed to wait for ebs root device attach"}))
 
 (defn pub-dns [endpoint uuid]
   (instance-desc endpoint uuid :public-dns))
 
-(defn wait-for-ssh [{:keys [endpoint uuid user] :as instance}]
-  (let [timeout [5 :minute]] 
-    (wait-for timeout
+(defn wait-for-ssh [{:keys [endpoint uuid user] :as instance} timeout]
+    (wait-for {:timeout timeout}
               #(ssh-up? {:host (pub-dns endpoint uuid) :port 22 :user user})
               {:type ::aws:ssh-failed :message "Timed out while waiting for ssh" :timeout timeout}))
 
@@ -108,7 +107,7 @@
           (when (= (image-desc endpoint (aws :image-id) :root-device-type) "ebs")
             (wait-for-attach endpoint uuid [10 :minute])) 
           (update-pubdns this)
-          (wait-for-ssh this)
+          (wait-for-ssh this [5 :minute])
           (set-hostname this)
           this))
   (delete [this]
