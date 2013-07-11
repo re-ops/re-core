@@ -65,7 +65,7 @@
 (defn synched-map [k]
   "Lock backed atom map watcher that persists changes into redis takes the backing redis hash key."
   (sync-watch (atom-key k)
-    (if-let [data (wcar (car/hgetall* (atom-key k) ) )]
+    (if-let [data (wcar (car/hgetall* (atom-key k) true) )]
        (atom data)  
        (atom {}))))
 
