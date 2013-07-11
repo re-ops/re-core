@@ -77,6 +77,7 @@
   "Deletes a system"
   [{:keys [system-id machine] :as spec}]
   (let [vm (vconstruct spec)]
+    (debug (.status vm))
     (when (.status vm)
       (.stop vm) 
       (.delete vm)) 

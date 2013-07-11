@@ -20,7 +20,6 @@
     [taoensso.carmine.locks :only (with-lock)]
     [taoensso.timbre :only (debug trace info error warn)])
   (:require  
-    
     [taoensso.nippy :as nippy]
     [taoensso.carmine.message-queue :as carmine-mq]
     [taoensso.carmine :as car])
@@ -70,7 +69,7 @@
        (atom {}))))
 
 (defn create-worker [name f]
-  (carmine-mq/worker (server-conn) name {:handler f :eoq-backoff-ms minute}))
+  (carmine-mq/worker (server-conn) name {:handler f :eoq-backoff-ms 200}))
 
 (defn hsetall* [rk m]
   "The persistency of hgetall*"

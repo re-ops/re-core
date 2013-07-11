@@ -11,7 +11,7 @@
     [celestial.workflows :only (reload puppetize destroy)]
     [celestial.config :only (path)]
     [celestial.redis :only (clear-all)]
-    [celestial.fixtures :only (with-conf redis-prox-spec redis-ec2-spec redis-type)]))
+    [celestial.fixtures :only (with-conf redis-prox-spec redis-ec2-spec redis-type host puppet-ami)]))
 
 (defn run-cycle [spec type]
   (clear-all) 
@@ -23,9 +23,7 @@
       (finally 
         (destroy (assoc (p/get-system id) :system-id id))))))
 
-(def host (.getHostName (java.net.InetAddress/getLocalHost)))
 
-(def puppet-ami (merge-with merge redis-ec2-spec {:aws {:image-id "ami-f5e2ff81" :key-name host}}))
 
 (fact "provisioning a proxmox instance" :integration :puppet :proxmox
       (with-conf
