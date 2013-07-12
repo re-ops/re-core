@@ -16,11 +16,10 @@
             instance (vconstruct (assoc puppet-ami :system-id system-id)) ]
         (.create instance) 
         (.start instance) 
-        (.delete instance) 
         (get-in (p/get-system system-id) [:machine :ssh-host]) => truthy 
         (.status instance) => "running"
         (.stop instance) 
         (.status instance) => "stopped"
         (.delete instance) 
-        (.status instance) => falsey))
+        (.status instance) => "terminated"))
 

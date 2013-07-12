@@ -92,7 +92,7 @@
 
 
 (defmacro with-instance-id [& body]
- `(if-let [~'instance-id (instance-id* 'spec)]
+ `(if-let [~'instance-id (instance-id* ~'spec)]
     (do ~@body) 
     (throw+ {:type ::aws:missing-id :message "Instance id not found"}))) 
 
@@ -128,7 +128,7 @@
           (wait-for-status this "stopped" [5 :minute])))
   (status [this] 
         (with-instance-id
-          (instance-desc endpoint instance-id :state :name) false)))
+          (instance-desc endpoint instance-id :state :name))))
 
 (def defaults {:aws {:min-count 1 :max-count 1}})
 
