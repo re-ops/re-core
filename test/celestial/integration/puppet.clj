@@ -39,6 +39,3 @@
       (let [s3-redis (assoc-in redis-type [:puppet-std :module :src] "s3://opsk-sandboxes/redis-sandbox-0.3.4.tar.gz")]
         path => truthy
         (run-cycle puppet-ami s3-redis)))
-
-
-
