@@ -127,8 +127,11 @@
           (ec2 stop-instances instance-id) 
           (wait-for-status this "stopped" [5 :minute])))
   (status [this] 
-        (with-instance-id
-          (instance-desc endpoint instance-id :state :name))))
+        (try+ 
+          (with-instance-id 
+            (instance-desc endpoint instance-id :state :name)) 
+          (catch [:type ::aws:missing-id] e 
+              (warn "No AWS instance id, most chances this instance hasn't been created yet") false))))
 
 (def defaults {:aws {:min-count 1 :max-count 1}})
 
