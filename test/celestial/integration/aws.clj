@@ -7,10 +7,7 @@
     midje.sweet
     [celestial.model :only (vconstruct)]
     [celestial.redis :only (clear-all)]
-    [celestial.fixtures :only (redis-ec2-spec redis-type host)]))
-
-
-(def puppet-ami (merge-with merge redis-ec2-spec {:aws {:image-id "ami-f5e2ff81" :key-name host}}))
+    [celestial.fixtures :only (redis-ec2-spec redis-type host puppet-ami)]))
 
 (fact "aws full scenario works" :ec2 :integration
       (clear-all)
