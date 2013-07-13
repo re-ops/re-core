@@ -38,7 +38,7 @@
     (let [{:keys [wait-time expiry]} (map-vals (or (get* :celestial :job) defaults) #(* minute %) )]
       (try 
        (if identity
-         (do (with-lock (server-conn) identity wait-time expiry (apply f args)) {:status :success}) 
+         (do (with-lock (server-conn) identity expiry wait-time (apply f args)) {:status :success}) 
          (do (apply f args) {:status :success})) 
        (catch Throwable e (error e) {:status  :error}))))))
 
