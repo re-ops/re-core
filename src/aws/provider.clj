@@ -80,8 +80,8 @@
 (defn set-hostname [spec endpoint instance-id user]
   "Uses a generic method of setting hostname in Linux"
   (let [hostname (get-in spec [:machine :hostname]) remote {:host (pub-dns endpoint instance-id) :user user}]
-    (execute (<< "echo kernel.hostname=~{hostname} | sudo tee -a /etc/sysctl.conf") remote )
-    (execute "sudo sysctl -p" remote) 
+    (execute (<< "echo kernel.hostname = ~{hostname} | sudo tee -a /etc/sysctl.conf") remote )
+    (execute "sudo sysctl -e -p" remote) 
     (ec2 create-tags [(instance-desc endpoint instance-id :id)] {:Name hostname})
     ))
 
