@@ -54,7 +54,7 @@
    
    (task run-puppet
       (let [{:keys [module type]} args]
-        (run (str (<< "cd /tmp/~(:name module)") " && " (as-root remote (<< "./scripts/run.sh ~(args-of type)"))))))
+        (run (str (<< "cd /tmp/~(:name module)") " && " (as-root remote (<< "./scripts/run.sh ~(args-of type) --detailed-exitcodes || [ $? -eq 2 ]"))))))
 
    (task cleanup
       (let [{:keys [module]} args]
