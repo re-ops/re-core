@@ -8,8 +8,7 @@
 
 (defvalidatorset machine-entity
   :hostname [v/required cv/str?]
-  :user [v/required cv/str?]
-  :os [v/required cv/keyword?])
+  :user [v/required cv/str?])
 
 (defvalidatorset aws-entity
   :instance-type [v/required cv/str?]
