@@ -4,7 +4,7 @@
   :license  {:name "Apache License, Version 2.0" :url "http://www.apache.org/licenses/LICENSE-2.0.html"}
 
   :dependencies [[org.clojure/clojure "1.5.1"]
-                 [org.clojure/tools.cli "0.2.2" ]
+                 [org.clojure/tools.cli "0.2.2"]
                  [clj-config "0.2.0" ]
                  [com.vmware/vijava "5.1" :exclusions [xml-apis]]
                  [me.raynes/fs "1.4.1"]
@@ -57,9 +57,8 @@
                               [junit/junit "4.8.1"]]
                :jvm-opts ~(vec (map (fn [[p v]] (str "-D" (name p) "=" v)) {:disable-conf "true" }))
                :set-version {
-                  :updates [{
-                    :path "src/celestial/common.clj" :search-regex #"\"\d+\.\d+\.\d+\""}]}
-              }
+                  :updates [ 
+                    {:path "src/celestial/common.clj" :search-regex #"\"\d+\.\d+\.\d+\""}]}}
 
               :prod {
                 :resource-paths  ["src/main/resources/" "pkg/etc/celestial/"] 
@@ -88,7 +87,7 @@
 
   :topping {
       :service "celestial"
-      :app {:app-name "celestial" :src "target/celestial-0.1.4.jar"}
+      :app {:app-name "celestial" :src "target/celestial-0.1.5.jar"}
       :env {:roles {:celestial #{{:host "celestial" :user "ronen" :sudo true}}}}
   } 
 
