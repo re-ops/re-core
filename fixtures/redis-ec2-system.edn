@@ -1,6 +1,6 @@
 {
  :machine {
-  :hostname "red1" :user "ubuntu" :os :ubuntu-12.10
+  :hostname "red1" :user "ubuntu"
  }
 
  :aws {
