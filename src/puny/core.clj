@@ -58,7 +58,7 @@
     `(do 
        (defn ~index-add [~'id ~'v]
          (doseq [i# ~indices-ks]
-           (wcar (car/sadd (str '~name* i# (get ~'v i#)) ~'id ))))
+           (car/sadd (str '~name* i# (get ~'v i#)) ~'id )))
 
        (defn ~index-get [~'k ~'v]
          (wcar (car/smembers (str '~name* ~'k ~'v))))
@@ -103,10 +103,11 @@
          (~delete-fn ~'id))
 
        (defn ~get! [~'id] 
-         (~exists! ~'id) ;TODO id should be locked here, otherwise deletion can take place between calls
-         (~get-fn ~'id))
-       )))
-
+         (let [r# (~get-fn ~'id)]
+           (when (empty? r#) 
+             (throw+ {:type ~missing-ex} ~(<< "Missing ~{name*}")))
+            r# 
+           )))))
 
 (defmacro write-fns 
   "Creates the add/update functions both take into account if id is generated of provided"
@@ -127,22 +128,25 @@
          (let [id# ~add-k-fn]
            (when (~exists-fn id#) 
              (throw+ {:type ~(ex name* "conflicting")} ~(<< "Adding existing ~{name*}")))
-           (wcar (hsetall* (~id-fn id#) (assoc ~'v :meta ~meta*))) 
-           (~index-add id# ~'v)
+           (wcar 
+             (~index-add id# ~'v)  
+             (hsetall* (~id-fn id#) (assoc ~'v :meta ~meta*))) 
            id#))
 
        (defn ~partial-fn ~up-args
          (~exists! ~up-id)
          (let [orig# (wcar (car/hgetall* (~id-fn ~up-id) true)) updated# (merge-with merge orig# ~'v)]
-           (~reindex ~up-id orig# updated#) 
-           (wcar (hsetall* (~id-fn ~up-id) (assoc updated# :meta ~meta*)))))
+           (wcar 
+             (~reindex ~up-id orig# updated#)
+             (hsetall* (~id-fn ~up-id) (assoc updated# :meta ~meta*)))))
 
        (defn ~update-fn ~up-args
          (~validate-fn ~'v)
          (~exists! ~up-id)
          (let [orig# (wcar (car/hgetall* (~id-fn ~up-id) true)) updated# (merge orig#  ~'v)]
-           (~reindex ~up-id orig# updated#) 
-           (wcar (hsetall* (~id-fn ~up-id) (assoc updated# :meta ~meta*))))))))
+           (wcar 
+             (~reindex ~up-id orig# updated#) 
+             (hsetall* (~id-fn ~up-id) (assoc updated# :meta ~meta*))))))))
 
 
 
