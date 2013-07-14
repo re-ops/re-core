@@ -17,7 +17,7 @@
   (:require 
     [celestial.validations :as cv]))
 
- (defvalidatorset guest-common
+(defvalidatorset guest-common
      :password [v/required cv/str?]
      :user [v/required cv/str?]) 
 
@@ -55,14 +55,18 @@
     :pool [cv/str?]
     :datacenter [cv/str? v/required] 
     :disk-format [v/required (v/member formats :message (<< "disk format must be either ~{formats}"))]
-    :guest guest-common)
+    :guest guest-common; see http://bit.ly/15G1S46
+  )
 
 (defvalidatorset entity-validation
    :machine machine-common 
    :machine machine-entity
-   :vsphere vsphere-entity)
+  )
 
 (defn validate-entity
  "vcenter based system entity validation for persistence layer" 
   [vcenter]
-   (cv/validate!! ::invalid-system vcenter entity-validation))
+   (cv/validate!! ::invalid-system vcenter entity-validation)
+   (cv/validate!! ::invalid-system (vcenter :vsphere) vsphere-entity)
+  )
+
