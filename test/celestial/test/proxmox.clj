@@ -12,8 +12,6 @@
     [celestial.fixtures :only (redis-prox-spec with-conf with-m?)])
   (:import clojure.lang.ExceptionInfo))
 
-
-
 (with-conf
   (let [{:keys [machine proxmox]} redis-prox-spec]
     (with-redefs [ct-id (fn [_] (fn [_] nil))]
