@@ -14,6 +14,7 @@
   (:require 
     [proxmox.validations :as pv]
     [aws.validations :as av]
+    [vsphere.validations :as vs]
     [taoensso.carmine :as car]
     [cemerick.friend :as friend]
     [celestial.validations :as cv]
@@ -90,9 +91,9 @@
   )
 
 (def hyp-to-v 
-  {:proxmox pv/validate-entity
-   :aws    av/validate-entity 
-   })
+  {:proxmox pv/validate-entity 
+   :aws av/validate-entity 
+   :vsphere vs/validate-entity})
 
 (defn validate-system
   [system]
