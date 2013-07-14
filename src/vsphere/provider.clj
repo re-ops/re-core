@@ -15,7 +15,7 @@
     [trammel.core :only  (defconstrainedrecord)]
     [clojure.core.strint :only (<<)]
     [vsphere.vijava :only (clone power-on power-off status destroy guest-status)]
-    [bouncer [core :as b] [validators :as v]]
+    [vsphere.validations :only (provider-validation)]
     [celestial.core :only (Vm)]
     [celestial.common :only (import-logging)]
     [slingshot.slingshot :only  [throw+ try+]]
@@ -28,13 +28,13 @@
 (defn wait-for-guest
   "waiting for guest to boot up"
   [hostname timeout]
-  (wait-for timeout #(= :running (guest-status hostname))
-    {:type ::vsphere:guest-failed :message "Timed out on waiting for guest to start" :hostname hostname :timeout timeout}))
+  (wait-for {:timeout timeout} #(= :running (guest-status hostname))
+    {:type ::vsphere:guest-failed :message "Timed out on waiting for guest to start" :hostname hostname}))
 
 
-(defconstrainedrecord VirtualMachine [allocation machine]
-  ""
-  [(not (nil? allocation))]
+(defconstrainedrecord VirtualMachine [allocation machine guest]
+  "A vCenter Virtual machine instance"
+  [(not (nil? allocation)) (provider-validation allocation machine guest)]
   Vm
   (create [this] 
     (clone allocation machine))
@@ -50,13 +50,13 @@
 
   (status [this] (status (machine :hostname)) ))
 
-(def machine-ks [:template :cpus :disk :memory :hostname])
+(def machine-ks [:template :cpus :memory :hostname])
 
-(def allocation-ks [:pool :datacenter])
+(def allocation-ks [:pool :datacenter :disk-format])
 
 (defn select-from [ks] (fn[m] (select-keys m ks)))
 
-(def selections (juxt (select-from allocation-ks) (select-from machine-ks) (select-from [:guest])))
+(def selections (juxt (select-from allocation-ks) (select-from machine-ks) :guest))
 
 (defmethod translate :vsphere [{:keys [machine vsphere system-id]}]
   "Convert the general model into a vsphere specific one"
@@ -68,5 +68,5 @@
 
 (defmethod vconstruct :vsphere [spec]
   (let [[allocation machine guest] (translate spec)]
-    (->VirtualMachine allocation machine)))
+    (->VirtualMachine allocation machine guest)))
 
