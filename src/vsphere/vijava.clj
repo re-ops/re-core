@@ -102,7 +102,7 @@
   {:sparse VirtualMachineRelocateTransformation/sparse 
    :flat VirtualMachineRelocateTransformation/flat})
 
-(defn relocation-spec [{:keys [datacenter]} {:keys [disk-format]}]
+(defn relocation-spec [{:keys [datacenter disk-format]}]
   (doto (VirtualMachineRelocateSpec.) 
     (.setTransform (disk-format-types disk-format))
     (.setPool (.getMOR (first (resource-pools datacenter))))))
@@ -115,7 +115,7 @@
 
 (defn clone-spec [allocation machine]
   (doto (VirtualMachineCloneSpec.)
-    (.setLocation (relocation-spec allocation machine))
+    (.setLocation (relocation-spec allocation))
     (.setConfig (config-spec machine))
     (.setPowerOn false)
     (.setTemplate false)))
