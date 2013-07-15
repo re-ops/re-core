@@ -41,8 +41,7 @@
 (defvalidatorset aws-provider
   :instance-type [v/required cv/str?]
   :image-id [v/required cv/str?]
-  :key-name [v/required cv/str?]
-  )
+  :key-name [v/required cv/str?])
 
 (defn provider-validation [{:keys [aws] :as spec}]
   (cv/validate!! ::invalid-aws aws aws-provider))
