@@ -17,12 +17,13 @@
   (:require 
     [clj-http.client :as client])
   (:use 
+    [slingshot.slingshot :only  [throw+]]
     [celestial.provider :only (wait-for)]
     [celestial.common :only (gen-uuid import-logging)]
     [clostache.parser :only (render-resource)] 
     [clojure.core.strint :only (<<)]
     [clojure.java.io :only (copy file reader)]
-    [vsphere.vijava :only (with-service tools-installed? service find-vm)]))
+    [vsphere.vijava :only (with-service tools-installed? guest-status service find-vm)]))
 
 (import-logging)
 
@@ -57,20 +58,30 @@
     (let[{:keys [url]} (bean (.initiateFileTransferFromGuest (manager hostname :file) (npa auth) src))]
       (:body (client/get url {:as :stream :insecure? true})))))
 
+(defn exit-code 
+   "returns a remote pid exit status" 
+   [m pid auth]
+   (-> (.listProcessesInGuest m (npa auth) (long-array [pid])) first bean :exitCode))
+
+(defn prog-spec [cmd args* {:keys [sudo] :as auth}]
+  (if sudo 
+     (doto (GuestProgramSpec.) (.setProgramPath "/usr/bin/sudo") (.setArguments (str cmd " " args*))) 
+     (doto (GuestProgramSpec.) (.setProgramPath cmd) (.setArguments args*)))) 
+
 (defn guest-run  
-  "Runs a remote command using out of band guest access, 
+  "Runs a remote command using out of band using guest access, 
     wait - how much to wait before logging output
     uuid - the log file uuid, if missing no logging will take place"
   [hostname cmd args auth uuid timeout]
-  {:pre [(tools-installed? hostname)]}
+  {:pre [(= (guest-status hostname) :running)]}
   (with-service
     (let [m (manager hostname :proc) 
           args* (if uuid (<< "~{args} >> /tmp/run-~{uuid}.log") args) 
-          spec (doto (GuestProgramSpec.) (.setProgramPath cmd) (.setArguments args*)) 
-          pid (.startProgramInGuest m (npa auth) spec)]
-         (wait-for {:timeout timeout :sleep [200 :ms]}
-           #(-> (.listProcessesInGuest m (npa auth) (long-array [pid])) first bean :exitCode nil? not) 
-           {:type ::vsphere:guest-run-timeout :message (<< "Timed out on running ~{cmd} ~{args} in guest") :timeout timeout} ))))
+          pid (.startProgramInGuest m (npa auth) (prog-spec cmd args* auth))]
+         (wait-for {:timeout timeout :sleep [200 :ms]} #(-> (exit-code m pid auth) nil? not) 
+           {:type ::vsphere:guest-run-timeout :message (<< "Timed out on running ~{cmd} ~{args} in guest") :timeout timeout})
+         (when-not (= (exit-code m pid auth) 0)
+           (throw+ {:type ::vsphere:guest-run-fail :message (<< "Failed running ~{cmd} ~{args} in guest") :timeout timeout})))))
 
 (defn fetch-log 
    "fetched remote log file by uuid"
@@ -88,9 +99,9 @@
     (debug (fetch-log hostname uuid auth))))
 
 (comment
-  (set-ip "foo" {:user "root" :pass "foobar"} 
+  (set-ip "red1" {:user "ronen" :pass "foobar" :sudo true} 
      {:ip "192.168.5.91" :mask "255.255.255.0" :network "192.168.5.0" :gateway "192.168.5.1" :search "local" :names ["192.168.5.1"]}) 
   (download-file "/tmp/project.clj" "/tmp/project.clj" "foo" {:user "root" :pass "foobar"})
-  (upload-file "project.clj" "/tmp/project.clj" "foo" {:user "ronen" :pass "foobar"}) 
+  (upload-file "project.clj" "/tmp/project.clj" "red1" {:user "ronen" :pass "foobar"}) 
   (download-file "/tmp/project.clj" "/tmp/project.clj" "foo" {:user "ronen" :pass "foobar"}) 
   (tools-installed? "foo")) 
