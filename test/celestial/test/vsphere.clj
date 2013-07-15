@@ -17,9 +17,11 @@
       (let [vm (vconstruct redis-vsphere-spec)]
         (:allocation vm ) => {:datacenter "playground" :pool "" :disk-format :sparse}
         (:hostname vm)   => "red1"
-        (:machine vm) => {:cpus 1 :gateway "192.168.5.1" :ip "192.168.5.91" :mask "255.255.255.0"
-                           :memory 512 :names ["8.8.8.8"] :network "192.168.5.0"
-                           :password "foobar" :search "local" :template "ubuntu-13.04_puppet-3.1-with-tools" :user "ronen"}))
+        (:machine vm) => {:cpus 1 :memory 512 
+                          :password "foobar" :user "ronen" :sudo true
+                          :gateway "192.168.5.1" :ip "192.168.5.91" :mask "255.255.255.0"
+                          :names ["8.8.8.8"] :network "192.168.5.0" :search "local"
+                          :template "ubuntu-13.04_puppet-3.2.2_with-tools" }))
 
     (fact "missing datacenter"
           (vconstruct (assoc-in redis-vsphere-spec [:vsphere :datacenter] nil)) => 
