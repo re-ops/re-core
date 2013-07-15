@@ -77,6 +77,6 @@
 (defn validate-entity
  "vcenter based system entity validation for persistence layer" 
   [vcenter]
-   (validate! ::invalid-system vcenter entity-validation)
+   #_(validate! ::invalid-system vcenter entity-validation)
   )
 
