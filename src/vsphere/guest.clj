@@ -28,8 +28,9 @@
 
 (defn- npa
    "converts auth map to new pass auth" 
-   [{:keys [user pass] }]
-  (doto (NamePasswordAuthentication.) (.setUsername user) (.setPassword pass)))
+   [{:keys [user password] }]
+   {:pre [user password]}
+  (doto (NamePasswordAuthentication.) (.setUsername user) (.setPassword password)))
 
 (defn- manager 
   "file manage of vm" 
