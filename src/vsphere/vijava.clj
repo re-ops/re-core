@@ -125,7 +125,7 @@
      (when-not (= status# "success")
        (throw+ {:type ::task-fail :message (str "Vmware task failed with status:" status#)}))))
 
-(defn clone [{:keys [datacenter] :as allocation} {:keys [template hostname] :as machine}]
+(defn clone [hostname {:keys [datacenter] :as allocation} {:keys [template] :as machine}]
   (with-service
     (let [vm (find-vm template)]
       (wait-for (.cloneVM_Task vm (.getParent vm) hostname (clone-spec allocation machine))))))
@@ -175,20 +175,3 @@
   [hostname]
   {:pre [(= (status hostname) :stopped)]}
   (with-service (wait-for (.destroy_Task (find-vm hostname)))))
-
-(comment
-  #_
-  (clone {:datacenter "playground"} {:template "ubuntu-13.04_puppet-3.1" :hostname "123" :disk-format :sparse :cpus 2 :memory 512}) 
-  (guest-status "bar")
-  (clojure.pprint/pprint (guest-info "123"))
-  (tools-installed? "bar")
-  (power-on "bar")
-  (power-off "bar")
-  (destroy "red1") 
-  )
-
-
-
-
-
-
