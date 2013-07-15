@@ -38,23 +38,23 @@
   [(not (nil? hostname)) (provider-validation allocation machine)]
   Vm
   (create [this] 
-    (clone allocation machine)
+    (clone hostname allocation machine)
     (when (machine :ip)
       (.start this)  
-      (set-ip hostname (select-keys machine [:user :password]) machine)))
+      (set-ip hostname (select-keys machine [:user :password :sudo]) machine)))
 
   (delete [this] (destroy hostname))
 
   (start [this] 
-    (let [{:keys [hostname]} machine]
-      (power-on hostname) 
-      (wait-for-guest hostname [10 :minute])))
+      (when-not (= (.status this) :running) 
+        (power-on hostname) 
+        (wait-for-guest hostname [10 :minute])))
 
   (stop [this] (power-off hostname))
 
   (status [this] (status hostname)))
 
-(def machine-ks [:template :cpus :memory :ip :mask :network :gateway :search :names :user :password])
+(def machine-ks [:template :cpus :memory :ip :mask :network :gateway :search :names :user :password :sudo])
 
 (def allocation-ks [:pool :datacenter :disk-format])
 
