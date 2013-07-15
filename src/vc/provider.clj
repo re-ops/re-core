@@ -66,7 +66,7 @@
   "Convert the general model into a vc specific one"
   (-> (merge machine vcenter {:system-id system-id})
       (mappings {:os :template})
-      (transform {:template (os->template :vc)})
+      (transform {:template (os->template :vcenter)})
       selections
       ))
 
