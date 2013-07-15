@@ -14,7 +14,7 @@
   (:use 
     [slingshot.slingshot :only  [throw+]]
     [bouncer.validators :only (defvalidator)]
-    [bouncer.core :only (validate)]))
+    ))
 
 (defvalidator hash?
   {:default-message-format "%s must be a hash"}
@@ -49,7 +49,7 @@
   (let [with-prefix (reduce (fn [r [ks vs]] (cons (into pref ks) (cons vs  r))) '() (partition 2 body))]
   `(b/validate ~target ~@with-prefix)))
 
-(defmacro valid!
+(defmacro validate
   "Checks validation result (r), throws exepction of type t in case errors are found else returns true"
   [error-type target vset]
    `(if-let [e# (:bouncer.core/errors (second (bouncer.core/validate ~target ~vset)))] 

@@ -13,7 +13,7 @@
   (:use 
     [vc.vijava :only (disk-format-types)]
     [clojure.core.strint :only (<<)]
-    [celestial.validations :only (valid!)]
+    [celestial.validations :only (validate)]
     [bouncer [core :as b] [validators :as v :only (defvalidatorset)]])
   (:require 
     [celestial.validations :as cv]))
@@ -58,7 +58,7 @@
   )
 
 (defn provider-validation [allocation machine]
-  (valid! ::invalid-vm {:allocation allocation :machine machine} vcenter-provider))
+  (validate ::invalid-vm {:allocation allocation :machine machine} vcenter-provider))
 
 
 (defvalidatorset vcenter-entity
@@ -77,6 +77,6 @@
 (defn validate-entity
  "vcenter based system entity validation for persistence layer" 
   [vcenter]
-   (valid! ::invalid-system vcenter entity-validation)
+   (validate ::invalid-system vcenter entity-validation)
   )
 
