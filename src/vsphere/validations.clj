@@ -17,17 +17,26 @@
   (:require 
     [celestial.validations :as cv]))
 
-(defvalidatorset guest-common
-     :password [v/required cv/str?]
-     :user [v/required cv/str?]) 
+(defvalidatorset machine-entity 
+  :user [v/required cv/str?] 
+  :password [v/required cv/str?] 
+  :os [v/required cv/keyword?])
 
-(defvalidatorset machine-entity :os [v/required cv/keyword?])
+(defn has-ip [instance] (-> instance :machine :ip empty? not))
+
+(defvalidatorset machine-networking
+    :mask [cv/str? (v/required :pre has-ip)]
+    :network [cv/str? (v/required :pre has-ip)]
+    :gateway [cv/str? (v/required :pre has-ip)]
+    :search [cv/str? (v/required :pre has-ip)]
+    :names [cv/vec? (v/required :pre has-ip)]
+  )
 
 (defvalidatorset machine-common
     :cpus [v/number v/required]
     :memory [v/number v/required]
     :ip [cv/str?]
-    :hostname [v/required cv/str?])
+  )
 
 (defvalidatorset machine-provider
      :template [v/required cv/str?])
@@ -41,32 +50,32 @@
   )
 
 (defvalidatorset vcenter-provider 
-   :guest guest-common
    :allocation allocation-provider
    :machine machine-common
+   :machine machine-networking 
    :machine machine-provider  
   )
 
-(defn provider-validation [allocation machine guest]
-  (cv/validate!! ::invalid-vm {:allocation allocation :machine machine :guest guest} vcenter-provider))
+(defn provider-validation [allocation machine]
+  (cv/validate!! ::invalid-vm {:allocation allocation :machine machine} vcenter-provider))
 
 
 (defvalidatorset vsphere-entity
     :pool [cv/str?]
     :datacenter [cv/str? v/required] 
     :disk-format [v/required (v/member formats :message (<< "disk format must be either ~{formats}"))]
-    :guest guest-common; see http://bit.ly/15G1S46
   )
 
 (defvalidatorset entity-validation
    :machine machine-common 
+   :machine machine-networking
    :machine machine-entity
+   :vsphere  vsphere-entity
   )
 
 (defn validate-entity
  "vcenter based system entity validation for persistence layer" 
   [vcenter]
    (cv/validate!! ::invalid-system vcenter entity-validation)
-   (cv/validate!! ::invalid-system (vcenter :vsphere) vsphere-entity)
   )
 

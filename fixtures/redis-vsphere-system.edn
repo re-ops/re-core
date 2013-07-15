@@ -1,14 +1,14 @@
 {
  :machine {
-  :cpus 1 :memory 512 :hostname "red1" :os :ubuntu-13.04 
+  :cpus 1 :memory 512 :hostname "red1" :os :ubuntu-13.04
+  :user "ronen" :password "foobar"
+  :ip "192.168.5.91" :mask "255.255.255.0" :network "192.168.5.0" 
+  :gateway "192.168.5.1" :search "local" :names ["8.8.8.8"]
  }
 
  :vsphere {
    :pool ""  :datacenter "playground"
    :disk-format :sparse ; or :flat
-   :guest {
-     :user "ronen" :password "foobar"
-   }
  }
 
  :type "redis"

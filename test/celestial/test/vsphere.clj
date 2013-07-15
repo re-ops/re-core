@@ -12,25 +12,43 @@
   )
 
 (with-conf
-  (do 
+  (do
     (fact "basic construction"
       (let [vm (vconstruct redis-vsphere-spec)]
         (:allocation vm ) => {:datacenter "playground" :pool "" :disk-format :sparse}
-        (:machine vm ) => {:cpus 1 :hostname "red1" :memory 512 :template "ubuntu-13.04_puppet-3.1-with-tools"}
-        (:guest vm)  => {:user "ronen" :password "foobar"}))
+        (:hostname vm)   => "red1"
+        (:machine vm) => {:cpus 1 :gateway "192.168.5.1" :ip "192.168.5.91" :mask "255.255.255.0"
+                           :memory 512 :names ["8.8.8.8"] :network "192.168.5.0"
+                           :password "foobar" :search "local" :template "ubuntu-13.04_puppet-3.1-with-tools" :user "ronen"}))
+
     (fact "missing datacenter"
           (vconstruct (assoc-in redis-vsphere-spec [:vsphere :datacenter] nil)) => 
             (throws ExceptionInfo (with-m? {:allocation {:datacenter '("datacenter must be present")}})))
+
     (fact "wrong disk format"
           (vconstruct (assoc-in redis-vsphere-spec [:vsphere :disk-format] :full)) => 
             (throws ExceptionInfo (with-m? {:allocation {:disk-format '("disk format must be either #{:flat :sparse}")}})))
+
+    (fact "missing mask for existing ip"
+          (vconstruct (assoc-in redis-vsphere-spec [:machine :mask] nil)) => 
+            (throws ExceptionInfo (with-m? {:machine {:mask '("mask must be present")}})))
+
+    (fact "missing mask for missing ip"
+          (vconstruct (merge-with merge redis-vsphere-spec {:machine {:mask nil :ip nil}})) => truthy)
+
     (fact "entity sanity"
         (validate-system redis-vsphere-spec) => truthy 
         (provided 
           (type-exists? "redis")  => true))
+
     (fact "missing guest password"
-        (validate-system (dissoc-in* redis-vsphere-spec [:vsphere :guest :password])) => 
-          (throws ExceptionInfo (with-m? {:guest {:password '("password must be present")}}))
+        (validate-system (dissoc-in* redis-vsphere-spec [:machine :password])) => 
+          (throws ExceptionInfo (with-m? {:machine {:password '("password must be present")}}))
+        (provided (type-exists? "redis")  => true))
+
+    (fact "names aren't a vec"
+        (validate-system (assoc-in redis-vsphere-spec [:machine :names] "bla")) => 
+          (throws ExceptionInfo (with-m? {:machine {:names '("names must be a vector")}}))
         (provided (type-exists? "redis")  => true))
     ))
 

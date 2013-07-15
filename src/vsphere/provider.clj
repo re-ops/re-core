@@ -15,6 +15,7 @@
     [trammel.core :only  (defconstrainedrecord)]
     [clojure.core.strint :only (<<)]
     [vsphere.vijava :only (clone power-on power-off status destroy guest-status)]
+    [vsphere.guest :only (set-ip)]
     [vsphere.validations :only (provider-validation)]
     [celestial.core :only (Vm)]
     [celestial.common :only (import-logging)]
@@ -32,31 +33,34 @@
     {:type ::vsphere:guest-failed :message "Timed out on waiting for guest to start" :hostname hostname}))
 
 
-(defconstrainedrecord VirtualMachine [allocation machine guest]
+(defconstrainedrecord VirtualMachine [hostname allocation machine]
   "A vCenter Virtual machine instance"
-  [(not (nil? allocation)) (provider-validation allocation machine guest)]
+  [(not (nil? hostname)) (provider-validation allocation machine)]
   Vm
   (create [this] 
-    (clone allocation machine))
+    (clone allocation machine)
+    (when (machine :ip)
+      (.start this)  
+      (set-ip hostname (select-keys machine [:user :password]) machine)))
 
-  (delete [this] (destroy (machine :hostname)))
+  (delete [this] (destroy hostname))
 
   (start [this] 
     (let [{:keys [hostname]} machine]
       (power-on hostname) 
       (wait-for-guest hostname [10 :minute])))
 
-  (stop [this] (power-off (machine :hostname)))
+  (stop [this] (power-off hostname))
 
-  (status [this] (status (machine :hostname)) ))
+  (status [this] (status hostname)))
 
-(def machine-ks [:template :cpus :memory :hostname])
+(def machine-ks [:template :cpus :memory :ip :mask :network :gateway :search :names :user :password])
 
 (def allocation-ks [:pool :datacenter :disk-format])
 
 (defn select-from [ks] (fn[m] (select-keys m ks)))
 
-(def selections (juxt (select-from allocation-ks) (select-from machine-ks) :guest))
+(def selections (juxt :hostname (select-from allocation-ks) (select-from machine-ks)))
 
 (defmethod translate :vsphere [{:keys [machine vsphere system-id]}]
   "Convert the general model into a vsphere specific one"
@@ -67,6 +71,6 @@
       ))
 
 (defmethod vconstruct :vsphere [spec]
-  (let [[allocation machine guest] (translate spec)]
-    (->VirtualMachine allocation machine guest)))
+  (let [[hostname allocation machine] (translate spec)]
+    (->VirtualMachine hostname allocation machine)))
 
