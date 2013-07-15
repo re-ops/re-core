@@ -17,7 +17,7 @@
     [slingshot.slingshot :only  [throw+ try+]]
     [celestial.model :only (vconstruct pconstruct rconstruct)]) 
   (:require ; loading defmethods
-    proxmox.provider aws.provider vsphere.provider
+    proxmox.provider aws.provider vc.provider
     celestial.puppet_standalone capistrano.remoter
     [celestial.persistency :as p]
     [clojure.tools.macro :as tm]

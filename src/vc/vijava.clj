@@ -9,7 +9,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.)
 
-(ns vsphere.vijava
+(ns vc.vijava
   (:use 
     [slingshot.slingshot :only  [throw+ try+]]
     [clojure.core.strint :only  (<<)]
@@ -42,7 +42,7 @@
   (memoize 
     (fn []  
       (into [] 
-            (repeatedly (get! :hypervisor :vsphere :session-count) #(agent (connect (get! :hypervisor :vsphere))))))))
+            (repeatedly (get! :hypervisor :vcenter :session-count) #(agent (connect (get! :hypervisor :vcenter))))))))
 
 (defn session-expired? [instance]
   (nil? (:currentSession (bean (.getSessionManager (deref (first (services))))))))
@@ -51,7 +51,7 @@
   (if (session-expired? s)
     (do 
       (debug "Session expired renewing")
-      (connect (get! :hypervisor :vsphere)))
+      (connect (get! :hypervisor :vcenter)))
     s))
 
 (defmacro execute [body p]

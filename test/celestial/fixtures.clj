@@ -11,7 +11,7 @@
 
 (def redis-ec2-spec (slurp-edn "fixtures/redis-ec2-system.edn"))
 
-(def redis-vsphere-spec (slurp-edn "fixtures/redis-vsphere-system.edn"))
+(def redis-vc-spec (slurp-edn "fixtures/redis-vc-system.edn"))
 
 (def local-prox (slurp-edn "fixtures/.celestial.edn"))
 

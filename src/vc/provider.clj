@@ -9,14 +9,14 @@
    See the License for the specific language governing permissions and
    limitations under the License.)
 
-(ns vsphere.provider 
+(ns vc.provider 
   (:use 
     [celestial.provider :only (str? vec? mappings)]
     [trammel.core :only  (defconstrainedrecord)]
     [clojure.core.strint :only (<<)]
-    [vsphere.vijava :only (clone power-on power-off status destroy guest-status)]
-    [vsphere.guest :only (set-ip)]
-    [vsphere.validations :only (provider-validation)]
+    [vc.vijava :only (clone power-on power-off status destroy guest-status)]
+    [vc.guest :only (set-ip)]
+    [vc.validations :only (provider-validation)]
     [celestial.core :only (Vm)]
     [celestial.common :only (import-logging)]
     [slingshot.slingshot :only  [throw+ try+]]
@@ -30,7 +30,7 @@
   "waiting for guest to boot up"
   [hostname timeout]
   (wait-for {:timeout timeout} #(= :running (guest-status hostname))
-    {:type ::vsphere:guest-failed :message "Timed out on waiting for guest to start" :hostname hostname}))
+    {:type ::vc:guest-failed :message "Timed out on waiting for guest to start" :hostname hostname}))
 
 
 (defconstrainedrecord VirtualMachine [hostname allocation machine]
@@ -62,15 +62,15 @@
 
 (def selections (juxt :hostname (select-from allocation-ks) (select-from machine-ks)))
 
-(defmethod translate :vsphere [{:keys [machine vsphere system-id]}]
-  "Convert the general model into a vsphere specific one"
-  (-> (merge machine vsphere {:system-id system-id})
+(defmethod translate :vcenter [{:keys [machine vcenter system-id]}]
+  "Convert the general model into a vc specific one"
+  (-> (merge machine vcenter {:system-id system-id})
       (mappings {:os :template})
-      (transform {:template (os->template :vsphere)})
+      (transform {:template (os->template :vc)})
       selections
       ))
 
-(defmethod vconstruct :vsphere [spec]
+(defmethod vconstruct :vcenter [spec]
   (let [[hostname allocation machine] (translate spec)]
     (->VirtualMachine hostname allocation machine)))
 

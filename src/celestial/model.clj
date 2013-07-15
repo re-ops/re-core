@@ -13,7 +13,7 @@
   "Model manipulation ns"
   )
 
-(def hypervizors #{:proxmox :aws :vsphere :vagrant})
+(def hypervizors #{:proxmox :aws :vcenter :vagrant})
 
 (defn figure-virt [spec] (first (filter hypervizors (keys spec))))
 

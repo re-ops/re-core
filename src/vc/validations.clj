@@ -9,9 +9,9 @@
    See the License for the specific language governing permissions and
    limitations under the License.)
 
-(ns vsphere.validations
+(ns vc.validations
   (:use 
-    [vsphere.vijava :only (disk-format-types)]
+    [vc.vijava :only (disk-format-types)]
     [clojure.core.strint :only (<<)]
     [bouncer [core :as b] [validators :as v :only (defvalidatorset)]])
   (:require 
@@ -60,7 +60,7 @@
   (cv/validate!! ::invalid-vm {:allocation allocation :machine machine} vcenter-provider))
 
 
-(defvalidatorset vsphere-entity
+(defvalidatorset vcenter-entity
     :pool [cv/str?]
     :datacenter [cv/str? v/required] 
     :disk-format [v/required (v/member formats :message (<< "disk format must be either ~{formats}"))]
@@ -70,7 +70,7 @@
    :machine machine-common 
    :machine machine-networking
    :machine machine-entity
-   :vsphere  vsphere-entity
+   :vcenter  vcenter-entity
   )
 
 (defn validate-entity

@@ -6,7 +6,7 @@
   :gateway "192.168.5.1" :search "local" :names ["8.8.8.8"]
  }
 
- :vsphere {
+ :vcenter {
    :pool ""  :datacenter "playground"
    :disk-format :sparse ; or :flat
  }

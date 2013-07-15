@@ -9,7 +9,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.)
 
-(ns vsphere.guest
+(ns vc.guest
   (:import 
     com.vmware.vim25.NamePasswordAuthentication
     com.vmware.vim25.GuestProgramSpec
@@ -23,7 +23,7 @@
     [clostache.parser :only (render-resource)] 
     [clojure.core.strint :only (<<)]
     [clojure.java.io :only (copy file reader)]
-    [vsphere.vijava :only (with-service tools-installed? guest-status service find-vm)]))
+    [vc.vijava :only (with-service tools-installed? guest-status service find-vm)]))
 
 (import-logging)
 
@@ -79,9 +79,9 @@
           args* (if uuid (<< "~{args} >> /tmp/run-~{uuid}.log") args) 
           pid (.startProgramInGuest m (npa auth) (prog-spec cmd args* auth))]
          (wait-for {:timeout timeout :sleep [200 :ms]} #(-> (exit-code m pid auth) nil? not) 
-           {:type ::vsphere:guest-run-timeout :message (<< "Timed out on running ~{cmd} ~{args} in guest") :timeout timeout})
+           {:type ::vc:guest-run-timeout :message (<< "Timed out on running ~{cmd} ~{args} in guest") :timeout timeout})
          (when-not (= (exit-code m pid auth) 0)
-           (throw+ {:type ::vsphere:guest-run-fail :message (<< "Failed running ~{cmd} ~{args} in guest") :timeout timeout})))))
+           (throw+ {:type ::vc:guest-run-fail :message (<< "Failed running ~{cmd} ~{args} in guest") :timeout timeout})))))
 
 (defn fetch-log 
    "fetched remote log file by uuid"

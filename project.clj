@@ -80,7 +80,7 @@
             ["run" "-m" "supernal.launch" "fixtures/supernal-demo.clj" args] 
             }
 
-  :aot [supernal.launch capistrano.remoter proxmox.provider vsphere.provider
+  :aot [supernal.launch capistrano.remoter proxmox.provider vc.provider
         aws.provider celestial.core celestial.puppet-standalone celestial.launch]
 
   :repositories  {"bintray"  "http://dl.bintray.com/content/narkisr/narkisr-jars"
