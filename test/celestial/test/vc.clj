@@ -45,12 +45,12 @@
 
     (fact "missing guest password"
         (validate-system (dissoc-in* redis-vc-spec [:machine :password])) => 
-          (throws ExceptionInfo (with-m? {:machine {:password '("password must be present")}}))
+          (throws ExceptionInfo (with-m? {:password '("password must be present")}))
         (provided (type-exists? "redis")  => true))
 
     (fact "names aren't a vec"
         (validate-system (assoc-in redis-vc-spec [:machine :names] "bla")) => 
-          (throws ExceptionInfo (with-m? {:machine {:names '("names must be a vector")}}))
+          (throws ExceptionInfo (with-m? {:names '("names must be a vector")}))
         (provided (type-exists? "redis")  => true))
     ))
 

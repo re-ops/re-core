@@ -38,7 +38,7 @@
 (defn validate-entity
  "proxmox based system entity validation for persistence layer" 
   [proxmox]
-   (cv/valid ::invalid-system proxmox entity-validation))
+   (cv/validate! ::invalid-system proxmox entity-validation))
 
 (defvalidatorset extended
     :id [v/number]          
@@ -61,5 +61,5 @@
 (defn provider-validation
   "Almost the same validation as persisted with small mapped properties modifications"
   [machine extended]
-    (cv/valid ::invalid-container {:machine machine :extended extended} provider-validation))
+    (cv/validate! ::invalid-container {:machine machine :extended extended} provider-validation))
 
