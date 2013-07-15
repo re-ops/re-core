@@ -49,7 +49,7 @@
   (let [with-prefix (reduce (fn [r [ks vs]] (cons (into pref ks) (cons vs  r))) '() (partition 2 body))]
   `(b/validate ~target ~@with-prefix)))
 
-(defmacro validate
+(defmacro valid
   "Checks validation result (r), throws exepction of type t in case errors are found else returns true"
   [error-type target vset]
    `(if-let [e# (:bouncer.core/errors (second (bouncer.core/validate ~target ~vset)))] 

@@ -24,7 +24,7 @@
     [celestial.roles :only (roles admin)]
     [cemerick.friend.credentials :as creds]
     [bouncer [core :as b] [validators :as v :only (defvalidatorset defvalidator)]]
-    [celestial.validations :only (validate validate-nest)]
+    [celestial.validations :only (valid)]
     [clojure.string :only (split join)]
     [celestial.redis :only (wcar hsetall*)]
     [slingshot.slingshot :only  [throw+ try+]]
@@ -40,7 +40,7 @@
   )
 
 (defn validate-user [user]
-  (validate ::non-valid-user user user-v))
+  (valid ::non-valid-user user user-v))
 
 (entity type :id type)
 
@@ -58,7 +58,7 @@
   )
 
 (defn validate-type [t]
-  (validate ::non-valid-type t type-v))
+  (valid ::non-valid-type t type-v))
 
 (entity action :indices [operates-on])
 
@@ -80,8 +80,8 @@
 
 (defn validate-action [{:keys [actions] :as action}]
   (doseq [[k m] actions] 
-    (cv/validate ::invalid-action m nested-action-validation))
-  (cv/validate ::invalid-nested-action action action-base-validation))
+    (valid ::invalid-action m nested-action-validation))
+  (valid ::invalid-nested-action action action-base-validation))
  
 (entity system :indices [type])
 
@@ -96,7 +96,7 @@
 
 (defn validate-system
   [system]
-  (validate ::non-valid-machine-type system system-type)
+  (valid ::non-valid-machine-type system system-type)
   ((hyp-to-v (figure-virt system)) system))
 
 
@@ -128,7 +128,7 @@
   :quotas  [v/required cv/hash? hypervisor-ks int-limits])
 
 (defn validate-quota [q]
-  (validate ::non-valid-quota q quota-v))
+  (valid ::non-valid-quota q quota-v))
 
 (defn curr-user []
   (:username (friend/current-authentication)))
