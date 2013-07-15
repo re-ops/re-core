@@ -13,8 +13,8 @@
   (:use 
     [vc.vijava :only (disk-format-types)]
     [clojure.core.strint :only (<<)]
-    [celestial.validations :only (valid)]
-    [bouncer [core :as b] [validators :as v :only (defvalidatorset)]])
+    [celestial.validations :only (valida valid)]
+    [bouncer [validators :as v :only (defvalidatorset)]])
   (:require 
     [celestial.validations :as cv]))
 
@@ -67,16 +67,12 @@
     :disk-format [v/required (v/member formats :message (<< "disk format must be either ~{formats}"))]
   )
 
-(defvalidatorset entity-validation
-   :machine machine-common 
-   :machine machine-networking
-   :machine machine-entity
-   :vcenter  vcenter-entity
-  )
-
 (defn validate-entity
  "vcenter based system entity validation for persistence layer" 
-  [vcenter]
-   (valid ::invalid-system vcenter entity-validation)
+  [{:keys [machine vcenter] :as vc}]
+   (valid ::invalid-system vcenter vcenter-entity)
+   (valid ::invalid-system machine machine-common)
+   (valid ::invalid-system machine machine-networking)
+   (valid ::invalid-system machine machine-entity)
   )
 
