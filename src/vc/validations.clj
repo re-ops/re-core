@@ -57,7 +57,7 @@
   )
 
 (defn provider-validation [allocation machine]
-  (cv/validate!! ::invalid-vm {:allocation allocation :machine machine} vcenter-provider))
+  (cv/validate! ::invalid-vm {:allocation allocation :machine machine} vcenter-provider))
 
 
 (defvalidatorset vcenter-entity
@@ -76,6 +76,6 @@
 (defn validate-entity
  "vcenter based system entity validation for persistence layer" 
   [vcenter]
-   (cv/validate!! ::invalid-system vcenter entity-validation)
+   (cv/validate! ::invalid-system vcenter entity-validation)
   )
 

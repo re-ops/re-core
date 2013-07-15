@@ -35,7 +35,7 @@
 (defn validate-entity 
  "aws based systems entity validation " 
   [aws]
-  (cv/validate!! ::invalid-system aws entity-validation))
+  (cv/validate! ::invalid-system aws entity-validation))
 
 
 (defvalidatorset aws-provider
@@ -44,4 +44,4 @@
   :key-name [v/required cv/str?])
 
 (defn provider-validation [{:keys [aws] :as spec}]
-  (cv/validate!! ::invalid-aws aws aws-provider))
+  (cv/validate! ::invalid-aws aws aws-provider))

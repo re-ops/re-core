@@ -24,7 +24,7 @@
     [celestial.roles :only (roles admin)]
     [cemerick.friend.credentials :as creds]
     [bouncer [core :as b] [validators :as v :only (defvalidatorset defvalidator)]]
-    [celestial.validations :only (validate! validate!! validate-nest)]
+    [celestial.validations :only (validate! validate-nest)]
     [clojure.string :only (split join)]
     [celestial.redis :only (wcar hsetall*)]
     [slingshot.slingshot :only  [throw+ try+]]
@@ -33,33 +33,32 @@
 
 (entity user :id username)
 
+(defvalidatorset user-v
+  :username [v/required cv/str?]
+  :password [v/required cv/str?]
+  :roles [v/required (v/every #(roles %) :message (<< "role must be either ~{roles}"))]   
+  )
+
 (defn validate-user [user]
-  (validate! 
-    (b/validate user
-       [:username] [v/required cv/str?]
-       [:password] [v/required cv/str?]
-       [:roles] [v/required (v/every #(roles %) :message (<< "role must be either ~{roles}"))]) 
-       ::non-valid-user))
+  (validate! ::non-valid-user user user-v))
 
 (entity type :id type)
 
-(defn type-base-v [v]
-  (b/validate v [:type] [v/required]))
+(defn puppet-std?  [t] (contains? t :puppet-std))
 
-(defn puppet-std-v [t]
-  (validate-nest t [:puppet-std]
-                 [:args]         [(cv/vec? :pre (comp not nil?))]
-                 [:module :name] [v/required cv/str?]
-                 [:module :src]  [v/required cv/str?]))
+(defvalidatorset puppet-std-v 
+   :args         [(cv/vec? :pre puppet-std?)]
+   [:module :name] [(v/required :pre puppet-std?) cv/str?]
+   [:module :src]  [(v/required :pre puppet-std?) cv/str?])
 
-(defn classes-v [t]
-  (validate t 
-      [:classes] [v/required cv/hash?]))
+(defvalidatorset type-v
+  :type [v/required]  
+  :classes [(v/required :pre puppet-std?) cv/hash?]
+  :puppet-std puppet-std-v 
+  )
 
 (defn validate-type [t]
-  (validate! 
-    (cond-> (-> t type-base-v second)
-      (t :puppet-std) (-> classes-v second puppet-std-v)) ::non-valid-type))
+  (validate! ::non-valid-type t type-v))
 
 (entity action :indices [operates-on])
 
@@ -81,8 +80,8 @@
 
 (defn validate-action [{:keys [actions] :as action}]
   (doseq [[k m] actions] 
-    (cv/validate!! ::invalid-action m nested-action-validation))
-  (cv/validate!! ::invalid-nested-action action action-base-validation))
+    (cv/validate! ::invalid-action m nested-action-validation))
+  (cv/validate! ::invalid-nested-action action action-base-validation))
  
 (entity system :indices [type])
 
@@ -97,7 +96,7 @@
 
 (defn validate-system
   [system]
-  (validate!! ::non-valid-machine-type system system-type)
+  (validate! ::non-valid-machine-type system system-type)
   ((hyp-to-v (figure-virt system)) system))
 
 
@@ -124,12 +123,12 @@
   [qs]
   (empty? (remove (fn [[k v]] (integer? (v :limit))) qs)))
 
+(defvalidatorset quota-v
+  :username [v/required (v/custom user-exists? :message "No matching user found")]
+  :quotas  [v/required cv/hash? hypervisor-ks int-limits])
+
 (defn validate-quota [q]
-  (validate! 
-    (b/validate q
-                [:username] [v/required (v/custom user-exists? :message "No matching user found")]
-                [:quotas]  [v/required cv/hash? hypervisor-ks int-limits])
-    ::non-valid-quota))
+  (validate! ::non-valid-quota q quota-v))
 
 (defn curr-user []
   (:username (friend/current-authentication)))
