@@ -17,5 +17,7 @@
       (guest-status (get-in redis-vsphere-spec [:machine :hostname]))  => :running
       (.stop vm)
       (.status vm)  => :stopped
+      (.start vm)
+      (.stop vm)
       (.delete vm)
       )))
