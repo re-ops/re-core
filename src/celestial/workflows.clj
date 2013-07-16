@@ -96,7 +96,7 @@
   [type {:keys [system-id] :as spec}] 
   (reload spec) 
   ; reload may change system properties like ip etc..
-  (puppetize type (p/get-system system-id)))
+  (puppetize type (assoc (p/get-system system-id) :system-id system-id)))
 
 (deflow ^{:hook-args :run-info} run-action
   "Runs an action"
