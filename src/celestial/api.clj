@@ -120,10 +120,10 @@
         (success {:msg "updated actions"}))
 
   (GET- "/action/by-target/:type" [^:string type] {:nickname "getActionsByTargetType" :summary "Gets actions that operate on a target type"}
-        (success {:action (p/get-action-index :operates-on type)}))
+        (success (p/get-action-index :operates-on type)))
 
   (GET- "/action/:id" [^:int id] {:nickname "getActions" :summary "Gets actions descriptor"}
-        (success {:action (p/get-action id)}))
+        (success (p/get-action id)))
 
   (DELETE- "/action/:id" [^:int id] {:nickname "deleteActions" :summary "Deletes an action set"}
            (p/delete-action id)
