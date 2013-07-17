@@ -122,9 +122,8 @@
   (DELETE- "/type/:type" [^:string type] {:nickname "deleteType" :summary "Delete type" 
                                           :errorResponses (errors {:bad-req "Type does not exist"})}
            (if (p/type-exists? type)
-             (do (p/delete-system type) 
+             (do (p/delete-type type) 
                  (success {:msg "Type deleted"}))
              (bad-req {:msg "Type does not exist"}))) 
   )
-
 
