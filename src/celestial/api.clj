@@ -120,14 +120,14 @@
         (success {:msg "updated actions"}))
 
   (GET- "/action/by-target/:type" [^:string type] {:nickname "getActionsByTargetType" :summary "Gets actions that operate on a target type"}
-        (success (p/get-action-index :operates-on type)))
+        (success {:ids (p/get-action-index :operates-on type)}))
 
   (GET- "/action/:id" [^:int id] {:nickname "getActions" :summary "Gets actions descriptor"}
         (success (p/get-action id)))
 
   (DELETE- "/action/:id" [^:int id] {:nickname "deleteActions" :summary "Deletes an action set"}
            (p/delete-action id)
-           (success {:msg "deleted actions" :id id})))
+           (success {:msg "Deleted action" :id id})))
 
 (defroutes app-routes
   hosts types actions jobs (friend/wrap-authorize users admin) (friend/wrap-authorize quotas admin) (route/not-found "Not Found"))
