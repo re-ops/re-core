@@ -15,11 +15,13 @@
   (:use
     [slingshot.slingshot :only  [throw+ try+]]
     [celestial.redis :only (wcar hsetall*)]
+    [celestial.common :only (import-logging)]
     [clojure.core.strint :only (<<)])
   (:require 
     [taoensso.carmine :as car])
  )
 
+(import-logging)
 (defmacro <<< 
   "String interpulation into a symbol"
   [s] `(symbol (<< ~s)))
@@ -56,18 +58,18 @@
   (let [{:keys [index-add index-del index-get reindex]} (indices-fn-ids name*)
         indices-ks (into [] (map keyword indices))] 
     `(do 
-       (defn ~index-add [~'id ~'v]
+       (defn- ~index-add [~'id ~'v]
          (doseq [i# ~indices-ks]
            (car/sadd (str '~name* i# (get ~'v i#)) ~'id )))
 
        (defn ~index-get [~'k ~'v]
          (wcar (car/smembers (str '~name* ~'k ~'v))))
 
-       (defn ~index-del [~'id ~'v]
+       (defn- ~index-del [~'id ~'v]
          (doseq [i# ~indices-ks]
            (wcar (car/srem (str '~name* i# (get ~'v i#)) ~'id))))
 
-        (defn ~reindex [~'id ~'old ~'new]
+        (defn- ~reindex [~'id ~'old ~'new]
           (~index-del ~'id ~'old) 
           (~index-add ~'id ~'new)))))
 
@@ -120,7 +122,8 @@
     `(do 
        (declare ~validate-fn)
 
-       (defn ~gen-fn []
+       (defn- ~gen-fn []
+         "generated ids for entities"
          (wcar (~id-fn (car/incr ~(<< "~{name*}:ids")))))
 
        (defn ~add-fn [~'v]
@@ -143,7 +146,7 @@
        (defn ~update-fn ~up-args
          (~validate-fn ~'v)
          (~exists! ~up-id)
-         (let [orig# (wcar (car/hgetall* (~id-fn ~up-id) true)) updated# (merge orig#  ~'v)]
+         (let [orig# (wcar (car/hgetall* (~id-fn ~up-id) true)) updated# (merge orig# ~'v)]
            (wcar 
              (~reindex ~up-id orig# updated#) 
              (hsetall* (~id-fn ~up-id) (assoc updated# :meta ~meta*))))))))
