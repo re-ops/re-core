@@ -28,7 +28,6 @@
                      create-tags stop-instances instance-filter instance-id-filter)]
     [trammel.core :only (defconstrainedrecord)]
     [celestial.provider :only (str? vec? wait-for)]
-    [celestial.redis :only (synched-map)]
     [celestial.core :only (Vm)]
     [celestial.common :only (get! import-logging )]
     [celestial.model :only (translate vconstruct)]))
