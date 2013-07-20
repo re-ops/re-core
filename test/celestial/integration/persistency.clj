@@ -47,7 +47,7 @@
         (with-redefs [p/curr-user (fn [] "foo")]
           (p/add-user {:username "foo" :password "bla" :roles {}})
           (p/add-quota (assoc-in user-quota [:quotas :proxmox :used] nil)) 
-          (p/increase-use 1 redis-prox-spec) => nil 
+          (p/increase-use 1 redis-prox-spec) => "OK"
           (:quotas (p/get-quota "foo"))  => (contains {:proxmox {:limit 2 :used #{1}}}) 
           (p/increase-use 2  redis-prox-spec) 
           (:quotas (p/get-quota "foo"))  => (contains {:proxmox {:limit 2 :used #{1 2}}}) 
