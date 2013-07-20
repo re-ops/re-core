@@ -13,6 +13,7 @@
   "A tiny redis based ORM,
    Caveat: crud+index operations are not atomic, introducing lua procedures will fix that."
   (:use
+    [clojure.set :only (difference)]
     [slingshot.slingshot :only  [throw+ try+]]
     [celestial.redis :only (wcar hsetall*)]
     [celestial.common :only (import-logging)]
@@ -146,10 +147,11 @@
        (defn ~update-fn ~up-args
          (~validate-fn ~'v)
          (~exists! ~up-id)
-         (let [orig# (wcar (car/hgetall* (~id-fn ~up-id) true)) updated# (merge orig# ~'v)]
+         (let [orig# (wcar (car/hgetall* (~id-fn ~up-id) true)) 
+               missing# (difference (into #{} (keys orig#)) (into #{} (keys ~'v)))]
            (wcar 
-             (~reindex ~up-id orig# updated#) 
-             (hsetall* (~id-fn ~up-id) (assoc updated# :meta ~meta*))))))))
+             (~reindex ~up-id orig# ~'v) 
+             (hsetall* (~id-fn ~up-id) (assoc ~'v :meta ~meta*) missing#)))))))
 
 
 

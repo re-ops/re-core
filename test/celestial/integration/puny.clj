@@ -91,6 +91,15 @@
      (defn validate-metable [metable] {})
      (add-metable {:name "foo"}) 
      (get-metable "foo") => {:name "foo"}
+     (update-metable {:name "foo" :c 1}) => truthy
      (meta (get-metable "foo")) => {:ver 1})
+
+  (fact "entity keys deletion during update" :integration :puny
+     (p/entity paint :id color)
+     (defn validate-paint [paint] {})
+     (add-paint {:color "white" :temp 1}) => truthy
+     (update-paint {:color "white" :fixed 2}) => truthy
+     (get-paint "white") => {:color "white" :fixed 2}; temp was removed
+    )
   )
 
