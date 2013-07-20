@@ -71,16 +71,17 @@
         (get-car-index :color "blue") => [])
 
   (fact "fail fase actions" :integration :puny
-        (p/entity planet :id name)
+        (p/entity planet :id name :indices [life])
         (defn validate-planet [planet] {})
-        (add-planet {:name "lunar"})
-        (get-planet "lunar") => {:name "lunar"}
+        (add-planet {:name "lunar" :life "false"})
+        (get-planet "lunar") => {:name "lunar" :life "false"}
         (planet-exists! "lunar") => true
         (planet-exists! "foo") => (throws ExceptionInfo (is-type? :celestial.integration.puny/missing-planet))
         (delete-planet! "foo") => (throws ExceptionInfo (is-type? :celestial.integration.puny/missing-planet))
         (update-planet {:name "foo"}) => (throws ExceptionInfo (is-type? :celestial.integration.puny/missing-planet))
-        (get-planet! "lunar") => {:name "lunar"}
+        (get-planet! "lunar") => {:name "lunar" :life "false"}
         (delete-planet! "lunar") 
+        (delete-planet! "lunar") => (throws ExceptionInfo (is-type? :celestial.integration.puny/missing-planet))
         (get-planet "lunar") => {} 
         (get-planet! "lunar") => (throws ExceptionInfo (is-type? :celestial.integration.puny/missing-planet)) 
         )

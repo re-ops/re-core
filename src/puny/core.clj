@@ -100,9 +100,9 @@
            (throw+ {:type ~missing-ex} ~(<< "Missing ~{name*}")))
          true)
 
-       (defn ~delete! [~'id] 
-         (~exists! ~'id) ;TODO id should be locked here, otherwise deletion can take place between calls
-         (~delete-fn ~'id))
+       (defn ~delete!  [~'id] 
+         (when (some #(= 0 %) (flatten (vector (~delete-fn ~'id))))
+            (throw+ {:type ~missing-ex} ~(<< "Missing ~{name*}"))))
 
        (defn ~get! [~'id] 
          (let [r# (~get-fn ~'id)]
