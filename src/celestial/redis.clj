@@ -12,6 +12,7 @@
 (ns celestial.redis
   "Redis utilities like a distributed lock, connection managment and ref watcher"
   (:use  
+    [flatland.useful.map :on map-vals]
     [clojure.set :only (difference)]
     [flatland.useful.utils :only (defm)]
     [celestial.common :only (get! curr-time gen-uuid half-hour minute)]
@@ -21,6 +22,7 @@
     [taoensso.timbre :only (debug trace info error warn)])
   (:require  
     [taoensso.nippy :as nippy]
+    [clojure.data.json :as json]
     [taoensso.carmine.message-queue :as carmine-mq]
     [taoensso.carmine :as car])
   (:import java.util.Date))
@@ -49,9 +51,13 @@
 (defn create-worker [name f]
   (carmine-mq/worker (server-conn) name {:handler f :eoq-backoff-ms 200}))
 
-(defn hsetall* [rk m]
-  "The persistency of hgetall*"
-  (wcar (doseq [[k v] m] (car/hset rk k (car/preserve v)))))
+(defn missing-keys [rk m]
+  (difference (into #{} (map keyword (car/hkeys rk))) (into #{} (keys m))))
+
+(defn hsetall* [rk m & [missing]]
+  "The reverse action of hgetall*, missing keys that were removed"
+    (when missing (wcar (doseq [d missing] (car/hdel rk d))))
+    (apply car/hmset rk (flatten (into [] (map-vals m car/freeze)))) )
 
 (defn clear-all []
   (wcar (car/flushdb)))
