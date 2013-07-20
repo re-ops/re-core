@@ -55,7 +55,7 @@
   (difference (into #{} (map keyword (car/hkeys rk))) (into #{} (keys m))))
 
 (defn hsetall* [rk m & [missing]]
-  "The reverse action of hgetall*, missing keys that were removed"
+  "The reverse action of hgetall*, missing keys will be removed (if provided)."
     (when missing (wcar (doseq [d missing] (car/hdel rk d))))
     (apply car/hmset rk (flatten (into [] (map-vals m car/freeze)))) )
 
