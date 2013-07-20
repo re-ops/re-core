@@ -46,28 +46,6 @@
   (when-let [lkeys (seq (wcar (car/keys (lkey "*"))))]
     (wcar (apply car/del lkeys))))
 
-(defn atom-key [k] (str "atom" k))
-
-(defn apply-diff [map-key _new old]
-  {:pre [(map? _new) (map? old)]}
-    (letfn [(sub [a b] (difference (into #{} a) (into #{} b)))]
-      (doseq [[k v] (sub old _new)] (wcar (car/hdel map-key k)))
-      (doseq [[k v] (sub _new old)]  (wcar (car/hset map-key k (car/preserve v))))
-      ))
-
-(defn sync-watch [map-key r]
-  (add-watch r map-key
-     (fn [_key _ref old _new] 
-       (with-lock (server-conn) _key half-hour minute 
-         (apply-diff map-key _new old)) r)))
-
-(defn synched-map [k]
-  "Lock backed atom map watcher that persists changes into redis takes the backing redis hash key."
-  (sync-watch (atom-key k)
-    (if-let [data (wcar (car/hgetall* (atom-key k) true) )]
-       (atom data)  
-       (atom {}))))
-
 (defn create-worker [name f]
   (carmine-mq/worker (server-conn) name {:handler f :eoq-backoff-ms 200}))
 
