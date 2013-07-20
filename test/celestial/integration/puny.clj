@@ -35,7 +35,7 @@
         (wcar (index-house 6 {:zip "1234" :n 6}))
         (get-house-index :zip "1234") => ["5" "6"]
         (get-house-index :n 5) => ["5"]
-        (clear-house-indices 5 {:zip "1234" :n 5})
+        (wcar (clear-house-indices 5 {:zip "1234" :n 5}))
         (get-house-index :zip "1234")  => ["6"]
         (wcar (reindex-house 6 {:zip "1234" :n 6} {:zip "1235" :n 6})) 
         (get-house-index :zip "1234")  => []

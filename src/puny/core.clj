@@ -18,10 +18,10 @@
     [celestial.common :only (import-logging)]
     [clojure.core.strint :only (<<)])
   (:require 
-    [taoensso.carmine :as car])
- )
+    [taoensso.carmine :as car]))
 
 (import-logging)
+
 (defmacro <<< 
   "String interpulation into a symbol"
   [s] `(symbol (<< ~s)))
@@ -67,7 +67,7 @@
 
        (defn- ~index-del [~'id ~'v]
          (doseq [i# ~indices-ks]
-           (wcar (car/srem (str '~name* i# (get ~'v i#)) ~'id))))
+           (car/srem (str '~name* i# (get ~'v i#)) ~'id)))
 
         (defn- ~reindex [~'id ~'old ~'new]
           (~index-del ~'id ~'old) 
@@ -171,8 +171,9 @@
             (with-meta (dissoc e# :meta) (e# :meta)) ))
 
        (defn ~delete-fn [~'id] 
-         (~index-del ~'id (~get-fn ~'id)) 
-         (wcar (car/del (~id-fn ~'id))))
+         (wcar 
+           (~index-del ~'id (~get-fn ~'id)) 
+           (car/del (~id-fn ~'id))))
  
        (bang-fns ~name*)
 
