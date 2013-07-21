@@ -15,7 +15,7 @@
   (do
     (fact "basic construction"
       (let [vm (vconstruct redis-vc-spec)]
-        (:allocation vm ) => {:datacenter "playground" :pool "" :disk-format :sparse}
+        (:allocation vm ) => {:datacenter "playground" :hostsystem "192.168.5.5" :pool "dummy" :disk-format :sparse}
         (:hostname vm)   => "red1"
         (:machine vm) => {:cpus 1 :memory 512 
                           :password "foobar" :user "ronen" :sudo true
@@ -34,6 +34,10 @@
     (fact "missing mask for existing ip"
           (vconstruct (assoc-in redis-vc-spec [:machine :mask] nil)) => 
             (throws ExceptionInfo (with-m? {:machine {:mask '("mask must be present")}})))
+
+    (fact "missing hostsystem"
+          (vconstruct (assoc-in redis-vc-spec [:vcenter :hostsystem] nil)) => 
+            (throws ExceptionInfo (with-m? {:allocation {:hostsystem '("hostsystem must be present")}})))
 
     (fact "missing mask for missing ip"
           (vconstruct (merge-with merge redis-vc-spec {:machine {:mask nil :ip nil}})) => truthy)

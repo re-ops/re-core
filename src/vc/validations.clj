@@ -44,14 +44,15 @@
 
 (def formats (into #{} (keys disk-format-types)))
 
-(defvalidatorset allocation-provider
+(defvalidatorset common-allocation
     :pool [cv/str?]
+    :hostsystem [cv/str? v/required]
     :disk-format [v/required (v/member formats :message (<< "disk format must be either ~{formats}"))]
     :datacenter [cv/str? v/required] 
   )
 
 (defvalidatorset vcenter-provider 
-   :allocation allocation-provider
+   :allocation common-allocation
    :machine machine-common
    :machine machine-networking 
    :machine machine-provider  
@@ -60,17 +61,10 @@
 (defn provider-validation [allocation machine]
   (validate! ::invalid-vm {:allocation allocation :machine machine} vcenter-provider))
 
-
-(defvalidatorset vcenter-entity
-    :pool [cv/str?]
-    :datacenter [cv/str? v/required] 
-    :disk-format [v/required (v/member formats :message (<< "disk format must be either ~{formats}"))]
-  )
-
 (defn validate-entity
  "vcenter based system entity validation for persistence layer" 
   [{:keys [machine vcenter] :as vc}]
-   (validate! ::invalid-system vcenter vcenter-entity)
+   (validate! ::invalid-system vcenter common-allocation)
    (validate! ::invalid-system machine machine-common)
    (validate! ::invalid-system machine machine-networking)
    (validate! ::invalid-system machine machine-entity)

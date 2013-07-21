@@ -56,7 +56,7 @@
 
 (def machine-ks [:template :cpus :memory :ip :mask :network :gateway :search :names :user :password :sudo])
 
-(def allocation-ks [:pool :datacenter :disk-format])
+(def allocation-ks [:pool :datacenter :disk-format :hostsystem])
 
 (defn select-from [ks] (fn[m] (select-keys m ks)))
 

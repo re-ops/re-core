@@ -88,7 +88,7 @@
   ([type name* within] 
    (if-let [entity (.searchManagedEntity within type name*)]
      entity 
-     (throw+ {:type ::missing-entity :message (str "No matching entity found " name*)}))))
+     (throw+ {:type ::missing-entity :message (<< "No matching entity named '~{name*}' of type ~{type} found")}))))
 
 (defn find-vm 
   "locates a vm or a template" 
@@ -102,10 +102,12 @@
   {:sparse VirtualMachineRelocateTransformation/sparse 
    :flat VirtualMachineRelocateTransformation/flat})
 
-(defn relocation-spec [{:keys [datacenter disk-format]}]
+(defn relocation-spec [{:keys [datacenter disk-format hostsystem pool]}]
   (doto (VirtualMachineRelocateSpec.) 
     (.setTransform (disk-format-types disk-format))
-    (.setPool (.getMOR (first (resource-pools datacenter))))))
+    (.setPool (.getMOR (if pool (find* "ResourcePool" pool) (first (resource-pools datacenter)))))
+    (.setHost (.getMOR (find* "HostSystem" hostsystem))) 
+    ))
 
 (defn config-spec [{:keys [cpus memory]}]
   {:pre [(pos? cpus) (pos? memory)]}
