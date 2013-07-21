@@ -69,7 +69,7 @@
   "Convert the general model into a vc specific one"
   (-> (merge machine vcenter {:system-id system-id})
       (mappings {:os :template})
-      (transform {:template (os->template :vcenter)})
+      (transform {:template (os->template :vcenter) :disk-format keyword})
       selections
       ))
 
