@@ -17,6 +17,7 @@
   (:require 
     [clj-http.client :as client])
   (:use 
+    [clojure.string :only (join)]
     [slingshot.slingshot :only  [throw+]]
     [celestial.provider :only (wait-for)]
     [celestial.common :only (gen-uuid import-logging)]
@@ -92,7 +93,7 @@
   "set guest static ip" 
   [hostname auth config]
   (let [uuid (gen-uuid) tmp-file (<< "/tmp/intrefaces_~{uuid}")]
-    (upload-file (render-resource "static-ip.mustache" config) tmp-file hostname auth)
+    (upload-file (render-resource "static-ip.mustache" (update-in config [:names] (partial join ","))) tmp-file hostname auth)
     (guest-run hostname "/bin/cp" (<< "-v ~{tmp-file} /etc/network/interfaces") auth uuid [2 :seconds])
     (guest-run hostname "/usr/sbin/service" "networking restart" auth uuid [3 :seconds])
     (guest-run hostname "/bin/rm" (<< "-v ~{tmp-file}") auth uuid [2 :seconds])
