@@ -133,9 +133,9 @@
       (wait-for (.cloneVM_Task vm (.getParent vm) hostname (clone-spec allocation machine))))))
 
 (def power-to-s
-  {VirtualMachinePowerState/poweredOn :running 
-   VirtualMachinePowerState/poweredOff :stopped 
-   VirtualMachinePowerState/suspended :suspended})
+  {VirtualMachinePowerState/poweredOn "running"
+   VirtualMachinePowerState/poweredOff "stopped" 
+   VirtualMachinePowerState/suspended "suspended"})
 
 (defn status 
   "Get VM status"
@@ -175,5 +175,5 @@
 (defn destroy 
   "Destroy a vm, requires vm to be stopped"
   [hostname]
-  {:pre [(= (status hostname) :stopped)]}
+  {:pre [(= (status hostname) "stopped")]}
   (with-service (wait-for (.destroy_Task (find-vm hostname)))))
