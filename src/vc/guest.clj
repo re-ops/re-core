@@ -97,6 +97,8 @@
     (guest-run hostname "/bin/cp" (<< "-v ~{tmp-file} /etc/network/interfaces") auth uuid [2 :seconds])
     (guest-run hostname "/usr/sbin/service" "networking restart" auth uuid [3 :seconds])
     (guest-run hostname "/bin/rm" (<< "-v ~{tmp-file}") auth uuid [2 :seconds])
+    (guest-run hostname "echo" (<< "kernel.hostname = ~{hostname} | sudo tee -a /etc/sysctl.conf") auth uuid [2 :seconds])
+    (guest-run hostname "sysctl" "-e -p" auth uuid [2 :seconds])
     (debug (fetch-log hostname uuid auth))))
 
 (comment
