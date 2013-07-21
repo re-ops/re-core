@@ -97,12 +97,12 @@
     (guest-run hostname "/bin/cp" (<< "-v ~{tmp-file} /etc/network/interfaces") auth uuid [2 :seconds])
     (guest-run hostname "/usr/sbin/service" "networking restart" auth uuid [3 :seconds])
     (guest-run hostname "/bin/rm" (<< "-v ~{tmp-file}") auth uuid [2 :seconds])
-    (guest-run hostname "echo" (<< "kernel.hostname = ~{hostname} | sudo tee -a /etc/sysctl.conf") auth uuid [2 :seconds])
+    (guest-run hostname "echo" (<< "'kernel.hostname = ~{hostname}' | sudo tee -a /etc/sysctl.conf") auth uuid [2 :seconds])
     (guest-run hostname "sysctl" "-e -p" auth uuid [2 :seconds])
     (debug (fetch-log hostname uuid auth))))
 
 (comment
-  (set-ip "red1" {:user "ronen" :pass "foobar" :sudo true} 
+  (set-ip "red1" {:user "ronen" :password "foobar" :sudo true} 
      {:ip "192.168.5.91" :mask "255.255.255.0" :network "192.168.5.0" :gateway "192.168.5.1" :search "local" :names ["192.168.5.1"]}) 
   (download-file "/tmp/project.clj" "/tmp/project.clj" "foo" {:user "root" :pass "foobar"})
   (upload-file "project.clj" "/tmp/project.clj" "red1" {:user "ronen" :pass "foobar"}) 
