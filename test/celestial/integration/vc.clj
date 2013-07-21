@@ -13,10 +13,10 @@
     (let [vm (vconstruct redis-vc-spec)]
       (.create vm)
       (.start vm)
-      (.status vm)  => :running
+      (.status vm)  => "running"
       (guest-status (get-in redis-vc-spec [:machine :hostname]))  => :running
       (.stop vm)
-      (.status vm)  => :stopped
+      (.status vm)  => "stopped" 
       (.start vm)
       (.stop vm)
       (.delete vm)
