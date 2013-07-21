@@ -112,8 +112,8 @@
 (defn config-spec [{:keys [cpus memory]}]
   {:pre [(pos? cpus) (pos? memory)]}
   (doto (VirtualMachineConfigSpec.)
-    (.setNumCPUs (int cpus)) 
-    (.setMemoryMB memory)))
+    (.setNumCPUs ^:Integer (int cpus)) 
+    (.setMemoryMB (long memory))))
 
 (defn clone-spec [allocation machine]
   (doto (VirtualMachineCloneSpec.)
