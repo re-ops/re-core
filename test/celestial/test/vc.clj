@@ -21,7 +21,7 @@
                           :password "foobar" :user "ronen" :sudo true
                           :gateway "192.168.5.1" :ip "192.168.5.91" :mask "255.255.255.0"
                           :names ["8.8.8.8"] :network "192.168.5.0" :search "local"
-                          :template "ubuntu-13.04_puppet-3.2.2_with-tools" }))
+                          :template "ubuntu-13.04_puppet-3.2_tools-and-ssh" }))
 
     (fact "missing datacenter"
           (vconstruct (assoc-in redis-vc-spec [:vcenter :datacenter] nil)) => 
