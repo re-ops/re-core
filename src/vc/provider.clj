@@ -46,13 +46,16 @@
   (delete [this] (destroy hostname))
 
   (start [this] 
-      (when-not (= (.status this) :running) 
+      (when-not (= (.status this) "running") 
         (power-on hostname) 
         (wait-for-guest hostname [10 :minute])))
 
   (stop [this] (power-off hostname))
 
-  (status [this] (status hostname)))
+  (status [this] 
+     (try+ (status hostname) 
+       (catch [:type :vc.vijava/missing-entity] e
+         (warn "No VM found, most chances it hasn't been created yet") false))))
 
 (def machine-ks [:template :cpus :memory :ip :mask :network :gateway :search :names :user :password :sudo])
 
