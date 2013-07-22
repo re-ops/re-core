@@ -44,7 +44,7 @@
 
 (def formats (into #{} (keys disk-format-types)))
 
-(defvalidatorset common-allocation
+(defvalidatorset common-allocation  
     :pool [cv/str?]
     :hostsystem [cv/str? v/required]
     :datacenter [cv/str? v/required] 
