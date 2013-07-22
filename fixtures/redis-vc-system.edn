@@ -9,7 +9,7 @@
  :vcenter {
    :pool "dummy"; default is first
    :datacenter "playground" :hostsystem "192.168.5.5"
-   :disk-format :sparse ; or :flat
+   :disk-format "sparse" ; or flat
  }
 
  :type "redis"
