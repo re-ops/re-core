@@ -50,7 +50,9 @@
         (power-on hostname) 
         (wait-for-guest hostname [10 :minute])))
 
-  (stop [this] (power-off hostname))
+  (stop [this] 
+        (when-not (= (.status this) "stopped") 
+          (power-off hostname)))
 
   (status [this] 
      (try+ (status hostname) 
