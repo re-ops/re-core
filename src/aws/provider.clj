@@ -10,10 +10,10 @@
   limitations under the License.)
 
 (ns aws.provider
-  (:require [aws.sdk.ec2 :as ec2])
-  (:import (java.util UUID))
-  (:require [celestial.persistency :as p]
-            [celestial.validations :as cv])
+  (:require 
+    [aws.sdk.ec2 :as ec2]
+    [celestial.persistency :as p]
+    [celestial.validations :as cv])
   (:use 
     [clojure.string :only (join)]
     [aws.validations :only (provider-validation)]
@@ -23,14 +23,12 @@
     [flatland.useful.utils :only (defm)]
     [flatland.useful.map :only (dissoc-in*)]
     [slingshot.slingshot :only  [throw+ try+]]
-    [aws.sdk.ec2 :only 
-     (run-instances describe-instances terminate-instances start-instances
-                     create-tags stop-instances instance-filter instance-id-filter)]
     [trammel.core :only (defconstrainedrecord)]
     [celestial.provider :only (str? vec? wait-for)]
     [celestial.core :only (Vm)]
     [celestial.common :only (get! import-logging )]
-    [celestial.model :only (translate vconstruct)]))
+    [celestial.model :only (translate vconstruct)])
+  )
 
 (import-logging)
 
@@ -41,7 +39,9 @@
   (wait-for {:timeout timeout} #(= req-stat (.status instance))
     {:type ::aws:status-failed :message "Timed out on waiting for status" :status req-stat :timeout timeout}))
 
-(defmacro ec2 [f & args]
+(defmacro with-ctx
+  "Run ec2 action with context (endpoint and creds)"
+  [f & args]
   `(~f (assoc (creds) :endpoint ~'endpoint) ~@args))
 
 (defn image-desc [endpoint ami & ks]
@@ -49,7 +49,7 @@
       first (apply ks)))
 
 (defn instance-desc [endpoint instance-id & ks]
-  (-> (ec2 describe-instances (instance-id-filter instance-id))
+  (-> (with-ctx ec2/describe-instances (ec2/instance-id-filter instance-id))
       first :instances first (get-in ks)))
 
 (defn wait-for-attach [endpoint instance-id timeout]
@@ -81,7 +81,7 @@
   (let [hostname (get-in spec [:machine :hostname]) remote {:host (pub-dns endpoint instance-id) :user user}]
     (execute (<< "echo kernel.hostname = ~{hostname} | sudo tee -a /etc/sysctl.conf") remote )
     (execute "sudo sysctl -e -p" remote) 
-    (ec2 create-tags [(instance-desc endpoint instance-id :id)] {:Name hostname})
+    (with-ctx ec2/create-tags [(instance-desc endpoint instance-id :id)] {:Name hostname})
     ))
 
 (defn instance-id*
@@ -95,16 +95,19 @@
     (do ~@body) 
     (throw+ {:type ::aws:missing-id :message "Instance id not found"}))) 
 
-(defconstrainedrecord Instance [endpoint spec instance-id user]
+(defconstrainedrecord Instance [endpoint spec user]
   "An Ec2 instance"
   [(provider-validation spec) (-> endpoint nil? not)]
   Vm
   (create [this] 
-        (let [{:keys [aws]} spec instance-id (-> (ec2 run-instances aws) :instances first :id)]
+        (let [{:keys [aws]} spec instance-id (-> (with-ctx ec2/run-instances aws) :instances first :id)]
           (p/partial-system (spec :system-id) {:aws {:instance-id instance-id}})
           (debug "created" instance-id)
           (when (= (image-desc endpoint (aws :image-id) :root-device-type) "ebs")
             (wait-for-attach endpoint instance-id [10 :minute])) 
+          (when-let [ip (get-in spec [:machine :ip])] 
+            (debug (<<  "Associating existing ip ~{ip} to instance-id"))
+            (with-ctx ec2/assoc-pub-ip instance-id ip))
           (update-pubdns spec endpoint instance-id)
           (wait-for-ssh endpoint instance-id user [5 :minute])
           (set-hostname spec endpoint instance-id user)
@@ -112,18 +115,18 @@
   (start [this]
          (with-instance-id
            (debug "starting" instance-id)
-           (ec2 start-instances instance-id) 
+           (with-ctx ec2/start-instances instance-id) 
            (wait-for-status this "running" [5 :minute]) 
            (update-pubdns spec endpoint instance-id)))
   (delete [this]
         (with-instance-id
            (debug "deleting" instance-id)
-           (ec2 terminate-instances instance-id ) 
+           (with-ctx ec2/terminate-instances instance-id ) 
            (wait-for-status this "terminated" [5 :minute])))
   (stop [this]
         (with-instance-id 
           (debug "stopping" instance-id)
-          (ec2 stop-instances instance-id) 
+          (with-ctx ec2/stop-instances instance-id) 
           (wait-for-status this "stopped" [5 :minute])))
   (status [this] 
         (try+ 
@@ -140,23 +143,16 @@
   (merge-with merge (dissoc-in* spec [:aws :endpoint]) defaults))
 
 (defmethod translate :aws [{:keys [aws machine] :as spec}] 
-  [(aws :endpoint) (aws-spec spec)  (str (UUID/randomUUID)) (or (machine :user) "root")])
+  [(aws :endpoint) (aws-spec spec) (or (machine :user) "root")])
 
 (defmethod vconstruct :aws [spec]
   (apply ->Instance (translate spec)))
 
 (comment 
   (use 'celestial.fixtures)
-  (def m (.create (vconstruct celestial.fixtures/puppet-ami))) 
+  (def m (vconstruct celestial.fixtures/puppet-ami)) 
+  (:endpoint m )
   (.status m)
   (.start m)
-  (instance-desc "ec2.eu-west-1.amazonaws.com" "3e28fbd5-bce9-4580-9095-05e982fdd7bd" :block-device-mappings 0 :ebs :status)
-  (-> (ec2/describe-images (assoc (creds) :endpoint "ec2.eu-west-1.amazonaws.com") (ec2/image-id-filter "ami-64636a10"))
-      first :root-device-type  
-      )
-
-  (-> (ec2/describe-images (creds) (ec2/image-id-filter "ami-5a60692e"))
-      first :root-device-type  
-      )
   ) 
 
