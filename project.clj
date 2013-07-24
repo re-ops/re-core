@@ -24,7 +24,7 @@
                  [com.taoensso/carmine "2.0.0-beta5"]
                  [org.clojure/core.memoize "0.5.2" :exclusions [org.clojure/core.cache]]
                  [metrics-clojure "0.9.2"]
-                 [narkisr/clj-aws-ec2 "0.2.0" :exclusions  [org.codehaus.jackson/jackson-core-asl]]
+                 [narkisr/clj-aws-ec2 "0.2.1" :exclusions  [org.codehaus.jackson/jackson-core-asl]]
                  [narkisr/trammel "0.8.0-freez"]
                  [org.flatland/useful "0.9.5"]
                  [fogus/minderbinder "0.2.0"]
