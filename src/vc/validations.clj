@@ -13,66 +13,53 @@
   (:use 
     [vc.vijava :only (disk-format-types)]
     [clojure.core.strint :only (<<)]
-    [celestial.validations :only (validate!)]
-    [bouncer [validators :as v :only (defvalidatorset)]])
+    [subs.core :only (validate! combine validation when-not-nil)])
   (:require 
     [celestial.validations :as cv]))
 
-(defvalidatorset machine-entity 
-  :user [v/required cv/str?] 
-  :password [v/required cv/str?] 
-  :os [v/required cv/keyword?])
+; only when ip exists
+(def machine-networking
+  {:machine {
+    :mask #{:required :String} :network #{:required :String} 
+    :gateway #{:required :String} :search #{:required :String}
+    :names #{:required :Vector}}})
 
-(defn has-ip [instance] (-> instance :machine :ip empty? not))
+(def machine-common
+  {:machine 
+   {:cpus #{:required :number} :memory #{:required :number} :ip #{:String}}})
 
-(defvalidatorset machine-networking
-    :mask [cv/str? (v/required :pre has-ip)]
-    :network [cv/str? (v/required :pre has-ip)]
-    :gateway [cv/str? (v/required :pre has-ip)]
-    :search [cv/str? (v/required :pre has-ip)]
-    :names [cv/vec? (v/required :pre has-ip)]
-  )
-
-(defvalidatorset machine-common
-    :cpus [v/number v/required]
-    :memory [v/number v/required]
-    :ip [cv/str?]
-  )
-
-(defvalidatorset machine-provider
-     :template [v/required cv/str?])
+(def machine-provider
+  {:machine {:template #{:required :String}}})
 
 (def formats (into #{} (keys disk-format-types)))
 
-(defvalidatorset common-allocation  
-    :pool [cv/str?]
-    :hostsystem [cv/str? v/required]
-    :datacenter [cv/str? v/required] 
-  )
+(validation :format
+  (when-not-nil formats (<< "disk format must be either ~{formats}")))
 
-(defvalidatorset vcenter-provider 
-   [:allocation :disk-format] [v/required (v/member formats :message (<< "disk format must be either ~{formats}"))]
-   :allocation common-allocation
-   :machine machine-common
-   :machine machine-networking 
-   :machine machine-provider  
-  )
+(def common-allocation  
+  {:allocation {:pool #{:String} :hostsystem #{:required :String} :datacenter #{:required :String}} })
 
-(defn provider-validation [allocation machine]
-  (validate! ::invalid-vm {:allocation allocation :machine machine} vcenter-provider))
+(def vcenter-provider 
+  (combine {:allocation {:disk-format #{:format :required}}} common-allocation machine-common machine-provider ))
+
+(defn provider-validation [allocation {:keys [ip] :as machine}]
+  (validate! {:allocation allocation :machine machine} 
+      (if ip (combine vcenter-provider machine-networking) vcenter-provider) :error ::invalid-vm ))
 
 (def format-names (into #{} (map name (keys disk-format-types))))
 
-(defvalidatorset disk-format
-   :disk-format [v/required (v/member format-names :message (<< "disk format must be either ~{format-names}"))])
+(def machine-entity 
+  {:machine {:user #{:required :String} :password #{:required :String} :os #{:required :Keyword}}})
+
+(validation :format-str
+  (when-not-nil format-names (<< "disk format must be either ~{format-names}")))
+
+(def vcenter-entity
+  (combine {:allocation {:disk-format #{:format-str :required}}} 
+      common-allocation machine-common machine-networking machine-entity))
 
 (defn validate-entity
- "vcenter based system entity validation for persistence layer" 
+  "vcenter based system entity validation for persistence layer" 
   [{:keys [machine vcenter] :as vc}]
-   (validate! ::invalid-system vcenter common-allocation)
-   (validate! ::invalid-system vcenter disk-format)
-   (validate! ::invalid-system machine machine-common)
-   (validate! ::invalid-system machine machine-networking)
-   (validate! ::invalid-system machine machine-entity)
-  )
+  (validate! {:allocation vcenter :machine machine} vcenter-entity :error ::invalid-system))
 

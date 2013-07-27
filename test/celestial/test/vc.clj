@@ -25,7 +25,7 @@
 
     (fact "missing datacenter"
           (vconstruct (assoc-in redis-vc-spec [:vcenter :datacenter] nil)) => 
-            (throws ExceptionInfo (with-m? {:allocation {:datacenter '("datacenter must be present")}})))
+            (throws ExceptionInfo (with-m? {:allocation {:datacenter '("must be present")}})))
 
     (fact "wrong disk format"
           (vconstruct (assoc-in redis-vc-spec [:vcenter :disk-format] :full)) => 
@@ -33,11 +33,11 @@
 
     (fact "missing mask for existing ip"
           (vconstruct (assoc-in redis-vc-spec [:machine :mask] nil)) => 
-            (throws ExceptionInfo (with-m? {:machine {:mask '("mask must be present")}})))
+            (throws ExceptionInfo (with-m? {:machine {:mask '("must be present")}})))
 
     (fact "missing hostsystem"
           (vconstruct (assoc-in redis-vc-spec [:vcenter :hostsystem] nil)) => 
-            (throws ExceptionInfo (with-m? {:allocation {:hostsystem '("hostsystem must be present")}})))
+            (throws ExceptionInfo (with-m? {:allocation {:hostsystem '("must be present")}})))
 
     (fact "missing mask for missing ip"
           (vconstruct (merge-with merge redis-vc-spec {:machine {:mask nil :ip nil}})) => truthy)
@@ -49,12 +49,12 @@
 
     (fact "missing guest password"
         (validate-system (dissoc-in* redis-vc-spec [:machine :password])) => 
-          (throws ExceptionInfo (with-m? {:password '("password must be present")}))
+          (throws ExceptionInfo (with-m? {:machine {:password '("must be present")}}))
         (provided (type-exists? "redis")  => true))
 
     (fact "names aren't a vec"
         (validate-system (assoc-in redis-vc-spec [:machine :names] "bla")) => 
-          (throws ExceptionInfo (with-m? {:names '("names must be a vector")}))
+          (throws ExceptionInfo (with-m? {:machine {:names '("must be a vector")}}))
         (provided (type-exists? "redis")  => true))
     ))
 
