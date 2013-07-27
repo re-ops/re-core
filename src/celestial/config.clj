@@ -13,6 +13,7 @@
   "Celetial configuration info"
   (:require [celestial.validations :as cv])
   (:use 
+    [subs.core :only (validate! combine validation when-not-nil)]
     [celestial.validations :only (validate-nest)]
     [clojure.pprint :only (pprint)]
     [bouncer [core :as b] [validators :as v]]
@@ -25,47 +26,43 @@
 
 (def levels #{:trace :debug :info :error})
 
-(defn base-v [c]
-  (b/validate c 
-    [:redis :host] [v/required cv/str?]
-    [:ssh :private-key-path] [v/required cv/str?]))
+(def base-v 
+  {:redis {:host #{:required :String}} :ssh {:private-key-path #{:required :String}}})
 
-(defn celestial-v
-  "Base config validation"
-  [c]
-  (validate-nest c [:celestial]
-    [:port] [v/required v/number]
-    [:https-port] [v/required v/number]
-    [:log :level] [v/required (v/member levels :message (<< "log level must be either ~{levels}"))]
-    [:log :path] [v/required cv/str?]
-    [:cert :password] [v/required cv/str?]
-    [:cert :keystore] [v/required cv/str?]
-    [:job :expiry] [v/number]
-    [:job :wait-time] [v/number]
-    [:nrepl :port] [v/number]))
+(validation :levels
+  (when-not-nil levels (<< "level must be either ~{levels}")))
 
-(defn proxmox-v 
-  "proxmox section validation"
-  [c]
-  (validate-nest c [:hypervisor :proxmox]
-    [:username] [v/required cv/str?]
-    [:password] [v/required cv/str?]
-    [:host] [v/required cv/str?]
-    [:ssh-port] [v/required v/number]))
+(def ^{:doc "Base config validation"} celestial-v
+  {:celestial
+    {:port #{:required :number} :https-port #{:required :number}
+     :log {:level #{:required :levels} :path #{:required :String}} 
+     :cert {:password #{:required :String} :keystore #{:required :String}} 
+     :job {:expiry #{:number} :wait-time #{:number}} 
+     :nrepl {:port #{:number}}}})
 
-(defn aws-v 
-  "proxmox section validation"
-  [c]
-  (validate-nest c [:hypervisor :aws]
-    [:access-key] [v/required cv/str?]
-    [:secret-key] [v/required cv/str?]))
+(def ^{:doc "proxmox section validation"} proxmox-v 
+  {:hypervisor 
+   {:proxmox
+    {:username #{:required :String} :password #{:required :String} 
+     :host #{:required :String} :ssh-port #{:required :number}} 
+    }})
+
+(def ^{:doc "aws section validation"} aws-v 
+  {:hypervisor {:aws {:access-key #{:required :String} :secret-key #{:required :String}}}})
+
+(def ^{:doc "vcenter section validation"} vcenter-v 
+  {:hypervisor {
+    :vcenter {
+      :url #{:required :String} :username #{:required :String}
+      :password #{:required :String} :session-count #{:required :number}
+      :ostemplates #{:required :Map}
+     }}})
 
 (defn validate-conf 
   "applies all validations on a configration map"
-  [c]
-  (cond-> (-> c celestial-v second base-v second)
-    (get-in c [:hypervisor :proxmox]) (-> proxmox-v second) 
-    (get-in c [:hypervisor :aws])  (-> aws-v second)))
+  [{:keys [hypervisor] :as c}]
+  (let [{:keys [proxmox aws vcenter]} hypervisor]
+    (validate! c (combine base-v celestial-v (if proxmox proxmox-v {}) (if aws aws-v {}) (if vcenter vcenter-v {})))))
 
 (def config-paths
   ["/etc/celestial.edn" (<< "~(System/getProperty \"user.home\")/.celestial.edn")])
@@ -85,9 +82,9 @@
     (error "Following configuration errors found:\n" st))) 
 
 (defn read-and-validate []
-  (let [c (conf/read-config path) ]
-    (when-let [v (:bouncer.core/errors (validate-conf c))] 
-      (pretty-error v c)
+  (let [c (conf/read-config path) es (validate-conf c)]
+    (when-not (empty? es) 
+      (pretty-error es c)
       (System/exit 1))
     c))
 

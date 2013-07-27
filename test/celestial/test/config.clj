@@ -6,22 +6,26 @@
     [celestial.config :only (validate-conf proxmox-v)]))
 
 (defn validate-missing [& ks]
-  (-> (validate-conf (dissoc-in* local-prox ks)) :bouncer.core/errors vals))
+  (validate-conf (dissoc-in* local-prox ks)))
 
 (fact "legal configuration"
       (:bouncer.core/errors (validate-conf local-prox))  => nil)
 
 (fact "missing celestial options detected"
-      (validate-missing :celestial :https-port) => (contains {:https-port '("https-port must be present")})  
-      (validate-missing :celestial :port) => (contains {:port '("port must be present")}))
+      (validate-missing :celestial :https-port) =>  {:celestial {:https-port '("must be present")}}  
+      (validate-missing :celestial :port) => {:celestial {:port '("must be present")}})
 
 (fact "missing proxmox options"
-      (validate-missing :hypervisor :proxmox :password) =>
-      (contains {:proxmox {:password '("password must be present")}} ))
+    (validate-missing :hypervisor :proxmox :password) =>  
+      {:hypervisor {:proxmox {:password '("must be present")}}} )
 
 
 (fact "missing aws options"
-      (get-in 
-        (validate-conf 
-          (assoc-in local-prox [:hypervisor :aws] {})) [:bouncer.core/errors :hypervisor :aws]) =>
-      (contains {:access-key '("access-key must be present")}))
+    (validate-conf (assoc-in local-prox [:hypervisor :aws] {})) => 
+      {:hypervisor {:aws {:access-key '("must be present") :secret-key '("must be present")}}})
+
+(fact "vcenter validations" 
+   (validate-missing :hypervisor :vcenter :password) => {:hypervisor {:vcenter {:password '("must be present")}}}
+   (validate-missing :hypervisor :vcenter :url) => {:hypervisor {:vcenter {:url '("must be present")}}}
+   (validate-conf (assoc-in local-prox [:hypervisor :vcenter :ostemplates] [])) => {:hypervisor {:vcenter {:ostemplates '("must be a map")}}}
+  )
