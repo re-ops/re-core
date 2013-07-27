@@ -15,8 +15,6 @@
   (:use 
     [subs.core :only (validate! combine validation when-not-nil)]
     [clojure.pprint :only (pprint)]
-    [bouncer [core :as b] [validators :as v]]
-    [bouncer.validators :only (defvalidator)]
     [taoensso.timbre :only (set-config! set-level! debug info error warn trace)]
     [clojure.core.strint :only (<<)]
     [clojure.java.io :only (file)]
