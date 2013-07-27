@@ -14,7 +14,6 @@
   (:require [celestial.validations :as cv])
   (:use 
     [subs.core :only (validate! combine validation when-not-nil)]
-    [celestial.validations :only (validate-nest)]
     [clojure.pprint :only (pprint)]
     [bouncer [core :as b] [validators :as v]]
     [bouncer.validators :only (defvalidator)]
