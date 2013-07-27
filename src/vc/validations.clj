@@ -13,9 +13,7 @@
   (:use 
     [vc.vijava :only (disk-format-types)]
     [clojure.core.strint :only (<<)]
-    [subs.core :only (validate! combine validation when-not-nil)])
-  (:require 
-    [celestial.validations :as cv]))
+    [subs.core :only (validate! combine validation when-not-nil)]))
 
 ; only when ip exists
 (def machine-networking
