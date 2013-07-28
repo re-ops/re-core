@@ -7,7 +7,7 @@
     [clojure.core.strint :only (<<)]
     [slingshot.slingshot :only  [throw+ try+]]
     [swag.model :only (defmodel wrap-swag defv defc)]
-    [celestial.common :only (import-logging resp bad-req conflict success)]
+    [celestial.common :only (import-logging resp bad-req conflict success wrap-errors)]
     [swag.core :only (swagger-routes GET- POST- PUT- DELETE- defroutes- errors)]))
 
 (defn convert-roles [user]
@@ -25,12 +25,13 @@
         (success (p/get-user name)))
 
   (POST- "/user/" [& ^:user user] {:nickname "addUser" :summary "Adds a new user"}
-         (p/add-user (-> user convert-roles hash-pass))
-         (success {:msg "added user"}))
+         (wrap-errors 
+           (p/add-user (-> user convert-roles hash-pass))
+           (success {:msg "added user"})))
 
   (PUT- "/user/" [& ^:user user] {:nickname "updateUser" :summary "Updates an existing user"}
-        (p/update-user (-> user convert-roles hash-pass))
-        (success {:msg "user updated"}))
+        (wrap-errors (p/update-user (-> user convert-roles hash-pass))
+                     (success {:msg "user updated"})))
 
   (DELETE- "/user/:name" [^:string name] {:nickname "deleteUser" :summary "Deleted a user"}
            (p/delete-user name) 
@@ -41,18 +42,20 @@
 (defmodel quotas :proxmox {:type :Limit})
 
 (defmodel limit :limit :int)
- 
+
 (defroutes- quotas {:path "/quota" :description "User quota managment"}
   (GET- "/quota/:name" [^:string name] {:nickname "getQuota" :summary "Get users quota"}
         (success (p/get-quota! name)))
 
   (POST- "/quota/" [& ^:quota quota] {:nickname "addQuota" :summary "Adds a user quota"}
-         (p/add-quota quota)
-         (success {:msg "added quota"}))
+         (wrap-errors 
+           (p/add-quota quota)
+           (success {:msg "added quota"})))
 
   (PUT- "/quota/" [& ^:quota quota] {:nickname "updateQuota" :summary "Updates an existing quota"}
-        (p/update-quota quota)
-        (success {:msg "quota updated"}))
+        (wrap-errors 
+          (p/update-quota quota)
+          (success {:msg "quota updated"})))
 
   (DELETE- "/quota/:name" [^:string name] {:nickname "deleteQuota" :summary "Deleted users quota"}
            (p/delete-quota! name) 

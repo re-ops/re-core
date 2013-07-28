@@ -17,7 +17,7 @@
      [clojure.core.strint :only (<<)]
      [slingshot.slingshot :only  [throw+ try+]]
      [swag.model :only (defmodel wrap-swag defv defc)]
-     [celestial.common :only (import-logging resp bad-req conflict success)]
+     [celestial.common :only (import-logging resp bad-req conflict success wrap-errors)]
      [swag.core :only (swagger-routes GET- POST- PUT- DELETE- defroutes- errors)])
  )
 
@@ -58,18 +58,14 @@
   (GET- "/host/system/:id" [^:int id] {:nickname "getSystem" :summary "Get system by id"}
         (success (p/get-system id)))
 
-  (GET- "/host/system-by/:type" [^:string type] {:nickname "getSystemsByType" 
-                                                 :summary "Get systems by type"}
-
+  (GET- "/host/system-by/:type" [^:string type] {:nickname "getSystemsByType" :summary "Get systems by type"}
         (success {:ids (p/get-system-index :type type)}))
 
   (POST- "/host/system" [& ^:system spec] {:nickname "addSystem" :summary "Add system" 
                                            :errorResponses (errors {:bad-req "Missing system type"})}
-         (try+ 
+         (wrap-errors
            (p/with-quota (p/add-system spec) spec
-             (success {:msg "new system saved" :id id})) 
-           (catch [:type :celestial.persistency/missing-type] e 
-             (bad-req {:msg (<< "Cannot create machine with missing type ~(e :t)}")}))))
+             (success {:msg "new system saved" :id id}))))
 
   (POST- "/host/system-clone/:id/:hostname" [^:int id ^:string hostname] 
          {:nickname "cloneSystem" :summary "Clone an existing system " 
@@ -77,7 +73,8 @@
                  the only user provided value is the dest hostname"
            :errorResponses (errors {:bad-req "System missing"})}
          (if (p/system-exists? id)
-           (p/with-quota (p/clone-system id hostname) (p/get-system id)
+           (p/with-quota 
+             (p/clone-system id hostname) (p/get-system id)
              (success {:msg "system cloned" :id id}))
            (conflict {:msg "System does not exists, use POST /host/system to create it first"})))
 
@@ -85,8 +82,9 @@
                                                          :errorResponses (errors {:conflict "System does not exist"}) }
         (if-not (p/system-exists? id)
           (conflict {:msg "System does not exists, use POST /host/system first"}) 
-          (do (p/update-system id system) 
-              (success {:msg "system updated" :id id}))))
+          (wrap-errors
+            (p/update-system id system) 
+            (success {:msg "system updated" :id id}))))
 
   (DELETE- "/host/system/:id" [^:int id] {:nickname "deleteSystem" :summary "Delete System" 
                                           :errorResponses (errors {:bad-req "System does not exist"})}
@@ -99,8 +97,7 @@
                (bad-req {:msg "System does not exist"}))))
 
   (GET- "/host/type/:id" [^:int id] {:nickname "getSystemType" :summary "Fetch type of provided system id"}
-        (success (p/get-type (:type (p/get-system id))) ))
-
+        (success (p/get-type (:type (p/get-system id))))) 
   )
 
 
@@ -110,14 +107,16 @@
         (success (p/get-type type)))
 
   (POST- "/type" [& ^:type props] {:nickname "addType" :summary "Add type"}
-         (p/add-type props)
-         (success {:msg "new type saved"}))
+         (wrap-errors 
+           (p/add-type props)
+           (success {:msg "new type saved"})))
 
   (PUT- "/type" [& ^:type props] {:nickname "updateType" :summary "Update type"}
-        (if-not (p/type-exists? (props :type))
-          (conflict {:msg "Type does not exists, use POST /type first"}) 
-          (do (p/update-type props) 
-              (success {:msg "type updated"}))))
+        (wrap-errors
+          (if-not (p/type-exists? (props :type))
+            (conflict {:msg "Type does not exists, use POST /type first"}) 
+            (do (p/update-type props) 
+                (success {:msg "type updated"})))))
 
   (DELETE- "/type/:type" [^:string type] {:nickname "deleteType" :summary "Delete type" 
                                           :errorResponses (errors {:bad-req "Type does not exist"})}

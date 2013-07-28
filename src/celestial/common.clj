@@ -61,4 +61,11 @@
   (clojure.string/replace text #"~\{\w+\}" 
     (fn [groups] ((keyword (subs groups 2 (dec (.length groups)))) m))))
 
+(defmacro wrap-errors 
+   "Wraps validation error responses in the API layer" 
+   [& body]
+  `(try+ ~@body
+    (catch (contains? ~'% :errors) e# (bad-req e#)))
+  )
+
 (def version "0.1.7")

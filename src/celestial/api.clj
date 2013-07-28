@@ -24,7 +24,7 @@
         [metrics.ring.instrument :only  (instrument)]
         [swag.core :only (swagger-routes GET- POST- PUT- DELETE- defroutes- errors)]
         [swag.model :only (defmodel wrap-swag defv defc)]
-        [celestial.common :only (import-logging get! resp bad-req conflict success version)])
+        [celestial.common :only (import-logging get! resp bad-req conflict success version wrap-errors)])
   (:require 
     [ring.middleware [multipart-params :as mp] ]
     [celestial.security :as sec]
@@ -112,12 +112,12 @@
 
 (defroutes- actions {:path "/actions" :description "Adhoc actions managment"}
   (POST- "/action" [& ^:action action] {:nickname "addActions" :summary "Adds an actions set"}
-         (let [id (p/add-action action)]
-           (success {:msg "added actions" :id id})))
+    (wrap-errors (success {:msg "added actions" :id (p/add-action action)})))
 
   (PUT- "/action/:id" [^:int id & ^:action action] {:nickname "updateActions" :summary "Update an actions set"}
-        (p/update-action id action)
-        (success {:msg "updated actions" :id id}))
+        (wrap-errors
+          (p/update-action id action)
+           (success {:msg "updated actions" :id id})))
 
   (GET- "/action/by-target/:type" [^:string type] {:nickname "getActionsByTargetType" :summary "Gets actions that operate on a target type"}
         (success {:ids (p/get-action-index :operates-on type)}))
