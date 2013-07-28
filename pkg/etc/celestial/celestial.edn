@@ -5,34 +5,49 @@
    :log {
      :level :trace
      :path "/var/log/celestial.log"
-     :gelf-host ""
+     :gelf-host "1.2.3.4"
    }
+
+   ;; :job {
+   ;;    :expiry 30
+   ;;    :wait-time 5
+   ;; }
 
    :cert {
-     :password "changeme" 
-     :keystore "celestial.keystore"
+     :password "foobar" 
+     :keystore "foo.keystore"
    }
 
-   ; :nrepl {
-    ;:port 7888
-   ;}
-    
-
+   ;; :nrepl {
+   ;;    :port 7888
+   ;;  }
  }
 
  :hypervisor {
+   ;;  :proxmox {
+   ;;    :username "root" :password "foobar" :host "localhost" :ssh-port 2222
+   ;;    :ostemplates {
+   ;;       :ubuntu-12.04 "local:vztmpl/ubuntu-12.04-puppet_3-x86_64.tar.gz"
+   ;;     }
+   ;;    :generators {
+   ;;      :ip-range []
+   ;;      :used-ips []
+   ;;    }
+   ;; }
+   ;; :aws {
+   ;;   :access-key ""
+   ;;   :secret-key ""
+   ;;  } 
 
-    :proxmox {
-      :username "root" :password "" :host "" :ssh-port 2222
-      :ostemplates {
-         ; :ubuntu-12.04 "local:vztmpl/ubuntu-12.04-puppet_3-x86_64.tar.gz"
-       }
-    }
-; 
-;     :aws {
-;       :access-key ""
-;       :secret-key ""
-;      } 
+   ;; :vcenter {
+   ;;   :url "https://1.2.3.4/sdk"
+   ;;   :username ""
+   ;;   :password ""
+   ;;   :ostemplates {
+   ;;      :ubuntu-13.04 "ubuntu-13.04_puppet-3.2"
+   ;;   }
+   ;;   :session-count 2
+   ;; }
  }
   
  :redis {
@@ -44,10 +59,11 @@
  }
 
  :hooks {
-  :post-create {
-    ;celestial.dnsmasq/add-host {
-     ;   :dnsmasq {:host "192.168.5.20" :user "ronen"}
-    ;}             
-  }
+   ;; hooks.hubot/notify-hubot {
+   ;;      :hubot-host "http://1.2.3.4:8083" 
+   ;; }
+   ;; hooks.dnsmasq/update-dns {
+   ;;      :dnsmasq "1.2.3.4" :user "" :domain ""
+   ;; }
  }
 }
