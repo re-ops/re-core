@@ -10,7 +10,11 @@ appender('console', ConsoleAppender) {
 }
 
 appender('file', FileAppender) {
-  file = 'third-party.log'
+  if(new File('/var/log/celestial-third-party.log').canWrite()){
+    file = '/var/log/celestial-third-party.log'
+  } else {
+    file = 'celestial-third-party.log'
+  }
   append = true
   encoder(PatternLayoutEncoder) {
 	pattern = "%level %logger [%thread] - %msg%n"
