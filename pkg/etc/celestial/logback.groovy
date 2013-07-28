@@ -10,7 +10,7 @@ appender('console', ConsoleAppender) {
 }
 
 appender('file', FileAppender) {
-  if(new File('/var/log/celestial-third-party.log').canWrite()){
+  if(new File('/var/log/').canWrite()){
     file = '/var/log/celestial-third-party.log'
   } else {
     file = 'celestial-third-party.log'
