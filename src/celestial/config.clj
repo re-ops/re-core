@@ -62,7 +62,7 @@
     (validate! c (combine base-v celestial-v (if proxmox proxmox-v {}) (if aws aws-v {}) (if vcenter vcenter-v {})))))
 
 (def config-paths
-  ["/etc/celestial.edn" (<< "~(System/getProperty \"user.home\")/.celestial.edn")])
+  ["/etc/celestial/celestial.edn" (<< "~(System/getProperty \"user.home\")/.celestial.edn")])
 
 (def path 
   (first (filter #(.exists (file %)) config-paths)))
