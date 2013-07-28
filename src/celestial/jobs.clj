@@ -72,6 +72,6 @@
 (defn shutdown-workers []
   (doseq [[k ws] @workers]
     (doseq [w ws]
-      (debug "shutting down" k w) 
+      (trace "shutting down" k w) 
       (mq/stop w))))
 
