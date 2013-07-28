@@ -3,7 +3,7 @@
    :port 8082
    :https-port 8443
    :log {
-     :level :trace
+     :level :info
      :path "/var/log/celestial.log"
      :gelf-host "1.2.3.4"
    }
