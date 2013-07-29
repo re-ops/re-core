@@ -11,7 +11,9 @@
 
 (ns celestial.api
   (:refer-clojure :exclude [hash])
-  (:use [celestial.hosts-api :only (hosts types)]
+  (:use 
+        [guestbook.routes.home :only (home-routes) ] 
+        [celestial.hosts-api :only (hosts types)]
         [celestial.users-api :only (users quotas)]
         [gelfino.timbre :only (get-tid)]
         [compojure.core :only (defroutes routes)] 
@@ -149,7 +151,7 @@
 (defn compose-routes
   "Composes celetial apps" 
   [secured?]
-  (let [rs (routes (swagger-routes version) (if secured? (sec/secured-app app-routes) app-routes))]
+  (let [rs (routes home-routes (swagger-routes version) (if secured? (sec/secured-app app-routes) app-routes) )]
     (if secured? 
       (force-https rs) rs)))
 

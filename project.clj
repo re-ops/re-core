@@ -40,6 +40,10 @@
                  [org.clojure/tools.macro "0.1.2"]
                  [org.clojure/java.data "0.1.1"]
                  [org.nmap4j/org.nmap4j "1.0.4"]
+                 ; luminusweb
+                 [lib-noir "0.6.6"]
+                 [clabango "0.5"]
+                 [markdown-clj "0.9.28"]
                  ]
 
   :exclusions [org.clojure/clojure]
@@ -63,6 +67,7 @@
 
               :prod {
                 :resource-paths  ["src/main/resources/" "pkg/etc/celestial/"] 
+                :source-paths  ["web" "src"]
               } 
              }
 
