@@ -1,4 +1,4 @@
-(ns guestbook.models.schema
+(ns celestial.models.schema
   (:require [clojure.java.jdbc :as sql]
             [noir.io :as io]))
 

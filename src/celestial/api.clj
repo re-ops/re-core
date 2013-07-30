@@ -12,7 +12,7 @@
 (ns celestial.api
   (:refer-clojure :exclude [hash])
   (:use 
-        [guestbook.routes.home :only (home-routes) ] 
+        [celestial.routes.home :only (home-routes) ] 
         [celestial.hosts-api :only (hosts types)]
         [celestial.users-api :only (users quotas)]
         [gelfino.timbre :only (get-tid)]

@@ -1,6 +1,6 @@
-(ns guestbook.handler  
+(ns celestial.handler  
   (:require [compojure.core :refer [defroutes]]            
-            [guestbook.routes.home :refer [home-routes]]
+            [celestial.routes.home :refer [home-routes]]
             [noir.util.middleware :as middleware]
             [compojure.route :as route]
             [taoensso.timbre :as timbre]
@@ -17,7 +17,7 @@
   "destroy will be called when your application
    shuts down, put any clean up code here"
   []
-  (timbre/info "guestbook is shutting down..."))
+  (timbre/info "celestial is shutting down..."))
 
 (def app (middleware/app-handler
            ;;add your application routes here

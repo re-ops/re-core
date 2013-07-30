@@ -1,4 +1,4 @@
-(ns guestbook.util
+(ns celestial.util
   (:require [noir.io :as io]
             [markdown.core :as md]))
 

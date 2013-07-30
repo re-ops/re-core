@@ -1,8 +1,8 @@
-(ns guestbook.views.layout
+(ns celestial.views.layout
   (:use noir.request)
   (:require [clabango.parser :as parser]))
 
-(def template-path "guestbook/views/templates/")
+(def template-path "celestial/views/templates/")
 
 (defn render [template & [params]]
   (parser/render-file (str template-path template)

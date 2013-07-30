@@ -1,7 +1,7 @@
-(ns guestbook.models.db
+(ns celestial.models.db
   (:use korma.core
         [korma.db :only (defdb)])
-  (:require [guestbook.models.schema :as schema]))
+  (:require [celestial.models.schema :as schema]))
 
 (defdb db schema/db-spec)
 

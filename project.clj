@@ -67,7 +67,6 @@
 
               :prod {
                 :resource-paths  ["src/main/resources/" "pkg/etc/celestial/"] 
-                :source-paths  ["web" "src"]
               } 
              }
 
@@ -98,6 +97,7 @@
   } 
 
   :resource-paths  ["src/main/resources/"]
+  :source-paths  ["web" "src"]
   :target-path "target/"
 
   :main celestial.launch

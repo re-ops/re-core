@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>{{title}}</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/css/bootstrap.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="/css/navbar-static-top.css" rel="stylesheet">
+  </head>
+
+  <body>
+
+    <!-- Static navbar -->
+    <div class="navbar navbar-static-top">
+      <div class="container">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#"></a>
+        <div class="nav-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="/">Home</a></li>
+            <li><a href="/view/systems?from=0">Systems</a></li>
+            <li><a href="#about">Actions</a></li>
+            <li><a href="#contact">Types</a></li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">???<b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="#">Systems</a></li>
+                <li><a href="#">Actions</a></li>
+                <li><a href="#">Types</a></li>
+              </ul>
+            </li>
+          </ul>
+          </div><!--/.nav-collapse -->
+      </div>
+    </div>
+
+
+    <div class="container">
+         {% block content %}
+ 
+         {% endblock %}
+    </div> <!-- /container -->
+
+  </body>
+</html>
