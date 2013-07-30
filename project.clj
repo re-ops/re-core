@@ -18,7 +18,7 @@
                  [slingshot "0.10.3" ]
                  [clj-http "0.6.5"]
                  [swag "0.2.2"]
-                 [puny "0.1.1"]
+                 [puny "0.1.2"]
                  [clj-yaml "0.4.0"]
                  [org.clojure/data.json "0.2.2" ]
                  [com.taoensso/carmine "2.0.0"]

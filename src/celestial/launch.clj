@@ -127,5 +127,4 @@
 (comment
   (setup)
   (start)
-  (stop)
-  )
+  (stop))
