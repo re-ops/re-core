@@ -26,7 +26,7 @@
     [bouncer [core :as b] [validators :as v :only (defvalidatorset defvalidator)]]
     [celestial.validations :only (validate!)]
     [clojure.string :only (split join)]
-    [celestial.redis :only (wcar hsetall*)]
+    [celestial.redis :only (wcar)]
     [slingshot.slingshot :only  [throw+ try+]]
     [celestial.model :only (clone hypervizors figure-virt)] 
     [clojure.core.strint :only (<<)]))
