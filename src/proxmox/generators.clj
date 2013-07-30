@@ -14,6 +14,7 @@
     org.nmap4j.Nmap4j 
     org.nmap4j.parser.OnePassParser) 
   (:require 
+    [flatland.useful.utils :refer (defm)]
     [taoensso.carmine :as car]))
 
 (import-logging)
@@ -96,9 +97,6 @@
       (recur (+ i 1) (add-segment sb ip* i) (bit-shift-right ip* 8))
       (.toString sb)))) 
 
-
-(def range-keys [])
-
 (defn ip-range 
   "Configured ip range" 
   []
@@ -107,8 +105,8 @@
       [s e])
     (catch [:type :celestial.common/missing-conf] e nil)))
 
-(defn mark-used
-  "marks existing ips as used" 
+(defm mark-used
+  "Marks used ips, memoized so it will be called once on each boot/usage"
   []
   (doseq [ip (map ip-to-long (get! :hypervisor :proxmox :generators :used-ips))]
     (wcar (car/zadd "ips" 1 ip))))
@@ -120,26 +118,25 @@
     (wcar 
       (when-not (= 1 (car/exists "ips"))
         (doseq [ip (range s (+ 1 e))]
-          (car/zadd "ips" 0 ip))))
-    (mark-used)
-    ))
+          (car/zadd "ips" 0 ip))))))
 
 
-(defn fetch-ip
+(defn- fetch-ip
   "Redis ip range fetcher"
   []
   (some-> 
     (wcar 
       (car/lua-script
         "local next = redis.call('zrangebyscore', _:ips,0,0, 'LIMIT', 0,1) -- next available ip
-        redis.call('zadd',_:ips,_:used, next[1]) -- mark as used
-        return next[1]" 
+         redis.call('zadd',_:ips,_:used, next[1]) -- mark as used
+         return next[1]" 
         {:ips "ips"} {:used "1"})) Long/parseLong long-to-ip))
 
 (defn gen-ip
   "Associates an available ip address from range, fails if range is exhausted."
   [ct] 
   (when (= 0 (wcar (car/exists "ips"))) (initialize-range))
+  (mark-used) ; in case list was updated
   (if-let [ip (fetch-ip)]
     (assoc ct :ip_address ip)
     (throw+ {:type ::ip-gen-error} "Failed to obtain ip for container")))
@@ -155,7 +152,6 @@
         return nil "
         {:ips "ips"} {:rel-ip (ip-to-long ip)}))))
 
-
 ; debugging fn's
 (defn list-used-ips
   "List used ips in human readable form (mainly for debugging)."
@@ -166,18 +162,6 @@
   "compares stored ips to scan result"
   []
    (let [scanned (map (fn [[{:keys [addr]}]] addr) (hosts-scan "192.168.20.170-254"))]
-     (zipmap [:scanned :listed :common] (diff (into #{} scanned) (into #{} (list-used-ips))))
-    )
-  )
-
-(comment
-  (clojure.pprint/pprint (correlate))
-  (release-ip "192.168.20.185") 
-  (gen-ip {}) 
-  (wcar (car/del "ips"))
-  (mark-used) 
-  (count (wcar (car/zrangebyscore "ips" 1 1 "WITHSCORES")))
-  (wcar (car/del "ips"))
-  ) 
+     (zipmap [:scanned :listed :common] (diff (into #{} scanned) (into #{} (list-used-ips))))))
 
 (test #'long-to-ip)
