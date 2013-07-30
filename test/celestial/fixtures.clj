@@ -38,9 +38,9 @@
 
 (defmacro with-conf 
   "Using fixture/.celestial.edn conf file"
-  [body]
+  [& body]
  `(with-redefs [celestial.config/config celestial.fixtures/local-prox]
-   ~body
+   ~@body
     ))
 
 (def host (.getHostName (java.net.InetAddress/getLocalHost)))
