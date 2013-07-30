@@ -18,6 +18,7 @@
                  [slingshot "0.10.3" ]
                  [clj-http "0.6.5"]
                  [swag "0.2.2"]
+                 [puny "0.1.0"]
                  [clj-yaml "0.4.0"]
                  [org.clojure/data.json "0.2.2" ]
                  [com.taoensso/carmine "2.0.0"]
@@ -80,8 +81,6 @@
             ["midje" ":autotest" ":filter" "-integration"] 
             "runtest"
             ["midje" ":filter" "-integration"] 
-            "supernal"
-            ["run" "-m" "supernal.launch" "fixtures/supernal-demo.clj" args] 
             }
 
   :aot [supernal.launch capistrano.remoter proxmox.provider vc.provider
