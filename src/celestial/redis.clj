@@ -35,7 +35,6 @@
          #_(throw+ {:type ::redis:connection :redis-host (get! :redis :host)} "Redis connection error")
          )))
 
-
 (defn get- [k] (wcar (car/get k)))
 
 ; TODO this should be enabled in upstream
@@ -49,13 +48,6 @@
 (defn create-worker [name f]
   (carmine-mq/worker (server-conn) name {:handler f :eoq-backoff-ms 200}))
 
-(defn missing-keys [rk m]
-  (difference (into #{} (map keyword (car/hkeys rk))) (into #{} (keys m))))
-
-(defn hsetall* [rk m & [missing]]
-  "The reverse action of hgetall*, missing keys will be removed (if provided)."
-    (when missing (wcar (doseq [d missing] (car/hdel rk d))))
-    (apply car/hmset rk (flatten (into [] (map-vals m car/freeze)))) )
-
 (defn clear-all []
   (wcar (car/flushdb)))
+
