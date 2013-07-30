@@ -21,8 +21,6 @@
     [taoensso.carmine.locks :only (with-lock)]
     [taoensso.timbre :only (debug trace info error warn)])
   (:require  
-    [taoensso.nippy :as nippy]
-    [clojure.data.json :as json]
     [taoensso.carmine.message-queue :as carmine-mq]
     [taoensso.carmine :as car])
   (:import java.util.Date))
