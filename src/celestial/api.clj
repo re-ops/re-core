@@ -12,7 +12,7 @@
 (ns celestial.api
   (:refer-clojure :exclude [hash])
   (:use 
-        [celestial.routes.home :only (home-routes) ] 
+        [celestial.routes.ui :only (ui-routes)] 
         [celestial.hosts-api :only (hosts types)]
         [celestial.users-api :only (users quotas)]
         [gelfino.timbre :only (get-tid)]
@@ -132,7 +132,8 @@
            (success {:msg "Deleted action" :id id})))
 
 (defroutes app-routes
-  hosts types actions jobs (friend/wrap-authorize users admin) (friend/wrap-authorize quotas admin) (route/not-found "Not Found"))
+  ui-routes hosts types actions jobs (friend/wrap-authorize users admin)
+  (friend/wrap-authorize quotas admin) (route/not-found "Not Found"))
 
 (defn error-wrap
   "A catch all error handler"
@@ -151,7 +152,7 @@
 (defn compose-routes
   "Composes celetial apps" 
   [secured?]
-  (let [rs (routes home-routes (swagger-routes version) (if secured? (sec/secured-app app-routes) app-routes) )]
+  (let [rs (routes (swagger-routes version) (if secured? (sec/secured-app app-routes) app-routes) )]
     (if secured? 
       (force-https rs) rs)))
 

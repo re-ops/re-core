@@ -2,7 +2,8 @@
 
 {% block content %}
 
-<div class="bs-example">
+<div>
+  <h2>Systems:</h2>
   <table class="table">
     <thead>
 	<tr>
@@ -20,11 +21,25 @@
 	   <td>{{system.type}}</td>
 	  <td>{{system.hypervisor}}</td>
 	  <td>{{system.description}}</td>
-
 	</tr>
 	{% endfor %}
     </tbody>
   </table>
+  <ul class="pagination">
+  {% for page in pages %}
+    {% if forloop.last %} 
+      <li><a href="/view/systems?from={{page.from}}&to={{page.to}}">&raquo;</a></li> 
+    {% endif %}
+    {% if forloop.first %}
+      <li><a href="/view/systems?from={{page.from}}&to={{page.to}}">&laquo;</a></li>
+    {% endif %}
+    {% if not forloop.first %}
+      {% if not forloop.last%}
+       <li><a href="/view/systems?from={{page.from}}&to={{page.to}}">{{page.pos}}</a></li>
+     {% endif %}
+    {% endif %}
+  {% endfor %}
+</ul>
 </div>
 
 {% endblock %}
