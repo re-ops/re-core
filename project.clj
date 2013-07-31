@@ -77,6 +77,8 @@
 
   :aliases {"celestial" 
             [ "with-profile" "prod" "do" "compile," "trampoline" "run"]
+            "remote-repl"
+            ["repl" ":connect" "celestial:7888"]
             "autotest"
             ["midje" ":autotest" ":filter" "-integration"] 
             "runtest"
