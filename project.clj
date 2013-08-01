@@ -43,7 +43,7 @@
                  [org.nmap4j/org.nmap4j "1.0.4"]
                  ; luminusweb
                  [lib-noir "0.6.6"]
-                 [clabango "0.5"]
+                 [selmer "0.2.4"]
                  [markdown-clj "0.9.28"]
                  ]
 

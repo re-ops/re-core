@@ -1,6 +1,6 @@
 (ns celestial.views.layout
   (:use noir.request)
-  (:require [clabango.parser :as parser]))
+  (:require [selmer.parser :as parser]))
 
 (def template-path "celestial/views/templates/")
 
