@@ -9,7 +9,6 @@
     [celestial.util :as util]
     [compojure.route :as route]))
 
-
 (def port-view 10)
 
 (defn total-pages [c]
@@ -21,7 +20,7 @@
   {:pre [(> from -1)]}
   (let [to (min (+ from (* per-page port-view)) total)
         ps (partition 2 1 (range from to  per-page))
-        pages (map (fn [[f t]] (hash-map :from f :to t :pos (quot f per-page))) ps)]
+        pages (map (fn [[f t]] {:from f :to t :pos (quot f per-page)}) ps)]
      {:prev (if (> from 0) {:from (- from per-page) :to from :pos (quot (- from per-page) per-page)} nil)
       :items pages
       :next (if (< to total) {:from (- to per-page) :to to :pos (quot (- to per-page) per-page)} nil)}))
