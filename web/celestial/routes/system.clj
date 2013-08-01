@@ -15,7 +15,7 @@
    (+ (int (/ c per-page)) (if (= (mod c per-page) 0) 0 1)))
 
 (defn- pages 
-  "pagination for systems" 
+  "Pagination pages" 
   [from total]
   {:pre [(> from -1)]}
   (let [to (min (+ from (* per-page port-view)) total)
