@@ -43,6 +43,10 @@
    ~@body
     ))
 
+(celestial.persistency/add-type redis-type)
+
+(doseq [i (range 100)] (celestial.persistency/add-system redis-prox-spec))
+
 (def host (.getHostName (java.net.InetAddress/getLocalHost)))
 
 (def puppet-ami (merge-with merge redis-ec2-spec {:aws {:image-id "ami-f5e2ff81" :key-name host}}))

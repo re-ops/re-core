@@ -4,7 +4,7 @@
 
 <div>
   <h2>Systems:</h2>
-  <table class="table">
+  <table class="table table-striped table-bordered" >
     <thead>
 	<tr>
 	  <th>#</th>
@@ -13,10 +13,10 @@
 	  <th>Hypervisor</th>
 	</tr>
     </thead>
-    <tbody>
+    <tbody data-provides="rowlink">
 	{% for system in systems %}
-       <tr>
-	   <td>{{system.id}}</td>
+       <tr class="rowlink">
+         <td><a href="javascript.html#{{system.id}}">{{system.id}}</a></td>
 	   <td>{{system.hostname}}</td>
 	   <td>{{system.type}}</td>
 	  <td>{{system.hypervisor}}</td>
@@ -25,7 +25,8 @@
 	{% endfor %}
     </tbody>
   </table>
-  <ul class="pagination">
+  <div class="pagination">
+  <ul>
    {% if pages.prev %} 
      <li><a href="/view/systems?from={{pages.prev.from}}&to={{pages.prev.to}}">&laquo;</a></li> 
    {% endif %}
@@ -38,6 +39,7 @@
      <li><a href="/view/systems?from={{pages.next.from}}&to={{pages.next.to}}">&raquo;</a></li> 
    {% endif %}
  </ul>
+ </div>
 </div>
 
 {% endblock %}

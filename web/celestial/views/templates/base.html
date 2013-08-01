@@ -8,49 +8,46 @@
 
     <title>{{title}}</title>
 
+    <style>
+      body {
+        padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+      }
+
+    </style>
     <!-- Bootstrap core CSS -->
     <link href="/css/bootstrap.css" rel="stylesheet">
-
-    <!-- Custom styles for this template -->
-    <link href="/css/navbar-static-top.css" rel="stylesheet">
+   <link href="/css/bootstrap-responsive.css" rel="stylesheet">
   </head>
 
   <body>
 
     <!-- Static navbar -->
-    <div class="navbar navbar-static-top">
-      <div class="container">
-        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
-        <a class="navbar-brand" href="#"></a>
-        <div class="nav-collapse collapse">
-          <ul class="nav navbar-nav">
-            <li class="active"><a href="/">Home</a></li>
-		<li><a href="/view/systems?from=0&to={{per-page}}">Systems</a></li>
-            <li><a href="#about">Actions</a></li>
-            <li><a href="#contact">Types</a></li>
-            <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">???<b class="caret"></b></a>
-              <ul class="dropdown-menu">
-                <li><a href="#">Systems</a></li>
-                <li><a href="#">Actions</a></li>
-                <li><a href="#">Types</a></li>
-              </ul>
-            </li>
-          </ul>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="brand" href="#">Celestial</a>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+              <li><a href="/view/systems?from=0&to={{per-page}}">Systems</a>
+              <li class="active"><a href="#">Home</a></li>
+              <li><a href="#about">Systems</a></li>
+            </ul>
           </div><!--/.nav-collapse -->
+        </div>
       </div>
     </div>
-
 
     <div class="container">
          {% block content %}
  
          {% endblock %}
     </div> <!-- /container -->
-
+   <script src="/js/jquery-2.0.3.min.js"></script>
+   <script src="/js/bootstrap.min.js"></script>
   </body>
 </html>
