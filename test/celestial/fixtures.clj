@@ -3,6 +3,9 @@
      java.awt.datatransfer.StringSelection
      java.awt.Toolkit)
   (:refer-clojure :exclude [type])
+  (:require 
+    [celestial.redis :as r]
+    [celestial.persistency :as p])
   (:use [celestial.common :only (slurp-edn)]))
 
 (def redis-prox-spec (slurp-edn "fixtures/redis-system.edn"))
@@ -44,8 +47,14 @@
     ))
 
 (defn populate []
- (celestial.persistency/add-type redis-type)
- (doseq [i (range 100)] (celestial.persistency/add-system redis-prox-spec)))
+  (r/clear-all)
+  (p/add-type redis-type)
+  (doseq [i (range 100)] 
+    (if (= 0 (mod i 2)) 
+      (p/add-system redis-prox-spec)
+      (p/add-system redis-ec2-spec)
+      )))
+
 
 
 (def host (.getHostName (java.net.InetAddress/getLocalHost)))
