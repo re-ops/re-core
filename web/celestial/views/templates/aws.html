@@ -1,0 +1,62 @@
+{% extends "celestial/views/templates/base.html" %}
+
+{% block content %}
+<div>
+  <h2>Machine:</h2>
+  <table class="table table-bordered" >
+    <thead>
+	<tr>
+	  <th>Property</th>
+	  <th>Value</th>
+	</tr>
+    </thead>
+    <tbody>
+	<tr>		
+	  <td>hostname</td>
+	  <td>{{system.machine.hostname}}</td>
+	</tr>
+	<tr>		
+	  <td>user</td>
+	  <td>{{system.machine.user}}</td>
+	</tr>
+	<tr>		
+	  <td>type</td>
+	  <td>{{system.type}}</td>
+	</tr>
+    </tbody>
+  </table>
+</div>
+
+<div>
+  <h2>AWS:</h2>
+  <table class="table table-bordered" >
+    <thead>
+	<tr>
+	  <th>Property</th>
+	  <th>Value</th>
+	</tr>
+    </thead>
+    <tbody>
+	<tr>		
+	  <td>instance type</td>
+	  <td>{{system.aws.instance-type}}</td>
+	</tr>
+	<tr>		
+	  <td>image id</td>
+	  <td>{{system.aws.image-id}}</td>
+	</tr>
+	<tr>		
+	  <td>key-name</td>
+	  <td>{{system.aws.key-name}}</td>
+	</tr>
+	<tr>		
+	  <td>endpoint</td>
+	  <td>{{system.aws.endpoint}}</td>
+	</tr>
+
+    </tbody>
+  </table>
+</div>
+
+
+{% endblock %}
