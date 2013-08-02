@@ -18,7 +18,7 @@
     <tbody data-provides="rowlink">
 	{% for system in systems %}
        <tr class="rowlink">
-         <td><a href="javascript.html#{{system.id}}">{{system.id}}</a></td>
+         <td><a href="/view/system?id={{system.id}}">{{system.id}}</a></td>
 	   <td>{{system.hostname}}</td>
 	   <td>{{system.type}}</td>
 	  <td>{{system.hypervisor}}</td>

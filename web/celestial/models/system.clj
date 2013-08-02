@@ -19,3 +19,5 @@
   []
   (count (p/all-systems)))
 
+
+(defn system [id] (p/get-system id))

@@ -37,5 +37,17 @@
   (layout/render "systems.html" 
     (into base {:systems (map rendered-system (sys/systems from to)) :pages (pages from (sys/systems-count))})))
 
+(defn- system
+  "renders a system" 
+  [id] 
+  (let [system (sys/system id)]
+    (case (figure-virt system)
+      :proxmox  
+        (layout/render "proxmox.html" (into base {:system (update-in system [:machine :os] name)}))
+      :aws  (layout/render "aws.html" (into base {:system system}))
+      )
+    ))
+
 (defroutes system-routes
-  (GET "/view/systems" [from to] (systems (Integer/parseInt from) (Integer/parseInt to))))
+  (GET "/view/systems" [from to] (systems (Integer/parseInt from) (Integer/parseInt to)))
+  (GET "/view/system" [id] (system id)))
