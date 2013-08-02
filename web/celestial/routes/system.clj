@@ -2,6 +2,7 @@
   "System routes"
  (:use compojure.core)
  (:require 
+    [clojure.core.strint :refer  (<<)]
     [celestial.routes.common :refer [per-page base]]
     [celestial.model :refer [figure-virt]]
     [celestial.models.system :as sys]
@@ -40,13 +41,9 @@
 (defn- system
   "renders a system" 
   [id] 
-  (let [system (sys/system id)]
-    (case (figure-virt system)
-      :proxmox  
-        (layout/render "proxmox.html" (into base {:system (update-in system [:machine :os] name)}))
-      :aws  (layout/render "aws.html" (into base {:system system}))
-      )
-    ))
+  (let [system (sys/system id) 
+        props (into base {:system system })]
+     (layout/render (<<  "~(-> system figure-virt name).html") props)))
 
 (defroutes system-routes
   (GET "/view/systems" [from to] (systems (Integer/parseInt from) (Integer/parseInt to)))
