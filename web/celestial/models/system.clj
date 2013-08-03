@@ -8,7 +8,7 @@
 (defn systems 
   "system list range" 
   [from to type]
-  {:pre [(> from -1) (p/type-exists! type)]}
+  {:pre [(> from -1) (if type (p/type-exists! type) true)]}
   (let [systems (if type (p/get-system-index :type type) (into [] (p/all-systems)))
         to* (min to (- (count systems) 1))]
     (if (and (contains? systems from) (contains? systems to*))
