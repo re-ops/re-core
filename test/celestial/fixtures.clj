@@ -49,11 +49,11 @@
 (defn populate []
   (r/clear-all)
   (p/add-type redis-type)
+  (p/add-action redis-actions)
   (doseq [i (range 100)] 
     (if (= 0 (mod i 2)) 
       (p/add-system redis-prox-spec)
-      (p/add-system redis-ec2-spec)
-      )))
+      (p/add-system redis-ec2-spec))))
 
 
 
