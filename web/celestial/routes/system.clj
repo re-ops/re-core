@@ -7,7 +7,6 @@
     [celestial.model :refer [figure-virt]]
     [celestial.models.system :as sys]
     [celestial.views.layout :as layout]
-    [celestial.util :as util]
     [compojure.route :as route]))
 
 (def port-view 10)
@@ -41,8 +40,7 @@
 (defn- system
   "renders a system" 
   [id] 
-  (let [system (sys/system id) 
-        props (into base {:system system })]
+  (let [system (sys/system id) props (into base {:system system})]
      (layout/render (<<  "~(-> system figure-virt name).html") props)))
 
 (defroutes system-routes
