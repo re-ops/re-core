@@ -33,16 +33,18 @@
 
 (defn- systems 
   "renders systems table with given range" 
-  [from to] 
-  (layout/render "systems.html" 
-    (into base {:systems (map rendered-system (sys/systems from to)) :pages (pages from (sys/systems-count))})))
+  [from to type] 
+  (let [systems (sys/systems from to type)]
+    (layout/render "systems.html" 
+      (into base {:systems (map rendered-system systems) :pages (pages from (count systems))}))))
 
 (defn- system
   "renders a system" 
   [id] 
   (let [system (sys/system id) props (into base {:system system})]
-     (layout/render (<<  "~(-> system figure-virt name).html") props)))
+    (layout/render (<<  "~(-> system figure-virt name).html") props)))
 
 (defroutes system-routes
-  (GET "/view/systems" [from to] (systems (Integer/parseInt from) (Integer/parseInt to)))
+  (GET "/view/systems" [from to type] 
+       (systems (Integer/parseInt from) (Integer/parseInt to) type))
   (GET "/view/system" [id] (system id)))
