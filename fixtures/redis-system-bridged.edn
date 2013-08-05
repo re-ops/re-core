@@ -1,0 +1,19 @@
+{
+ :machine {
+  :cpus 4 :memory 4096 :disk 30
+  :hostname "red1" :domain "local"
+  :ip "192.168.5.200" :gateway "192.168.5.255" :netmask "255.255.255.0"
+  :bridge "vmbr0" :ifname "eth0"
+  :os :ubuntu-12.04
+ }
+
+ :proxmox {
+   :vmid 101
+   :nameserver "8.8.8.8"
+   :password "foobar1" :node "proxmox"
+   :type :ct
+   :features [] 
+  }
+
+ :type "redis"
+}

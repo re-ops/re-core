@@ -81,6 +81,11 @@
   [ct]
   (if-not (ct :ip_address) (gen-ip ct) ct))
 
+(defn apply-networking [args]
+   ; netif:ifname=eth1,bridge=vmbr0
+  )
+
+
 (defconstrainedrecord Container [node ct extended]
   "ct should match proxmox expected input"
   [(provider-validation ct extended) (not (nil? node))]
@@ -92,7 +97,7 @@
               (check-task node (prox-post (str "/nodes/" node "/openvz") ct*)) 
               (enable-features this) 
               (when (p/system-exists? id)
-                (p/partial-system id {:proxmox {:vmid vmid} :machine {:ip ip_address} })) 
+                (p/partial-system id {:proxmox {:vmid vmid} :machine {:ip ip_address}})) 
               (catch [:status 500] e 
                 (release-ip (ct* :ip_address))
                 (warn "Container already exists" e)))))
@@ -140,11 +145,14 @@
   [res]
   (reduce (fn [res [k v]] (if (res k) res (update-in res [k] v ))) res {:vmid (ct-id (:node res))}))
 
-(def ct-ks [:vmid :ostemplate :cpus :disk :memory :ip_address :password :hostname :nameserver :searchdomain])
+(def ct-ks [:vmid :ostemplate :cpus :disk :memory :password :hostname :nameserver :searchdomain :netif])
+
+(def net-ks [:ip_address :gateway :netmask :bridge :ifname])
 
 (def ex-ks [:features :node :system-id])
 
-(def selections (juxt (fn [m] (select-keys m ct-ks)) (fn [m] (select-keys m ex-ks))))
+(def selections 
+  (juxt (fn [m] (select-keys m ct-ks)) (fn [m] (select-keys m ex-ks))))
 
 (defmethod translate :proxmox [{:keys [machine proxmox system-id]}]
   "Convert the general model into a proxmox vz specific one"
