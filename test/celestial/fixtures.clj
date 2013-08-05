@@ -55,9 +55,6 @@
       (p/add-system redis-prox-spec)
       (p/add-system redis-ec2-spec))))
 
-
-
 (def host (.getHostName (java.net.InetAddress/getLocalHost)))
 
 (def puppet-ami (merge-with merge redis-ec2-spec {:aws {:image-id "ami-f5e2ff81" :key-name host}}))
-
