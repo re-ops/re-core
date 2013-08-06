@@ -22,9 +22,10 @@
     [slingshot.slingshot :only  [throw+ try+]]
     [clojure.set :only (difference)]
     [celestial.provider :only (str? vec? mappings transform os->template wait-for)]
-    [proxmox.generators :only (ct-id gen-ip release-ip)]
+    [proxmox.generators :only (ct-id)]
     [celestial.model :only (translate vconstruct)])
   (:require 
+    [hypervisors.networking :refer (gen-ip release-ip)]
     [celestial.validations :as cv]
     [celestial.persistency :as p])
   (:import clojure.lang.ExceptionInfo))
@@ -79,7 +80,7 @@
 (defn lazy-gen-ip
   "Generate ip only if missing"
   [ct]
-  (if-not (ct :ip_address) (gen-ip ct) ct))
+  (if-not (ct :ip_address) (gen-ip ct "proxmox") ct))
 
 (defn apply-networking [args]
    ; netif:ifname=eth1,bridge=vmbr0
@@ -99,7 +100,7 @@
               (when (p/system-exists? id)
                 (p/partial-system id {:proxmox {:vmid vmid} :machine {:ip ip_address}})) 
               (catch [:status 500] e 
-                (release-ip (ct* :ip_address))
+                (release-ip (ct* :ip_address) "proxmox")
                 (warn "Container already exists" e)))))
 
   (delete [this]
@@ -108,7 +109,7 @@
             (unmount this) 
             (safe
               (prox-delete (str "/nodes/" node "/openvz/" (:vmid ct)))) 
-            (finally (release-ip (:ip_address ct)))))
+            (finally (release-ip (:ip_address ct) "proxmox"))))
 
   (start [this]
          (debug "starting" (:vmid ct))

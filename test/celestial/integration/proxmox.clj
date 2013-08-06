@@ -1,11 +1,7 @@
 (ns celestial.integration.proxmox
   "Integration tests assume a proxmox vm with local address make sure to configure it"
-  (:require 
-    [proxmox.generators :as g :refer (initialize-range long-to-ip list-used-ips)]
-    [taoensso.carmine :as car])
   (:use midje.sweet proxmox.provider
-        [celestial.redis :only (wcar clear-all)]
-        [flatland.useful.map :only  (dissoc-in*)]
+        [flatland.useful.map :only (dissoc-in*)]
         [celestial.common :only (slurp-edn)]
         [celestial.model :only (vconstruct)]
         [celestial.fixtures :only (with-conf redis-prox-spec)]))
@@ -42,12 +38,3 @@
      (.status ct) => "running"
      (.stop ct)
      (.delete ct))))
-
-(with-state-changes [(before :facts (clear-all))]
-  (fact "used up ips marking" :integration :redis :ip
-    (with-conf
-     (g/gen-ip {})  => {:ip_address "192.168.5.100"}
-     (g/list-used-ips) => ["192.168.5.100" "192.168.5.170" "192.168.5.171" "192.168.5.173"]
-     (g/release-ip "192.168.5.100")
-     (g/list-used-ips) => ["192.168.5.170" "192.168.5.171" "192.168.5.173"]
-      )))
