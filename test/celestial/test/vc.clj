@@ -20,7 +20,7 @@
         (:machine vm) => {:cpus 1 :memory 512 
                           :password "foobar" :user "ronen" :sudo true
                           :gateway "192.168.5.1" :ip "192.168.5.91" :mask "255.255.255.0"
-                          :names ["8.8.8.8"] :network "192.168.5.0" :search "local"
+                          :names ["8.8.8.8"] :search "local"
                           :template "ubuntu-13.04_puppet-3.2"}))
 
     (fact "missing datacenter"
