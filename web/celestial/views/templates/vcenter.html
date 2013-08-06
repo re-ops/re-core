@@ -13,7 +13,7 @@
     </thead>
     <tbody>
 	<tr>		
-	  <td rowspan='3'>Resources</td>
+	  <td rowspan='2'>Resources</td>
 	  <td>cpus</td>
 	  <td>{{system.machine.cpus}}</td>
 	</tr>
@@ -22,16 +22,11 @@
 	  <td>{{system.machine.memory}}</td>
 	</tr>
 	<tr>		
-	  <td>disk</td>
-	  <td>{{system.machine.disk}}</td>
-	</tr>
-	<tr>		
-	  <td rowspan='2'>Networking</td>
+	  <td rowspan='4'>Networking</td>
 	  <td>hostname</td>
-	  <td>{{system.machine.hostname}}.{{system.machine.domain}}</td>
+	  <td>{{system.machine.hostname}}.{{system.machine.search}}</td>
 	</tr>
 	<tr>		
-	  <td rowspan='3'>Networking</td>
 	  <td>ip</td>
 	  <td>{{system.machine.ip}}</td>
 	</tr>
@@ -67,14 +62,18 @@
 	</tr>
     </thead>
     <tbody>
-	<tr>		
-	  <td rowspan='3'>VM</td>
-	  <td>vmid</td>
-	  <td>{{system.vcenter.pool}}</td>
+      <tr>		
+	  <td rowspan='4'>VM</td>
+	  <td>datacenter</td>
+	  <td>{{system.vcenter.datacenter}}</td>
+	</tr>
+      <tr>		
+	  <td>hostsystem</td>
+	  <td>{{system.vcenter.hostsystem}}</td>
 	</tr>
 	<tr>		
-	  <td>node</td>
-	  <td>{{system.vcenter.node}}</td>
+	  <td>pool</td>
+	  <td>{{system.vcenter.pool}}</td>
 	</tr>
 	<tr>		
 	  <td>disk-format</td>
