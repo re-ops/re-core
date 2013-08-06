@@ -1,5 +1,7 @@
 (ns celestial.test.proxmox
-  (:require proxmox.provider)
+  (:require 
+    [celestial.fixtures :as fix :refer [redis-prox-spec with-conf with-m?]] 
+    proxmox.provider)
   (:use 
     midje.sweet
     [proxmox.provider :only (vzctl enable-features)]
@@ -9,7 +11,7 @@
     [celestial.model :only (vconstruct)]
     [proxmox.generators :only (ct-id)]
     [proxmox.auth :only (fetch-headers auth-headers auth-store auth-expired?)]
-    [celestial.fixtures :only (redis-prox-spec with-conf with-m?)])
+    )
   (:import clojure.lang.ExceptionInfo))
 
 (with-conf
@@ -18,7 +20,7 @@
       (fact "missing vmid"
             (vconstruct (assoc-in redis-prox-spec [:proxmox :vmid] nil)) => 
             (throws ExceptionInfo (with-m? {:machine {:vmid '("vmid must be present")}} ))))
-    (fact "non int vmid"
+      (fact "non int vmid"
           (vconstruct (assoc-in redis-prox-spec [:proxmox :vmid] "string")) => 
           (throws ExceptionInfo (with-m? {:machine {:vmid '("vmid must be a number")}})))
     (with-redefs [ct-id (fn [_] 101)]
@@ -26,7 +28,11 @@
         (fact "vzctl usage"
               (enable-features ct) => '()
               (provided 
-                (vzctl ct "set 101 --features \"nfs:on\" --save") => nil :times 1)))))) 
+                (vzctl ct "set 101 --features \"nfs:on\" --save") => nil :times 1))
+        (fact "bridged constructions"
+          (vconstruct fix/redis-bridged-prox-spec) => 
+              (contains {:network {:gateway "192.168.5.255" :netmask "255.255.255.0"}}))
+        )))) 
 
 (with-conf
   (let [headers {"Cookie" "PVEAuthCookie=" "CSRFPreventionToken" "foobar"}]
