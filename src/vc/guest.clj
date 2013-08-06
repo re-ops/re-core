@@ -15,13 +15,13 @@
     com.vmware.vim25.GuestProgramSpec
     com.vmware.vim25.GuestFileAttributes) 
   (:require 
+    [selmer.parser :refer (render-file)]
     [slingshot.slingshot :refer  [throw+ try+]]
     [clj-http.client :as client])
   (:use 
     [clojure.string :only (join split)]
     [celestial.provider :only (wait-for)]
     [celestial.common :only (gen-uuid import-logging)]
-    [clostache.parser :only (render-resource)] 
     [clojure.core.strint :only (<<)]
     [clojure.java.io :only (copy file reader)]
     [vc.vijava :only (with-service tools-installed? guest-status service find-vm)]))
@@ -106,8 +106,11 @@
   (let [uuid (gen-uuid) tmp-file (<< "/tmp/intrefaces_~{uuid}")]
     (debug "setting up guest static ip")
     (assert-sudo hostname auth uuid)
-    (upload-file (render-resource "static-ip.mustache" (update-in config [:names] (partial join ","))) tmp-file hostname auth)
+    (upload-file 
+      (render-file "static-ip.tmpl" (update-in config [:names] (partial join ","))) tmp-file hostname auth)
     (guest-run hostname "/bin/cp" (<< "-v ~{tmp-file} /etc/network/interfaces") auth uuid [2 :seconds])
+    (guest-run hostname "/sbin/ifdown" "eth0" auth uuid [3 :seconds])
+    (guest-run hostname "/sbin/ifup" "eth0" auth uuid [3 :seconds])
     (guest-run hostname "/usr/sbin/service" "networking restart" auth uuid [3 :seconds])
     (guest-run hostname "/bin/rm" (<< "-v ~{tmp-file}") auth uuid [2 :seconds])
     (guest-run hostname "echo" (<< "'kernel.hostname = ~{hostname}' | sudo tee -a /etc/sysctl.conf") auth uuid [2 :seconds])
