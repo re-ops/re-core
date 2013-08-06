@@ -10,6 +10,8 @@
 
 (def redis-prox-spec (slurp-edn "fixtures/redis-system.edn"))
 
+(def redis-bridged-prox-spec (slurp-edn "fixtures/redis-system-bridged.edn"))
+
 (def redis-type (slurp-edn "fixtures/redis-type.edn"))
 
 (def redis-ec2-spec (slurp-edn "fixtures/redis-ec2-system.edn"))
@@ -24,9 +26,7 @@
 
 (defn clipboard-copy [s]
   (let [clp (.getSystemClipboard (Toolkit/getDefaultToolkit))]
-    (.setContents clp (StringSelection. s) nil)
-   )
-  )
+    (.setContents clp (StringSelection. s) nil)))
 
 ;; (clipboard-copy (clojure.data.json/write-str redis-type :escape-slash false))
 ;; (clipboard-copy (clojure.data.json/write-str redis-prox-spec :escape-slash false))
