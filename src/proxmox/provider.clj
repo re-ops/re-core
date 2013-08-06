@@ -79,16 +79,11 @@
 
 (defn lazy-gen-ip
   "Generate ip only if missing"
-  [ct]
-  (if-not (ct :ip_address) (gen-ip ct "proxmox") ct))
+  [{:keys [ip_address] :as ct}]
+  (if-not ip_address (gen-ip ct "proxmox") ct))
 
-(defn apply-networking [args]
-   ; netif:ifname=eth1,bridge=vmbr0
-  )
-
-
-(defconstrainedrecord Container [node ct extended]
-  "ct should match proxmox expected input"
+(defconstrainedrecord Container [node ct extended network]
+  "ct should match proxmox expected input (see http://pve.proxmox.com/pve2-api-doc/)"
   [(provider-validation ct extended) (not (nil? node))]
   Vm
   (create [this] 
@@ -144,29 +139,36 @@
 (defn generate
   "apply generated values (if not present)." 
   [res]
+
   (reduce (fn [res [k v]] (if (res k) res (update-in res [k] v ))) res {:vmid (ct-id (:node res))}))
 
-(def ct-ks [:vmid :ostemplate :cpus :disk :memory :password :hostname :nameserver :searchdomain :netif])
+(def ct-ks [:vmid :ostemplate :cpus :disk :memory :password :hostname :nameserver :searchdomain :ip_address :netif])
 
-(def net-ks [:ip_address :gateway :netmask :bridge :ifname])
+(def net-ks [:gateway :netmask])
 
 (def ex-ks [:features :node :system-id])
 
 (def selections 
-  (juxt (fn [m] (select-keys m ct-ks)) (fn [m] (select-keys m ex-ks))))
+  (letfn [(select [k] (fn [m] (select-keys m k)))]
+    (apply juxt (map select [ct-ks ex-ks net-ks]))))
 
-(defmethod translate :proxmox [{:keys [machine proxmox system-id]}]
+(defn transformations [{:keys [bridge interface domain]}]
+  (let [base {:ostemplate (os->template :proxmox) :hostname (fn [host] (<< "~{host}.~{domain}"))}]
+    (if bridge (assoc base :netif (fn [_] (<< "ifname=~{interface},bridge=~{bridge}"))) base)))
+
+(defmethod translate :proxmox [{:keys [machine proxmox system-id] :as spec}]
   "Convert the general model into a proxmox vz specific one"
   (-> (merge machine proxmox {:system-id system-id})
       (mappings {:ip :ip_address :os :ostemplate :domain :searchdomain})
-      (transform {:ostemplate (os->template :proxmox) :hostname (fn [host] (<< "~{host}.~(machine :domain)"))})
-       generate selections))
+      (transform (transformations machine))
+      generate selections))
 
 (defmethod vconstruct :proxmox [{:keys [proxmox] :as spec}]
   (let [{:keys [type node]} proxmox]
     (case type
-      :ct  (let [[ct ex] (translate spec)] 
-             (->Container node ct ex)))))
+      :ct  (apply ->Container node (translate spec))
+      :vm nil 
+      )))
 
 
 
