@@ -1,0 +1,88 @@
+{% extends "celestial/views/templates/base.html" %}
+
+{% block content %}
+<div>
+  <h2>Machine:</h2>
+  <table class="table table-bordered" >
+    <thead>
+	<tr>
+	  <th>Section</th>
+	  <th>Property</th>
+	  <th>Value</th>
+	</tr>
+    </thead>
+    <tbody>
+	<tr>		
+	  <td rowspan='3'>Resources</td>
+	  <td>cpus</td>
+	  <td>{{system.machine.cpus}}</td>
+	</tr>
+	<tr>		
+	  <td>memory</td>
+	  <td>{{system.machine.memory}}</td>
+	</tr>
+	<tr>		
+	  <td>disk</td>
+	  <td>{{system.machine.disk}}</td>
+	</tr>
+	<tr>		
+	  <td rowspan='2'>Networking</td>
+	  <td>hostname</td>
+	  <td>{{system.machine.hostname}}.{{system.machine.domain}}</td>
+	</tr>
+	<tr>		
+	  <td rowspan='3'>Networking</td>
+	  <td>ip</td>
+	  <td>{{system.machine.ip}}</td>
+	</tr>
+	<tr>		
+	  <td>mask</td>
+	  <td>{{system.machine.mask}}</td>
+	</tr>
+	<tr>		
+	  <td>gateway</td>
+	  <td>{{system.machine.gateway}}</td>
+	</tr>
+      <tr>		
+	  <td rowspan='2'>System</td>
+	  <td>OS</td>
+	  <td>{{system.machine.os}}</td>
+	</tr>
+	<tr>		
+	  <td>type</td>
+	  <td>{{system.type}}</td>
+	</tr>
+    </tbody>
+  </table>
+</div>
+
+<div>
+  <h2>vCenter:</h2>
+  <table class="table table-bordered" >
+    <thead>
+	<tr>
+	  <th>Section</th>
+	  <th>Property</th>
+	  <th>Value</th>
+	</tr>
+    </thead>
+    <tbody>
+	<tr>		
+	  <td rowspan='3'>VM</td>
+	  <td>vmid</td>
+	  <td>{{system.vcenter.pool}}</td>
+	</tr>
+	<tr>		
+	  <td>node</td>
+	  <td>{{system.vcenter.node}}</td>
+	</tr>
+	<tr>		
+	  <td>disk-format</td>
+	  <td>{{system.vcenter.disk-format}}</td>
+	</tr>
+    </tbody>
+  </table>
+</div>
+
+
+{% endblock %}
