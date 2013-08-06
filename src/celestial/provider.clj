@@ -46,7 +46,7 @@
   "specific model transformations"
   [res ts]
     (reduce 
-      (fn [res [k v]] (update-in res [k] v )) res ts))
+      (fn [res [k v]] (update-in res [k] v)) res ts))
 
 (defn wait-for 
   "A general wait for pred function"
