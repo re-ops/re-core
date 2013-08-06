@@ -15,10 +15,10 @@
     com.vmware.vim25.GuestProgramSpec
     com.vmware.vim25.GuestFileAttributes) 
   (:require 
+    [slingshot.slingshot :refer  [throw+ try+]]
     [clj-http.client :as client])
   (:use 
     [clojure.string :only (join split)]
-    [slingshot.slingshot :only  [throw+]]
     [celestial.provider :only (wait-for)]
     [celestial.common :only (gen-uuid import-logging)]
     [clostache.parser :only (render-resource)] 
@@ -84,16 +84,28 @@
          (when-not (= (exit-code m pid auth) 0)
            (throw+ {:type ::vc:guest-run-fail :message (<< "Failed running ~{cmd} ~{args} in guest") :timeout timeout})))))
 
-(defn fetch-log 
+(defn- fetch-log 
    "fetched remote log file by uuid"
    [hostname uuid auth]
   (slurp (download-file (<< "/tmp/run-~{uuid}.log") hostname auth)))
+
+(defn assert-sudo 
+  "validates passwordless sudo if required" 
+  [hostname auth uuid]
+  (when (auth :sudo) 
+    (trace "checking passwordless sudo")
+    (try+ 
+      (guest-run hostname "/usr/bin/sudo" "-n true" (dissoc auth :sudo) uuid [2 :seconds])
+      (catch [:type ::vc:guest-run-fail] e 
+        (throw+ {:type ::vc:guest-sudo :message (<< "guest system does not have password less sudo user set!")})) 
+      ))) 
 
 (defn set-ip 
   "set guest static ip" 
   [hostname auth config]
   (let [uuid (gen-uuid) tmp-file (<< "/tmp/intrefaces_~{uuid}")]
     (debug "setting up guest static ip")
+    (assert-sudo hostname auth uuid)
     (upload-file (render-resource "static-ip.mustache" (update-in config [:names] (partial join ","))) tmp-file hostname auth)
     (guest-run hostname "/bin/cp" (<< "-v ~{tmp-file} /etc/network/interfaces") auth uuid [2 :seconds])
     (guest-run hostname "/usr/sbin/service" "networking restart" auth uuid [3 :seconds])
@@ -104,7 +116,7 @@
 
 (comment
   (set-ip "red1" {:user "ronen" :password "foobar" :sudo true} 
-     {:ip "192.168.5.91" :mask "255.255.255.0" :network "192.168.5.0" :gateway "192.168.5.1" :search "local" :names ["192.168.5.1"]}) 
+          {:ip "192.168.5.91" :mask "255.255.255.0" :network "192.168.5.0" :gateway "192.168.5.1" :search "local" :names ["192.168.5.1"]}) 
   (download-file "/tmp/project.clj" "/tmp/project.clj" "foo" {:user "root" :pass "foobar"})
   (upload-file "project.clj" "/tmp/project.clj" "red1" {:user "ronen" :pass "foobar"}) 
   (download-file "/tmp/project.clj" "/tmp/project.clj" "foo" {:user "ronen" :pass "foobar"}) 
