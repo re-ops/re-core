@@ -3,7 +3,7 @@
   :cpus 4 :memory 4096 :disk 30
   :hostname "red1" :domain "local"
   :ip "192.168.5.200" :gateway "192.168.5.255" :netmask "255.255.255.0"
-  :bridge "vmbr0" :ifname "eth0"
+  :bridge "vmbr0" :interface "eth0"
   :os :ubuntu-12.04
  }
 
