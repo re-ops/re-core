@@ -18,7 +18,7 @@
 ; only when ip exists
 (def machine-networking
   {:machine {
-    :mask #{:required :String} :gateway #{:required :String}
+    :netmask #{:required :String} :gateway #{:required :String}
     :search #{:required :String} :names #{:required :Vector}}})
 
 (def machine-common
