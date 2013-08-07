@@ -25,7 +25,8 @@
     [proxmox.generators :only (ct-id)]
     [celestial.model :only (translate vconstruct)])
   (:require 
-    [hypervisors.networking :refer (gen-ip release-ip)]
+    [supernal.sshj :only (copy)]
+    [hypervisors.networking :refer (gen-ip release-ip mark)]
     [celestial.validations :as cv]
     [celestial.persistency :as p])
   (:import clojure.lang.ExceptionInfo))
@@ -75,12 +76,19 @@
       (trace "enabling feature" f)
       (vzctl this (<< "set ~(ct :vmid) --features \"~{f}\" --save")))) () )
 
-(defn key-set [h] (->> h keys (into #{})))
+(defn- append-ip [[ct network]]
+  (into [ct network] [(or (ct :ip_address) (network :ip_address))]))
 
-(defn lazy-gen-ip
-  "Generate ip only if missing"
-  [{:keys [ip_address] :as ct}]
-  (if-not ip_address (gen-ip ct "proxmox") ct))
+(defn assign-networking
+  "Generate ip only if missing and not bridged"
+  [ct {:keys [ip_address netif] :as network}]
+  (append-ip
+    (cond 
+      (and ip_address netif) [(assoc ct :netif netif) (-> network (assoc :ip_address (mark ip_address "proxmox")) (dissoc :netif))]
+      (and (not ip_address) netif) [(assoc ct :netif netif) (-> network (gen-ip "proxmox") (dissoc :netif))]
+      (and ip_address (not netif)) [(assoc ct :ip_address (mark ip_address "proxmox")) network]
+      (and (not ip_address) (not netif)) [(gen-ip ct "proxmox") network]
+      )))
 
 (defconstrainedrecord Container [node ct extended network]
   "ct should match proxmox expected input (see http://pve.proxmox.com/pve2-api-doc/)"
@@ -88,14 +96,14 @@
   Vm
   (create [this] 
           (debug "creating" (:vmid ct))
-          (let [ct* (lazy-gen-ip ct) {:keys [hostname vmid ip_address]} ct* id (extended :system-id)] 
+          (let [[ct* network* ip_address] (assign-networking ct network) {:keys [hostname vmid]} ct* id (extended :system-id)] 
             (try+ 
               (check-task node (prox-post (str "/nodes/" node "/openvz") ct*)) 
               (enable-features this) 
               (when (p/system-exists? id)
                 (p/partial-system id {:proxmox {:vmid vmid} :machine {:ip ip_address}})) 
               (catch [:status 500] e 
-                (release-ip (ct* :ip_address) "proxmox")
+                (release-ip ip_address "proxmox")
                 (warn "Container already exists" e)))))
 
   (delete [this]
@@ -104,7 +112,9 @@
             (unmount this) 
             (safe
               (prox-delete (str "/nodes/" node "/openvz/" (:vmid ct)))) 
-            (finally (release-ip (:ip_address ct) "proxmox"))))
+            (finally 
+              (when-let [id (extended :system-id)] 
+                (release-ip (get-in (p/get-system id) [:machine :ip]) "proxmox")))))
 
   (start [this]
          (debug "starting" (:vmid ct))
@@ -142,9 +152,9 @@
 
   (reduce (fn [res [k v]] (if (res k) res (update-in res [k] v ))) res {:vmid (ct-id (:node res))}))
 
-(def ct-ks [:vmid :ostemplate :cpus :disk :memory :password :hostname :nameserver :searchdomain :ip_address :netif])
+(def ct-ks [:vmid :ostemplate :cpus :disk :memory :password :hostname :nameserver :searchdomain])
 
-(def net-ks [:gateway :netmask])
+(def net-ks [:gateway :netmask :ip_address :netif])
 
 (def ex-ks [:features :node :system-id])
 
@@ -154,7 +164,7 @@
 
 (defn transformations [{:keys [bridge interface domain]}]
   (let [base {:ostemplate (os->template :proxmox) :hostname (fn [host] (<< "~{host}.~{domain}"))}]
-    (if bridge (assoc base :netif (fn [_] (<< "ifname=~{interface},bridge=~{bridge}"))) base)))
+    (if (and bridge interface) (assoc base :netif (fn [_] (<< "ifname=~{interface},bridge=~{bridge}"))) base)))
 
 (defmethod translate :proxmox [{:keys [machine proxmox system-id] :as spec}]
   "Convert the general model into a proxmox vz specific one"
