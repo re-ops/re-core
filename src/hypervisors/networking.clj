@@ -1,6 +1,7 @@
 (ns hypervisors.networking
   "Common hypervizors networking logic"
   (:require 
+    [selmer.filters :refer (add-filter!)]
     [clojure.core.strint :refer [<<]]
     [selmer.parser :refer (render-file)]
     [clojure.data :refer [diff]]
@@ -136,6 +137,8 @@
     (zipmap [:scanned :listed :common] (diff (into #{} scanned) (into #{} (list-used-ips k))))))
 
 (test #'long-to-ip) 
+
+(add-filter! :not-empty? (comp not empty?))
 
 (defn static-ip-template 
    "Generates a static ip template" 

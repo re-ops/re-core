@@ -6,5 +6,5 @@ iface eth0 inet static
   address {{ip}}
   netmask {{netmask}}
   gateway {{gateway}}
-  dns-search {{search}}
-  dns-nameservers {{names}}
+{% if search|not-empty? %}  dns-search {{search}}{% endif %}
+{% if names|not-empty? %}   dns-nameservers {{names}}{% endif %}
