@@ -12,20 +12,20 @@
    (validate-entity redis-prox-spec) => truthy
 
    (validate-entity (assoc-in redis-prox-spec [:machine :cpus] nil)) => ; common validation 
-      (throws ExceptionInfo (with-m? {:machine {:cpus '("cpus must be present")}}))
+      (throws ExceptionInfo (with-m? {:machine {:cpus '("must be present")}}))
 
    (validate-entity (assoc-in redis-prox-spec [:machine :domain] nil)) => ; non fqdn
-      (throws ExceptionInfo (with-m? {:machine {:domain '("domain must be present")}}))
+      (throws ExceptionInfo (with-m? {:machine {:domain '("must be present")}}))
 
    (validate-entity (assoc-in redis-prox-spec [:machine :os] "ubutnu-12.04")) => ; entity validation 
-      (throws ExceptionInfo (with-m? {:machine {:os '("os must be a keyword")}}))
+      (throws ExceptionInfo (with-m? {:machine {:os '("must be a keyword")}}))
 
    (validate-entity (assoc-in redis-prox-spec [:proxmox :vmid] 33)) => 
-      (throws ExceptionInfo (with-m? {:proxmox {:vmid '("vmid must be greater then 100")}}))
+      (throws ExceptionInfo (with-m? {:proxmox {:vmid '("must be greater then 100")}}))
 
    (validate-entity (assoc-in redis-prox-spec [:proxmox :vmid] nil)) => truthy
 
    (validate-entity (assoc-in redis-prox-spec [:proxmox :password] nil)) => ; proxmox validation
-      (throws ExceptionInfo (with-m? {:proxmox {:password '("password must be present")}})))
+      (throws ExceptionInfo (with-m? {:proxmox {:password '("must be present")}})))
 
 

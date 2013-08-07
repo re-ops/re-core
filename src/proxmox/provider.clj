@@ -11,7 +11,6 @@
 
 (ns proxmox.provider
   (:use 
-    [proxmox.validations :only (provider-validation)]
     [trammel.core :only  (defconstrainedrecord)]
     [clojure.core.memoize :only (memo-ttl)]
     [clojure.core.strint :only (<<)]
@@ -25,6 +24,7 @@
     [proxmox.generators :only (ct-id)]
     [celestial.model :only (translate vconstruct)])
   (:require 
+    [proxmox.validations :refer (validate-provider)]
     [me.raynes.fs :refer (delete-dir temp-dir)]
     [supernal.sshj :refer (copy)]
     [hypervisors.networking :refer (static-ip-template gen-ip release-ip mark)]
@@ -102,7 +102,7 @@
 
 (defconstrainedrecord Container [node ct extended network]
   "ct should match proxmox expected input (see http://pve.proxmox.com/pve2-api-doc/)"
-  [(provider-validation ct extended) (not (nil? node))]
+  [(validate-provider ct extended) (not (nil? node))]
   Vm
   (create [this] 
           (debug "creating" (:vmid ct))

@@ -1,65 +1,69 @@
+(comment 
+   Celestial, Copyright 2012 Ronen Narkis, narkisr.com
+   Licensed under the Apache License,
+   Version 2.0  (the "License") you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.)
+
 (ns proxmox.validations
   "Proxmox based validations"
-  (:use 
-    [clojure.core.strint :only (<<)]
-    [bouncer [core :as b] [validators :as v :only (defvalidatorset)]])
   (:require 
+    [clojure.core.strint :refer (<<)] 
+    [subs.core :refer (validate! combine validation when-not-nil)]
     [celestial.validations :as cv]))
 
-(defvalidatorset machine-common
-    :cpus [v/number v/required]
-    :disk [v/number v/required]
-    :memory [v/number v/required]
-    :hostname [v/required cv/str?]
-  )
+(def machine-common
+   {:machine {
+    :cpus #{:required :number} :disk #{:required :number}
+    :memory #{:required :number} :hostname #{:required :String}}})
 
-(def prox-types [:ct :vm])
+(def prox-types #{:ct :vm})
 
 (defn greater-then [from i] (> i from))
 
-(defvalidatorset proxmox-entity
-    :type [v/required 
-           (v/member prox-types  :message (<< "Proxmox VM type must be either ~{prox-types}" ))]
-    :vmid [(v/custom (partial greater-then 100) :message "vmid must be greater then 100"
-                     :pre #(-> % :proxmox :vmid nil? not))]
-    :password [v/required cv/str?]
-    :nameserver [cv/str?])
+(validation :prox-type
+  (when-not-nil prox-types (<< "Proxmox VM type must be either ~{prox-types}")))
 
-(defvalidatorset machine-entity
-     :domain [v/required cv/str?]
-     :ip [cv/str?]
-     :os [v/required cv/keyword?])
+(validation :greater-then-100
+  (when-not-nil (partial greater-then 100) "must be greater then 100"))
 
-(defvalidatorset entity-validation
-   :machine machine-common 
-   :machine machine-entity
-   :proxmox proxmox-entity)
+(def proxmox-entity
+  {:proxmox {
+    :type #{:required :prox-type} :vmid #{:greater-then-100}
+    :password #{:required :String} :nameserver #{:String}}})
+
+(def machine-entity
+  {:machine {
+    :domain #{:required :String} :ip #{:String} :os #{:required :Keyword}}})
+
+(def entity-validation
+  (combine machine-common machine-entity proxmox-entity))
 
 (defn validate-entity
- "proxmox based system entity validation for persistence layer" 
+  "proxmox based system entity validation for persistence layer" 
   [proxmox]
-   (cv/validate! ::invalid-system proxmox entity-validation))
+  (validate! proxmox entity-validation :error ::invalid-system))
 
-(defvalidatorset extended
-    :id [v/number]          
-    :features [cv/sequential?])
+(def extended-vs
+  {:extended {:id #{:number} :features #{:Vector}}})
 
-(defvalidatorset machine-provider
-     :vmid [v/required v/number ]
-     :password [v/required cv/str?]
-     :nameserver [cv/str?] 
-     :hostname [(v/custom (partial re-find #".*\.\w*") :message "hostname must be fully qualified")]
-     :ip_address [cv/str?]
-     :ostemplate [v/required cv/str?] )
+(validation :fqdn 
+   (when-not-nil (partial re-find #".*\.\w*") "must be fully qualified"))
 
-(defvalidatorset provider-validation
-   :machine machine-common 
-   :machine machine-provider
-   :extended extended
-  )
+(def machine-provider
+  {:machine {
+    :vmid #{:required :number} :password #{:required :String}
+    :nameserver #{:String} :hostname #{:String :fqdn :required}
+    :ip_address #{:String} :ostemplate #{:required :String}}})
 
-(defn provider-validation
+(def provider-validation (combine machine-common machine-provider extended-vs))
+
+(defn validate-provider
   "Almost the same validation as persisted with small mapped properties modifications"
   [machine extended]
-    (cv/validate! ::invalid-container {:machine machine :extended extended} provider-validation))
+  (validate! {:machine machine :extended extended} provider-validation  :error ::invalid-container  ))
 

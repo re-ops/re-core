@@ -19,10 +19,10 @@
     (with-redefs [ct-id (fn [_] (fn [_] nil))]
       (fact "missing vmid"
             (vconstruct (assoc-in redis-prox-spec [:proxmox :vmid] nil)) => 
-            (throws ExceptionInfo (with-m? {:machine {:vmid '("vmid must be present")}} ))))
+            (throws ExceptionInfo (with-m? {:machine {:vmid '("must be present")}} ))))
     (fact "non int vmid"
           (vconstruct (assoc-in redis-prox-spec [:proxmox :vmid] "string")) => 
-          (throws ExceptionInfo (with-m? {:machine {:vmid '("vmid must be a number")}})))
+          (throws ExceptionInfo (with-m? {:machine {:vmid '("must be a number")}})))
     (with-redefs [ct-id (fn [_] 101)]
       (let [ct (vconstruct (assoc-in redis-prox-spec [:proxmox :features] ["nfs:on"]))]
         (fact "vzctl usage"
