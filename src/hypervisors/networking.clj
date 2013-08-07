@@ -68,11 +68,16 @@
       [s e])
     (catch [:type :celestial.common/missing-conf] e nil)))
 
-(defm mark-used
-  "Marks used ips, memoized so it will be called once on each boot/usage"
+(defn mark
+   "marks a single ip as used" 
+   [ip k]
+   (wcar (car/zadd k 1 ip)) ip)
+
+(defm mark-conf
+  "Marks all used ips in configuration, memoized so it will be called once on each boot/usage"
   [k]
   (doseq [ip (map ip-to-long (get! :hypervisor :proxmox :generators :used-ips))]
-    (wcar (car/zadd k 1 ip))))
+    (mark ip k)))
 
 (defn initialize-range
   "Initializes ip range zset 0 marks unused 1 marks used (only if missing)."
@@ -82,7 +87,6 @@
       (when-not (= 1 (car/exists k))
         (doseq [ip (range s (+ 1 e))]
           (car/zadd k 0 ip))))))
-
 
 (defn- fetch-ip
   "Redis ip range fetcher"
@@ -102,7 +106,7 @@
   [ct k] 
   (let [k* (ips-key k)]
     (when (= 0 (wcar (car/exists k*))) (initialize-range k*)) 
-    (mark-used k*) ; in case list was updated
+    (mark-conf k*) ; in case list was updated
     (if-let [ip (fetch-ip k*)]
       (assoc ct :ip_address ip)
       (throw+ {:type ::ip-gen-error} "Failed to obtain ip for container"))))
