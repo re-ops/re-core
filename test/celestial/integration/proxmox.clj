@@ -36,6 +36,6 @@
     (running-seq 
       (vconstruct (-> redis-prox-spec (dissoc-in* [:machine :ip]) (dissoc-in* [:proxmox :vmid]))))))
 
-(fact "bridged" :integration :proxmox
+(fact "bridged" :integration :proxmox :bridge
    (with-conf
       (running-seq (vconstruct redis-bridged-prox-spec))))
