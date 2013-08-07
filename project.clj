@@ -29,7 +29,7 @@
                  [fogus/minderbinder "0.2.0"]
                  [ch.qos.logback/logback-classic "1.0.13"]
                  [org.codehaus.groovy/groovy "2.1.6"]
-                 [supernal "0.2.8"]
+                 [supernal "0.2.9"]
                  [ring-middleware-format "0.3.0"]
                  [ring/ring-jetty-adapter "1.2.0"]
                  [ring "1.2.0"]
