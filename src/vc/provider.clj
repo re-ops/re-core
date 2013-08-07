@@ -59,7 +59,7 @@
        (catch [:type :vc.vijava/missing-entity] e
          (warn "No VM found, most chances it hasn't been created yet") false))))
 
-(def machine-ks [:template :cpus :memory :ip :mask :gateway :search :names :user :password :sudo])
+(def machine-ks [:template :cpus :memory :ip :netmask :gateway :search :names :user :password :sudo])
 
 (def allocation-ks [:pool :datacenter :disk-format :hostsystem])
 

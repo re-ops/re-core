@@ -19,7 +19,7 @@
         (:hostname vm)   => "red1"
         (:machine vm) => {:cpus 1 :memory 512 
                           :password "foobar" :user "ronen" :sudo true
-                          :gateway "192.168.5.1" :ip "192.168.5.91" :mask "255.255.255.0"
+                          :gateway "192.168.5.1" :ip "192.168.5.91" :netmask "255.255.255.0"
                           :names ["8.8.8.8"] :search "local"
                           :template "ubuntu-13.04_puppet-3.2"}))
 
@@ -32,15 +32,15 @@
             (throws ExceptionInfo (with-m? {:allocation {:disk-format '("disk format must be either #{:flat :sparse}")}})))
 
     (fact "missing mask for existing ip"
-          (vconstruct (assoc-in redis-vc-spec [:machine :mask] nil)) => 
-            (throws ExceptionInfo (with-m? {:machine {:mask '("must be present")}})))
+          (vconstruct (assoc-in redis-vc-spec [:machine :netmask] nil)) => 
+            (throws ExceptionInfo (with-m? {:machine {:netmask '("must be present")}})))
 
     (fact "missing hostsystem"
           (vconstruct (assoc-in redis-vc-spec [:vcenter :hostsystem] nil)) => 
             (throws ExceptionInfo (with-m? {:allocation {:hostsystem '("must be present")}})))
 
     (fact "missing mask for missing ip"
-          (vconstruct (merge-with merge redis-vc-spec {:machine {:mask nil :ip nil}})) => truthy)
+          (vconstruct (merge-with merge redis-vc-spec {:machine {:netmask nil :ip nil}})) => truthy)
 
     (fact "entity sanity"
         (validate-system redis-vc-spec) => truthy 
