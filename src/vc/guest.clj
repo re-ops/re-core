@@ -15,7 +15,7 @@
     com.vmware.vim25.GuestProgramSpec
     com.vmware.vim25.GuestFileAttributes) 
   (:require 
-    [selmer.parser :refer (render-file)]
+    [hypervisors.networking :refer [static-ip-template]]
     [slingshot.slingshot :refer  [throw+ try+]]
     [clj-http.client :as client])
   (:use 
@@ -107,7 +107,7 @@
     (debug "setting up guest static ip")
     (assert-sudo hostname auth uuid)
     (upload-file 
-      (render-file "static-ip.tmpl" (update-in config [:names] (partial join ","))) tmp-file hostname auth)
+     (static-ip-template (update-in config [:names] (partial join ","))) tmp-file hostname auth)
     (guest-run hostname "/bin/cp" (<< "-v ~{tmp-file} /etc/network/interfaces") auth uuid [2 :seconds])
     (guest-run hostname "/sbin/ifdown" "eth0" auth uuid [3 :seconds])
     (guest-run hostname "/sbin/ifup" "eth0" auth uuid [3 :seconds])
@@ -119,7 +119,7 @@
 
 (comment
   (set-ip "red1" {:user "ronen" :password "foobar" :sudo true} 
-          {:ip "192.168.5.91" :mask "255.255.255.0" :network "192.168.5.0" :gateway "192.168.5.1" :search "local" :names ["192.168.5.1"]}) 
+          {:ip "192.168.5.91" :netmask "255.255.255.0" :network "192.168.5.0" :gateway "192.168.5.1" :search "local" :names ["192.168.5.1"]}) 
   (download-file "/tmp/project.clj" "/tmp/project.clj" "foo" {:user "root" :pass "foobar"})
   (upload-file "project.clj" "/tmp/project.clj" "red1" {:user "ronen" :pass "foobar"}) 
   (download-file "/tmp/project.clj" "/tmp/project.clj" "foo" {:user "ronen" :pass "foobar"}) 

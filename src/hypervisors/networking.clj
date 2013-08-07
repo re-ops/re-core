@@ -2,6 +2,7 @@
   "Common hypervizors networking logic"
   (:require 
     [clojure.core.strint :refer [<<]]
+    [selmer.parser :refer (render-file)]
     [clojure.data :refer [diff]]
     [clojure.java.data :refer [from-java]] 
     [celestial.common :refer [get! import-logging]]
@@ -135,3 +136,8 @@
     (zipmap [:scanned :listed :common] (diff (into #{} scanned) (into #{} (list-used-ips k))))))
 
 (test #'long-to-ip) 
+
+(defn static-ip-template 
+   "Generates a static ip template" 
+   [config]
+   (render-file "static-ip.tmpl" config))

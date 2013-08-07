@@ -25,8 +25,9 @@
     [proxmox.generators :only (ct-id)]
     [celestial.model :only (translate vconstruct)])
   (:require 
-    [supernal.sshj :only (copy)]
-    [hypervisors.networking :refer (gen-ip release-ip mark)]
+    [me.raynes.fs :refer (delete-dir temp-dir)]
+    [supernal.sshj :refer (copy)]
+    [hypervisors.networking :refer (static-ip-template gen-ip release-ip mark)]
     [celestial.validations :as cv]
     [celestial.persistency :as p])
   (:import clojure.lang.ExceptionInfo))
@@ -90,6 +91,15 @@
       (and (not ip_address) (not netif)) [(gen-ip ct "proxmox") network]
       )))
 
+(defn update-interfaces 
+  "uploads interfaces file for a ct if bridge is used" 
+  [ip_address network vmid]
+  (let [temp (temp-dir "update-interfaces") output (<< "~(.getPath temp)/interfaces")]
+    (try 
+      (spit output (static-ip-template (merge {:ip ip_address} network)))      
+      (copy output (<< "/var/lib/vz/private/~{vmid}/etc/network/") (get! :hypervisor :proxmox)) 
+      (finally (delete-dir temp)))))
+
 (defconstrainedrecord Container [node ct extended network]
   "ct should match proxmox expected input (see http://pve.proxmox.com/pve2-api-doc/)"
   [(provider-validation ct extended) (not (nil? node))]
@@ -102,6 +112,8 @@
               (enable-features this) 
               (when (p/system-exists? id)
                 (p/partial-system id {:proxmox {:vmid vmid} :machine {:ip ip_address}})) 
+              (when (ct* :netif)
+                (update-interfaces ip_address network* vmid))
               (catch [:status 500] e 
                 (release-ip ip_address "proxmox")
                 (warn "Container already exists" e)))))
