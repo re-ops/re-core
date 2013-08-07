@@ -1,6 +1,8 @@
 (ns celestial.integration.proxmox
   "Integration tests assume a proxmox vm with local address make sure to configure it"
   (:require 
+     [celestial.common :refer (get!)]
+     [supernal.sshj :refer (execute)]
      [flatland.useful.map :refer (dissoc-in*)]
      [celestial.common :refer (slurp-edn)]
      [celestial.fixtures :refer (with-conf redis-prox-spec redis-bridged-prox-spec)]  
@@ -18,12 +20,14 @@
 
 ; generators 
 
-(defn running-seq [ct]
+(defn running-seq [{:keys [network] :as ct}]
   (.stop ct)
   (.delete ct) 
   (.create ct) 
   (.start ct)
   (.status ct) => "running"
+  ; making sure its ssh-able
+  (execute "touch /tmp/foo" {:host (:ip_address network) :user "root"}) => nil
   (.stop ct)
   (.delete ct))
 
