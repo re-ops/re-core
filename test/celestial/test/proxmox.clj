@@ -1,8 +1,9 @@
 (ns celestial.test.proxmox
   (:require 
-    [celestial.fixtures :as fix :refer [redis-prox-spec with-conf with-m?]] 
+    [celestial.fixtures :as fix :refer [redis-prox-spec redis-bridged-prox-spec with-conf with-m?]] 
     [hypervisors.networking :as n]
     [flatland.useful.map :refer  (dissoc-in*)]
+    [proxmox.validations :refer (validate-entity)]
     [proxmox.provider :as prox :refer (vzctl enable-features assign-networking)])
   (:use 
     midje.sweet
@@ -14,15 +15,17 @@
     [proxmox.auth :only (fetch-headers auth-headers auth-store auth-expired?)])
   (:import clojure.lang.ExceptionInfo))
 
+(defn nulify [spec & ks] (assoc-in spec ks nil))
+
 (with-conf
   (let [{:keys [machine proxmox]} redis-prox-spec]
     (with-redefs [ct-id (fn [_] (fn [_] nil))]
       (fact "missing vmid"
-            (vconstruct (assoc-in redis-prox-spec [:proxmox :vmid] nil)) => 
-            (throws ExceptionInfo (with-m? {:machine {:vmid '("must be present")}} ))))
+            (vconstruct (nulify redis-prox-spec :proxmox :vmid)) => 
+            (throws ExceptionInfo (with-m? {:ct {:vmid '("must be present")}} ))))
     (fact "non int vmid"
           (vconstruct (assoc-in redis-prox-spec [:proxmox :vmid] "string")) => 
-          (throws ExceptionInfo (with-m? {:machine {:vmid '("must be a number")}})))
+          (throws ExceptionInfo (with-m? {:ct {:vmid '("must be a number")}})))
     (with-redefs [ct-id (fn [_] 101)]
       (let [ct (vconstruct (assoc-in redis-prox-spec [:proxmox :features] ["nfs:on"]))]
         (fact "vzctl usage"
@@ -87,3 +90,33 @@
           (assign-networking ct network) => (contains (contains {:ip_address "192.168.5.200"}))
           (provided 
             (n/mark "192.168.5.200" "proxmox") =>  "192.168.5.200"))))
+
+(fact "proxmox entity validation"
+   (validate-entity redis-prox-spec) => truthy
+
+   (validate-entity (nulify redis-prox-spec :machine :cpus)) => ; common validation 
+      (throws ExceptionInfo (with-m? {:machine {:cpus '("must be present")}}))
+
+   (validate-entity (nulify redis-prox-spec :machine :domain)) => ; non fqdn
+      (throws ExceptionInfo (with-m? {:machine {:domain '("must be present")}}))
+
+   (validate-entity (assoc-in redis-prox-spec [:machine :os] "ubutnu-12.04")) => ; entity validation 
+      (throws ExceptionInfo (with-m? {:machine {:os '("must be a keyword")}}))
+
+   (validate-entity (assoc-in redis-prox-spec [:proxmox :vmid] 33)) => 
+      (throws ExceptionInfo (with-m? {:proxmox {:vmid '("must be greater then 100")}}))
+
+   (validate-entity (nulify redis-prox-spec :proxmox :vmid)) => truthy
+
+   (validate-entity (nulify redis-prox-spec :proxmox :password)) => ; proxmox validation
+      (throws ExceptionInfo (with-m? {:proxmox {:password '("must be present")}})))
+
+
+(fact "bridged entity validation"
+   (validate-entity redis-bridged-prox-spec) => truthy
+
+   (validate-entity (nulify redis-bridged-prox-spec :machine :netmask)) => 
+      (throws ExceptionInfo (with-m? {:machine {:netmask '("must be present")}}))
+
+   (validate-entity (assoc-in redis-bridged-prox-spec [:machine :netmask] "123")) => 
+      (throws ExceptionInfo (with-m? {:machine {:netmask '("must be a legal ip address")}})))
