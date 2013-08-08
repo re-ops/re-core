@@ -16,10 +16,13 @@
     [subs.core :refer (validate! combine validation when-not-nil)]
     [celestial.validations :as cv]))
 
-(def machine-common
-   {:machine {
-    :cpus #{:required :number} :disk #{:required :number}
-    :memory #{:required :number} :hostname #{:required :String}}})
+(def common-bridging 
+  {:bridge #{:required :String} :interface #{:required :String}
+   :netmask #{:required :String :ip} :gateway #{:required :String :ip}})
+
+(def common-resources
+   {:cpus #{:required :number} :disk #{:required :number}
+    :memory #{:required :number} :hostname #{:required :String}})
 
 (def prox-types #{:ct :vm})
 
@@ -31,6 +34,9 @@
 (validation :greater-then-100
   (when-not-nil (partial greater-then 100) "must be greater then 100"))
 
+(validation :ip 
+   (when-not-nil (partial re-find #"\d+\.\d+\.\d+\.\d+") "must be a legal ip address"))
+
 (def proxmox-entity
   {:proxmox {
     :type #{:required :prox-type} :vmid #{:greater-then-100}
@@ -40,13 +46,14 @@
   {:machine {
     :domain #{:required :String} :ip #{:String} :os #{:required :Keyword}}})
 
-(def entity-validation
-  (combine machine-common machine-entity proxmox-entity))
+(defn entity-validation [{:keys [bridge]}]
+  (combine (if bridge {:machine common-bridging} {}) 
+    {:machine common-resources} machine-entity proxmox-entity))
 
 (defn validate-entity
   "proxmox based system entity validation for persistence layer" 
-  [proxmox]
-  (validate! proxmox entity-validation :error ::invalid-system))
+  [{:keys [machine] :as proxmox}]
+  (validate! proxmox (entity-validation machine) :error ::invalid-system))
 
 (def extended-vs
   {:extended {:id #{:number} :features #{:Vector}}})
@@ -54,16 +61,19 @@
 (validation :fqdn 
    (when-not-nil (partial re-find #".*\.\w*") "must be fully qualified"))
 
-(def machine-provider
-  {:machine {
+(def ct-provider
+  {:ct {
     :vmid #{:required :number} :password #{:required :String}
     :nameserver #{:String} :hostname #{:String :fqdn :required}
-    :ip_address #{:String} :ostemplate #{:required :String}}})
+    :ostemplate #{:required :String}}})
 
-(def provider-validation (combine machine-common machine-provider extended-vs))
+(def common-network )
 
-(defn validate-provider
-  "Almost the same validation as persisted with small mapped properties modifications"
-  [machine extended]
-  (validate! {:machine machine :extended extended} provider-validation  :error ::invalid-container  ))
+(defn provider-validation [{:keys [bridge] :as network}]
+  (combine (if bridge {:network common-bridging} {})
+     {:ct common-resources} ct-provider extended-vs {:network {:ip_address #{:String :ip}}}))
+
+(defn validate-provider [ct extended network]
+  (validate! {:ct ct :extended extended :network network} 
+    (provider-validation network) :error ::invalid-container))
 

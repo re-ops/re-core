@@ -102,7 +102,7 @@
 
 (defconstrainedrecord Container [node ct extended network]
   "ct should match proxmox expected input (see http://pve.proxmox.com/pve2-api-doc/)"
-  [(validate-provider ct extended) (not (nil? node))]
+  [(validate-provider ct extended network) (not (nil? node))]
   Vm
   (create [this] 
           (debug "creating" (:vmid ct))
