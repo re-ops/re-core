@@ -1,3 +1,4 @@
+; see http://celestial-ops.com/posts/configuration.html
 {
  :celestial {
    :port 8082
