@@ -1,7 +1,6 @@
 (ns celestial.integration.proxmox
   "Integration tests assume a proxmox vm with local address make sure to configure it"
   (:require 
-     [celestial.common :refer (get!)]
      [supernal.sshj :refer (execute)]
      [flatland.useful.map :refer (dissoc-in*)]
      [celestial.common :refer (slurp-edn)]

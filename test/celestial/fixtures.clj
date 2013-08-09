@@ -18,7 +18,9 @@
 
 (def redis-vc-spec (slurp-edn "fixtures/redis-vc-system.edn"))
 
-(def local-prox (slurp-edn "fixtures/.celestial.edn"))
+(def local-prox (slurp-edn "fixtures/celestial.edn"))
+
+(def clustered-prox (slurp-edn "fixtures/celestial-cluster.edn"))
 
 (def redis-actions (slurp-edn "fixtures/redis-actions.edn"))
 
