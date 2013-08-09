@@ -5,7 +5,7 @@
     [slingshot.slingshot :only  [throw+ try+]]
     [clojure.core.strint :only (<<)]
     [proxmox.remote :only (prox-get)]
-    [celestial.common :only (get! import-logging)]))
+    [celestial.common :only (import-logging)]))
 
 (import-logging)
 

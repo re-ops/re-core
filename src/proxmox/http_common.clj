@@ -10,13 +10,14 @@
   limitations under the License.)
 
 (ns proxmox.http-common
-  (:use 
-    [clojure.core.strint :only (<<)]
-    [celestial.common :only (get! import-logging)]))
+  (:require 
+    [clojure.core.strint :refer (<<)]
+    [celestial.common :refer (import-logging)]
+    [proxmox.model :refer (proxmox-master)]))
 
 (import-logging)
 
-(defn root [] (<< "https://~(get! :hypervisor :proxmox :host):8006/api2/json"))
+(defn root [] (<< "https://~((proxmox-master) :host):8006/api2/json"))
 
 (defn retry
   "A retry for http calls against proxmox, some operations lock machine even after completion"

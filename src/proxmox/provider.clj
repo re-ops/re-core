@@ -16,7 +16,6 @@
     [clojure.core.strint :only (<<)]
     [celestial.core :only (Vm)]
     [supernal.sshj :only (execute)]
-    [celestial.common :only (get! import-logging)]
     [proxmox.remote :only (prox-post prox-delete prox-get)]
     [slingshot.slingshot :only  [throw+ try+]]
     [clojure.set :only (difference)]
@@ -24,6 +23,8 @@
     [proxmox.generators :only (ct-id)]
     [celestial.model :only (translate vconstruct)])
   (:require 
+    [celestial.common :refer (import-logging)]
+    [proxmox.model :refer (get-node)]
     [proxmox.validations :refer (validate-provider)]
     [me.raynes.fs :refer (delete-dir temp-dir)]
     [supernal.sshj :refer (copy)]
@@ -39,12 +40,12 @@
   (memo-ttl  
     (fn [node] 
       (try+ 
-        (prox-get (str "/nodes/" node "/status" ))
+        (prox-get (<< "/nodes/~{node}/status" ))
         true
         (catch [:status 500] e false))) (* 60 1000)))
 
 (defn task-status [node upid]
-  (prox-get (str "/nodes/" node  "/tasks/" upid "/status")))
+  (prox-get (<< "/nodes/~{node}/tasks/~{upid}/status")))
 
 (defn check-task
   "Checking that a proxmox task has succeeded"
@@ -93,11 +94,11 @@
 
 (defn update-interfaces 
   "uploads interfaces file for a ct if bridge is used" 
-  [ip_address network vmid]
+  [node ip_address network vmid]
   (let [temp (temp-dir "update-interfaces") output (<< "~(.getPath temp)/interfaces")]
     (try 
       (spit output (static-ip-template (merge {:ip ip_address} network)))      
-      (copy output (<< "/var/lib/vz/private/~{vmid}/etc/network/") (get! :hypervisor :proxmox)) 
+      (copy output (<< "/var/lib/vz/private/~{vmid}/etc/network/") (get-node node)) 
       (finally (delete-dir temp)))))
 
 (defconstrainedrecord Container [node ct extended network]
@@ -113,7 +114,7 @@
               (when (p/system-exists? id)
                 (p/partial-system id {:proxmox {:vmid vmid} :machine {:ip ip_address}})) 
               (when (ct* :netif)
-                (update-interfaces ip_address network* vmid))
+                (update-interfaces node ip_address network* vmid))
               (catch [:status 500] e 
                 (release-ip ip_address "proxmox")
                 (warn "Container already exists" e)))))
@@ -156,12 +157,11 @@
 
 (defn vzctl 
   [this action] 
-  (execute  (<< "vzctl ~{action}") (get! :hypervisor :proxmox)))
+  (execute  (<< "vzctl ~{action}") (get-node (:node this))))
 
 (defn generate
   "apply generated values (if not present)." 
   [res]
-
   (reduce (fn [res [k v]] (if (res k) res (update-in res [k] v ))) res {:vmid (ct-id (:node res))}))
 
 (def ct-ks [:vmid :ostemplate :cpus :disk :memory :password :hostname :nameserver :searchdomain])
@@ -191,6 +191,5 @@
       :ct  (apply ->Container node (translate spec))
       :vm nil 
       )))
-
 
 

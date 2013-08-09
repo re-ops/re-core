@@ -12,17 +12,16 @@
 (ns proxmox.auth
   (:require 
     [cheshire.core :refer :all]
+    [proxmox.model :refer (proxmox-master)]
     [clj-http.client :as client])
   (:use 
     [proxmox.http-common :only (root http-opts)]
     [clojure.core.strint :only (<<)]
-    [celestial.common :only (import-logging get! curr-time minute)]
+    [celestial.common :only (import-logging curr-time minute)]
     [slingshot.slingshot :only  [try+]])
   (:import clojure.lang.ExceptionInfo))
 
 (import-logging)
-
-(defn proxmox-conf [] (get! :hypervisor :proxmox))
 
 (defn call- 
   "Calling without auth headers"
@@ -31,7 +30,7 @@
 
 (defn login-creds []
   (select-keys 
-    (assoc (proxmox-conf) :realm "pam") [:username :password :realm]))
+    (assoc (proxmox-master) :realm "pam") [:username :password :realm]))
 
 (defn login []
   {:post [(not (nil? (% :CSRFPreventionToken))) (not (nil? (% :ticket)))]}
@@ -40,9 +39,9 @@
       (select-keys res [:CSRFPreventionToken :ticket]))
     (catch #(#{401 500} (:status %)) e
       (debug e)
-      (throw (ExceptionInfo. "Failed to login" (proxmox-conf))))
+      (throw (ExceptionInfo. "Failed to login" (proxmox-master))))
     (catch #(#{400} (:status %)) e
-      (throw (ExceptionInfo. "Illegal request, check query params" (proxmox-conf))))))
+      (throw (ExceptionInfo. "Illegal request, check query params" (proxmox-master))))))
 
 (defn fetch-headers []
   (trace "Refetching auth headers")

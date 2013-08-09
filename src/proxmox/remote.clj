@@ -12,13 +12,12 @@
 (ns proxmox.remote
   (:require 
     [cheshire.core :refer :all]
-    [clj-http.client :as client])
-  (:use [proxmox.http-common :only (root http-opts)]
-        [proxmox.auth :only (auth-headers)]
-        [clojure.core.strint :only (<<)]
-        [celestial.common :only (get! curr-time minute import-logging)]
-        [slingshot.slingshot :only  [try+]])
-  )
+    [proxmox.auth :refer (auth-headers)]
+    [clojure.core.strint :refer (<<)]
+    [proxmox.http-common :refer (root http-opts)]
+    [celestial.common :refer (curr-time minute import-logging)]
+    [slingshot.slingshot :refer [try+]]  
+    [clj-http.client :as client]))
 
 (import-logging)
 

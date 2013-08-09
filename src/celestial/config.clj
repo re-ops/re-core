@@ -11,9 +11,10 @@
 
 (ns celestial.config
   "Celetial configuration info"
-  (:require [celestial.validations :as cv])
+  (:require 
+    [subs.core :refer (validate! combine validation when-not-nil every-kv)]
+    [celestial.validations :as cv])
   (:use 
-    [subs.core :only (validate! combine validation when-not-nil)]
     [clojure.pprint :only (pprint)]
     [taoensso.timbre :only (set-config! set-level! debug info error warn trace)]
     [clojure.core.strint :only (<<)]
@@ -37,12 +38,12 @@
      :job {:expiry #{:number} :wait-time #{:number}} 
      :nrepl {:port #{:number}}}})
 
+(validation :node*
+  (every-kv {:username #{:required :String} :password #{:required :String} 
+             :host #{:required :String} :ssh-port #{:required :number}}))
+
 (def ^{:doc "proxmox section validation"} proxmox-v 
-  {:hypervisor 
-   {:proxmox
-    {:username #{:required :String} :password #{:required :String} 
-     :host #{:required :String} :ssh-port #{:required :number}} 
-    }})
+  {:hypervisor {:proxmox {:master #{:required :Keyword} :nodes #{:required :node*}}}})
 
 (def ^{:doc "aws section validation"} aws-v 
   {:hypervisor {:aws {:access-key #{:required :String} :secret-key #{:required :String}}}})

@@ -1,0 +1,72 @@
+{
+ :celestial {
+   :port 8082
+   :https-port 8443
+   :log {
+     :level :trace
+     :path "celestial.log"
+     :gelf-host "192.168.5.9"
+   }
+
+   ;; :job {
+   ;;    :expiry 30
+   ;;    :wait-time 5
+   ;; }
+
+   :cert {
+     :password "foobar" 
+     :keystore "foo.keystore"
+   }
+
+   ;; :nrepl {
+   ;;    :port 7888
+   ;;  }
+ }
+
+ :hypervisor {
+    :proxmox {
+      :master :proxmox
+      :nodes {
+         :proxmox {:username "root" :password "foobar" :host "localhost" :ssh-port 22222}
+       }
+      :ostemplates {
+         :ubuntu-12.04 "local:vztmpl/ubuntu-12.04-puppet_3-x86_64.tar.gz"
+       }
+      :generators {
+        :ip-range ["192.168.5.100" "192.168.5.255"]
+        :used-ips ["192.168.5.170" "192.168.5.171" "192.168.5.173"]
+      }
+   }
+    ;; :aws {
+    ;;   :access-key ""
+    ;;   :secret-key ""
+    ;;  } 
+
+    :vcenter {
+      :url "https://192.168.5.23/sdk"
+      :username "Administrator"
+      :password "Oox1kai7"
+      :ostemplates {
+         :ubuntu-13.04 "ubuntu-13.04_puppet-3.2"
+      }
+      :session-count 2
+    }
+ }
+  
+ :redis {
+   :host "localhost"
+ } 
+
+ :ssh {
+   :private-key-path "/home/ronen/.ssh/id_rsa"
+ }
+
+ :hooks {
+   ;; hooks.hubot/notify-hubot {
+   ;;      :hubot-host "http://192.168.5.14:8083" 
+   ;; }
+   ;; hooks.dnsmasq/update-dns {
+   ;;      :dnsmasq "192.168.20.180" :user "ronen" :domain "local"
+   ;; }
+ }
+}

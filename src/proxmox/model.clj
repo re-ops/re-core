@@ -1,12 +1,18 @@
 (ns proxmox.model
-  (:use 
-    [flatland.useful.map :only  (dissoc-in*)]
-    [celestial.model :only (clone)] 
-    )
- )
+  (:require 
+    [flatland.useful.map :refer  (dissoc-in*)]
+    [celestial.model :refer (clone)] 
+    [celestial.common :refer (get!)]))
 
 (defmethod clone :proxmox [spec]
   "Clones the model replace unique identifiers in the process" 
   (-> spec 
       (dissoc-in* [:proxmox :vmid])
       (dissoc-in* [:machine :ip])))
+
+(defn get-node [node] 
+  (get! :hypervisor :proxmox :nodes (keyword node)))
+
+(defn proxmox-master [] 
+  (get-node (get! :hypervisor :proxmox :master)))
+ 
