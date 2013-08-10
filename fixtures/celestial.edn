@@ -25,9 +25,9 @@
 
  :hypervisor {
     :proxmox {
-      :master :proxmox
+      :master :proxmox-a
       :nodes {
-         :proxmox {:username "root" :password "foobar" :host "localhost" :ssh-port 22222}
+         :proxmox-a {:username "root" :password "foobar" :host "localhost" :ssh-port 22222}
        }
       :ostemplates {
          :ubuntu-12.04 "local:vztmpl/ubuntu-12.04-puppet_3-x86_64.tar.gz"
