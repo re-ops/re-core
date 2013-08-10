@@ -10,12 +10,13 @@
 
 (fact "puppet std type validation"
     
-    (validate-type redis-type) => true
+    (validate-type redis-type) => truthy
 
     (validate-type (assoc-in redis-type [:puppet-std :module :src] nil)) => 
        (throws ExceptionInfo (is-type? :celestial.persistency/non-valid-type))
 
     (validate-type (assoc-in redis-type [:puppet-std :args] nil)) => truthy 
+
     (validate-type (assoc-in redis-type [:puppet-std :args] [])) => truthy 
     
     (validate-type (assoc-in redis-type [:puppet-std :args] {})) => 
@@ -25,7 +26,7 @@
        (throws ExceptionInfo (is-type? :celestial.persistency/non-valid-type)))
 
 (fact "non puppet type"
-  (validate-type {:type "foo"}) => true)
+  (validate-type {:type "foo"}) => truthy)
 
 (fact "quotas validations"
      (validate-quota user-quota) => true

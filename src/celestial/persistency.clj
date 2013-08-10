@@ -46,21 +46,18 @@
 
 (entity type :id type)
 
-(defn puppet-std?  [t] (contains? t :puppet-std))
+(def puppet-std-v 
+  {
+   :classes #{:required :Map}
+   :puppet-std {
+    :args #{:Vector} 
+    :module {
+      :name #{:required :String}
+      :src  #{:required :String}      
+    }}})
 
-(defvalidatorset puppet-std-v 
-   :args         [(cv/vec? :pre puppet-std?)]
-   [:module :name] [(v/required :pre puppet-std?) cv/str?]
-   [:module :src]  [(v/required :pre puppet-std?) cv/str?])
-
-(defvalidatorset type-v
-  :type [v/required]  
-  :classes [(v/required :pre puppet-std?) cv/hash?]
-  :puppet-std puppet-std-v 
-  )
-
-(defn validate-type [t]
-  (validate! ::non-valid-type t type-v))
+(defn validate-type [{:keys [puppet-std] :as t}]
+  (subs/validate! t (combine (if puppet-std puppet-std-v {}) {:type #{:required :String}}) :error ::non-valid-type ))
 
 (entity action :indices [operates-on])
 
