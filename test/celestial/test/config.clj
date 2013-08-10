@@ -16,8 +16,8 @@
       (validate-missing :celestial :port) => {:celestial {:port '("must be present")}})
 
 (fact "missing proxmox options"
-    (validate-missing :hypervisor :proxmox :nodes :proxmox :password) =>  
-      '{:hypervisor {:proxmox {:nodes (({:proxmox {:password ("must be present")}}))}}} )
+    (validate-missing :hypervisor :proxmox :nodes :proxmox-a :password) =>  
+      '{:hypervisor {:proxmox {:nodes (({:proxmox-a {:password ("must be present")}}))}}} )
 
 
 (fact "missing aws options"
