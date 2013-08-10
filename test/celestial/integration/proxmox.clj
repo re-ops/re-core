@@ -4,7 +4,7 @@
      [supernal.sshj :refer (execute)]
      [flatland.useful.map :refer (dissoc-in*)]
      [celestial.common :refer (slurp-edn)]
-     [celestial.fixtures :refer (with-conf redis-prox-spec redis-bridged-prox-spec)]  
+     [celestial.fixtures :refer (with-conf redis-prox-spec redis-bridged-prox)]  
      [celestial.model :refer (vconstruct)])
   (:use midje.sweet proxmox.provider))
 
@@ -41,4 +41,4 @@
 
 (fact "bridged" :integration :proxmox :bridge
    (with-conf
-      (running-seq (vconstruct redis-bridged-prox-spec))))
+      (running-seq (vconstruct redis-bridged-prox))))

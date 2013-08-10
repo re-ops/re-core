@@ -10,7 +10,7 @@
 
 (def redis-prox-spec (slurp-edn "fixtures/redis-system.edn"))
 
-(def redis-bridged-prox-spec (slurp-edn "fixtures/redis-system-bridged.edn"))
+(def redis-bridged-prox (slurp-edn "fixtures/redis-system-bridged.edn"))
 
 (def redis-type (slurp-edn "fixtures/redis-type.edn"))
 

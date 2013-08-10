@@ -1,6 +1,6 @@
 (ns celestial.test.proxmox
   (:require 
-    [celestial.fixtures :as fix :refer [redis-prox-spec redis-bridged-prox-spec with-conf with-m?]] 
+    [celestial.fixtures :as fix :refer [redis-prox-spec redis-bridged-prox with-conf with-m?]] 
     [hypervisors.networking :as n]
     [flatland.useful.map :refer  (dissoc-in*)]
     [proxmox.validations :refer (validate-entity)]
@@ -52,7 +52,7 @@
 
 ; networking
 (with-conf
-  (let [{:keys [ct network] :as bridged} (vconstruct fix/redis-bridged-prox-spec) ]
+  (let [{:keys [ct network] :as bridged} (vconstruct fix/redis-bridged-prox) ]
     (fact "bridged construction"
           network => (contains {:gateway "192.168.5.255" :ip_address "192.168.5.200"
                                 :netif "ifname=eth0,bridge=vmbr0" :netmask "255.255.255.0"}))
@@ -62,7 +62,7 @@
           (provided 
             (n/mark "192.168.5.200" "proxmox") =>  "192.168.5.200")))
 
-  (let [{:keys [ct network] :as bridged-no-ip} (vconstruct (dissoc-in* fix/redis-bridged-prox-spec [:machine :ip])) ]
+  (let [{:keys [ct network] :as bridged-no-ip} (vconstruct (dissoc-in* fix/redis-bridged-prox [:machine :ip])) ]
     (fact "bridged noip construction"
           network => (contains {:gateway "192.168.5.255" :netif "ifname=eth0,bridge=vmbr0" :netmask "255.255.255.0"}))
 
@@ -72,7 +72,7 @@
           (provided 
             (n/gen-ip anything "proxmox") =>  {:ip_address "192.168.5.201"})))
 
-  (let [non-bridged-no-ip (reduce dissoc-in* fix/redis-bridged-prox-spec [[:machine :ip] [:machine :bridge]])
+  (let [non-bridged-no-ip (reduce dissoc-in* fix/redis-bridged-prox [[:machine :ip] [:machine :bridge]])
         {:keys [ct network] :as non-bridged-no-ip} (vconstruct non-bridged-no-ip) ]
 
     (fact "non-bridged noip construction" network => (contains {:gateway "192.168.5.255" :netmask "255.255.255.0"}))
@@ -82,7 +82,7 @@
           (provided 
             (n/gen-ip anything "proxmox") =>  {:ip_address "192.168.5.202"})))
 
-  (let [{:keys [ct network] :as with-ip} (vconstruct (dissoc-in* fix/redis-bridged-prox-spec [:machine :bridge])) ]
+  (let [{:keys [ct network] :as with-ip} (vconstruct (dissoc-in* fix/redis-bridged-prox [:machine :bridge])) ]
     (fact "non bridged has ip construction"
           network => (contains {:gateway "192.168.5.255" :netmask "255.255.255.0"}))
 
@@ -113,10 +113,10 @@
 
 
 (fact "bridged entity validation"
-   (validate-entity redis-bridged-prox-spec) => truthy
+   (validate-entity redis-bridged-prox) => truthy
 
-   (validate-entity (nulify redis-bridged-prox-spec :machine :netmask)) => 
+   (validate-entity (nulify redis-bridged-prox :machine :netmask)) => 
       (throws ExceptionInfo (with-m? {:machine {:netmask '("must be present")}}))
 
-   (validate-entity (assoc-in redis-bridged-prox-spec [:machine :netmask] "123")) => 
+   (validate-entity (assoc-in redis-bridged-prox [:machine :netmask] "123")) => 
       (throws ExceptionInfo (with-m? {:machine {:netmask '("must be a legal ip address")}})))
