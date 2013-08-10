@@ -42,11 +42,16 @@
     (= (get-in (.getData actual) [:object :errors]) m)))
 
 (defmacro with-conf 
-  "Using fixture/.celestial.edn conf file"
-  [& body]
- `(with-redefs [celestial.config/config celestial.fixtures/local-prox]
-   ~@body
-    ))
+  "Using fixture/celestial.edn conf file"
+  [f & body]
+  (println (symbol? f))
+  (if (symbol? f)
+    `(with-redefs [celestial.config/config ~f]
+       ~@body 
+       )
+    `(with-redefs [celestial.config/config celestial.fixtures/local-prox]
+       ~@(conj body f) 
+       )))
 
 (defn populate []
   (r/clear-all)
