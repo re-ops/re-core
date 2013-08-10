@@ -15,6 +15,7 @@
     [proxmox.validations :as pv]
     [aws.validations :as av]
     [vc.validations :as vc]
+    [subs.core :as subs :refer (combine when-not-nil)]
     [taoensso.carmine :as car]
     [cemerick.friend :as friend]
     [celestial.validations :as cv]
@@ -33,14 +34,15 @@
 
 (entity user :id username)
 
-(defvalidatorset user-v
-  :username [v/required cv/str?]
-  :password [v/required cv/str?]
-  :roles [v/required (v/every #(roles %) :message (<< "role must be either ~{roles}"))]   
-  )
+(def user-v
+ {:username #{:required :String} :password #{:required :String} :roles #{:required :role*}})
+
+(subs/validation :role (when-not-nil roles (<< "role must be either ~{roles}")))
+
+(subs/validation :role* (subs/every-v #{:role}))
 
 (defn validate-user [user]
-  (validate! ::non-valid-user user user-v))
+  (subs/validate! user user-v :error ::non-valid-user))
 
 (entity type :id type)
 

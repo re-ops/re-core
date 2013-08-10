@@ -34,7 +34,7 @@
 (fact "user validation"
      (validate-user {:username "foo" :password "bar" :roles admin})  => truthy
      (validate-user {:password "bar" :roles admin})  => 
-       (throws ExceptionInfo (with-m? {:username '("username must be present")} ))
-     (validate-user {:username "foo" :password "bar" :roles "foo"})  =>
-       (throws ExceptionInfo (with-m? {:roles '("role must be either #{:celestial.roles/anonymous :celestial.roles/user :celestial.roles/admin}")} ))
+       (throws ExceptionInfo (with-m? {:username '("must be present")} ))
+     (validate-user {:username "foo" :password "bar" :roles ["foo"]})  =>
+       (throws ExceptionInfo (with-m? {:roles '(({0 ("role must be either #{:celestial.roles/anonymous :celestial.roles/user :celestial.roles/admin}")}))} ))
       )
