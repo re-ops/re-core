@@ -44,7 +44,6 @@
 (defmacro with-conf 
   "Using fixture/celestial.edn conf file"
   [f & body]
-  (println (symbol? f))
   (if (symbol? f)
     `(with-redefs [celestial.config/config ~f]
        ~@body 
