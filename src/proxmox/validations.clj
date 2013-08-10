@@ -14,7 +14,7 @@
   (:require 
     [clojure.core.strint :refer (<<)] 
     [subs.core :refer (validate! combine validation when-not-nil)]
-    [celestial.validations :as cv]))
+    ))
 
 (def common-bridging 
   {:bridge #{:required :String} :interface #{:required :String}

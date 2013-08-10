@@ -29,7 +29,6 @@
     [me.raynes.fs :refer (delete-dir temp-dir)]
     [supernal.sshj :refer (copy)]
     [hypervisors.networking :refer (static-ip-template gen-ip release-ip mark)]
-    [celestial.validations :as cv]
     [celestial.persistency :as p])
   (:import clojure.lang.ExceptionInfo))
 

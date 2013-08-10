@@ -13,7 +13,7 @@
   (:require 
     [aws.sdk.ec2 :as ec2]
     [celestial.persistency :as p]
-    [celestial.validations :as cv])
+    )
   (:use 
     [clojure.string :only (join)]
     [aws.validations :only (provider-validation)]

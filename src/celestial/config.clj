@@ -12,8 +12,7 @@
 (ns celestial.config
   "Celetial configuration info"
   (:require 
-    [subs.core :refer (validate! combine validation when-not-nil every-kv)]
-    [celestial.validations :as cv])
+    [subs.core :refer (validate! combine validation when-not-nil every-kv)])
   (:use 
     [clojure.pprint :only (pprint)]
     [taoensso.timbre :only (set-config! set-level! debug info error warn trace)]
