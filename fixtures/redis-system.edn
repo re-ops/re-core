@@ -8,7 +8,7 @@
  :proxmox {
    :vmid 101
    :nameserver "8.8.8.8"
-   :password "foobar1" :node "proxmox"
+   :password "foobar1" :node "proxmox-a"
    :type :ct
    :features [] 
   }
