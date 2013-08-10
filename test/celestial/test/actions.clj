@@ -18,8 +18,23 @@
 
 (fact "action validations"
     (with-redefs [type-exists? (fn [_] true)]
-      (validate-action redis-actions)  => true 
-      (validate-action (assoc-in redis-actions [:actions :deploy :capistrano :args] nil)) 
-         => (throws ExceptionInfo (with-m? {:capistrano {:args '("args must be present")}})) 
-      (validate-action (assoc-in redis-actions [:actions :stop :supernal :args] nil)) => true) 
+
+      (validate-action redis-actions)  => truthy
+
+      (validate-action (assoc-in redis-actions [:actions :deploy :capistrano :args] nil)) =>
+                    (throws ExceptionInfo (with-m? {:capistrano {:args '("must be present")}})) 
+
+      (validate-action (assoc-in redis-actions [:actions :stop :supernal :args] nil)) => truthy
+
+     )
+
+(fact "missing type" 
+   (validate-action (assoc redis-actions :operates-on "foo")) =>
+      (throws ExceptionInfo (with-m? {:operates-on  '("type not found, create it first")})) 
+   (provided 
+     (type-exists? anything)  => false
+     )
+  )
+      
+      
 )

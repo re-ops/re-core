@@ -29,8 +29,12 @@
   (validate-type {:type "foo"}) => truthy)
 
 (fact "quotas validations"
-     (validate-quota user-quota) => true
+     (validate-quota user-quota) => truthy
      (provided (user-exists? "foo") => true :times 1))
+
+(fact "non int limit quota" filters
+   (validate-quota (assoc-in user-quota [:quotas :aws :limit] "1")) => 
+      (throws ExceptionInfo (with-m? {:quotas '(({:aws {:limit ("must be a integer")}}))})))
 
 (fact "user validation"
      (validate-user {:username "foo" :password "bar" :roles admin})  => truthy

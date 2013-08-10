@@ -15,7 +15,7 @@
     [proxmox.validations :as pv]
     [aws.validations :as av]
     [vc.validations :as vc]
-    [subs.core :as subs :refer (combine when-not-nil)]
+    [subs.core :as subs :refer (validate! combine when-not-nil validation every-v every-kv validation)]
     [taoensso.carmine :as car]
     [cemerick.friend :as friend]
     [celestial.validations :as cv]
@@ -24,8 +24,6 @@
     [puny.core :only (entity)]
     [celestial.roles :only (roles admin)]
     [cemerick.friend.credentials :as creds]
-    [bouncer [core :as b] [validators :as v :only (defvalidatorset defvalidator)]]
-    [celestial.validations :only (validate!)]
     [clojure.string :only (split join)]
     [celestial.redis :only (wcar)]
     [slingshot.slingshot :only  [throw+ try+]]
@@ -37,12 +35,12 @@
 (def user-v
  {:username #{:required :String} :password #{:required :String} :roles #{:required :role*}})
 
-(subs/validation :role (when-not-nil roles (<< "role must be either ~{roles}")))
+(validation :role (when-not-nil roles (<< "role must be either ~{roles}")))
 
-(subs/validation :role* (subs/every-v #{:role}))
+(validation :role* (every-v #{:role}))
 
 (defn validate-user [user]
-  (subs/validate! user user-v :error ::non-valid-user))
+  (validate! user user-v :error ::non-valid-user))
 
 (entity type :id type)
 
@@ -57,7 +55,7 @@
     }}})
 
 (defn validate-type [{:keys [puppet-std] :as t}]
-  (subs/validate! t (combine (if puppet-std puppet-std-v {}) {:type #{:required :String}}) :error ::non-valid-type ))
+  (validate! t (combine (if puppet-std puppet-std-v {}) {:type #{:required :String}}) :error ::non-valid-type ))
 
 (entity action :indices [operates-on])
 
@@ -68,25 +66,19 @@
 
 (defn cap? [m] (contains? m :capistrano))
 
-(defvalidatorset nested-action-validation
-  [:capistrano :args] [(v/required :pre cap?) cv/vec?])
+(def cap-nested {:capistrano {:args #{:required :Vector}}})
 
-(defvalidatorset action-base-validation
-  :src [v/required cv/str?]
-  :operates-on [v/required cv/str?]
-  :operates-on [(v/custom type-exists? :message (<< "Given actions target type ~(action :operates-on) not found, create it first"))]
-  )
+(validation :type-exists (when-not-nil type-exists? "type not found, create it first"))
+
+(def action-base-validation
+  {:src #{:required :String} :operates-on #{:required :String :type-exists}})
 
 (defn validate-action [{:keys [actions] :as action}]
-  (doseq [[k m] actions] 
-    (validate! ::invalid-action m nested-action-validation))
-  (validate! ::invalid-nested-action action action-base-validation))
+  (doseq [[k {:keys [capistrano] :as m}] actions] 
+    (when capistrano (validate! m cap-nested :error ::invalid-action)))
+  (validate! action action-base-validation :error ::invalid-nested-action ))
  
 (entity system :indices [type])
-
-(defvalidatorset system-type
-  :type [(v/custom type-exists? :message (<< "Given system type ~(system :type) not found, create it first"))]
-  )
 
 (def hyp-to-v 
   {:proxmox pv/validate-entity 
@@ -95,9 +87,8 @@
 
 (defn validate-system
   [system]
-  (validate! ::non-valid-machine-type system system-type)
+  (validate! system {:type #{:type-exists}} :error ::non-valid-machine-type )
   ((hyp-to-v (figure-virt system)) system))
-
 
 (defn clone-system 
   "clones an existing system"
@@ -112,22 +103,20 @@
 
 (entity quota :id username)
 
-(defvalidator hypervisor-ks
+#_(defvalidator hypervisor-ks
   {:default-message-format (<<  "quotas keys must be one of ~{hypervizors}")}
   [qs]
   (empty? (remove hypervizors (keys qs))))
 
-(defvalidator int-limits
-  {:default-message-format (<<  "quotas limits must be integers ")}
-  [qs]
-  (empty? (remove (fn [[k v]] (integer? (v :limit))) qs)))
+(validation :user-exists (when-not-nil user-exists? "No matching user found"))
 
-(defvalidatorset quota-v
-  :username [v/required (v/custom user-exists? :message "No matching user found")]
-  :quotas  [v/required cv/hash? hypervisor-ks int-limits])
+(validation :quota* (every-kv {:limit #{:required :Integer}}))
+
+(def quota-v
+  {:username #{:required :user-exists} :quotas #{:required :Map :quota*}})
 
 (defn validate-quota [q]
-  (validate! ::non-valid-quota q quota-v))
+  (validate! q quota-v :error ::non-valid-quota))
 
 (defn curr-user []
   (:username (friend/current-authentication)))

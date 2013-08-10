@@ -9,7 +9,6 @@
                  [com.vmware/vijava "5.1" :exclusions [xml-apis]]
                  [me.raynes/fs "1.4.5"]
                  [org.clojure/tools.nrepl "0.2.3"]
-                 [bouncer "0.2.3-beta2"]
                  [com.taoensso/timbre "1.6.0"]
                  [robert/hooke "1.3.0"]
                  [com.narkisr/gelfino-client "0.4.2"]

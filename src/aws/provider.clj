@@ -17,7 +17,6 @@
   (:use 
     [clojure.string :only (join)]
     [aws.validations :only (provider-validation)]
-    [bouncer [core :as b] [validators :as v]]
     [clojure.core.strint :only (<<)]
     [supernal.sshj :only (execute ssh-up?)]
     [flatland.useful.utils :only (defm)]

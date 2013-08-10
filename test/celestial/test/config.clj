@@ -9,7 +9,7 @@
   (validate-conf (dissoc-in* local-prox ks)))
 
 (fact "legal configuration"
-      (:bouncer.core/errors (validate-conf local-prox))  => nil)
+      (validate-conf local-prox)  => {})
 
 (fact "missing celestial options detected"
       (validate-missing :celestial :https-port) =>  {:celestial {:https-port '("must be present")}}  
