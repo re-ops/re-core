@@ -42,7 +42,6 @@
                  ; luminusweb
                  [lib-noir "0.6.6"]
                  [selmer "0.3.4"]
-                 [markdown-clj "0.9.28"]
                  ]
 
   :exclusions [org.clojure/clojure]
