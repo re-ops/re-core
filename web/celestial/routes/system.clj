@@ -19,7 +19,7 @@
   [from total]
   {:pre [(> from -1)]}
   (let [to (min (+ from (* per-page port-view)) total)
-        ps (partition 2 1 (range from to  per-page))
+        ps (partition 2 1 (range from to per-page))
         pages (map (fn [[f t]] {:from f :to t :pos (quot f per-page)}) ps)]
      {:prev (if (> from 0) {:from (- from per-page) :to from :pos (quot (- from per-page) per-page)} nil)
       :items pages
@@ -36,7 +36,7 @@
   [from to type] 
   (let [systems (sys/systems from to type)]
     (layout/render "systems.html" 
-      (into base {:systems (map rendered-system systems) :pages (pages from (count systems))}))))
+      (into base {:systems (map rendered-system systems) :pages (pages from (sys/systems-count type))}))))
 
 (defn- system
   "renders a system" 
