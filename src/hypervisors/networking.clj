@@ -151,7 +151,13 @@
 
 (add-filter! :not-empty? (comp not empty?))
 
-(defn static-ip-template 
-   "Generates a static ip template" 
-   [config]
-   (render-file "static-ip.tmpl" config))
+(defn debian-interfaces
+  "Generates a static ip template" 
+  [config]
+  (render-file "insterfaces.slem" config))
+
+(defn redhat-network [config]
+  (render-file "network.slem" config))
+
+(defn redhat-ifcfg-eth0 [config]
+  (render-file "ifcfg-eth0.slem" config))

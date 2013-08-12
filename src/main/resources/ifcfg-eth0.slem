@@ -1,0 +1,6 @@
+DEVICE=eth0
+BOOTPROTO=static
+BROADCAST=
+IPADDR={{ip}}
+NETMASK={{netmask}}
+ONBOOT=yes  

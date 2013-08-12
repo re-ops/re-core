@@ -28,7 +28,7 @@
     [proxmox.validations :refer (validate-provider)]
     [me.raynes.fs :refer (delete-dir temp-dir)]
     [supernal.sshj :refer (copy)]
-    [hypervisors.networking :refer (static-ip-template gen-ip release-ip mark)]
+    [hypervisors.networking :refer (debian-interfaces gen-ip release-ip mark)]
     [celestial.persistency :as p])
   (:import clojure.lang.ExceptionInfo))
 
@@ -93,11 +93,18 @@
 
 (defn update-interfaces 
   "uploads interfaces file for a ct if bridge is used" 
-  [node ip_address network vmid]
+  [node flavor ip_address network vmid]
   (let [temp (temp-dir "update-interfaces") output (<< "~(.getPath temp)/interfaces")]
     (try 
-      (spit output (static-ip-template (merge {:ip ip_address} network)))      
-      (copy output (<< "/var/lib/vz/private/~{vmid}/etc/network/") (get-node node)) 
+      (when (= flavor :redhat)
+        (let [ifcfg (<< "~(.getPath temp)/ifcfg-eth0")]
+          (spit ifcfg (redhat-ifcfg-eth0 (merge {:ip ip_address} network))))      
+          (copy ifcfg (<< "/var/lib/vz/private/~{vmid}/etc/sysconfig/network-scripts/") (get-node node)) 
+        )
+      (when (= flavor :debian)
+        (spit output (debian-interfaces (merge {:ip ip_address} network)))      
+        (copy output (<< "/var/lib/vz/private/~{vmid}/etc/network/") (get-node node)) 
+        )
       (finally (delete-dir temp)))))
 
 (defconstrainedrecord Container [node ct extended network]

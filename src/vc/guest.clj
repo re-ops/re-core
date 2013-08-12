@@ -15,7 +15,7 @@
     com.vmware.vim25.GuestProgramSpec
     com.vmware.vim25.GuestFileAttributes) 
   (:require 
-    [hypervisors.networking :refer [static-ip-template]]
+    [hypervisors.networking :refer [debian-interfaces]]
     [slingshot.slingshot :refer  [throw+ try+]]
     [clj-http.client :as client])
   (:use 
@@ -107,7 +107,7 @@
     (debug "setting up guest static ip")
     (assert-sudo hostname auth uuid)
     (upload-file 
-     (static-ip-template (update-in config [:names] (partial join ","))) tmp-file hostname auth)
+     (debian-interfaces (update-in config [:names] (partial join ","))) tmp-file hostname auth)
     (guest-run hostname "/bin/cp" (<< "-v ~{tmp-file} /etc/network/interfaces") auth uuid [2 :seconds])
     (guest-run hostname "/sbin/ifdown" "eth0" auth uuid [3 :seconds])
     (guest-run hostname "/sbin/ifup" "eth0" auth uuid [3 :seconds])
