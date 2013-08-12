@@ -91,21 +91,32 @@
       (and (not ip_address) (not netif)) [(gen-ip ct "proxmox") network]
       )))
 
+(defn- redhat-network
+  "updates redhat bridged networking"
+  [node ip_address {:keys [gateway] :as network} vmid]
+  (let [ifcfg (<< "~(.getPath temp)/ifcfg-eth0") (<< "~(.getPath temp)/network")]
+    (spit ifcfg (redhat-ifcfg-eth0 (merge {:ip ip_address} network)))
+    (copy ifcfg (<< "/var/lib/vz/private/~{vmid}/etc/sysconfig/network-scripts/") (get-node node))))
+
+(defn- debian-network
+  "debian bridged networking update"
+  [node ip_address network vmid]
+  (let [temp (temp-dir "update-interfaces") output (<< "~(.getPath temp)/interfaces")]
+    (try 
+      (spit output (debian-interfaces (merge {:ip ip_address} network)))      
+      (copy output (<< "/var/lib/vz/private/~{vmid}/etc/network/") (get-node node)) 
+      (finally (delete-dir temp))))
+  )
+
 (defn update-interfaces 
   "uploads interfaces file for a ct if bridge is used" 
   [node flavor ip_address network vmid]
-  (let [temp (temp-dir "update-interfaces") output (<< "~(.getPath temp)/interfaces")]
-    (try 
-      (when (= flavor :redhat)
-        (let [ifcfg (<< "~(.getPath temp)/ifcfg-eth0")]
-          (spit ifcfg (redhat-ifcfg-eth0 (merge {:ip ip_address} network))))      
-          (copy ifcfg (<< "/var/lib/vz/private/~{vmid}/etc/sysconfig/network-scripts/") (get-node node)) 
-        )
-      (when (= flavor :debian)
-        (spit output (debian-interfaces (merge {:ip ip_address} network)))      
-        (copy output (<< "/var/lib/vz/private/~{vmid}/etc/network/") (get-node node)) 
-        )
-      (finally (delete-dir temp)))))
+  (case flavor 
+    :redhat (redhat-network node ip_address network vmid)
+    :debian (debian-network node ip_address network vmid)
+    (throw+ {:type ::missing-flavor :flavor flavor :message "No matching proxmox template flavor found"})
+    )
+  )
 
 (defconstrainedrecord Container [node ct extended network]
   "ct should match proxmox expected input (see http://pve.proxmox.com/pve2-api-doc/)"
