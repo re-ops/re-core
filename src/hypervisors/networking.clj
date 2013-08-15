@@ -156,7 +156,7 @@
   [config]
   (render-file "insterfaces.slem" config))
 
-(defn redhat-network [config]
+(defn redhat-network-cfg [config]
   (render-file "network.slem" config))
 
 (defn redhat-ifcfg-eth0 [config]

@@ -28,7 +28,7 @@
     [proxmox.validations :refer (validate-provider)]
     [me.raynes.fs :refer (delete-dir temp-dir)]
     [supernal.sshj :refer (copy)]
-    [hypervisors.networking :refer (debian-interfaces gen-ip release-ip mark)]
+    [hypervisors.networking :refer (debian-interfaces gen-ip release-ip mark redhat-network-cfg redhat-ifcfg-eth0)]
     [celestial.persistency :as p])
   (:import clojure.lang.ExceptionInfo))
 
@@ -94,7 +94,7 @@
 (defn- redhat-network
   "updates redhat bridged networking"
   [node ip_address {:keys [gateway] :as network} vmid]
-  (let [ifcfg (<< "~(.getPath temp)/ifcfg-eth0") (<< "~(.getPath temp)/network")]
+  (let [temp (temp-dir "update-interfaces") ifcfg (<< "~(.getPath temp)/ifcfg-eth0") net (<< "~(.getPath temp)/network")]
     (spit ifcfg (redhat-ifcfg-eth0 (merge {:ip ip_address} network)))
     (copy ifcfg (<< "/var/lib/vz/private/~{vmid}/etc/sysconfig/network-scripts/") (get-node node))))
 
