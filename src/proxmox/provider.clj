@@ -19,10 +19,10 @@
     [proxmox.remote :only (prox-post prox-delete prox-get)]
     [slingshot.slingshot :only  [throw+ try+]]
     [clojure.set :only (difference)]
-    [celestial.provider :only (str? vec? mappings transform os->template wait-for)]
     [proxmox.generators :only (ct-id)]
     [celestial.model :only (translate vconstruct)])
   (:require 
+    [celestial.provider :refer (mappings transform os->template wait-for)]
     [celestial.common :refer (import-logging)]
     [proxmox.model :refer (get-node)]
     [proxmox.validations :refer (validate-provider)]
@@ -131,7 +131,7 @@
               (when (p/system-exists? id)
                 (p/partial-system id {:proxmox {:vmid vmid} :machine {:ip ip_address}})) 
               (when (ct* :netif)
-                (update-interfaces node ip_address network* vmid))
+                (update-interfaces node (extended :flavor) ip_address network* vmid))
               (catch [:status 500] e 
                 (release-ip ip_address "proxmox")
                 (warn "Container already exists" e)))))
@@ -185,20 +185,22 @@
 
 (def net-ks [:gateway :netmask :ip_address :netif])
 
-(def ex-ks [:features :node :system-id])
+(def ex-ks [:features :node :system-id :flavor])
 
 (def selections 
   (letfn [(select [k] (fn [m] (select-keys m k)))]
     (apply juxt (map select [ct-ks ex-ks net-ks]))))
 
-(defn transformations [{:keys [bridge interface domain]}]
-  (let [base {:ostemplate (os->template :proxmox) :hostname (fn [host] (<< "~{host}.~{domain}"))}]
+(defn template-k [k] (fn [os]  (k ((os->template :proxmox) os))))
+
+(defn transformations [{:keys [bridge interface domain ostemplate]}]
+  (let [base {:ostemplate (template-k :template) :flavor (template-k :flavor) :hostname (fn [host] (<< "~{host}.~{domain}"))}]
     (if (and bridge interface) (assoc base :netif (fn [_] (<< "ifname=~{interface},bridge=~{bridge}"))) base)))
 
 (defmethod translate :proxmox [{:keys [machine proxmox system-id] :as spec}]
   "Convert the general model into a proxmox vz specific one"
   (-> (merge machine proxmox {:system-id system-id})
-      (mappings {:ip :ip_address :os :ostemplate :domain :searchdomain})
+      (mappings {:ip :ip_address :os #{:ostemplate :flavor} :domain :searchdomain})
       (transform (transformations machine))
       generate selections))
 
