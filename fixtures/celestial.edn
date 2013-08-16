@@ -30,7 +30,8 @@
          :proxmox-a {:username "root" :password "foobar" :host "localhost" :ssh-port 22222}
        }
       :ostemplates {
-         :ubuntu-12.04 "local:vztmpl/ubuntu-12.04-puppet_3-x86_64.tar.gz"
+         :ubuntu-12.04 {:template "local:vztmpl/ubuntu-12.04-puppet_3-x86_64.tar.gz" :flavor :debian}
+         :centos-6 {:template "local:vztmpl/centos-6-standard_6.3-1_i386.tar.gz" :flavor :redhat}
        }
       :generators {
         :ip-range ["192.168.5.100" "192.168.5.255"]

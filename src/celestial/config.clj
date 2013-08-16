@@ -41,8 +41,14 @@
   (every-kv {:username #{:required :String} :password #{:required :String} 
              :host #{:required :String} :ssh-port #{:required :number}}))
 
+(validation :template*
+  (every-kv {:template #{:required :String} :flavor #{:required :Keyword}}))
+
 (def ^{:doc "proxmox section validation"} proxmox-v 
-  {:hypervisor {:proxmox {:master #{:required :Keyword} :nodes #{:required :node*}}}})
+  {:hypervisor {
+    :proxmox { 
+     :master #{:required :Keyword} :nodes #{:required :node*} 
+     :ostemplates #{:template*}}}})
 
 (def ^{:doc "aws section validation"} aws-v 
   {:hypervisor {:aws {:access-key #{:required :String} :secret-key #{:required :String}}}})
