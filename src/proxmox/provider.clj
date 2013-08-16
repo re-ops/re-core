@@ -96,7 +96,9 @@
   [node ip_address {:keys [gateway] :as network} vmid]
   (let [temp (temp-dir "update-interfaces") ifcfg (<< "~(.getPath temp)/ifcfg-eth0") net (<< "~(.getPath temp)/network")]
     (spit ifcfg (redhat-ifcfg-eth0 (merge {:ip ip_address} network)))
-    (copy ifcfg (<< "/var/lib/vz/private/~{vmid}/etc/sysconfig/network-scripts/") (get-node node))))
+    (spit net (redhat-network-cfg (merge {:ip ip_address} network)))
+    (copy ifcfg (<< "/var/lib/vz/private/~{vmid}/etc/sysconfig/network-scripts/") (get-node node))
+    (copy net (<< "/var/lib/vz/private/~{vmid}/etc/sysconfig/") (get-node node))))
 
 (defn- debian-network
   "debian bridged networking update"
