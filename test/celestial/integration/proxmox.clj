@@ -46,3 +46,9 @@
 (fact "cluster" :integration :proxmox :bridge :cluster
    (with-conf clustered-prox
       (running-seq (vconstruct (assoc-in redis-bridged-prox [:proxmox :node] "proxmox-b")))))
+
+(fact "centos bridge" :integration :proxmox :bridge :centos
+    (with-conf clustered-prox
+      (running-seq (vconstruct (assoc-in redis-bridged-prox [:machine :os] :centos-6))))
+  )
+
