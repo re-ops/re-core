@@ -120,3 +120,6 @@
 
    (validate-entity (assoc-in redis-bridged-prox [:machine :netmask] "123")) => 
       (throws ExceptionInfo (with-m? {:machine {:netmask '("must be a legal ip address")}})))
+
+
+
