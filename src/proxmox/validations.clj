@@ -44,7 +44,8 @@
 
 (def machine-entity
   {:machine {
-    :domain #{:required :String} :ip #{:String} :os #{:required :Keyword}}})
+    :domain #{:required :String} :ip #{:String} 
+    :os #{:required :Keyword} :user #{:required :String}}})
 
 (defn entity-validation [{:keys [bridge]}]
   (combine (if bridge {:machine common-bridging} {}) 
@@ -56,7 +57,9 @@
   (validate! proxmox (entity-validation machine) :error ::invalid-system))
 
 (def extended-vs
-  {:extended {:id #{:number} :features #{:Vector}}})
+  {:extended {
+    :id #{:number} :features #{:Vector}
+    :flavor #{:required :Keyword} :user #{:required :String}}})
 
 (validation :fqdn 
    (when-not-nil (partial re-find #".*\.\w*") "must be fully qualified"))
