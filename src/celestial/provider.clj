@@ -17,18 +17,20 @@
       [clojure.core.strint :only (<<)]
       [slingshot.slingshot :only  [throw+ try+]]))
 
-(def str? [string? :msg "not a string"])
-
-(def vec? [vector? :msg "not a vector"])
-
 (defn- key-select [v] (fn [m] (select-keys m (keys v))))
 
-(defn mappings [res ms]
-  "Maps raw model keys to specific model"
-  (let [vs ((key-select ms) res) ]
+(defn repeates [k v] 
+  (if (set? k) (interleave k (repeat (count k) v)) [k v]))
+
+(defn mappings 
+  {:test #(assert (= {:template :ubuntu, :flavor :ubuntu, :search "local"}
+                     (mappings {:os :ubuntu :domain "local"} {:os #{:template :flavor} :domain :search})))
+   :doc "Maps raw model keys to specific model keys, single key can fan out to multiple keys using a set"} 
+  [res ms]
+  (let [mapped ((key-select ms) res)]
      (merge 
        (reduce (fn [r [k v]] (dissoc r k)) res ms)
-       (reduce (fn [r [k v]] (assoc r (ms k) v)) {} vs)) 
+       (reduce (fn [r [k v]] (apply assoc r (repeates (ms k) v))) {} mapped)) 
      ))
 
 (defn os->template 
@@ -59,3 +61,5 @@
           true
           (do (Thread/sleep (parse-time-unit sleep)) (recur))) 
         (throw+ (merge err timings))))))
+
+(test #'mappings)
