@@ -27,7 +27,7 @@
     [proxmox.model :refer (get-node)]
     [proxmox.validations :refer (validate-provider)]
     [me.raynes.fs :refer (delete-dir temp-dir)]
-    [supernal.sshj :refer (copy)]
+    [supernal.sshj :refer (copy ssh-up?)]
     [hypervisors.networking :refer (debian-interfaces gen-ip release-ip mark redhat-network-cfg redhat-ifcfg-eth0)]
     [celestial.persistency :as p])
   (:import clojure.lang.ExceptionInfo))
@@ -120,6 +120,13 @@
     )
   )
 
+(defn wait-for-ssh [{:keys [ip_address]} {:keys [user]} timeout]
+  (wait-for {:timeout timeout}
+     #(try 
+        (ssh-up? {:host ip_address :port 22 :user user})
+        (catch Throwable e false))
+     {:type ::proxmox:ssh-failed :message "Timed out while waiting for ssh" :timeout timeout}))
+
 (defconstrainedrecord Container [node ct extended network]
   "ct should match proxmox expected input (see http://pve.proxmox.com/pve2-api-doc/)"
   [(validate-provider ct extended network) (not (nil? node))]
@@ -151,7 +158,8 @@
   (start [this]
          (debug "starting" (:vmid ct))
          (safe
-           (prox-post (str "/nodes/" node "/openvz/" (:vmid ct) "/status/start"))))
+           (prox-post (str "/nodes/" node "/openvz/" (:vmid ct) "/status/start")))
+          (wait-for-ssh network extended [5 :minute]))
 
   (stop [this]
         (debug "stopping" (:vmid ct))
@@ -187,7 +195,7 @@
 
 (def net-ks [:gateway :netmask :ip_address :netif])
 
-(def ex-ks [:features :node :system-id :flavor])
+(def ex-ks [:features :node :system-id :flavor :user])
 
 (def selections 
   (letfn [(select [k] (fn [m] (select-keys m k)))]

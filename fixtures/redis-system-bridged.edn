@@ -1,7 +1,8 @@
 {
  :machine {
   :cpus 4 :memory 4096 :disk 30
-  :hostname "red1" :domain "local" :os :ubuntu-12.04
+  :hostname "red1" :domain "local" 
+  :os :ubuntu-12.04 :user "root"
   ; bridged
   :ip "192.168.5.200" :gateway "192.168.5.255" :netmask "255.255.255.0"
   :bridge "vmbr0" :interface "eth0"
