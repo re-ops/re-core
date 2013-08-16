@@ -154,7 +154,7 @@
 (defn debian-interfaces
   "Generates a static ip template" 
   [config]
-  (render-file "insterfaces.slem" config))
+  (render-file "interfaces.slem" config))
 
 (defn redhat-network-cfg [config]
   (render-file "network.slem" config))
