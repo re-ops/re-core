@@ -11,7 +11,7 @@
 
 (ns vc.provider 
   (:use 
-    [celestial.provider :only (str? vec? mappings)]
+    [celestial.provider :only (mappings)]
     [trammel.core :only  (defconstrainedrecord)]
     [clojure.core.strint :only (<<)]
     [vc.vijava :only (clone power-on power-off status destroy guest-status)]
@@ -20,8 +20,10 @@
     [celestial.core :only (Vm)]
     [celestial.common :only (import-logging)]
     [slingshot.slingshot :only  [throw+ try+]]
-    [celestial.provider :only (str? vec? mappings transform os->template wait-for)]
     [celestial.model :only (translate vconstruct)])
+  (:require 
+    [celestial.provider :refer (mappings transform os->template wait-for)]
+    )
   )
 
 (import-logging)

@@ -23,7 +23,7 @@
     [flatland.useful.map :only (dissoc-in*)]
     [slingshot.slingshot :only  [throw+ try+]]
     [trammel.core :only (defconstrainedrecord)]
-    [celestial.provider :only (str? vec? wait-for)]
+    [celestial.provider :only (wait-for)]
     [celestial.core :only (Vm)]
     [celestial.common :only (get! import-logging )]
     [celestial.model :only (translate vconstruct)])
