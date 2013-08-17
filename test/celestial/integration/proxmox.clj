@@ -4,7 +4,8 @@
      [supernal.sshj :refer (execute)]
      [flatland.useful.map :refer (dissoc-in*)]
      [celestial.common :refer (slurp-edn)]
-     [celestial.fixtures :refer (with-conf redis-prox-spec redis-bridged-prox clustered-prox)]  
+     [celestial.fixtures :refer (local-prox with-conf redis-prox-spec 
+                                 redis-bridged-prox clustered-prox proxmox-3)]  
      [celestial.model :refer (vconstruct)])
   (:use midje.sweet proxmox.provider))
 
@@ -47,8 +48,11 @@
    (with-conf clustered-prox
       (running-seq (vconstruct (assoc-in redis-bridged-prox [:proxmox :node] "proxmox-b")))))
 
+#_(fact "proxmox 3" :integration :proxmox-3 
+   (with-conf proxmox-3 
+     (running-seq (vconstruct (assoc-in redis-bridged-prox [:proxmox :node] "proxmox-3")))))
+
 (fact "centos bridge" :integration :proxmox :bridge :centos
     (with-conf clustered-prox
-      (running-seq (vconstruct (assoc-in redis-bridged-prox [:machine :os] :centos-6))))
-  )
+      (running-seq (vconstruct (assoc-in redis-bridged-prox [:machine :os] :centos-6)))))
 

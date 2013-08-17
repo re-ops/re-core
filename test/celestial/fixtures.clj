@@ -20,6 +20,8 @@
 
 (def local-prox (slurp-edn "fixtures/celestial.edn"))
 
+(def proxmox-3 (slurp-edn "fixtures/proxmox-3.edn"))
+
 (def clustered-prox (slurp-edn "fixtures/celestial-cluster.edn"))
 
 (def redis-actions (slurp-edn "fixtures/redis-actions.edn"))
