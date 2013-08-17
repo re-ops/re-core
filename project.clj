@@ -14,7 +14,7 @@
                  [com.narkisr/gelfino-client "0.4.2"]
                  [org.clojure/core.incubator "0.1.3"]
                  [slingshot "0.10.3" ]
-                 [clj-http "0.6.5"]
+                 [clj-http "0.7.6"]
                  [swag "0.2.2"]
                  [puny "0.1.3"]
                  [clj-yaml "0.4.0"]
