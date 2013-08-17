@@ -19,6 +19,10 @@
     (validate-missing :hypervisor :proxmox :nodes :proxmox-a :password) =>  
       '{:hypervisor {:proxmox {:nodes (({:proxmox-a {:password ("must be present")}}))}}} )
 
+(fact "non legal proxmox template flavor" 
+  (validate-conf (assoc-in local-prox [:hypervisor :proxmox :ostemplates :ubuntu-12.04 :flavor] :bar)) => 
+     {:hypervisor {:proxmox {:ostemplates '(({:ubuntu-12.04 {:flavor ("flavor must be either #{:debian :redhat}")}}))}}} 
+      )
 
 (fact "missing aws options"
     (validate-conf (assoc-in local-prox [:hypervisor :aws] {})) => 

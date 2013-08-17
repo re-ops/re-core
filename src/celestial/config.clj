@@ -41,8 +41,13 @@
   (every-kv {:username #{:required :String} :password #{:required :String} 
              :host #{:required :String} :ssh-port #{:required :number}}))
 
+(def flavors #{:redhat :debian})
+
+(validation :flavor
+  (when-not-nil flavors  (<< "flavor must be either ~{flavors}")))
+
 (validation :template*
-  (every-kv {:template #{:required :String} :flavor #{:required :Keyword}}))
+  (every-kv {:template #{:required :String} :flavor #{:required :Keyword :flavor}}))
 
 (def ^{:doc "proxmox section validation"} proxmox-v 
   {:hypervisor {
