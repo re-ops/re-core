@@ -79,6 +79,10 @@
  
 (entity system :indices [type])
 
+(defn system-ip [id]
+  (get-in (get-system id) [:machine :ip]))
+
+
 (def hyp-to-v 
   {:proxmox pv/validate-entity 
    :aws av/validate-entity 
