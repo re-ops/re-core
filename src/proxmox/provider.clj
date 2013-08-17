@@ -27,7 +27,7 @@
     [proxmox.model :refer (get-node)]
     [proxmox.validations :refer (validate-provider)]
     [me.raynes.fs :refer (delete-dir temp-dir)]
-    [supernal.sshj :refer (copy ssh-up?)]
+    [supernal.sshj :refer (copy ssh-up? execute)]
     [hypervisors.networking :refer (debian-interfaces gen-ip release-ip mark redhat-network-cfg redhat-ifcfg-eth0)]
     [celestial.persistency :as p])
   (:import clojure.lang.ExceptionInfo))
@@ -120,7 +120,8 @@
     )
   )
 
-(defn wait-for-ssh [{:keys [ip_address]} {:keys [user]} timeout]
+(defn wait-for-ssh [ip_address user timeout]
+  {:pre [ip_address user timeout]}
   (wait-for {:timeout timeout}
      #(try 
         (ssh-up? {:host ip_address :port 22 :user user})
@@ -153,13 +154,15 @@
               (prox-delete (str "/nodes/" node "/openvz/" (:vmid ct)))) 
             (finally 
               (when-let [id (extended :system-id)] 
-                (release-ip (get-in (p/get-system id) [:machine :ip]) "proxmox")))))
+                (release-ip (p/system-ip id) "proxmox")))))
 
   (start [this]
          (debug "starting" (:vmid ct))
          (safe
            (prox-post (str "/nodes/" node "/openvz/" (:vmid ct) "/status/start")))
-          (wait-for-ssh network extended [5 :minute]))
+         (let [ip (or (network :ip_address) (p/system-ip (extended :system-id)))] 
+            (wait-for-ssh ip (:user extended) [5 :minute]))
+          )
 
   (stop [this]
         (debug "stopping" (:vmid ct))
