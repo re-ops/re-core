@@ -102,19 +102,17 @@
 
 (defn set-ip 
   "set guest static ip" 
-  [hostname auth config]
+  [hostname auth {:keys [domain] :as config}]
   (let [uuid (gen-uuid) tmp-file (<< "/tmp/intrefaces_~{uuid}")]
     (debug "setting up guest static ip")
     (assert-sudo hostname auth uuid)
     (upload-file 
      (debian-interfaces (update-in config [:names] (partial join ","))) tmp-file hostname auth)
     (guest-run hostname "/bin/cp" (<< "-v ~{tmp-file} /etc/network/interfaces") auth uuid [2 :seconds])
-    (guest-run hostname "/sbin/ifdown" "eth0" auth uuid [3 :seconds])
-    (guest-run hostname "/sbin/ifup" "eth0" auth uuid [3 :seconds])
-    (guest-run hostname "/usr/sbin/service" "networking restart" auth uuid [3 :seconds])
     (guest-run hostname "/bin/rm" (<< "-v ~{tmp-file}") auth uuid [2 :seconds])
-    (guest-run hostname "echo" (<< "'kernel.hostname = ~{hostname}' | sudo tee -a /etc/sysctl.conf") auth uuid [2 :seconds])
-    (guest-run hostname "sysctl" "-e -p" auth uuid [2 :seconds])
+    (guest-run hostname "sed" (<< "-i '/^.*$/c\\~{hostname}' /etc/hostname") auth uuid [2 :seconds])
+    (guest-run hostname "sed" 
+      (<< "-i '/^127.0.1.1/c\\127.0.1.1     ~{hostname} ~{hostname}.~{domain}' /etc/hosts") auth uuid [2 :seconds])
     (doseq [line (split (fetch-log hostname uuid auth) #"\n")] (debug line))))
 
 (comment
