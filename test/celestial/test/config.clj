@@ -16,20 +16,21 @@
       (validate-missing :celestial :port) => {:celestial {:port '("must be present")}})
 
 (fact "missing proxmox options"
-    (validate-missing :hypervisor :proxmox :nodes :proxmox-a :password) =>  
-      '{:hypervisor {:proxmox {:nodes (({:proxmox-a {:password ("must be present")}}))}}} )
+    (validate-missing :hypervisor :dev :proxmox :nodes :proxmox-a :password) =>  
+      '{:hypervisor {:dev {:proxmox {:nodes (({:proxmox-a {:password ("must be present")}}))}}}} )
 
 (fact "non legal proxmox template flavor" 
-  (validate-conf (assoc-in local-prox [:hypervisor :proxmox :ostemplates :ubuntu-12.04 :flavor] :bar)) => 
-     {:hypervisor {:proxmox {:ostemplates '(({:ubuntu-12.04 {:flavor ("flavor must be either #{:debian :redhat}")}}))}}} 
+  (validate-conf (assoc-in local-prox [:hypervisor :dev :proxmox :ostemplates :ubuntu-12.04 :flavor] :bar)) => 
+     {:hypervisor {:dev {:proxmox {:ostemplates '(({:ubuntu-12.04 {:flavor ("flavor must be either #{:debian :redhat}")}}))}}}} 
       )
 
 (fact "missing aws options"
-    (validate-conf (assoc-in local-prox [:hypervisor :aws] {})) => 
-      {:hypervisor {:aws {:access-key '("must be present") :secret-key '("must be present")}}})
+    (validate-conf (assoc-in local-prox [:hypervisor :dev :aws] {})) => 
+      {:hypervisor {:dev {:aws {:access-key '("must be present") :secret-key '("must be present")}}}})
 
 (fact "vcenter validations" 
-   (validate-missing :hypervisor :vcenter :password) => {:hypervisor {:vcenter {:password '("must be present")}}}
-   (validate-missing :hypervisor :vcenter :url) => {:hypervisor {:vcenter {:url '("must be present")}}}
-   (validate-conf (assoc-in local-prox [:hypervisor :vcenter :ostemplates] [])) => {:hypervisor {:vcenter {:ostemplates '("must be a map")}}}
+   (validate-missing :hypervisor :dev :vcenter :password) => {:hypervisor {:dev {:vcenter {:password '("must be present")}}}}
+   (validate-missing :hypervisor :dev :vcenter :url) => {:hypervisor {:dev {:vcenter {:url '("must be present")}}}}
+   (validate-conf (assoc-in local-prox [:hypervisor :dev :vcenter :ostemplates] [])) => 
+      {:hypervisor {:dev {:vcenter {:ostemplates '("must be a map")}}}}
   )
