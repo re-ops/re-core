@@ -20,7 +20,7 @@
         (:machine vm) => {:cpus 1 :memory 512 
                           :password "foobar" :user "ronen" :sudo true
                           :gateway "192.168.5.1" :ip "192.168.5.91" :netmask "255.255.255.0"
-                          :names ["8.8.8.8"] :search "local"
+                          :domain "local" :names ["8.8.8.8"] :search "local"
                           :template "ubuntu-13.04_puppet-3.2"}))
 
     (fact "missing datacenter"
@@ -34,6 +34,11 @@
     (fact "missing mask for existing ip"
           (vconstruct (assoc-in redis-vc-spec [:machine :netmask] nil)) => 
             (throws ExceptionInfo (with-m? {:machine {:netmask '("must be present")}})))
+
+    (fact "missing domain"
+          (vconstruct (assoc-in redis-vc-spec [:machine :domain] nil)) => 
+            (throws ExceptionInfo (with-m? {:machine {:domain '("must be present")}})))
+
 
     (fact "missing hostsystem"
           (vconstruct (assoc-in redis-vc-spec [:vcenter :hostsystem] nil)) => 

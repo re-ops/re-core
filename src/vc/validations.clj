@@ -18,12 +18,12 @@
 ; only when ip exists
 (def machine-networking
   {:machine {
-    :netmask #{:required :String} :gateway #{:required :String}
+    :netmask #{:required :String} :gateway #{:required :String} 
     :search #{:required :String} :names #{:required :Vector}}})
 
 (def machine-common
   {:machine 
-   {:cpus #{:required :number} :memory #{:required :number} :ip #{:String}}})
+   {:cpus #{:required :number} :memory #{:required :number} :ip #{:String} :domain #{:required :String}}})
 
 (def machine-provider
   {:machine {:template #{:required :String}}})
@@ -46,7 +46,8 @@
 (def format-names (into #{} (map name (keys disk-format-types))))
 
 (def machine-entity 
-  {:machine {:user #{:required :String} :password #{:required :String} :os #{:required :Keyword}}})
+  {:machine {:user #{:required :String} :password #{:required :String} 
+             :os #{:required :Keyword}}})
 
 (validation :format-str
   (when-not-nil format-names (<< "disk format must be either ~{format-names}")))
