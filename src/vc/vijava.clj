@@ -10,10 +10,11 @@
    limitations under the License.)
 
 (ns vc.vijava
-  (:use 
-    [slingshot.slingshot :only  [throw+ try+]]
-    [clojure.core.strint :only  (<<)]
-    [celestial.common :only (get! import-logging)])
+  (:require 
+    [celestial.model :refer [hypervisor]]
+    [slingshot.slingshot :refer  [throw+ try+]]
+    [clojure.core.strint :refer  (<<)]
+    [celestial.common :refer (import-logging)])
   (:import 
     java.net.URL
     com.vmware.vim25.mo.InventoryNavigator
@@ -42,7 +43,7 @@
   (memoize 
     (fn []  
       (into [] 
-            (repeatedly (get! :hypervisor :vcenter :session-count) #(agent (connect (get! :hypervisor :vcenter))))))))
+            (repeatedly (hypervisor :vcenter :session-count) #(agent (connect (hypervisor :vcenter))))))))
 
 (defn session-expired? [instance]
   (nil? (:currentSession (bean (.getSessionManager (deref (first (services))))))))
@@ -51,7 +52,7 @@
   (if (session-expired? s)
     (do 
       (debug "Session expired renewing")
-      (connect (get! :hypervisor :vcenter)))
+      (connect (hypervisor :vcenter)))
     s))
 
 (defmacro execute [body p]

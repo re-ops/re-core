@@ -11,11 +11,19 @@
 
 (ns celestial.model 
   "Model manipulation ns"
-  )
+  (:require [celestial.common :refer (get!)]))
+
+(def ^{:doc "A local binding of current environment (used for hypervisors, provisioners etc.."} env)
 
 (def hypervizors #{:proxmox :aws :vcenter :vagrant})
 
 (defn figure-virt [spec] (first (filter hypervizors (keys spec))))
+
+(defn hypervisor 
+  "obtains current environment hypervisor" 
+   [& ks]
+   {:pre [env]}
+  (apply get! :hypervisor env ks))
 
 (defmulti clone
  "Clones an existing system map replacing unique identifiers in the process"

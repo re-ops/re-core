@@ -25,13 +25,13 @@
     [trammel.core :only (defconstrainedrecord)]
     [celestial.provider :only (wait-for)]
     [celestial.core :only (Vm)]
-    [celestial.common :only (get! import-logging )]
-    [celestial.model :only (translate vconstruct)])
+    [celestial.common :only (import-logging )]
+    [celestial.model :only (translate vconstruct hypervisor)])
   )
 
 (import-logging)
 
-(defn creds [] (get! :hypervisor :aws))
+(defn creds [] (hypervisor :aws))
 
 (defn wait-for-status [instance req-stat timeout]
   "Waiting for ec2 machine status timeout is in mili"

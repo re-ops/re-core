@@ -18,6 +18,7 @@
     [clojure.data :refer [diff]]
     [clojure.java.data :refer [from-java]] 
     [celestial.common :refer [get! import-logging]]
+    [celestial.model :refer [hypervisor]]
     [slingshot.slingshot :refer [throw+ try+]]
     [celestial.redis :refer [wcar]]
     [flatland.useful.utils :refer (defm)]
@@ -77,7 +78,7 @@
   "Configured ip range" 
   []
   (try+ 
-    (let [[s e] (map ip-to-long (get! :hypervisor :proxmox :generators :ip-range))] 
+    (let [[s e] (map ip-to-long (hypervisor :proxmox :generators :ip-range))] 
       [s e])
     (catch [:type :celestial.common/missing-conf] e nil)))
 
@@ -89,7 +90,7 @@
 (defm mark-conf
   "Marks all used ips in configuration, memoized so it will be called once on each boot/usage"
   [k]
-  (doseq [ip (map ip-to-long (get! :hypervisor :proxmox :generators :used-ips))]
+  (doseq [ip (map ip-to-long (hypervisor :proxmox :generators :used-ips))]
     (mark ip k)))
 
 (defn initialize-range

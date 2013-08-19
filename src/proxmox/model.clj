@@ -1,7 +1,7 @@
 (ns proxmox.model
   (:require 
     [flatland.useful.map :refer  (dissoc-in*)]
-    [celestial.model :refer (clone)] 
+    [celestial.model :refer (clone hypervisor)] 
     [celestial.common :refer (get!)]))
 
 (defmethod clone :proxmox [spec]
@@ -11,8 +11,8 @@
       (dissoc-in* [:machine :ip])))
 
 (defn get-node [node] 
-  (get! :hypervisor :proxmox :nodes (keyword node)))
+  (hypervisor :proxmox :nodes (keyword node)))
 
 (defn proxmox-master [] 
-  (get-node (get! :hypervisor :proxmox :master)))
+  (get-node (hypervisor :proxmox :master)))
  

@@ -11,11 +11,12 @@
 
 (ns celestial.provider
   "common providers functions"
-    (:use 
-      [minderbinder.time :only (parse-time-unit)]
-      [celestial.common :only (get! import-logging curr-time)]
-      [clojure.core.strint :only (<<)]
-      [slingshot.slingshot :only  [throw+ try+]]))
+    (:require 
+      [celestial.model :refer (hypervisor)]
+      [minderbinder.time :refer (parse-time-unit)]
+      [celestial.common :refer (get! import-logging curr-time)]
+      [clojure.core.strint :refer (<<)]
+      [slingshot.slingshot :refer (throw+ try+)]))
 
 (defn- key-select [v] (fn [m] (select-keys m (keys v))))
 
@@ -37,9 +38,9 @@
   "Os key to vmware template" 
   [hyp]
   (fn [os]
-   (let [ks [:hypervisor hyp :ostemplates os]]
+   (let [ks [hyp :ostemplates os]]
      (try+ 
-      (apply get! ks)
+      (apply hypervisor ks)
       (catch [:type :celestial.common/missing-conf] e
         (throw+ {:type :missing-template :message 
           (<< "no matching vmware template found for ~{os} add one to configuration under ~{ks}")}))))))
