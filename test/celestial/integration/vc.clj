@@ -11,13 +11,13 @@
 (with-conf
   (fact "creating a virtualmachine" :integration :vcenter
     (let [vm (vconstruct redis-vc-spec)]
-      (.create vm)
-      (.start vm)
-      (.status vm)  => "running"
-      (guest-status (get-in redis-vc-spec [:machine :hostname]))  => :running
-      (.stop vm)
-      (.status vm)  => "stopped" 
-      (.start vm)
-      (.stop vm)
-      (.delete vm)
-      )))
+      (try 
+       (.create vm)
+       (.start vm) 
+       (.status vm)  => "running"
+       (guest-status (get-in redis-vc-spec [:machine :hostname]))  => :running 
+       (.stop vm) 
+       (.status vm)  => "stopped" 
+       (finally
+         (when-not (= (.status vm) "stopped") (.stop vm)) 
+         (.delete vm))))))
