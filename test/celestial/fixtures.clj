@@ -47,10 +47,10 @@
   "Using fixture/celestial.edn conf file"
   [f & body]
   (if (symbol? f)
-    `(with-redefs [celestial.config/config ~f]
+    `(with-redefs [celestial.config/config ~f celestial.model/env :dev]
        ~@body 
        )
-    `(with-redefs [celestial.config/config celestial.fixtures/local-prox]
+    `(with-redefs [celestial.config/config celestial.fixtures/local-prox celestial.model/env :dev ]
        ~@(conj body f) 
        )))
 
