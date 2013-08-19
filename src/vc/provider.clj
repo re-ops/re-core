@@ -43,7 +43,9 @@
     (clone hostname allocation machine)
     (when (machine :ip)
       (.start this)  
-      (set-ip hostname (select-keys machine [:user :password :sudo]) machine)))
+      (set-ip hostname (select-keys machine [:user :password :sudo]) machine)
+      (.stop this) 
+      ))
 
   (delete [this] (destroy hostname))
 
@@ -61,7 +63,7 @@
        (catch [:type :vc.vijava/missing-entity] e
          (warn "No VM found, most chances it hasn't been created yet") false))))
 
-(def machine-ks [:template :cpus :memory :ip :netmask :gateway :search :names :user :password :sudo])
+(def machine-ks [:template :cpus :memory :ip :netmask :gateway :search :names :user :password :sudo :domain])
 
 (def allocation-ks [:pool :datacenter :disk-format :hostsystem])
 
