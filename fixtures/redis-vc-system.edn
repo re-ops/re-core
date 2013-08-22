@@ -1,4 +1,7 @@
 {
+
+ :env :dev
+
  :machine {
   :cpus 1 :memory 512 :os :ubuntu-13.04
   :user "ronen" :password "foobar" :sudo true

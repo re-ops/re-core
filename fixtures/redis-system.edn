@@ -1,4 +1,6 @@
 {
+ :env :dev
+
  :machine {
   :cpus 4 :memory 4096 :disk 30
   :hostname "red1" :ip "192.168.5.200" :domain "local"
