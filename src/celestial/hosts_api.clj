@@ -18,8 +18,7 @@
      [slingshot.slingshot :only  [throw+ try+]]
      [swag.model :only (defmodel wrap-swag defv defc)]
      [celestial.common :only (import-logging resp bad-req conflict success wrap-errors)]
-     [swag.core :only (swagger-routes GET- POST- PUT- DELETE- defroutes- errors)])
- )
+     [swag.core :only (swagger-routes GET- POST- PUT- DELETE- defroutes- errors)]))
 
 (import-logging)
 
@@ -30,28 +29,37 @@
 (defmodel module :name :string :src :string)
 
 (defmodel system 
+  :env :string
   :machine {:type "Machine"} 
-  :aws {:type "Aws" :description "Only for ec2"}
-  :proxmox {:type "Proxmox" :description "Only for proxmox"}
+  :aws {:type "Aws" :description "An EC2 based system"}
+  :proxmox {:type "Proxmox" :description "A Proxmox based system"}
+  :vcenter {:type "Vcenter" :description "A vCenter based system"}
   :type :string)
 
 (defmodel machine 
   :cpus {:type :int :description "Not relevant in ec2"}
   :memory {:type :int :description "Not relevant in ec2"}
   :disk {:type :int :description "Not relevant in ec2"}
+  :user :string :os {:type :string :description "OS template used"}
+  :hostname :string 
   :domain {:type :string :description "dns domain"}
-  :hostname :string :user :string :os :string :ip {:type :string :description "Not relevant in ec2"})
+  :ip {:type :string :description "Not relevant in ec2"}
+  :netmask {:type :string :description "used in vCenter or proxmox bridge"}
+  :gateway {:type :string :description "used vCenter or proxmox bridge"})
 
 (defmodel aws :instance-type :string :image-id :string :key-name :string :endpoint :string)
+
+(defmodel vcenter :pool :string :datacenter :string :hostsystem :string :disk-format :string)
 
 (defmodel proxmox :nameserver :string :searchdomain :string :password :string :node :string 
   :type {:type :string :allowableValues {:valueType "LIST" :values ["ct" "vm"]}}
   :features {:type "List"})
 
-
 (defc [:proxmox :type] (keyword v))
 
 (defc [:machine :os] (keyword v))
+
+(defc [:env] (keyword v))
 
 (defroutes- hosts {:path "/host" :description "Operations on hosts"}
 
