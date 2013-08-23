@@ -60,7 +60,7 @@
     (if-not (p/system-exists? id)
      (bad-req {:errors (<< "No system found with given id ~{id}")})
      (success 
-       {:msg msg :id id :job (jobs/enqueue action {:identity id :args args :tid (get-tid)})}))))
+       {:msg msg :id id :job (jobs/enqueue action {:identity id :args args :tid (get-tid) :env (p/get-system id :env)})}))))
 
 (defroutes- jobs {:path "/job" :description "Operations on async job scheduling"}
 
