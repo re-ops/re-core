@@ -99,40 +99,44 @@
   [(provider-validation spec) (-> endpoint nil? not)]
   Vm
   (create [this] 
-        (let [{:keys [aws]} spec instance-id (-> (with-ctx ec2/run-instances aws) :instances first :id)]
-          (p/partial-system (spec :system-id) {:aws {:instance-id instance-id}})
-          (debug "created" instance-id)
-          (when (= (image-desc endpoint (aws :image-id) :root-device-type) "ebs")
-            (wait-for-attach endpoint instance-id [10 :minute])) 
-          (when-let [ip (get-in spec [:machine :ip])] 
-            (debug (<<  "Associating existing ip ~{ip} to instance-id"))
-            (with-ctx ec2/assoc-pub-ip instance-id ip))
-          (update-pubdns spec endpoint instance-id)
-          (wait-for-ssh endpoint instance-id user [5 :minute])
-          (set-hostname spec endpoint instance-id user)
-          this))
+    (let [{:keys [aws]} spec instance-id (-> (with-ctx ec2/run-instances aws) :instances first :id)]
+       (p/partial-system (spec :system-id) {:aws {:instance-id instance-id}})
+       (debug "created" instance-id)
+       (when (= (image-desc endpoint (aws :image-id) :root-device-type) "ebs")
+         (wait-for-attach endpoint instance-id [10 :minute])) 
+       (when-let [ip (get-in spec [:machine :ip])] 
+         (debug (<<  "Associating existing ip ~{ip} to instance-id"))
+       (with-ctx ec2/assoc-pub-ip instance-id ip))
+       (update-pubdns spec endpoint instance-id)
+       (wait-for-ssh endpoint instance-id user [5 :minute])
+       (set-hostname spec endpoint instance-id user)
+        this))
+
   (start [this]
-         (with-instance-id
-           (debug "starting" instance-id)
-           (with-ctx ec2/start-instances instance-id) 
-           (wait-for-status this "running" [5 :minute]) 
-           (update-pubdns spec endpoint instance-id)))
+    (with-instance-id
+      (debug "starting" instance-id)
+      (with-ctx ec2/start-instances instance-id) 
+      (wait-for-status this "running" [5 :minute]) 
+      (update-pubdns spec endpoint instance-id)))
+
   (delete [this]
-        (with-instance-id
-           (debug "deleting" instance-id)
-           (with-ctx ec2/terminate-instances instance-id ) 
-           (wait-for-status this "terminated" [5 :minute])))
+    (with-instance-id
+      (debug "deleting" instance-id)
+      (with-ctx ec2/terminate-instances instance-id ) 
+      (wait-for-status this "terminated" [5 :minute])))
+
   (stop [this]
-        (with-instance-id 
-          (debug "stopping" instance-id)
-          (with-ctx ec2/stop-instances instance-id) 
-          (wait-for-status this "stopped" [5 :minute])))
+    (with-instance-id 
+       (debug "stopping" instance-id)
+       (with-ctx ec2/stop-instances instance-id) 
+       (wait-for-status this "stopped" [5 :minute])))
+
   (status [this] 
-        (try+ 
-          (with-instance-id 
+    (try+ 
+      (with-instance-id 
             (instance-desc endpoint instance-id :state :name)) 
-          (catch [:type ::aws:missing-id] e 
-              (warn "No AWS instance id, most chances this instance hasn't been created yet") false))))
+      (catch [:type ::aws:missing-id] e 
+        (warn "No AWS instance id, most chances this instance hasn't been created yet") false))))
 
 (def defaults {:aws {:min-count 1 :max-count 1}})
 

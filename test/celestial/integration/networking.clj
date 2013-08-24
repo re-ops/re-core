@@ -8,9 +8,8 @@
 
 (with-state-changes [(before :facts (clear-all))]
   (fact "used up ips marking" :integration :redis :ip
-    (let [k "proxmox:dev"]
-       (with-conf
-         (n/gen-ip {} k)  => {:ip_address "192.168.5.100"}
-         (n/list-used-ips k) => ["192.168.5.100" "192.168.5.170" "192.168.5.171" "192.168.5.173"]
-         (n/release-ip "192.168.5.100" k)
-         (n/list-used-ips k) => ["192.168.5.170" "192.168.5.171" "192.168.5.173"]))))
+    (with-conf
+       (n/gen-ip {} :proxmox :ip_address)  => {:ip_address "192.168.5.100"}
+       (n/list-used-ips :proxmox) => ["192.168.5.100" "192.168.5.170" "192.168.5.171" "192.168.5.173"]
+       (n/release-ip "192.168.5.100" :proxmox)
+       (n/list-used-ips :proxmox) => ["192.168.5.170" "192.168.5.171" "192.168.5.173"])))

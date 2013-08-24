@@ -22,7 +22,9 @@
     [slingshot.slingshot :only  [throw+ try+]]
     [celestial.model :only (translate vconstruct)])
   (:require 
+    [celestial.persistency :as p] 
     [celestial.provider :refer (mappings transform os->template wait-for)]
+    [hypervisors.networking :refer (gen-ip release-ip mark)]
     )
   )
 
@@ -34,20 +36,36 @@
   (wait-for {:timeout timeout} #(= :running (guest-status hostname))
     {:type ::vc:guest-failed :message "Timed out on waiting for guest to start" :hostname hostname}))
 
+(defn assign-networking
+  "Generate ip only if missing"
+  [{:keys [ip] :as machine}]
+   (if ip 
+     (do (mark ip :vcenter) machine)
+     (gen-ip machine :vcenter :ip)))
 
-(defconstrainedrecord VirtualMachine [hostname allocation machine]
+(defconstrainedrecord VirtualMachine [hostname allocation machine id]
   "A vCenter Virtual machine instance"
   [(not (nil? hostname)) (provider-validation allocation machine)]
   Vm
   (create [this] 
-    (clone hostname allocation machine)
-    (when (machine :ip)
-      (.start this)  
-      (set-ip hostname (select-keys machine [:user :password :sudo]) machine)
-      (.stop this) 
-      ))
+    (let [machine* (assign-networking machine)]
+      (try+ 
+        (clone hostname allocation machine) 
+        (.start this)  
+        (set-ip hostname (select-keys machine [:user :password :sudo]) machine*) 
+        (when (p/system-exists? id)
+           (p/partial-system id {:machine {:ip (machine* :ip)}}))
+        (.stop this)
+        (->VirtualMachine hostname allocation machine* id)
+      (catch Throwable e 
+        (release-ip (machine* :ip) :vcenter)
+        (throw e)
+        ))))
 
-  (delete [this] (destroy hostname))
+  (delete [this] 
+    (try 
+      (destroy hostname)
+     (finally (release-ip (machine :ip) :proxmox))))
 
   (start [this] 
       (when-not (= (.status this) "running") 
@@ -69,7 +87,7 @@
 
 (defn select-from [ks] (fn[m] (select-keys m ks)))
 
-(def selections (juxt :hostname (select-from allocation-ks) (select-from machine-ks)))
+(def selections (juxt :hostname (select-from allocation-ks) (select-from machine-ks) :system-id))
 
 (defmethod translate :vcenter [{:keys [machine vcenter system-id]}]
   "Convert the general model into a vc specific one"
@@ -80,6 +98,6 @@
       ))
 
 (defmethod vconstruct :vcenter [spec]
-  (let [[hostname allocation machine] (translate spec)]
-    (->VirtualMachine hostname allocation machine)))
+  (let [[hostname allocation machine system-id] (translate spec)]
+    (->VirtualMachine hostname allocation machine system-id)))
 

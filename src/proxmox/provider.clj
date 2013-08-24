@@ -85,10 +85,10 @@
   [ct {:keys [ip_address netif] :as network}]
   (append-ip
     (cond 
-      (and ip_address netif) [(assoc ct :netif netif) (-> network (assoc :ip_address (mark ip_address "proxmox")) (dissoc :netif))]
-      (and (not ip_address) netif) [(assoc ct :netif netif) (-> network (gen-ip "proxmox") (dissoc :netif))]
-      (and ip_address (not netif)) [(assoc ct :ip_address (mark ip_address "proxmox")) network]
-      (and (not ip_address) (not netif)) [(gen-ip ct "proxmox") network]
+      (and ip_address netif) [(assoc ct :netif netif) (-> network (assoc :ip_address (mark ip_address :proxmox)) (dissoc :netif))]
+      (and (not ip_address) netif) [(assoc ct :netif netif) (-> network (gen-ip :proxmox :ip_address) (dissoc :netif))]
+      (and ip_address (not netif)) [(assoc ct :ip_address (mark ip_address :proxmox)) network]
+      (and (not ip_address) (not netif)) [(gen-ip ct :proxmox :ip_address) network]
       )))
 
 (defn- redhat-network
@@ -142,27 +142,23 @@
                 (p/partial-system id {:proxmox {:vmid vmid} :machine {:ip ip_address}})) 
               (when (ct* :netif)
                 (update-interfaces node (extended :flavor) ip_address network* vmid))
+              (->Container node ct* extended network*)
               (catch [:status 500] e 
-                (release-ip ip_address "proxmox")
-                (warn "Container already exists" e)))))
+                (warn "Container already exists" e) (throw e))
+              (catch Throwable e (release-ip ip_address :proxmox)))))
 
   (delete [this]
-          (try 
-            (debug "deleting" (:vmid ct))
-            (unmount this) 
-            (safe
-              (prox-delete (str "/nodes/" node "/openvz/" (:vmid ct)))) 
-            (finally 
-              (when-let [id (extended :system-id)] 
-                (release-ip (p/system-ip id) "proxmox")))))
+     (try 
+       (debug "deleting" (:vmid ct))
+       (unmount this) 
+       (safe (prox-delete (str "/nodes/" node "/openvz/" (:vmid ct)))) 
+      (finally (release-ip (network :ip) :proxmox))))
 
   (start [this]
          (debug "starting" (:vmid ct))
          (safe
            (prox-post (str "/nodes/" node "/openvz/" (:vmid ct) "/status/start")))
-         (let [ip (or (network :ip_address) (p/system-ip (extended :system-id)))] 
-            (wait-for-ssh ip (:user extended) [5 :minute]))
-          )
+           (wait-for-ssh (network :ip) (:user extended) [5 :minute]))
 
   (stop [this]
         (debug "stopping" (:vmid ct))

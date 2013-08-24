@@ -68,10 +68,10 @@
     (when (.status vm)
       (.stop vm) 
       (.delete vm)) 
-    (.create vm) 
-    (.start vm) 
-    (assert (= (.status vm) "running")) ; might not match all providers
-    (info "done system setup")))
+    (let [vm* (.create vm)]  
+      (.start vm*) 
+      (assert (= (.status vm*) "running")) ; might not match all providers
+      (info "done system setup"))))
 
 (deflow destroy 
   "Deletes a system"

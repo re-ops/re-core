@@ -38,7 +38,7 @@
          :ip-range ["192.168.5.100" "192.168.5.255"]
          :used-ips ["192.168.5.170" "192.168.5.171" "192.168.5.173"]
        }
-    }
+     }
     ;; :aws {
     ;;   :access-key ""
     ;;   :secret-key ""
@@ -50,6 +50,10 @@
        :password "Oox1kai7"
        :ostemplates {
           :ubuntu-13.04 "ubuntu-13.04_puppet-3.2"
+       }
+       :generators {
+         :ip-range ["192.168.5.100" "192.168.5.255"]
+         :used-ips ["192.168.5.170" "192.168.5.171" "192.168.5.173"]
        }
        :session-count 2
      }

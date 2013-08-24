@@ -23,13 +23,13 @@
 (defn running-seq [{:keys [network] :as ct}]
   (.stop ct)
   (.delete ct) 
-  (.create ct) 
-  (.start ct)
-  (.status ct) => "running"
-  ; making sure its ssh-able
-  (execute "touch /tmp/foo" {:host (:ip_address network) :user "root"}) => nil
-  (.stop ct)
-  (.delete ct))
+  (let [ct* (.create ct)] 
+    (.start ct*) 
+    (.status ct*) => "running"
+    ; making sure its ssh-able
+    (execute "touch /tmp/foo" {:host (-> ct* :network :ip_address) :user "root"}) => nil 
+    (.stop ct*) 
+    (.delete ct*)))
 
 (fact "non generated" :integration :proxmox 
   (with-conf

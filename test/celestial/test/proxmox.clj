@@ -60,7 +60,7 @@
           (assign-networking ct network) => 
               (contains (contains {:netif "ifname=eth0,bridge=vmbr0"}) (contains {:ip_address "192.168.5.200"}))
           (provided 
-            (n/mark "192.168.5.200" "proxmox") =>  "192.168.5.200")))
+            (n/mark "192.168.5.200" :proxmox) =>  "192.168.5.200")))
 
   (let [{:keys [ct network] :as bridged-no-ip} (vconstruct (dissoc-in* fix/redis-bridged-prox [:machine :ip])) ]
     (fact "bridged noip construction"
@@ -70,7 +70,7 @@
           (assign-networking ct network) => 
               (contains (contains {:netif "ifname=eth0,bridge=vmbr0"}) (contains {:ip_address "192.168.5.201"}))
           (provided 
-            (n/gen-ip anything "proxmox") =>  {:ip_address "192.168.5.201"})))
+            (n/gen-ip anything :proxmox :ip_address) =>  {:ip_address "192.168.5.201"})))
 
   (let [non-bridged-no-ip (reduce dissoc-in* fix/redis-bridged-prox [[:machine :ip] [:machine :bridge]])
         {:keys [ct network] :as non-bridged-no-ip} (vconstruct non-bridged-no-ip) ]
@@ -80,7 +80,7 @@
     (fact "non-bridged with noip apply"
           (assign-networking ct network) => (contains (contains {:ip_address "192.168.5.202"}))
           (provided 
-            (n/gen-ip anything "proxmox") =>  {:ip_address "192.168.5.202"})))
+            (n/gen-ip anything :proxmox :ip_address) =>  {:ip_address "192.168.5.202"})))
 
   (let [{:keys [ct network] :as with-ip} (vconstruct (dissoc-in* fix/redis-bridged-prox [:machine :bridge])) ]
     (fact "non bridged has ip construction"
@@ -89,7 +89,7 @@
     (fact "non bridged has ip apply"
           (assign-networking ct network) => (contains (contains {:ip_address "192.168.5.200"}))
           (provided 
-            (n/mark "192.168.5.200" "proxmox") =>  "192.168.5.200"))))
+            (n/mark "192.168.5.200" :proxmox) =>  "192.168.5.200"))))
 
 (fact "proxmox entity validation"
    (validate-entity redis-prox-spec) => truthy

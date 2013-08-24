@@ -13,10 +13,12 @@
   "Model manipulation ns"
   (:require [celestial.common :refer (get!)]))
 
-(def ^{:doc "A local binding of current environment (used for hypervisors, provisioners etc.." :dynamic true}
+(def ^{:doc "A local binding of current environment (used for hypervisors, provisioners etc..)" :dynamic true :private true}
   env)
 
 (defmacro set-env [e & body] `(binding  [env ~e] ~@body))
+
+(defn get-env! [] {:pre [env]} env)
 
 (def hypervizors #{:proxmox :aws :vcenter :vagrant})
 
@@ -24,8 +26,7 @@
 
 (defn hypervisor 
   "obtains current environment hypervisor" 
-   [& ks]
-   {:pre [env]}
+   [& ks] {:pre [env]}
   (apply get! :hypervisor env ks))
 
 (defmulti clone

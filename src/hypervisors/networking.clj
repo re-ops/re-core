@@ -18,7 +18,7 @@
     [clojure.data :refer [diff]]
     [clojure.java.data :refer [from-java]] 
     [celestial.common :refer [get! import-logging]]
-    [celestial.model :refer [hypervisor]]
+    [celestial.model :refer [hypervisor get-env!]]
     [slingshot.slingshot :refer [throw+ try+]]
     [celestial.redis :refer [wcar]]
     [flatland.useful.utils :refer (defm)]
@@ -74,33 +74,38 @@
       (recur (+ i 1) (add-segment sb ip* i) (bit-shift-right ip* 8))
       (.toString sb)))) 
 
-(defn ip-range 
+(defn- ip-range 
   "Configured ip range" 
-  []
+  [hyp]
   (try+ 
-    (let [[s e] (map ip-to-long (hypervisor :proxmox :generators :ip-range))] 
+    (let [[s e] (map ip-to-long (hypervisor hyp :generators :ip-range))] 
       [s e])
     (catch [:type :celestial.common/missing-conf] e nil)))
 
+(defn- ips-key [hyp]
+  {:pre [(keyword? hyp)]}
+  (<< "~(name (get-env!)):~(name hyp):ips"))
+
 (defn mark
    "marks a single ip as used" 
-   [ip k]
-   (wcar (car/zadd k 1 ip)) ip)
+   [ip hyp]
+   (wcar (car/zadd (ips-key hyp) 1 ip)) ip)
 
 (defm mark-conf
   "Marks all used ips in configuration, memoized so it will be called once on each boot/usage"
-  [k]
-  (doseq [ip (map ip-to-long (hypervisor :proxmox :generators :used-ips))]
-    (mark ip k)))
+  [hyp]
+  (doseq [ip (map ip-to-long (hypervisor hyp :generators :used-ips))]
+    (mark ip hyp)))
 
 (defn initialize-range
   "Initializes ip range zset 0 marks unused 1 marks used (only if missing)."
-  [k]
-  (when-let [[s e] (ip-range)]
-    (wcar 
-      (when-not (= 1 (car/exists k))
-        (doseq [ip (range s (+ 1 e))]
-          (car/zadd k 0 ip))))))
+  [hyp]
+  (when-let [[s e] (ip-range hyp)]
+    (let [hk (ips-key hyp)]
+      (wcar 
+        (when-not (= 1 (car/exists hk))
+          (doseq [ip (range s (+ 1 e))]
+            (car/zadd hk 0 ip)))))))
 
 (defn- fetch-ip
   "Redis ip range fetcher"
@@ -113,19 +118,19 @@
         return next[1]" 
         {:ips k} {:used "1"})) Long/parseLong long-to-ip))
 
-(defn- ips-key [k] (<< "~{k}:ips"))
 
 (defn gen-ip
-  "Associates an available ip address from range, fails if range is exhausted."
-  [ct k] 
-  (let [k* (ips-key k)]
-    (when (= 0 (wcar (car/exists k*))) (initialize-range k*)) 
-    (mark-conf k*) ; in case list was updated
-    (if-let [ip (fetch-ip k*)]
-      (assoc ct :ip_address ip)
-      (throw+ {:type ::ip-gen-error} "Failed to obtain ip for container"))))
+  "Associates an available ip address (into m -> target) from range, fails if range is exhausted."
+  [m hyp target] 
+  (let [hk (ips-key hyp)]
+    (when (= 0 (wcar (car/exists hk))) (initialize-range hyp)) 
+    (mark-conf hyp) ; in case list was updated
+    (if-let [ip (fetch-ip hk)]
+      (assoc m target ip)
+      (throw+ {:type ::ip-gen-error} (<< "Failed to obtain ip for ~{hyp}")))))
 
-(defn release-ip [ip k]
+(defn release-ip 
+  [ip hyp] 
   (wcar 
     (when ip
       (car/lua-script
@@ -134,13 +139,15 @@
         return _:rel-ip
         end 
         return nil "
-        {:ips (ips-key k)} {:rel-ip (ip-to-long ip)}))))
+        {:ips (ips-key hyp)} {:rel-ip (ip-to-long ip)}))))
 
 ; debugging fn's
 (defn list-used-ips
   "List used ips in human readable form (mainly for debugging)."
-  [k]
-  (map #( -> % (Long/parseLong) long-to-ip) (wcar (car/zrangebyscore (ips-key k) 1 1))))
+  [hyp]
+  (map #( -> % (Long/parseLong) long-to-ip) (wcar (car/zrangebyscore (ips-key hyp) 1 1))))
+
+;; (celestial.model/set-env :dev (list-used-ips :vcenter))
 
 (defn correlate
   "compares stored ips to scan result"
