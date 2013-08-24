@@ -14,7 +14,7 @@
   (:require [celestial.common :refer (get!)]))
 
 (def ^{:doc "A local binding of current environment (used for hypervisors, provisioners etc..)" :dynamic true :private true}
-  env)
+  env nil)
 
 (defmacro set-env [e & body] `(binding  [env ~e] ~@body))
 
