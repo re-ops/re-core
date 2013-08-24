@@ -147,6 +147,11 @@
   [hyp]
   (map #( -> % (Long/parseLong) long-to-ip) (wcar (car/zrangebyscore (ips-key hyp) 1 1))))
 
+(defn list-free-ips
+  "List free ips in human readable form (mainly for debugging)."
+  [hyp]
+  (map #( -> % (Long/parseLong) long-to-ip) (wcar (car/zrangebyscore (ips-key hyp) 0 0))))
+
 #_(celestial.model/set-env :dev (list-used-ips :proxmox)) 
 
 (defn correlate
