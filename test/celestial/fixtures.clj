@@ -32,8 +32,8 @@
   (let [clp (.getSystemClipboard (Toolkit/getDefaultToolkit))]
     (.setContents clp (StringSelection. s) nil)))
 
-(clipboard-copy (clojure.data.json/write-str redis-type :escape-slash false))
-(clipboard-copy (clojure.data.json/write-str redis-vc-spec :escape-slash false))
+;; (clipboard-copy (clojure.data.json/write-str redis-type :escape-slash false))
+;; (clipboard-copy (clojure.data.json/write-str redis-vc-spec :escape-slash false))
 
 (defn is-type? [type]
   (fn [exception] 
