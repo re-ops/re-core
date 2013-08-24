@@ -7,28 +7,30 @@
      [vc.vijava :only (guest-status)]
      [celestial.fixtures :only (redis-vc-spec with-conf)]
      [celestial.model :only (vconstruct)])
-   (:require [flatland.useful.map :refer (dissoc-in*)]) 
-  )
+   (:require 
+     [hypervisors.networking :refer (clear-range)]
+     [flatland.useful.map :refer (dissoc-in*)]))
 
 (with-conf
-  (fact "creating a virtualmachine" :integration :vcenter
-    (let [vm (.create (vconstruct redis-vc-spec))]
-      (try 
-       (.start vm) 
-       (.status vm)  => "running"
-       (guest-status (get-in redis-vc-spec [:machine :hostname]))  => :running 
-       (.stop vm) 
-       (.status vm)  => "stopped" 
-       (finally
-         (when-not (= (.status vm) "stopped") (.stop vm)) 
-         (.delete vm)))))
+  (with-state-changes [(before :facts (clear-range :vcenter))] 
+    (fact "creating a virtualmachine" :integration :vcenter
+      (let [vm (.create (vconstruct redis-vc-spec))]
+        (try 
+         (.start vm) 
+         (.status vm)  => "running"
+         (guest-status (get-in redis-vc-spec [:machine :hostname]))  => :running 
+         (.stop vm) 
+         (.status vm)  => "stopped" 
+         (finally
+           (when-not (= (.status vm) "stopped") (.stop vm)) 
+           (.delete vm))))) 
   
-  (fact "generated ip" :integration :vcenter
-    (let [vm (.create (vconstruct (dissoc-in* redis-vc-spec [:machine :ip])))]
-      (try 
-       (.start vm) 
-       (.status vm)  => "running"
-       (guest-status (get-in redis-vc-spec [:machine :hostname]))  => :running 
-       (finally
-         (when-not (= (.status vm) "stopped") (.stop vm)) 
-         (.delete vm))))))
+   (fact "generated ip" :integration :vcenter
+      (let [vm (.create (vconstruct (dissoc-in* redis-vc-spec [:machine :ip])))]
+        (try 
+         (.start vm) 
+         (.status vm)  => "running"
+         (guest-status (get-in redis-vc-spec [:machine :hostname]))  => :running 
+         (finally
+           (when-not (= (.status vm) "stopped") (.stop vm)) 
+           (.delete vm)))))))
