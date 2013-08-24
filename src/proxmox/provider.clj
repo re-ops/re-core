@@ -77,19 +77,19 @@
       (trace "enabling feature" f)
       (vzctl this (<< "set ~(ct :vmid) --features \"~{f}\" --save")))) () )
 
-(defn- append-ip [[ct network]]
-  (into [ct network] [(or (ct :ip_address) (network :ip_address))]))
+(defn ip-address 
+   "grabs ip address either from bridged settings or container settings" 
+   ([{:keys [ct network]}] (ip-address ct network)) 
+   ([ct network] (or (ct :ip_address) (network :ip_address))))
 
 (defn assign-networking
   "Generate ip only if missing and not bridged"
   [ct {:keys [ip_address netif] :as network}]
-  (append-ip
-    (cond 
-      (and ip_address netif) [(assoc ct :netif netif) (-> network (assoc :ip_address (mark ip_address :proxmox)) (dissoc :netif))]
-      (and (not ip_address) netif) [(assoc ct :netif netif) (-> network (gen-ip :proxmox :ip_address) (dissoc :netif))]
-      (and ip_address (not netif)) [(assoc ct :ip_address (mark ip_address :proxmox)) network]
-      (and (not ip_address) (not netif)) [(gen-ip ct :proxmox :ip_address) network]
-      )))
+  (cond 
+    (and ip_address netif) [(assoc ct :netif netif) (-> network (assoc :ip_address (mark ip_address :proxmox)) (dissoc :netif))]
+    (and (not ip_address) netif) [(assoc ct :netif netif) (-> network (gen-ip :proxmox :ip_address) (dissoc :netif))]
+    (and ip_address (not netif)) [(assoc ct :ip_address (mark ip_address :proxmox)) network]
+    (and (not ip_address) (not netif)) [(gen-ip ct :proxmox :ip_address) network]))
 
 (defn- redhat-network
   "updates redhat bridged networking"
@@ -107,8 +107,7 @@
     (try 
       (spit output (debian-interfaces (merge {:ip ip_address} network)))      
       (copy output (<< "/var/lib/vz/private/~{vmid}/etc/network/") (get-node node)) 
-      (finally (delete-dir temp))))
-  )
+      (finally (delete-dir temp)))))
 
 (defn update-interfaces 
   "uploads interfaces file for a ct if bridge is used" 
@@ -129,36 +128,38 @@
      {:type ::proxmox:ssh-failed :message "Timed out while waiting for ssh" :timeout timeout}))
 
 (defconstrainedrecord Container [node ct extended network]
-  "ct should match proxmox expected input (see http://pve.proxmox.com/pve2-api-doc/)"
+  "ct should match proxmox expected input (see http://pve.proxmox.com/pve2-api-doc/)
+   network contains bridged settings (when applicaple)."
   [(validate-provider ct extended network) (not (nil? node))]
   Vm
   (create [this] 
           (debug "creating" (:vmid ct))
-          (let [[ct* network* ip_address] (assign-networking ct network) {:keys [hostname vmid]} ct* id (extended :system-id)] 
+          (let [[ct* network*] (assign-networking ct network) ip (ip-address ct* network*)
+                {:keys [hostname vmid]} ct* id (extended :system-id)] 
             (try+ 
               (check-task node (prox-post (str "/nodes/" node "/openvz") ct*)) 
               (enable-features this) 
               (when (p/system-exists? id)
-                (p/partial-system id {:proxmox {:vmid vmid} :machine {:ip ip_address}})) 
+                (p/partial-system id {:proxmox {:vmid vmid} :machine {:ip ip}})) 
               (when (ct* :netif)
-                (update-interfaces node (extended :flavor) ip_address network* vmid))
+                (update-interfaces node (extended :flavor) ip network* vmid))
               (->Container node ct* extended network*)
               (catch [:status 500] e 
                 (warn "Container already exists" e) (throw e))
-              (catch Throwable e (release-ip ip_address :proxmox)))))
+              (catch Throwable e (release-ip ip :proxmox)))))
 
   (delete [this]
      (try 
        (debug "deleting" (:vmid ct))
        (unmount this) 
        (safe (prox-delete (str "/nodes/" node "/openvz/" (:vmid ct)))) 
-      (finally (release-ip (network :ip) :proxmox))))
+      (finally (release-ip (ip-address this) :proxmox))))
 
   (start [this]
          (debug "starting" (:vmid ct))
          (safe
            (prox-post (str "/nodes/" node "/openvz/" (:vmid ct) "/status/start")))
-           (wait-for-ssh (network :ip) (:user extended) [5 :minute]))
+           (wait-for-ssh (ip-address this) (:user extended) [5 :minute]))
 
   (stop [this]
         (debug "stopping" (:vmid ct))
