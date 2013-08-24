@@ -1,6 +1,7 @@
 (ns celestial.integration.proxmox
   "Integration tests assume a proxmox vm with local address make sure to configure it"
   (:require 
+     [hypervisors.networking :refer (clear-range)]
      [supernal.sshj :refer (execute)]
      [flatland.useful.map :refer (dissoc-in*)]
      [celestial.common :refer (slurp-edn)]
@@ -31,28 +32,29 @@
     (.stop ct*) 
     (.delete ct*)))
 
-(fact "non generated" :integration :proxmox 
-  (with-conf
-    (running-seq (vconstruct redis-prox-spec))))
+(with-conf
+  (with-state-changes [(before :facts (clear-range :proxmox))] 
+    (fact "non generated" :integration :proxmox 
+       (running-seq (vconstruct redis-prox-spec))) 
 
-(fact "ip and vmid generated" :integration :proxmox
-   (with-conf
-    (running-seq 
-      (vconstruct (-> redis-prox-spec (dissoc-in* [:machine :ip]) (dissoc-in* [:proxmox :vmid]))))))
+    (fact "ip and vmid generated" :integration :proxmox
+       (running-seq 
+         (vconstruct (-> redis-prox-spec (dissoc-in* [:machine :ip]) (dissoc-in* [:proxmox :vmid]))))) 
 
-(fact "bridged" :integration :proxmox :bridge
-   (with-conf
-      (running-seq (vconstruct redis-bridged-prox))))
+    (fact "bridged" :integration :proxmox :bridge
+       (running-seq (vconstruct redis-bridged-prox))) 
 
-(fact "cluster" :integration :proxmox :bridge :cluster
-   (with-conf clustered-prox
-      (running-seq (vconstruct (assoc-in redis-bridged-prox [:proxmox :node] "proxmox-b")))))
+    (fact "cluster" :integration :proxmox :bridge :cluster
+       (with-conf clustered-prox
+          (running-seq (vconstruct (assoc-in redis-bridged-prox [:proxmox :node] "proxmox-b"))))) 
 
-#_(fact "proxmox 3" :integration :proxmox-3 
-   (with-conf proxmox-3 
-     (running-seq (vconstruct (assoc-in redis-bridged-prox [:proxmox :node] "proxmox-3")))))
+  #_(fact "proxmox 3" :integration :proxmox-3 
+       (with-conf proxmox-3 
+           (running-seq (vconstruct (assoc-in redis-bridged-prox [:proxmox :node] "proxmox-3")))))
 
-(fact "centos bridge" :integration :proxmox :bridge :centos
-    (with-conf clustered-prox
-      (running-seq (vconstruct (assoc-in redis-bridged-prox [:machine :os] :centos-6)))))
+    (fact "centos bridge" :integration :proxmox :bridge :centos
+       (with-conf clustered-prox
+          (running-seq (vconstruct (assoc-in redis-bridged-prox [:machine :os] :centos-6)))))))
+
+
 
