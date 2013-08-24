@@ -88,13 +88,13 @@
 
 (defn mark
    "marks a single ip as used" 
-   [ip hyp]
-   (wcar (car/zadd (ips-key hyp) 1 ip)) ip)
+   [ip hyp] {:pre [(re-find #"\d+\.\d+\.\d+\.\d+" ip)]}
+   (wcar (car/zadd (ips-key hyp) 1 (ip-to-long ip))) ip)
 
 (defm mark-conf
   "Marks all used ips in configuration, memoized so it will be called once on each boot/usage"
   [hyp]
-  (doseq [ip (map ip-to-long (hypervisor hyp :generators :used-ips))]
+  (doseq [ip (hypervisor hyp :generators :used-ips)]
     (mark ip hyp)))
 
 (defn initialize-range
@@ -147,13 +147,16 @@
   [hyp]
   (map #( -> % (Long/parseLong) long-to-ip) (wcar (car/zrangebyscore (ips-key hyp) 1 1))))
 
-;; (celestial.model/set-env :dev (list-used-ips :vcenter))
 
 (defn correlate
   "compares stored ips to scan result"
   [k]
   (let [scanned (map (fn [[{:keys [addr]}]] addr) (hosts-scan "192.168.20.170-254"))]
     (zipmap [:scanned :listed :common] (diff (into #{} scanned) (into #{} (list-used-ips k))))))
+
+(defn clear-range 
+   "mainly for testing" 
+   [hyp] (wcar (car/del (ips-key hyp))))
 
 (test #'long-to-ip) 
 
