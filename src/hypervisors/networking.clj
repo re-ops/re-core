@@ -114,14 +114,14 @@
     (wcar 
       (car/lua-script
         "local next = redis.call('zrangebyscore', _:ips,0,0, 'LIMIT', 0,1) -- next available ip
-        redis.call('zadd',_:ips,_:used, next[1]) -- mark as used
-        return next[1]" 
+         redis.call('zadd',_:ips,_:used, next[1]) -- mark as used
+         return next[1]" 
         {:ips k} {:used "1"})) Long/parseLong long-to-ip))
 
 
 (defn gen-ip
   "Associates an available ip address (into m -> target) from range, fails if range is exhausted."
-  [m hyp target] 
+  [m hyp target] {:pre [(keyword? hyp)]} 
   (let [hk (ips-key hyp)]
     (when (= 0 (wcar (car/exists hk))) (initialize-range hyp)) 
     (mark-conf hyp) ; in case list was updated
@@ -135,8 +135,8 @@
     (when ip
       (car/lua-script
         "if redis.call('zrank', _:ips, _:rel-ip) then
-        redis.call('zadd',_:ips, 0, _:rel-ip) 
-        return _:rel-ip
+          redis.call('zadd',_:ips, 0, _:rel-ip) 
+          return _:rel-ip
         end 
         return nil "
         {:ips (ips-key hyp)} {:rel-ip (ip-to-long ip)}))))
@@ -147,6 +147,7 @@
   [hyp]
   (map #( -> % (Long/parseLong) long-to-ip) (wcar (car/zrangebyscore (ips-key hyp) 1 1))))
 
+#_(celestial.model/set-env :dev (list-used-ips :proxmox)) 
 
 (defn correlate
   "compares stored ips to scan result"
