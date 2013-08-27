@@ -8,11 +8,11 @@
      [celestial.fixtures :only (redis-vc-spec with-conf)]
      [celestial.model :only (vconstruct)])
    (:require 
-     [hypervisors.networking :refer (clear-range)]
+     [hypervisors.networking :refer (clear-range initialize-networking)]
      [flatland.useful.map :refer (dissoc-in*)]))
 
 (with-conf
-  (with-state-changes [(before :facts (clear-range :vcenter))] 
+  (with-state-changes [(before :facts (do (clear-range :vcenter) (initialize-networking)))] 
     (fact "creating a virtualmachine" :integration :vcenter
       (let [vm (.create (vconstruct redis-vc-spec))]
         (try 

@@ -27,7 +27,9 @@
     [celestial.common :only (get! get* import-logging version)]
     [celestial.redis :only (clear-locks)]
     [taoensso.timbre :only (set-config! set-level!)])
-  (:require [celestial.jobs :as jobs]))
+  (:require 
+    [hypervisors.networking :refer [initialize-networking]]
+    [celestial.jobs :as jobs]))
 
 (import-logging)
 
@@ -82,6 +84,7 @@
 (defn setup 
   "one time setup" 
   []
+  (initialize-networking)
   (setup-logging)
   (p/reset-admin)
   (add-shutdown)

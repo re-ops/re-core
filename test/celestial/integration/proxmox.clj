@@ -1,7 +1,7 @@
 (ns celestial.integration.proxmox
   "Integration tests assume a proxmox vm with local address make sure to configure it"
   (:require 
-     [hypervisors.networking :refer (clear-range)]
+     [hypervisors.networking :refer (clear-range initialize-networking)]
      [supernal.sshj :refer (execute)]
      [flatland.useful.map :refer (dissoc-in*)]
      [celestial.common :refer (slurp-edn)]
@@ -33,7 +33,7 @@
     (.delete ct*)))
 
 (with-conf
-  (with-state-changes [(before :facts (clear-range :proxmox))] 
+  (with-state-changes [(before :facts (do (clear-range :proxmox) (initialize-networking)))] 
     (fact "non generated" :integration :proxmox 
        (running-seq (vconstruct redis-prox-spec))) 
 

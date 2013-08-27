@@ -18,7 +18,7 @@
     [clojure.data :refer [diff]]
     [clojure.java.data :refer [from-java]] 
     [celestial.common :refer [get! import-logging]]
-    [celestial.model :refer [hypervisor get-env!]]
+    [celestial.model :refer [hypervisor get-env! set-env]]
     [slingshot.slingshot :refer [throw+ try+]]
     [celestial.redis :refer [wcar]]
     [flatland.useful.utils :refer (defm)]
@@ -91,8 +91,8 @@
    [ip hyp] {:pre [(re-find #"\d+\.\d+\.\d+\.\d+" ip)]}
    (wcar (car/zadd (ips-key hyp) 1 (ip-to-long ip))) ip)
 
-(defm mark-conf
-  "Marks all used ips in configuration, memoized so it will be called once on each boot/usage"
+(defn mark-conf
+  "Marks all used ips in configuration"
   [hyp]
   (doseq [ip (hypervisor hyp :generators :used-ips)]
     (mark ip hyp)))
@@ -118,13 +118,22 @@
          return next[1]" 
         {:ips k} {:used "1"})) Long/parseLong long-to-ip))
 
+(defn initialize-networking 
+  "intializes all the networking ranges and marks used ones (will not override existing ranges)" 
+  []
+  (let [envs (flatten (map #(interleave (repeat %) (keys (get! :hypervisor %))) (keys (get! :hypervisor))))]
+    (doseq [[e hyp] (partition 2 envs)] 
+      (set-env e 
+          (when (= 0 (wcar (car/exists (ips-key hyp)))) 
+            (initialize-range hyp))
+          (when (get-in (hypervisor hyp) [:generators :used-ips]) 
+           ; in case somthing was added (does not free ips)
+            (mark-conf hyp))))))
 
 (defn gen-ip
   "Associates an available ip address (into m -> target) from range, fails if range is exhausted."
   [m hyp target] {:pre [(keyword? hyp)]} 
   (let [hk (ips-key hyp)]
-    (when (= 0 (wcar (car/exists hk))) (initialize-range hyp)) 
-    (mark-conf hyp) ; in case list was updated
     (if-let [ip (fetch-ip hk)]
       (assoc m target ip)
       (throw+ {:type ::ip-gen-error} (<< "Failed to obtain ip for ~{hyp}")))))
@@ -135,8 +144,8 @@
     (when ip
       (car/lua-script
         "if redis.call('zrank', _:ips, _:rel-ip) then
-          redis.call('zadd',_:ips, 0, _:rel-ip) 
-          return _:rel-ip
+        redis.call('zadd',_:ips, 0, _:rel-ip) 
+        return _:rel-ip
         end 
         return nil "
         {:ips (ips-key hyp)} {:rel-ip (ip-to-long ip)}))))
@@ -152,7 +161,7 @@
   [hyp]
   (map #( -> % (Long/parseLong) long-to-ip) (wcar (car/zrangebyscore (ips-key hyp) 0 0))))
 
-#_(celestial.model/set-env :dev (list-used-ips :proxmox)) 
+;; (celestial.model/set-env :dev (list-used-ips :proxmox)) 
 
 (defn correlate
   "compares stored ips to scan result"
@@ -161,8 +170,8 @@
     (zipmap [:scanned :listed :common] (diff (into #{} scanned) (into #{} (list-used-ips k))))))
 
 (defn clear-range 
-   "mainly for testing" 
-   [hyp] (wcar (car/del (ips-key hyp))))
+  "mainly for testing" 
+  [hyp] (wcar (car/del (ips-key hyp))))
 
 (test #'long-to-ip) 
 
