@@ -109,6 +109,7 @@
    "Clear instance volumes" 
    [endpoint instance-id]
    (doseq [{:keys [ebs]} (-> (instance-desc endpoint instance-id) :block-device-mappings rest)]
+     (trace "deleting volume" ebs)
      (with-ctx ebs/detach-volume (ebs :volume-id))
      (wait-for {:timeout [10 :minute]} #(= "available" (with-ctx ebs/state  (ebs :volume-id)))
         {:type ::aws:ebs-volume-availability :message "Failed to wait for ebs volume to become available"})
