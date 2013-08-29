@@ -24,6 +24,8 @@
 
 (def clustered-prox (slurp-edn "fixtures/celestial-cluster.edn"))
 
+(def local-conf (slurp-edn (me.raynes.fs/expand-home "~/.celestial.edn")))
+
 (def redis-actions (slurp-edn "fixtures/redis-actions.edn"))
 
 (def user-quota (slurp-edn "fixtures/user-quota.edn"))
@@ -65,4 +67,5 @@
 
 (def host (.getHostName (java.net.InetAddress/getLocalHost)))
 
-(def puppet-ami (merge-with merge redis-ec2-spec {:aws {:image-id "ami-f5e2ff81" :key-name host}}))
+(def ^{:doc "an ami with puppet baked in"}
+  puppet-ami (merge-with merge redis-ec2-spec {:aws {:image-id "ami-f5e2ff81" :key-name host}}))

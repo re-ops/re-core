@@ -12,22 +12,20 @@
 (ns aws.provider
   (:require 
     [aws.sdk.ec2 :as ec2]
+    [aws.sdk.ebs :as ebs]
+    [clojure.string :refer (join)]
+    [aws.validations :refer (provider-validation)]
     [celestial.persistency :as p]
-    )
-  (:use 
-    [clojure.string :only (join)]
-    [aws.validations :only (provider-validation)]
-    [clojure.core.strint :only (<<)]
-    [supernal.sshj :only (execute ssh-up?)]
-    [flatland.useful.utils :only (defm)]
-    [flatland.useful.map :only (dissoc-in*)]
-    [slingshot.slingshot :only  [throw+ try+]]
-    [trammel.core :only (defconstrainedrecord)]
-    [celestial.provider :only (wait-for)]
-    [celestial.core :only (Vm)]
-    [celestial.common :only (import-logging )]
-    [celestial.model :only (translate vconstruct hypervisor)])
-  )
+    [clojure.core.strint :refer (<<)] 
+    [supernal.sshj :refer (execute ssh-up?)] 
+    [flatland.useful.utils :refer (defm)] 
+    [flatland.useful.map :refer (dissoc-in*)] 
+    [slingshot.slingshot :refer  [throw+ try+]] 
+    [trammel.core :refer (defconstrainedrecord)] 
+    [celestial.provider :refer (wait-for)] 
+    [celestial.core :refer (Vm)] 
+    [celestial.common :refer (import-logging )] 
+    [celestial.model :refer (translate vconstruct hypervisor)]))
 
 (import-logging)
 
@@ -88,22 +86,34 @@
    [spec]
   (get-in (p/get-system (spec :system-id)) [:aws :instance-id]))
 
-
 (defmacro with-instance-id [& body]
  `(if-let [~'instance-id (instance-id* ~'spec)]
     (do ~@body) 
     (throw+ {:type ::aws:missing-id :message "Instance id not found"}))) 
+
+(defn handle-volumes 
+   "attached and waits for ebs volumes" 
+   [{:keys [image-id volumes]} endpoint instance-id]
+  (when (= (image-desc endpoint image-id :root-device-type) "ebs")
+    (wait-for-attach endpoint instance-id [10 :minute]))
+  (let [zone (instance-desc endpoint instance-id :placement :availability-zone)]
+    (doseq [{:keys [device size]} volumes]
+      (let [{:keys [volumeId]} (with-ctx ebs/create-volume size zone)]
+        (with-ctx ebs/attach-volume volumeId instance-id device)
+        (wait-for [10 :minute]
+            #(= "attached" (with-ctx ebs/attachment-status volumeId))
+            {:type ::aws:ebs-volume-attach-failed :message "Failed to wait for ebs volume device attach"})
+        ))))
 
 (defconstrainedrecord Instance [endpoint spec user]
   "An Ec2 instance"
   [(provider-validation spec) (-> endpoint nil? not)]
   Vm
   (create [this] 
-    (let [{:keys [aws]} spec instance-id (-> (with-ctx ec2/run-instances aws) :instances first :id)]
+    (let [{:keys [aws]} spec instance-id (-> (with-ctx ec2/run-instances (dissoc aws :volumes)) :instances first :id)]
        (p/partial-system (spec :system-id) {:aws {:instance-id instance-id}})
        (debug "created" instance-id)
-       (when (= (image-desc endpoint (aws :image-id) :root-device-type) "ebs")
-         (wait-for-attach endpoint instance-id [10 :minute])) 
+       (handle-volumes aws endpoint instance-id)    
        (when-let [ip (get-in spec [:machine :ip])] 
          (debug (<<  "Associating existing ip ~{ip} to instance-id"))
        (with-ctx ec2/assoc-pub-ip instance-id ip))
@@ -157,5 +167,14 @@
   (:endpoint m )
   (.status m)
   (.start m)
+  (celestial.model/set-env :dev 
+   (ebs/create-volume (assoc (celestial.model/hypervisor :aws) :endpoint "ec2.ap-southeast-2.amazonaws.com") 10 "ap-southeast-2b"))
+  (celestial.model/set-env :dev 
+   (ebs/delete-volume (assoc (celestial.model/hypervisor :aws) :endpoint "ec2.ap-southeast-2.amazonaws.com") "vol-b0286582"))
+  (celestial.model/set-env :dev 
+   (ebs/attach-volume (assoc (celestial.model/hypervisor :aws) :endpoint "ec2.ap-southeast-2.amazonaws.com") "vol-a9317c9b" "i-c7b66cfb" "/dev/sdn"))
+  (celestial.model/set-env :dev (instance-desc "ec2.ap-southeast-2.amazonaws.com" "i-c7b66cfb" :placement :availability-zone))
+  
   ) 
+
 
