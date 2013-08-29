@@ -24,7 +24,9 @@
 
 (def clustered-prox (slurp-edn "fixtures/celestial-cluster.edn"))
 
-(def local-conf (slurp-edn (me.raynes.fs/expand-home "~/.celestial.edn")))
+(def local-conf 
+  (let [path (me.raynes.fs/expand-home "~/.celestial.edn")]
+    (when (me.raynes.fs/exists? path) (slurp-edn path))))
 
 (def redis-actions (slurp-edn "fixtures/redis-actions.edn"))
 
