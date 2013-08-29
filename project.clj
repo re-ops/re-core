@@ -21,7 +21,7 @@
                  [org.clojure/data.json "0.2.2" ]
                  [com.taoensso/carmine "2.0.0"]
                  [org.clojure/core.memoize "0.5.2" :exclusions [org.clojure/core.cache]]
-                 [narkisr/clj-aws-ec2 "0.2.3" :exclusions  [org.codehaus.jackson/jackson-core-asl]]
+                 [narkisr/clj-aws-ec2 "0.2.4" :exclusions  [org.codehaus.jackson/jackson-core-asl]]
                  [narkisr/trammel "0.8.0-freez"]
                  [org.flatland/useful "0.10.3"]
                  [substantiation "0.0.5"]
