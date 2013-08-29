@@ -99,11 +99,20 @@
   (let [zone (instance-desc endpoint instance-id :placement :availability-zone)]
     (doseq [{:keys [device size]} volumes]
       (let [{:keys [volumeId]} (with-ctx ebs/create-volume size zone)]
+        (wait-for {:timeout [10 :minute]} #(= "available" (with-ctx ebs/state volumeId))
+           {:type ::aws:ebs-volume-availability :message "Failed to wait for ebs volume to become available"})
         (with-ctx ebs/attach-volume volumeId instance-id device)
-        (wait-for [10 :minute]
-            #(= "attached" (with-ctx ebs/attachment-status volumeId))
-            {:type ::aws:ebs-volume-attach-failed :message "Failed to wait for ebs volume device attach"})
-        ))))
+        (wait-for {:timeout [10 :minute]} #(= "attached" (with-ctx ebs/attachment-status volumeId))
+           {:type ::aws:ebs-volume-attach-failed :message "Failed to wait for ebs volume device attach"})))))
+
+(defn delete-volumes 
+   "Clear instance volumes" 
+   [endpoint instance-id]
+   (doseq [{:keys [ebs]} (-> (instance-desc endpoint instance-id) :block-device-mappings rest)]
+     (with-ctx ebs/detach-volume (ebs :volume-id))
+     (wait-for {:timeout [10 :minute]} #(= "available" (with-ctx ebs/state  (ebs :volume-id)))
+        {:type ::aws:ebs-volume-availability :message "Failed to wait for ebs volume to become available"})
+     (with-ctx ebs/delete-volume (ebs :volume-id))))
 
 (defconstrainedrecord Instance [endpoint spec user]
   "An Ec2 instance"
@@ -132,7 +141,8 @@
   (delete [this]
     (with-instance-id
       (debug "deleting" instance-id)
-      (with-ctx ec2/terminate-instances instance-id ) 
+      (delete-volumes endpoint instance-id) 
+      (with-ctx ec2/terminate-instances instance-id) 
       (wait-for-status this "terminated" [5 :minute])))
 
   (stop [this]
@@ -167,13 +177,10 @@
   (:endpoint m )
   (.status m)
   (.start m)
-  (celestial.model/set-env :dev 
-   (ebs/create-volume (assoc (celestial.model/hypervisor :aws) :endpoint "ec2.ap-southeast-2.amazonaws.com") 10 "ap-southeast-2b"))
-  (celestial.model/set-env :dev 
-   (ebs/delete-volume (assoc (celestial.model/hypervisor :aws) :endpoint "ec2.ap-southeast-2.amazonaws.com") "vol-b0286582"))
-  (celestial.model/set-env :dev 
-   (ebs/attach-volume (assoc (celestial.model/hypervisor :aws) :endpoint "ec2.ap-southeast-2.amazonaws.com") "vol-a9317c9b" "i-c7b66cfb" "/dev/sdn"))
-  (celestial.model/set-env :dev (instance-desc "ec2.ap-southeast-2.amazonaws.com" "i-c7b66cfb" :placement :availability-zone))
+  (clojure.pprint/pprint (celestial.model/set-env :dev 
+      (-> (instance-desc "ec2.eu-west-1.amazonaws.com" "i-395e1d76") :block-device-mappings rest)))
+  
+  
   
   ) 
 
