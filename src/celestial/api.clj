@@ -24,10 +24,10 @@
         [ring.middleware.format :only [wrap-restful-format]]
         [ring.middleware.params :only (wrap-params)]
         [metrics.ring.instrument :only  (instrument)]
-        [swag.core :only (swagger-routes GET- POST- PUT- DELETE- defroutes- errors)]
         [swag.model :only (defmodel wrap-swag defv defc)]
         [celestial.common :only (import-logging get! resp bad-req conflict success version wrap-errors)])
   (:require 
+    [swag.core :refer (swagger-routes GET- POST- PUT- DELETE- defroutes- errors )]
     [ring.middleware [multipart-params :as mp] ]
     [celestial.security :as sec]
     [celestial.persistency :as p]
