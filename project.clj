@@ -15,7 +15,7 @@
                  [org.clojure/core.incubator "0.1.3"]
                  [slingshot "0.10.3" ]
                  [clj-http "0.7.6"]
-                 [swag "0.2.2"]
+                 [swag "0.2.4"]
                  [puny "0.1.4"]
                  [clj-yaml "0.4.0"]
                  [org.clojure/data.json "0.2.2" ]
