@@ -18,7 +18,7 @@
      [slingshot.slingshot :only  [throw+ try+]]
      [swag.model :only (defmodel wrap-swag defv defc)]
      [celestial.common :only (import-logging resp bad-req conflict success wrap-errors)]
-     [swag.core :only (swagger-routes GET- POST- PUT- DELETE- defroutes- errors)]))
+     [swag.core :only (swagger-routes set-base GET- POST- PUT- DELETE- defroutes- errors)]))
 
 (import-logging)
 
@@ -60,6 +60,8 @@
 (defc [:machine :os] (keyword v))
 
 (defc [:env] (keyword v))
+
+(set-base "https://localhost:8443/")
 
 (defroutes- hosts {:path "/host" :description "Operations on hosts"}
 
