@@ -61,7 +61,7 @@
 
 (defc [:env] (keyword v))
 
-(set-base (<<  "https://~{(:hostName (bean (java.net.InetAddress/getLocalHost)))}:8443/"))
+(set-base "")
 
 (defroutes- hosts {:path "/host" :description "Operations on hosts"}
 
