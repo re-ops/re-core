@@ -18,7 +18,8 @@
     [celestial.model :only (vconstruct pconstruct rconstruct)]) 
   (:require ; loading defmethods
     proxmox.provider aws.provider vc.provider
-    celestial.puppet_standalone remote.capistrano
+    celestial.puppet_standalone 
+    remote.capistrano remote.ruby
     [celestial.persistency :as p]
     [clojure.tools.macro :as tm]
    )
