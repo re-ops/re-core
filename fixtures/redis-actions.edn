@@ -8,5 +8,9 @@
      :restart {
        :capistrano {:args ["restart" "-s" "hostname=~{target}"]}
     }
+    :run-all {
+       :ruby {:args ["config/runall.rb" "tasks=deploy,deploy:restart" "-s" "hostname=~{target}"]}
+    }
+
  }
 }

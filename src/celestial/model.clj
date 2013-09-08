@@ -47,7 +47,7 @@
   "Creates a Provisioner instance model from input spec" 
    (fn [type spec] (first (filter provisioners (keys type)))))
 
-(def remoters #{:supernal :capistrano})
+(def remoters #{:supernal :capistrano :ruby})
 
 (defn figure-rem [spec] (first (filter remoters (keys spec))))
 

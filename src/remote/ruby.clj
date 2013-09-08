@@ -9,7 +9,8 @@
    See the License for the specific language governing permissions and
    limitations under the License.)
 
-(ns remote.capistrano
+(ns remote.ruby
+  "A remoter that launches ruby script against an instance"
   (:require
     [clojure.core.strint :refer  (<<)]
     [slingshot.slingshot :refer [throw+]]
@@ -20,32 +21,30 @@
     [me.raynes.fs :refer (delete-dir exists? mkdirs tmpdir)]
     [trammel.core :refer  (defconstrainedrecord)]
     [celestial.core :refer (Remoter)]
-    [celestial.model :refer (rconstruct)]))
+    [celestial.model :refer (rconstruct)])
+  )
 
 (import-logging)
 
-(defconstrainedrecord Capistrano [src args dst]
-  "A capistrano remote agent"
+(defconstrainedrecord Ruby [src args dst]
+  "A Ruby remote agent"
   []
   Remoter
   (setup [this] 
          (when (exists? (dest-path src dst)) 
            (throw+ {:type ::old-code :message "Old code found in place, cleanup first"})) 
          (mkdirs dst) 
-         (try (with-sh-dir dst (sh- "cap" "-T"))
+         (try (with-sh-dir dst (sh- "ruby" "-v"))
            (catch Throwable e
-             (throw+ {:type ::cap-not-found :message "Capistrano binary not found in path"})))
+             (throw+ {:type ::cap-not-found :message "Ruby binary not found in path"})))
          (copy src dst))
   (run [this]
        (info (dest-path src dst))
        (with-sh-dir (dest-path src dst)
-         (apply sh- (into ["cap"] args))))
+         (apply sh- (into ["ruby"] args))))
   (cleanup [this]
            (delete-dir dst)))
 
-(defmethod rconstruct :capistrano [{:keys [actions src] :as spec} 
-                                   {:keys [action] :as run-info}]
-  (let [task (get-in actions [action :capistrano])]
-    (->Capistrano src (mapv #(interpulate % run-info) (task :args)) (<< "~(tmpdir)/~(gen-uuid)/~(name action)"))))
-
-
+(defmethod rconstruct :ruby [{:keys [actions src] :as spec} {:keys [action] :as run-info}]
+  (let [task (get-in actions [action :ruby])]
+    (->Ruby src (mapv #(interpulate % run-info) (task :args)) (<< "~(tmpdir)/~(gen-uuid)/~(name action)"))))

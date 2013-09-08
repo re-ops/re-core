@@ -1,4 +1,4 @@
-(ns celestial.integration.capistrano
+(ns celestial.integration.remoters
   "Capistrano remoter provider see https://github.com/narkisr/cap-demo and fixtures/cap-deploy.edn"
   (:require 
     [celestial.persistency :as p] 
@@ -13,9 +13,8 @@
   )
 
 (with-conf
-  (with-state-changes [(before :facts (clear-all))] 
+  (with-state-changes [(before :facts ((clear-all) (p/add-type redis-type)) )] 
     (fact "basic deploy" :integration :capistrano
-      (p/add-type redis-type) 
       (let [id (p/add-system redis-prox-spec)
             cap (rconstruct redis-actions {:action :deploy :target "192.168.5.200"})]
          (reload redis-prox-spec)
@@ -25,5 +24,16 @@
          (.cleanup cap)
          (destroy (assoc redis-prox-spec :system-id id)) 
          (exists? (:dst cap))  => falsey 
-         (p/system-exists? id)  => falsey))))
-
+         (p/system-exists? id)  => falsey)))
+  
+    (fact "ruby run-all" :integration :ruby
+      (let [id (p/add-system redis-prox-spec)
+            cap (rconstruct redis-actions {:action :run-all :target "192.168.5.200"})]
+         (reload redis-prox-spec)
+         (.setup cap)
+         (exists? (:dst cap)) => truthy 
+         (.run cap)
+         (.cleanup cap)
+         (destroy (assoc redis-prox-spec :system-id id)) 
+         (exists? (:dst cap))  => falsey 
+         (p/system-exists? id)  => falsey))) 
