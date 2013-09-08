@@ -1,5 +1,5 @@
 (ns celestial.test.actions
-  (:require capistrano.remoter)
+  (:require remote.capistrano)
   (:use 
     [flatland.useful.map :only  (dissoc-in*)]
     midje.sweet
