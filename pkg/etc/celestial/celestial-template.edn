@@ -25,6 +25,7 @@
  }
 
  :hypervisor {
+ ;; :dev {
    ;;  :proxmox {
    ;;    :username "root" :password "foobar" :host "localhost" :ssh-port 2222
    ;;    :ostemplates {
@@ -49,6 +50,7 @@
    ;;   }
    ;;   :session-count 2
    ;; }
+ ;; }
  }
   
  :redis {
