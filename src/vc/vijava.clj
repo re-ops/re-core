@@ -62,11 +62,14 @@
          (deliver ~p ~body) service) 
        (catch Throwable e# (deliver ~p e#) service))))
 
+(def robin (atom 0N))
+
 (defmacro with-service 
   "Uses recycled service instances see http://bit.ly/YRsiNo, 
   We try to keep all agents busy still rand isn't fair (cycle would work better)."
   [body]
-  `(let [a# ((services) (rand-int (count (services)))) p# (promise)]
+  `(let [a# ((services) (mod (swap! robin inc) (count (services)))) p# (promise)]
+     (trace "using session " (hash a#) " robin is " @robin)
      (send a# (execute ~body p#)) 
      (let [res# @p#]
        (when (instance? Throwable res#)
