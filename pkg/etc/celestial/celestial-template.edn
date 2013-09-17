@@ -48,6 +48,8 @@
    ;;   :ostemplates {
    ;;      :ubuntu-13.04 "ubuntu-13.04_puppet-3.2"
    ;;   }
+   ;;
+   ;;   :guest-timeout 120 ; at least boot time
    ;;   :session-count 2
    ;; }
   }

@@ -15,6 +15,7 @@
     com.vmware.vim25.GuestProgramSpec
     com.vmware.vim25.GuestFileAttributes) 
   (:require 
+    [celestial.model :refer [hypervisor]]
     [hypervisors.networking :refer [debian-interfaces]]
     [slingshot.slingshot :refer  [throw+ try+]]
     [clj-http.client :as client])
@@ -73,10 +74,11 @@
   "Runs a remote command using out of band using guest access, 
     wait - how much to wait before logging output
     uuid - the log file uuid, if missing no logging will take place"
-  [hostname cmd args auth uuid timeout]
+  [hostname cmd args auth uuid]
   {:pre [(= (guest-status hostname) :running)]}
   (with-service
     (let [m (manager hostname :proc) 
+          timeout [(hypervisor :vcenter :guest-timeout) :second]
           args* (if uuid (<< "~{args} >> /tmp/run-~{uuid}.log") args) 
           pid (.startProgramInGuest m (npa auth) (prog-spec cmd args* auth))]
          (wait-for {:timeout timeout :sleep [200 :ms]} #(-> (exit-code m pid auth) nil? not) 
@@ -95,7 +97,7 @@
   (when (auth :sudo) 
     (trace "checking passwordless sudo")
     (try+ 
-      (guest-run hostname "/usr/bin/sudo" "-n true" (dissoc auth :sudo) uuid [2 :seconds])
+      (guest-run hostname "/usr/bin/sudo" "-n true" (dissoc auth :sudo) uuid)
       (catch [:type ::vc:guest-run-fail] e 
         (throw+ {:type ::vc:guest-sudo :message (<< "guest system does not have password less sudo user set!")})) 
       ))) 
@@ -107,12 +109,12 @@
     (debug "setting up guest static ip")
     (assert-sudo hostname auth uuid)
     (upload-file 
-     (debian-interfaces (update-in config [:names] (partial join ","))) tmp-file hostname auth)
-    (guest-run hostname "/bin/cp" (<< "-v ~{tmp-file} /etc/network/interfaces") auth uuid [2 :seconds])
-    (guest-run hostname "/bin/rm" (<< "-v ~{tmp-file}") auth uuid [2 :seconds])
-    (guest-run hostname "sed" (<< "-i '/^.*$/c\\~{hostname}' /etc/hostname") auth uuid [2 :seconds])
+      (debian-interfaces (update-in config [:names] (partial join ","))) tmp-file hostname auth)
+    (guest-run hostname "/bin/cp" (<< "-v ~{tmp-file} /etc/network/interfaces") auth uuid)
+    (guest-run hostname "/bin/rm" (<< "-v ~{tmp-file}") auth uuid)
+    (guest-run hostname "sed" (<< "-i '/^.*$/c\\~{hostname}' /etc/hostname") auth uuid)
     (guest-run hostname "sed" 
-      (<< "-i '/^127.0.1.1/c\\127.0.1.1     ~{hostname} ~{hostname}.~{domain}' /etc/hosts") auth uuid [2 :seconds])
+               (<< "-i '/^127.0.1.1/c\\127.0.1.1     ~{hostname} ~{hostname}.~{domain}' /etc/hosts") auth uuid)
     (doseq [line (split (fetch-log hostname uuid auth) #"\n")] (debug line))))
 
 (comment
