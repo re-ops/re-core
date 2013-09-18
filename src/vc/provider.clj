@@ -65,7 +65,7 @@
   (delete [this] 
     (try 
       (destroy hostname)
-     (finally (release-ip (machine :ip) :proxmox))))
+     (finally (release-ip (machine :ip) :vcenter))))
 
   (start [this] 
       (when-not (= (.status this) "running") 
