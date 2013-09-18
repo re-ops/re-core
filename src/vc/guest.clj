@@ -81,7 +81,7 @@
           timeout [(hypervisor :vcenter :guest-timeout) :second]
           args* (if uuid (<< "~{args} >> /tmp/run-~{uuid}.log") args) 
           pid (.startProgramInGuest m (npa auth) (prog-spec cmd args* auth))]
-         (trace (<< "guest running: ~cmd ~args*"))
+         (trace (<< "guest running: ~{cmd} ~{args*}"))
          (wait-for {:timeout timeout :sleep [200 :ms]} #(-> (exit-code m pid auth) nil? not) 
            {:type ::vc:guest-run-timeout :message (<< "Timed out on running ~{cmd} ~{args} in guest") :timeout timeout})
          (when-not (= (exit-code m pid auth) 0)
