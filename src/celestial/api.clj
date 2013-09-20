@@ -132,8 +132,8 @@
            (success {:msg "Deleted action" :id id})))
 
 (defroutes static-routes 
-  (route/files "/" {:root (str (System/getProperty "user.dir") "/public/")})
-  (route/files "/bower_componenets" {:root (str (System/getProperty "user.dir") "/public/bower_conponents/")}))
+  (route/files "/" {:root (str (System/getProperty "user.dir") "/public/celestial-ui/dist/")})
+  )
 
 (defroutes app-routes
   static-routes system type actions jobs (friend/wrap-authorize users admin)
