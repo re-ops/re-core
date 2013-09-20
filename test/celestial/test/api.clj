@@ -24,13 +24,13 @@
 (def non-sec-app (app false))
 
 (fact "system get"
-      (non-sec-app (request :get (<< "/host/system/1"))) => (contains {:status 200}) 
+      (non-sec-app (request :get (<< "/systems/1"))) => (contains {:status 200}) 
       (provided (p/get-system "1") => "foo"))
 
 (fact "getting host type"
       (non-sec-app 
         (header 
-          (request :get (<< "/host/type/1")) "accept" "application/json")) => (contains {:status 200})
+          (request :get (<< "/systems/1/type")) "accept" "application/json")) => (contains {:status 200})
       (provided 
         (p/get-system "1") => {:type "redis"} 
         (p/get-type "redis") => {:classes {:redis {:append true}}}))
