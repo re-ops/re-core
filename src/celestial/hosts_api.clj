@@ -63,21 +63,24 @@
 
 (set-base "")
 
-(defroutes- hosts {:path "/host" :description "Operations on hosts"}
+(defroutes- system {:path "/host" :description "Operations on hosts"}
 
-  (GET- "/host/system/:id" [^:int id] {:nickname "getSystem" :summary "Get system by id"}
+  (GET- "/systems" [] {:nickname "getSystems" :summary "Get all systems"}
+        (success (map #(p/get-system %) (p/all-systems))))
+
+  (GET- "/systems/:id" [^:int id] {:nickname "getSystem" :summary "Get system by id"}
         (success (p/get-system id)))
 
-  (GET- "/host/system-by/:type" [^:string type] {:nickname "getSystemsByType" :summary "Get systems by type"}
+  (GET- "/system-by/:type" [^:string type] {:nickname "getSystemsByType" :summary "Get systems by type"}
         (success {:ids (p/get-system-index :type type)}))
 
-  (POST- "/host/system" [& ^:system spec] {:nickname "addSystem" :summary "Add system" 
+  (POST- "/system" [& ^:system spec] {:nickname "addSystem" :summary "Add system" 
                                            :errorResponses (errors {:bad-req "Missing system type"})}
          (wrap-errors
            (p/with-quota (p/add-system spec) spec
              (success {:msg "new system saved" :id id}))))
 
-  (POST- "/host/system-clone/:id/:hostname" [^:int id ^:string hostname] 
+  (POST- "/system-clone/:id/:hostname" [^:int id ^:string hostname] 
          {:nickname "cloneSystem" :summary "Clone an existing system " 
           :notes "Clones a system replacing unique identifiers along the way,
                  the only user provided value is the dest hostname"
@@ -88,7 +91,7 @@
              (success {:msg "system cloned" :id id}))
            (conflict {:msg "System does not exists, use POST /host/system to create it first"})))
 
-  (PUT- "/host/system/:id" [^:int id & ^:system system] {:nickname "updateSystem" :summary "Update system" 
+  (PUT- "/systems/:id" [^:int id & ^:system system] {:nickname "updateSystem" :summary "Update system" 
                                                          :errorResponses (errors {:conflict "System does not exist"}) }
         (if-not (p/system-exists? id)
           (conflict {:msg "System does not exists, use POST /host/system first"}) 
@@ -96,7 +99,7 @@
             (p/update-system id system) 
             (success {:msg "system updated" :id id}))))
 
-  (DELETE- "/host/system/:id" [^:int id] {:nickname "deleteSystem" :summary "Delete System" 
+  (DELETE- "/systems/:id" [^:int id] {:nickname "deleteSystem" :summary "Delete System" 
                                           :errorResponses (errors {:bad-req "System does not exist"})}
            (try+ 
              (let [spec (p/get-system! id) int-id (Integer/valueOf id)]               
@@ -106,29 +109,29 @@
              (catch [:type :celestial.persistency/missing-system] e 
                (bad-req {:msg "System does not exist"}))))
 
-  (GET- "/host/type/:id" [^:int id] {:nickname "getSystemType" :summary "Fetch type of provided system id"}
+  (GET- "/systems/:id/type" [^:int id] {:nickname "getSystemType" :summary "Fetch type of provided system id"}
         (success (p/get-type (:type (p/get-system id))))) 
   )
 
 
-(defroutes- types {:path "/type" :description "Operations on types"}
+(defroutes- type {:path "/type" :description "Operations on types"}
 
-  (GET- "/type/:type" [^:string type] {:nickname "getType" :summary "Get type"}
+  (GET- "/types/:type" [^:string type] {:nickname "getType" :summary "Get type"}
         (success (p/get-type type)))
 
-  (POST- "/type" [& ^:type props] {:nickname "addType" :summary "Add type"}
+  (POST- "/types" [& ^:type props] {:nickname "addType" :summary "Add type"}
          (wrap-errors 
            (p/add-type props)
            (success {:msg "new type saved"})))
 
-  (PUT- "/type" [& ^:type props] {:nickname "updateType" :summary "Update type"}
+  (PUT- "/types" [& ^:type props] {:nickname "updateType" :summary "Update type"}
         (wrap-errors
           (if-not (p/type-exists? (props :type))
             (conflict {:msg "Type does not exists, use POST /type first"}) 
             (do (p/update-type props) 
                 (success {:msg "type updated"})))))
 
-  (DELETE- "/type/:type" [^:string type] {:nickname "deleteType" :summary "Delete type" 
+  (DELETE- "/types/:type" [^:string type] {:nickname "deleteType" :summary "Delete type" 
                                           :errorResponses (errors {:bad-req "Type does not exist"})}
            (if (p/type-exists? type)
              (do (p/delete-type type) 
