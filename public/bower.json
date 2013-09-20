@@ -1,0 +1,10 @@
+{
+  "name" : "celestial",
+  "dependencies": {
+    "ember": ">= 1.0.0", 
+    "handlebars": ">= 1.0.0", 
+    "ember-addons.bs_for_ember":"", 
+    "bootstrap":"",
+    "ember-data-shim" :"1.0.0-beta.2"
+  }
+}
