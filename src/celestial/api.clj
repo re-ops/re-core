@@ -10,10 +10,10 @@
    limitations under the License.)
 
 (ns celestial.api
-  (:refer-clojure :exclude [hash])
+  (:refer-clojure :exclude [hash type])
   (:use 
         [celestial.routes.ui :only (ui-routes)] 
-        [celestial.hosts-api :only (hosts types)]
+        [celestial.hosts-api :only (system type)]
         [celestial.users-api :only (users quotas)]
         [gelfino.timbre :only (get-tid)]
         [compojure.core :only (defroutes routes)] 
@@ -131,8 +131,12 @@
            (p/delete-action id)
            (success {:msg "Deleted action" :id id})))
 
+(defroutes static-routes 
+  (route/files "/" {:root (str (System/getProperty "user.dir") "/public/")})
+  (route/files "/bower_componenets" {:root (str (System/getProperty "user.dir") "/public/bower_conponents/")}))
+
 (defroutes app-routes
-  ui-routes hosts types actions jobs (friend/wrap-authorize users admin)
+  static-routes system type actions jobs (friend/wrap-authorize users admin)
   (friend/wrap-authorize quotas admin) (route/not-found "Not Found"))
 
 (defn error-wrap
