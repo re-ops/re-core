@@ -132,7 +132,7 @@
            (success {:msg "Deleted action" :id id})))
 
 (defroutes static-routes 
-  (route/files "/" {:root (str (System/getProperty "user.dir") "/public/celestial-ui/dist/")})
+  (route/files "/" {:root (str (System/getProperty "user.dir") "/public/celestial-ui/build")})
   )
 
 (defroutes app-routes
