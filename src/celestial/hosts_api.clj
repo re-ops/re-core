@@ -63,10 +63,25 @@
 
 (set-base "")
 
+(defn systems-range
+  "Get systems in range by type" 
+  [from to type]
+  {:pre [(> from -1) (if type (p/type-exists! type) true)]}
+  (let [systems (if type (p/get-system-index :type type) (into [] (p/all-systems)))
+        to* (min to (count systems))]
+    (when-not (empty? systems)
+      (if (and (contains? systems from) (contains? systems to*))
+        {:meta {:total (count systems)} :systems (map (juxt identity p/get-system) (subvec systems from to*))} 
+        (throw+ {:type ::non-legal-range :message (<<  "No legal systems in range ~{from}:~{to*} try between ~{0}:~(count systems)")})))))
+
+
+
 (defroutes- system {:path "/host" :description "Operations on hosts"}
 
-  (GET- "/systems" [] {:nickname "getSystems" :summary "Get all systems"}
-        (success (map #(p/get-system %) (p/all-systems))))
+  (GET- "/systems" [^:int page ^:int offset ^:string type] 
+      {:nickname "getSystems" :summary "Get all systems at page with offset"}
+    (let [page* (Integer/valueOf page) offset* (Integer/valueOf offset)]
+      (success (systems-range (* (- page* 1) offset*) (* page*  offset*) type))))
 
   (GET- "/systems/:id" [^:int id] {:nickname "getSystem" :summary "Get system by id"}
         (success (p/get-system id)))
