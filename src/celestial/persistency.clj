@@ -90,7 +90,7 @@
 
 (defn validate-system
   [system]
-  (validate! system {:type #{:type-exists} :env #{:required :Keyword}} :error ::non-valid-machine-type )
+  (validate! system {:type #{:required :type-exists} :env #{:required :Keyword}} :error ::non-valid-machine-type )
   ((hyp-to-v (figure-virt system)) system))
 
 (defn clone-system 
