@@ -69,8 +69,9 @@
   {:pre [(> from -1) (if type (p/type-exists! type) true)]}
   (let [systems (if type (p/get-system-index :type type) (into [] (p/all-systems)))
         to* (min to (count systems))]
+    (println to* (contains? systems to*))
     (when-not (empty? systems)
-      (if (and (contains? systems from) (contains? systems to*))
+      (if (and (contains? systems from) (contains? systems (- to* 1)))
         {:meta {:total (count systems)} :systems (map (juxt identity p/get-system) (subvec systems from to*))} 
         (throw+ {:type ::non-legal-range :message (<<  "No legal systems in range ~{from}:~{to*} try between ~{0}:~(count systems)")})))))
 
