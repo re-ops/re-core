@@ -90,7 +90,7 @@
   (GET- "/system-by/:type" [^:string type] {:nickname "getSystemsByType" :summary "Get systems by type"}
         (success {:ids (p/get-system-index :type type)}))
 
-  (POST- "/system" [& ^:system spec] {:nickname "addSystem" :summary "Add system" 
+  (POST- "/systems" [& ^:system spec] {:nickname "addSystem" :summary "Add system" 
                                            :errorResponses (errors {:bad-req "Missing system type"})}
          (wrap-errors
            (p/with-quota (p/add-system spec) spec
