@@ -62,26 +62,26 @@
      (success 
        {:msg msg :id id :job (jobs/enqueue action {:identity id :args args :tid (get-tid) :env (p/get-system id :env)})}))))
 
-(defroutes- jobs {:path "/job" :description "Operations on async job scheduling"}
+(defroutes- jobs {:path "/jobs" :description "Async job scheduling"}
 
-  (POST- "/job/stage/:id" [^:int id] 
+  (POST- "/jobs/stage/:id" [^:int id] 
     {:nickname "stageSystem" :summary "Complete end to end staging job"
      :notes "Combined system creation and provisioning, separate actions are available also."}
       (let [system (p/get-system id) type (p/get-type (:type system))]
            (schedule-job id "stage" "submitted system staging" [type (assoc system :system-id (Integer. id))])))
 
-  (POST- "/job/create/:id" [^:int id] 
+  (POST- "/jobs/create/:id" [^:int id] 
      {:nickname "createSystem" :summary "System creation job"
       :errorResponses (errors {:bad-req "Missing system"})
       :notes "Creates a new system on remote hypervisor (usually followed by provisioning)."}
          (schedule-job id "reload" "submitted system creation"))
 
-  (POST- "/job/destroy/:id" [^:int id] 
+  (POST- "/jobs/destroy/:id" [^:int id] 
     {:nickname "destroySystem" :summary "System destruction job"
      :notes "Destroys a system, clearing it both from Celestial's model storage and hypervisor"}
          (schedule-job id "destroy" "submitted system destruction"))
 
-  (POST- "/job/provision/:id" [^:int id] 
+  (POST- "/jobs/provision/:id" [^:int id] 
     {:nickname "provisionSystem" :summary "Provisioning job"
      :notes "Starts a provisioning workflow on a remote system
              using the provisioner configured in system type"}
@@ -89,7 +89,7 @@
            (schedule-job id "provision" "submitted provisioning" 
               [type (assoc system :system-id (Integer. id))])))
 
-  (POST- "/job/:action/:id" [^:string action ^:int id & ^:hash args] 
+  (POST- "/jobs/:action/:id" [^:string action ^:int id & ^:hash args] 
      {:nickname "runAction" :summary "Run remote action" 
       :notes "Runs adhoc remote opertions on system (like deployment, service restart etc)
               using matching remoting capable tool like Capisrano/Supernal/Fabric"}
@@ -100,7 +100,7 @@
            (bad-req {:msg (<< "No action ~{action} found for id ~{id}")})
            )))
 
-  (GET- "/job/:queue/:uuid/status" [^:string queue ^:string uuid]
+  (GET- "/jobs/:queue/:uuid/status" [^:string queue ^:string uuid]
         {:nickname "jobStatus" :summary "job status tracking" 
          :notes "job status can be pending, processing, done or nil"}
         (success {:job-status (jobs/status queue uuid)})))

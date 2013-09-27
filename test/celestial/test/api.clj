@@ -48,7 +48,7 @@
 
 (let [machine {:type "redis" :machine {:host "foo"}} type {:classes {:redis {}}}]
     (fact "provisioning job"
-          (non-sec-app (request :post "/job/provision/1")) => (contains {:status 200})
+          (non-sec-app (request :post "/jobs/provision/1")) => (contains {:status 200})
           (provided 
             (p/system-exists? "1") => true
             (p/get-system "1")  => machine
@@ -57,7 +57,7 @@
             (jobs/enqueue "provision" {:identity "1" :args [type (assoc machine :system-id 1)] :tid nil :env :dev}) => nil)))
 
 (fact "staging job" 
-      (non-sec-app (request :post "/job/stage/1")) => (contains {:status 200})
+      (non-sec-app (request :post "/jobs/stage/1")) => (contains {:status 200})
       (provided
         (p/system-exists? "1") => true
         (p/get-type "redis") => {:puppet-module "bar"}
@@ -66,7 +66,7 @@
         (jobs/enqueue "stage" {:identity "1" :args [{:puppet-module "bar"} {:system-id 1 :type "redis"}] :tid nil :env :dev}) => nil))
 
 (fact "creation job"
-      (non-sec-app (request :post "/job/create/1"))  => (contains {:status 200})
+      (non-sec-app (request :post "/jobs/create/1"))  => (contains {:status 200})
       (provided 
         (p/system-exists? "1") => true
         (p/get-system "1")  => {}
