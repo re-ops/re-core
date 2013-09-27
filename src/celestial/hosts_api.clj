@@ -132,6 +132,9 @@
 
 (defroutes- type {:path "/type" :description "Operations on types"}
 
+  (GET- "/types" [] {:nickname "getTypes" :summary "Get all types"}
+        (success {:types (map p/get-type (p/all-types))}))
+
   (GET- "/types/:type" [^:string type] {:nickname "getType" :summary "Get type"}
         (success (p/get-type type)))
 
@@ -148,7 +151,7 @@
                 (success {:msg "type updated"})))))
 
   (DELETE- "/types/:type" [^:string type] {:nickname "deleteType" :summary "Delete type" 
-                                          :errorResponses (errors {:bad-req "Type does not exist"})}
+                                           :errorResponses (errors {:bad-req "Type does not exist"})}
            (if (p/type-exists? type)
              (do (p/delete-type type) 
                  (success {:msg "Type deleted"}))
