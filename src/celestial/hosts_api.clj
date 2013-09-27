@@ -12,7 +12,9 @@
 (ns celestial.hosts-api
   (:refer-clojure :exclude [type])
   (:require 
-    [celestial.persistency :as p]) 
+    [celestial.persistency :as p]
+    [celestial.model :refer (sanitized-envs)] 
+    ) 
   (:use 
      [clojure.core.strint :only (<<)]
      [slingshot.slingshot :only  [throw+ try+]]
@@ -77,7 +79,7 @@
 
 
 
-(defroutes- system {:path "/host" :description "Operations on hosts"}
+(defroutes- system {:path "/systems" :description "Operations on Systems"}
 
   (GET- "/systems" [^:int page ^:int offset ^:string type] 
       {:nickname "getSystems" :summary "Get all systems at page with offset"}
@@ -155,6 +157,9 @@
            (if (p/type-exists? type)
              (do (p/delete-type type) 
                  (success {:msg "Type deleted"}))
-             (bad-req {:msg "Type does not exist"}))) 
-  )
+             (bad-req {:msg "Type does not exist"}))))
 
+(defroutes- environments {:path "/environments" :description "Operations on environments"}
+  (GET- "/environments" [] {:nickname "getEnvironments" :summary "Get all environments"}
+        (success {:environments (sanitized-envs)}))
+  )

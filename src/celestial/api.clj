@@ -13,7 +13,7 @@
   (:refer-clojure :exclude [hash type])
   (:use 
         [celestial.routes.ui :only (ui-routes)] 
-        [celestial.hosts-api :only (system type)]
+        [celestial.hosts-api :only (system type environments)]
         [celestial.users-api :only (users quotas)]
         [gelfino.timbre :only (get-tid)]
         [compojure.core :only (defroutes routes)] 
@@ -136,7 +136,7 @@
   )
 
 (defroutes app-routes
-  static-routes system type actions jobs (friend/wrap-authorize users admin)
+  static-routes system type environments actions jobs (friend/wrap-authorize users admin)
   (friend/wrap-authorize quotas admin) (route/not-found "Not Found"))
 
 (defn error-wrap

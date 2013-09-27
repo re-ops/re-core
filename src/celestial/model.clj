@@ -11,7 +11,7 @@
 
 (ns celestial.model 
   "Model manipulation ns"
-  (:require [celestial.common :refer (get!)]))
+  (:require [celestial.common :refer (get! get*)]))
 
 (def ^{:doc "A local binding of current environment (used for hypervisors, provisioners etc..)" :dynamic true :private true}
   env nil)
@@ -28,6 +28,19 @@
   "obtains current environment hypervisor" 
    [& ks] {:pre [env]}
   (apply get! :hypervisor env ks))
+
+(defn- select-sub
+   "select sub map" 
+   [m ks]
+  (if-let [v (get-in m ks)] (assoc-in {} ks v) m))
+
+(defn sanitized-envs
+  "environments sanitized" 
+  []
+  (let [es (keys (get* :hypervisor)) 
+        inc-nodes (map #(select-sub (get* :hypervisor) [% :proxmox :nodes]) es)
+        sanitized  [:ssh-port :username :password]]
+    (apply merge (clojure.walk/postwalk #(if (map? %) (apply dissoc % sanitized) %) inc-nodes)))) 
 
 (defmulti clone
  "Clones an existing system map replacing unique identifiers in the process"
