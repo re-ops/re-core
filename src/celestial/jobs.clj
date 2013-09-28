@@ -71,20 +71,23 @@
 (defn status [queue uuid]
   (mq/message-status (server-conn) queue uuid))
 
-(defn- job-desc [type js]
-  (mapv (fn [[jid {:keys [args]}]] 
-          {:type type :status (status type jid) :id ((args 0) :system-id) :jid jid}) (apply hash-map js)))
+(def readable-status
+  {:queued :queued :locked :processing :recently-done :done :backoff :backing-off nil :unkown})
+
+(defn- message-desc [type js]
+  (mapv (fn [[jid {:keys [identity args tid] :as message}]] 
+     {:type type :status (readable-status (status type jid)) :id identity :jid jid :tid tid}) (apply hash-map js)))
 
 (defn queue-status 
-  "The entire queue messages statuses" 
+  "The entire queue message statuses" 
   [job]
   (let [ks [:messages :locks :backoffs]]
     (reduce 
-      (fn [r v] (into r (job-desc job v))) []
+      (fn [r message] (into r (message-desc job message))) []
             (apply merge (vals (select-keys (mq/queue-status (server-conn) job) ks))))))
 
-(defn jobs-statues 
-  "Get all jobs message statuses" 
+(defn jobs-status
+  "Get all jobs status" 
   []
   (reduce (fn [r t] (into r (queue-status (name t)))) [] (keys @jobs)))
 
