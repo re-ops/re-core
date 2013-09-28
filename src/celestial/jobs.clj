@@ -1,13 +1,13 @@
 (comment 
-   Celestial, Copyright 2012 Ronen Narkis, narkisr.com
-   Licensed under the Apache License,
-   Version 2.0  (the "License") you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.)
+  Celestial, Copyright 2012 Ronen Narkis, narkisr.com
+  Licensed under the Apache License,
+  Version 2.0  (the "License") you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.)
 
 (ns celestial.jobs
   (:refer-clojure :exclude [identity])
@@ -35,14 +35,14 @@
 (defn job-exec [f  {:keys [message attempt]}]
   "Executes a job function tries to lock identity first (if used)"
   (let [{:keys [identity args tid env] :as spec} message]
-   (set-env env
-     (set-tid tid 
-       (let [{:keys [wait-time expiry]} (map-vals (or (get* :celestial :job) defaults) #(* minute %) )]
-         (try 
-          (if identity
-           (do (with-lock (server-conn) identity expiry wait-time (apply f args)) {:status :success}) 
-           (do (apply f args) {:status :success})) 
-          (catch Throwable e (error e) {:status  :error})))))))
+    (set-env env
+             (set-tid tid 
+                      (let [{:keys [wait-time expiry]} (map-vals (or (get* :celestial :job) defaults) #(* minute %) )]
+                        (try 
+                          (if identity
+                            (do (with-lock (server-conn) identity expiry wait-time (apply f args)) {:status :success}) 
+                            (do (apply f args) {:status :success})) 
+                          (catch Throwable e (error e) {:status  :error})))))))
 
 (def jobs 
   (atom 
@@ -70,6 +70,23 @@
 
 (defn status [queue uuid]
   (mq/message-status (server-conn) queue uuid))
+
+(defn- job-desc [type js]
+  (mapv (fn [[jid {:keys [args]}]] 
+          {:type type :status (status type jid) :id ((args 0) :system-id) :jid jid}) (apply hash-map js)))
+
+(defn queue-status 
+  "The entire queue messages statuses" 
+  [job]
+  (let [ks [:messages :locks :backoffs]]
+    (reduce 
+      (fn [r v] (into r (job-desc job v))) []
+            (apply merge (vals (select-keys (mq/queue-status (server-conn) job) ks))))))
+
+(defn jobs-statues 
+  "Get all jobs message statuses" 
+  []
+  (reduce (fn [r t] (into r (queue-status (name t)))) [] (keys @jobs)))
 
 (defn shutdown-workers []
   (doseq [[k ws] @workers]
