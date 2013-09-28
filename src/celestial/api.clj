@@ -101,9 +101,15 @@
            )))
 
   (GET- "/jobs/:queue/:uuid/status" [^:string queue ^:string uuid]
-        {:nickname "jobStatus" :summary "job status tracking" 
+        {:nickname "jobStatus" :summary "single job status tracking" 
          :notes "job status can be pending, processing, done or nil"}
-        (success {:job-status (jobs/status queue uuid)})))
+        (success {:job (jobs/status queue uuid)}))
+    
+  (GET- "/jobs" []
+        {:nickname "jobsStatus" :summary "Global job status tracking" 
+         :notes "job status can be either pending, processing, done or nil"}
+        (success {:jobs (jobs/jobs-status)}))
+  )
 
 
 (defn convert-roles [user]
