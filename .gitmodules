@@ -1,0 +1,3 @@
+[submodule "public/celestial-ui"]
+	path = public/celestial-ui
+	url = git://github.com/narkisr/celestial-ui.git
