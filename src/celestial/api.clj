@@ -26,6 +26,7 @@
         [swag.model :only (defmodel wrap-swag defv defc)]
         [celestial.common :only (import-logging get! resp bad-req conflict success version wrap-errors)])
   (:require 
+    [me.raynes.fs :as fs]
     [swag.core :refer (swagger-routes GET- POST- PUT- DELETE- defroutes- errors )]
     [ring.middleware [multipart-params :as mp] ]
     [celestial.security :as sec]
@@ -136,9 +137,13 @@
            (p/delete-action id)
            (success {:msg "Deleted action" :id id})))
 
+(defn static-path []
+  (let [cwd (System/getProperty "user.dir") parent "public/celestial-ui"
+        build (<< "~{cwd}/~{parent}/build") bin (<< "~{cwd}/~{parent}/bin")]
+    (if (fs/exists? build ) build bin)))
+
 (defroutes static-routes 
-  (route/files "/" {:root (str (System/getProperty "user.dir") "/public/celestial-ui/build")})
-  )
+  (route/files "/" {:root (static-path)}))
 
 (defroutes app-routes
   static-routes system type environments actions jobs (friend/wrap-authorize users admin)
