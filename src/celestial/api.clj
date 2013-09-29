@@ -12,7 +12,6 @@
 (ns celestial.api
   (:refer-clojure :exclude [hash type])
   (:use 
-        [celestial.routes.ui :only (ui-routes)] 
         [celestial.hosts-api :only (system type environments)]
         [celestial.users-api :only (users quotas)]
         [gelfino.timbre :only (get-tid)]

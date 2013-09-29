@@ -38,7 +38,9 @@
                  [com.cemerick/friend "0.1.5"]
                  [org.clojure/tools.macro "0.1.2"]
                  [org.clojure/java.data "0.1.1"]
-                 [org.nmap4j/org.nmap4j "1.0.4"] ]
+                 [org.nmap4j/org.nmap4j "1.0.4"]
+                 [selmer "0.3.4"]; for templating
+                 ]
 
   :exclusions [org.clojure/clojure]
 
