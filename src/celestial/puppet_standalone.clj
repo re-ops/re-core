@@ -56,17 +56,19 @@
       (let [{:keys [module type]} args]
         (run (str (<< "cd /tmp/~(:name module)") " && " (as-root remote (<< "./scripts/run.sh ~(args-of type) --detailed-exitcodes || [ $? -eq 2 ]"))))))
 
-   (task cleanup
+   (task cleanup-tmp
       (let [{:keys [module]} args]
         (run (<< "rm -rf /tmp/~(:name module)*"))))) 
 
-(lifecycle puppet-provision {:doc "basic puppet standalone provisioning"}
+(lifecycle cleanup {:doc "puppet standalone cleanup"}
+   {puppet/cleanup-tmp #{}})
+
+(lifecycle puppet-provision {:doc "basic puppet standalone provisioning" :failure cleanup}
   {puppet/copy-module #{puppet/extract-module}
    puppet/extract-module #{puppet/copy-yaml}
    puppet/copy-yaml #{puppet/run-puppet}
-   puppet/run-puppet #{puppet/cleanup}
+   puppet/run-puppet #{puppet/cleanup-tmp}
    })
-
 
 (defrecord Standalone [remote type]
   Provision
