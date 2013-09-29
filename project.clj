@@ -38,11 +38,7 @@
                  [com.cemerick/friend "0.1.5"]
                  [org.clojure/tools.macro "0.1.2"]
                  [org.clojure/java.data "0.1.1"]
-                 [org.nmap4j/org.nmap4j "1.0.4"]
-                 ; luminusweb
-                 [lib-noir "0.6.6"]
-                 [selmer "0.3.4"]
-                 ]
+                 [org.nmap4j/org.nmap4j "1.0.4"] ]
 
   :exclusions [org.clojure/clojure]
 
@@ -95,7 +91,7 @@
   } 
 
   :resource-paths  ["src/main/resources/"]
-  :source-paths  ["web" "src"]
+  :source-paths  ["src"]
   :target-path "target/"
 
   :main celestial.launch
