@@ -12,20 +12,23 @@
 (ns celestial.api
   (:refer-clojure :exclude [hash type])
   (:use 
-        [celestial.hosts-api :only (system type environments)]
-        [celestial.users-api :only (users quotas)]
-        [gelfino.timbre :only (get-tid)]
-        [compojure.core :only (defroutes routes)] 
-        [metrics.ring.expose :only  (expose-metrics-as-json)]
-        [celestial.roles :only (roles roles-m admin)]
-        [clojure.core.strint :only (<<)]
-        [slingshot.slingshot :only  [throw+ try+]]
-        [ring.middleware.format :only [wrap-restful-format]]
-        [ring.middleware.params :only (wrap-params)]
-        [metrics.ring.instrument :only  (instrument)]
-        [swag.model :only (defmodel wrap-swag defv defc)]
-        [celestial.common :only (import-logging get! resp bad-req conflict success version wrap-errors)])
+    [celestial.hosts-api :only (system type environments)]
+    [celestial.users-api :only (users quotas)]
+    [gelfino.timbre :only (get-tid)]
+    [compojure.core :only (defroutes routes)] 
+    [metrics.ring.expose :only  (expose-metrics-as-json)]
+    [celestial.roles :only (roles roles-m admin)]
+    [clojure.core.strint :only (<<)]
+    [slingshot.slingshot :only  [throw+ try+]]
+    [ring.middleware.format :only [wrap-restful-format]]
+    [ring.middleware.params :only (wrap-params)]
+    [metrics.ring.instrument :only  (instrument)]
+    [swag.model :only (defmodel wrap-swag defv defc)]
+    [celestial.common :only (import-logging get! resp bad-req conflict success version wrap-errors)])
   (:require 
+    [ring.middleware.session.cookie :refer (cookie-store)]
+    [ring.middleware.session :refer (wrap-session)]
+    [compojure.core :refer (GET ANY)] 
     [me.raynes.fs :as fs]
     [swag.core :refer (swagger-routes GET- POST- PUT- DELETE- defroutes- errors )]
     [ring.middleware [multipart-params :as mp] ]
@@ -143,10 +146,14 @@
     (if (fs/exists? build ) build bin)))
 
 (defroutes static-routes 
+  (GET "/login" [] (ring.util.response/file-response "assets/login.html" {:root (static-path)}))
   (route/files "/" {:root (static-path)}))
 
+(defroutes sessions
+  (friend/logout (ANY "/logout" request  (ring.util.response/redirect "/"))))
+
 (defroutes app-routes
-  static-routes system type environments actions jobs (friend/wrap-authorize users admin)
+  system type environments actions jobs sessions (friend/wrap-authorize users admin)
   (friend/wrap-authorize quotas admin) (route/not-found "Not Found"))
 
 (defn error-wrap
@@ -166,7 +173,7 @@
 (defn compose-routes
   "Composes celetial apps" 
   [secured?]
-  (let [rs (routes (swagger-routes version) (if secured? (sec/secured-app app-routes) app-routes) )]
+  (let [rs (routes static-routes (swagger-routes version) (if secured? (sec/secured-app app-routes) app-routes) )]
     (if secured? 
       (force-https rs) rs)))
 
@@ -174,6 +181,7 @@
   "The api routes, secured? will enabled authentication"
   (-> (compose-routes secured?) 
       (wrap-swag) 
+      (wrap-session {:cookie-name "celestial" :store (cookie-store)})
       (handler/api)
       (wrap-restful-format :formats [:json-kw :edn :yaml-kw :yaml-in-html])
       (mp/wrap-multipart-params)
