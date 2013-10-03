@@ -17,6 +17,7 @@
   (:require 
     [celestial.roles :as roles]
     [celestial.persistency :as p]
+    [clojure.core.strint :refer (<<)]
     [cemerick.friend :as friend]
     (cemerick.friend [workflows :as workflows]
                      [credentials :as creds])))
@@ -31,11 +32,17 @@
       (app req))))
 
 
+(defn login-redirect
+  [{:keys [form-params params] :as request}]
+  (let [ user (java.net.URLEncoder/encode (or (get form-params "username") (:username params "")))
+         param (<< "&login_failed=Y&user=~{user}")]
+   (ring.util.response/redirect (<< "/login?~{param}"))))
+
 (defn secured-app [routes]
   (friend/authenticate 
     (friend/wrap-authorize (user-tracking routes) roles/user) 
     {:allow-anon? true
      :credential-fn #(if (p/user-exists? (:username %)) (creds/bcrypt-credential-fn p/get-user! %) nil)
      :unauthenticated-handler #(assoc (workflows/http-basic-deny "basic-celestial" %) :body {:message "login failed" } )
-     :workflows [(workflows/interactive-form) (workflows/http-basic :realm "basic-celestial")]}))
+     :workflows [(workflows/interactive-form :login-failure-handler login-redirect) (workflows/http-basic :realm "basic-celestial")]}))
 
