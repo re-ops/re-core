@@ -35,7 +35,7 @@
                  [metrics-clojure "1.0.1"]
                  [metrics-clojure-ring "1.0.1"]
                  [compojure "1.1.5" :exclusions  [ring/ring-core]]
-                 [com.cemerick/friend "0.1.5"]
+                 [com.cemerick/friend "0.2.0"]
                  [org.clojure/tools.macro "0.1.2"]
                  [org.clojure/java.data "0.1.1"]
                  [org.nmap4j/org.nmap4j "1.0.4"]
