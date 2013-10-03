@@ -14,6 +14,7 @@
   (:use 
     [celestial.hosts-api :only (system type environments)]
     [celestial.users-api :only (users quotas)]
+    [celestial.ui-api :only (public sessions)]
     [gelfino.timbre :only (get-tid)]
     [compojure.core :only (defroutes routes)] 
     [metrics.ring.expose :only  (expose-metrics-as-json)]
@@ -29,7 +30,6 @@
     [ring.middleware.session.cookie :refer (cookie-store)]
     [ring.middleware.session :refer (wrap-session)]
     [compojure.core :refer (GET ANY)] 
-    [me.raynes.fs :as fs]
     [swag.core :refer (swagger-routes GET- POST- PUT- DELETE- defroutes- errors )]
     [ring.middleware [multipart-params :as mp] ]
     [celestial.security :as sec]
@@ -37,7 +37,6 @@
     [compojure.handler :as handler :refer (site)]
     [celestial.jobs :as jobs]
     [cemerick.friend :as friend]
-    [cemerick.friend.credentials :as creds]
     [compojure.route :as route])) 
 
 (import-logging)
@@ -114,13 +113,6 @@
         (success {:jobs (jobs/jobs-status)}))
   )
 
-
-(defn convert-roles [user]
-  (update-in user [:roles] (fn [v] #{(roles-m v)})))
-
-(defn hash-pass [user]
-  (update-in user [:password] (fn [v] (creds/hash-bcrypt v))))
-
 (defroutes- actions {:path "/actions" :description "Adhoc actions managment"}
   (POST- "/action" [& ^:action action] {:nickname "addActions" :summary "Adds an actions set"}
     (wrap-errors (success {:msg "added actions" :id (p/add-action action)})))
@@ -140,20 +132,8 @@
            (p/delete-action id)
            (success {:msg "Deleted action" :id id})))
 
-(defn static-path []
-  (let [cwd (System/getProperty "user.dir") parent "public/celestial-ui"
-        build (<< "~{cwd}/~{parent}/build") bin (<< "~{cwd}/~{parent}/bin")]
-    (if (fs/exists? build ) build bin)))
-
-(defroutes static-routes 
-  (GET "/login" [] (ring.util.response/file-response "assets/login.html" {:root (static-path)}))
-  (route/files "/" {:root (static-path)}))
-
-(defroutes sessions
-  (friend/logout (ANY "/logout" request  (ring.util.response/redirect "/"))))
-
 (defroutes app-routes
-  system type environments actions jobs sessions (friend/wrap-authorize users admin)
+  system type environments sessions actions jobs sessions (friend/wrap-authorize users admin)
   (friend/wrap-authorize quotas admin) (route/not-found "Not Found"))
 
 (defn error-wrap
@@ -173,7 +153,7 @@
 (defn compose-routes
   "Composes celetial apps" 
   [secured?]
-  (let [rs (routes static-routes (swagger-routes version) (if secured? (sec/secured-app app-routes) app-routes) )]
+  (let [rs (routes public (swagger-routes version) (if secured? (sec/secured-app app-routes) app-routes) )]
     (if secured? 
       (force-https rs) rs)))
 
