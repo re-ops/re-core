@@ -30,16 +30,12 @@
       (debug request-method " on " uri "by" (friend/current-authentication))
       (app req))))
 
-(defn no-redirect
-  [{:keys [form-params params] :as request}]
-  {:status 401} 
-  )
 
 (defn secured-app [routes]
   (friend/authenticate 
     (friend/wrap-authorize (user-tracking routes) roles/user) 
     {:allow-anon? true
-     :credential-fn #(creds/bcrypt-credential-fn p/get-user! %)
+     :credential-fn #(if (p/user-exists? (:username %)) (creds/bcrypt-credential-fn p/get-user! %) nil)
      :unauthenticated-handler #(assoc (workflows/http-basic-deny "basic-celestial" %) :body {:message "login failed" } )
-     :workflows [(workflows/interactive-form ) (workflows/http-basic :realm "basic-celestial")]}))
+     :workflows [(workflows/interactive-form) (workflows/http-basic :realm "basic-celestial")]}))
 
