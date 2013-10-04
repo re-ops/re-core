@@ -97,7 +97,7 @@
               using matching remoting capable tool like Capisrano/Supernal/Fabric"}
        (let [{:keys [machine] :as system} (p/get-system id)]
          (if-let [actions (p/find-action-for (keyword action) (:type system))]
-           (schedule-job id "run-action" "submitted action" 
+           (schedule-job id "run-action" (<< "submitted ~{action} action") 
              [actions (merge args {:action (keyword action) :hostname (machine :hostname) :target (machine :ip) :system-id (Integer. id)})])
            (bad-req {:msg (<< "No action ~{action} found for id ~{id}")})
            )))
@@ -114,21 +114,22 @@
   )
 
 (defroutes- actions {:path "/actions" :description "Adhoc actions managment"}
-  (POST- "/action" [& ^:action action] {:nickname "addActions" :summary "Adds an actions set"}
+  (POST- "/actions" [& ^:action action] {:nickname "addActions" :summary "Adds an actions set"}
     (wrap-errors (success {:msg "added actions" :id (p/add-action action)})))
 
-  (PUT- "/action/:id" [^:int id & ^:action action] {:nickname "updateActions" :summary "Update an actions set"}
+  (PUT- "/actions/:id" [^:int id & ^:action action] {:nickname "updateActions" :summary "Update an actions set"}
         (wrap-errors
           (p/update-action id action)
            (success {:msg "updated actions" :id id})))
 
-  (GET- "/action/by-target/:type" [^:string type] {:nickname "getActionsByTargetType" :summary "Gets actions that operate on a target type"}
-        (success {:ids (p/get-action-index :operates-on type)}))
+  (GET- "/actions/type/:type" [^:string type] {:nickname "getActionsByTargetType" :summary "Gets actions that operate on a target type"}
+        (let [ids (p/get-action-index :operates-on type)]
+           (success (apply merge (map #(hash-map % (p/get-action %)) ids)))))
 
-  (GET- "/action/:id" [^:int id] {:nickname "getActions" :summary "Gets actions descriptor"}
+  (GET- "/actions/:id" [^:int id] {:nickname "getActions" :summary "Gets actions descriptor"}
         (success (p/get-action id)))
 
-  (DELETE- "/action/:id" [^:int id] {:nickname "deleteActions" :summary "Deletes an action set"}
+  (DELETE- "/actions/:id" [^:int id] {:nickname "deleteActions" :summary "Deletes an action set"}
            (p/delete-action id)
            (success {:msg "Deleted action" :id id})))
 
