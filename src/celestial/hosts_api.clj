@@ -98,7 +98,7 @@
            (p/with-quota (p/add-system spec) spec
              (success {:msg "new system saved" :id id}))))
 
-  (POST- "/system-clone/:id/:hostname" [^:int id ^:string hostname] 
+  (POST- "/system/:id/:hostname" [^:int id ^:string hostname] 
          {:nickname "cloneSystem" :summary "Clone an existing system " 
           :notes "Clones a system replacing unique identifiers along the way,
                  the only user provided value is the dest hostname"
