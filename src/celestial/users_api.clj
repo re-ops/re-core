@@ -21,19 +21,23 @@
 
 
 (defroutes- users {:path "/user" :description "User managment"}
-  (GET- "/user/:name" [^:string name] {:nickname "getUser" :summary "Get User"}
+
+  (GET- "/users" [] {:nickname "getUsers" :summary "Get all users"}
+        (success (map #(dissoc (p/get-user %) :password) (p/all-users))))
+
+  (GET- "/users/:name" [^:string name] {:nickname "getUser" :summary "Get User"}
         (success (p/get-user name)))
 
-  (POST- "/user/" [& ^:user user] {:nickname "addUser" :summary "Adds a new user"}
+  (POST- "/users/" [& ^:user user] {:nickname "addUser" :summary "Adds a new user"}
          (wrap-errors 
            (p/add-user (-> user convert-roles hash-pass))
            (success {:msg "added user"})))
 
-  (PUT- "/user/" [& ^:user user] {:nickname "updateUser" :summary "Updates an existing user"}
+  (PUT- "/users/" [& ^:user user] {:nickname "updateUser" :summary "Updates an existing user"}
         (wrap-errors (p/update-user (-> user convert-roles hash-pass))
                      (success {:msg "user updated"})))
 
-  (DELETE- "/user/:name" [^:string name] {:nickname "deleteUser" :summary "Deleted a user"}
+  (DELETE- "/users/:name" [^:string name] {:nickname "deleteUser" :summary "Deleted a user"}
            (p/delete-user name) 
            (success {:msg "user deleted" :name name})))
 
@@ -44,19 +48,19 @@
 (defmodel limit :limit :int)
 
 (defroutes- quotas {:path "/quota" :description "User quota managment"}
-  (GET- "/quota/:name" [^:string name] {:nickname "getQuota" :summary "Get users quota"}
-        (success (p/get-quota! name)))
+  (GET- "/quotas/:name" [^:string name] {:nickname "getQuota" :summary "Get users quota"}
+    (success (p/get-quota! name)))
 
-  (POST- "/quota/" [& ^:quota quota] {:nickname "addQuota" :summary "Adds a user quota"}
-         (wrap-errors 
-           (p/add-quota quota)
-           (success {:msg "added quota"})))
+  (POST- "/quotas/" [& ^:quota quota] {:nickname "addQuota" :summary "Adds a user quota"}
+    (wrap-errors 
+       (p/add-quota quota)
+       (success {:msg "added quota"})))
 
-  (PUT- "/quota/" [& ^:quota quota] {:nickname "updateQuota" :summary "Updates an existing quota"}
-        (wrap-errors 
-          (p/update-quota quota)
-          (success {:msg "quota updated"})))
+  (PUT- "/quotas/" [& ^:quota quota] {:nickname "updateQuota" :summary "Updates an existing quota"}
+    (wrap-errors 
+      (p/update-quota quota)
+      (success {:msg "quota updated"})))
 
-  (DELETE- "/quota/:name" [^:string name] {:nickname "deleteQuota" :summary "Deleted users quota"}
-           (p/delete-quota! name) 
-           (success {:msg "quota deleted"})))
+  (DELETE- "/quotas/:name" [^:string name] {:nickname "deleteQuota" :summary "Deleted users quota"}
+     (p/delete-quota! name) 
+     (success {:msg "quota deleted"})))
