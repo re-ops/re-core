@@ -89,7 +89,7 @@
   (GET- "/systems/:id" [^:int id] {:nickname "getSystem" :summary "Get system by id"}
         (success (p/get-system id)))
 
-  (GET- "/system-by/:type" [^:string type] {:nickname "getSystemsByType" :summary "Get systems by type"}
+  (GET- "/systems/type/:type" [^:string type] {:nickname "getSystemsByType" :summary "Get systems by type"}
         (success {:ids (p/get-system-index :type type)}))
 
   (POST- "/systems" [& ^:system spec] {:nickname "addSystem" :summary "Add system" 
