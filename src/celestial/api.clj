@@ -134,7 +134,7 @@
            (success {:msg "Deleted action" :id id})))
 
 (defroutes app-routes
-  system type environments sessions actions jobs sessions (friend/wrap-authorize users admin)
+  system type environments actions jobs sessions (friend/wrap-authorize users admin)
   (friend/wrap-authorize quotas admin) (route/not-found "Not Found"))
 
 (defn error-wrap
