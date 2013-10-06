@@ -25,15 +25,18 @@
   (GET- "/users" [] {:nickname "getUsers" :summary "Get all users"}
         (success (map #(dissoc (p/get-user %) :password) (p/all-users))))
 
+  (GET- "/users/roles" [] {:nickname "getRoles" :summary "Get all existing user roles"}
+        (success {:roles roles-m}))
+
   (GET- "/users/:name" [^:string name] {:nickname "getUser" :summary "Get User"}
         (success (p/get-user name)))
 
-  (POST- "/users/" [& ^:user user] {:nickname "addUser" :summary "Adds a new user"}
+  (POST- "/users" [& ^:user user] {:nickname "addUser" :summary "Adds a new user"}
          (wrap-errors 
            (p/add-user (-> user convert-roles hash-pass))
            (success {:msg "added user"})))
 
-  (PUT- "/users/" [& ^:user user] {:nickname "updateUser" :summary "Updates an existing user"}
+  (PUT- "/users" [& ^:user user] {:nickname "updateUser" :summary "Updates an existing user"}
         (wrap-errors (p/update-user (-> user convert-roles hash-pass))
                      (success {:msg "user updated"})))
 
