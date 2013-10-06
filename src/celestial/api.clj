@@ -12,7 +12,6 @@
 (ns celestial.api
   (:refer-clojure :exclude [hash type])
   (:use 
-    [celestial.hosts-api :only (system type environments)]
     [celestial.users-api :only (users quotas)]
     [celestial.ui-api :only (public sessions)]
     [gelfino.timbre :only (get-tid)]
@@ -27,6 +26,8 @@
     [swag.model :only (defmodel wrap-swag defv defc)]
     [celestial.common :only (import-logging get! resp bad-req conflict success version wrap-errors)])
   (:require 
+    [celestial.api.systems :refer (systems environments)]
+    [celestial.api.types :refer (types)]
     [ring.middleware.session.cookie :refer (cookie-store)]
     [ring.middleware.session :refer (wrap-session)]
     [compojure.core :refer (GET ANY)] 
@@ -134,7 +135,7 @@
            (success {:msg "Deleted action" :id id})))
 
 (defroutes app-routes
-  system type environments actions jobs sessions (friend/wrap-authorize users admin)
+  systems types environments actions jobs sessions (friend/wrap-authorize users admin)
   (friend/wrap-authorize quotas admin) (route/not-found "Not Found"))
 
 (defn error-wrap

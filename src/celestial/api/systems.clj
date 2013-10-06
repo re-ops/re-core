@@ -9,26 +9,19 @@
    See the License for the specific language governing permissions and
    limitations under the License.)
 
-(ns celestial.hosts-api
+(ns celestial.api.systems
+  "Celestial systems api"
   (:refer-clojure :exclude [type])
   (:require 
     [celestial.persistency :as p]
     [celestial.model :refer (sanitized-envs)] 
-    ) 
-  (:use 
-     [clojure.core.strint :only (<<)]
-     [slingshot.slingshot :only  [throw+ try+]]
-     [swag.model :only (defmodel wrap-swag defv defc)]
-     [celestial.common :only (import-logging resp bad-req conflict success wrap-errors)]
-     [swag.core :only (swagger-routes set-base GET- POST- PUT- DELETE- defroutes- errors)]))
+    [clojure.core.strint :refer (<<)] 
+    [slingshot.slingshot :refer  [throw+ try+]] 
+    [swag.model :refer (defmodel defc)] 
+    [celestial.common :refer (import-logging bad-req conflict success wrap-errors)] 
+    [swag.core :refer (GET- POST- PUT- DELETE- defroutes- errors)]))
 
 (import-logging)
-
-(defmodel type :type :string :puppet-std {:type "Puppetstd"} :classes {:type "Object"})
-
-(defmodel puppetstd :module {:type "Module"} :args {:type "List"})
-
-(defmodel module :name :string :src :string)
 
 (defmodel system 
   :env :string
@@ -62,9 +55,7 @@
 (defc [:machine :os] (keyword v))
 
 (defc [:env] (keyword v))
-
-(set-base "")
-
+ 
 (defn systems-range
   "Get systems in range by type" 
   [from to type]
@@ -77,9 +68,7 @@
         {:meta {:total (count systems)} :systems (map (juxt identity p/get-system) (subvec systems from to*))} 
         (throw+ {:type ::non-legal-range :message (<<  "No legal systems in range ~{from}:~{to*} try between ~{0}:~(count systems)")})))))
 
-
-
-(defroutes- system {:path "/systems" :description "Operations on Systems"}
+(defroutes- systems {:path "/systems" :description "Operations on Systems"}
 
   (GET- "/systems" [^:int page ^:int offset ^:string type] 
       {:nickname "getSystems" :summary "Get all systems at page with offset"}
@@ -128,38 +117,8 @@
                (bad-req {:msg "System does not exist"}))))
 
   (GET- "/systems/:id/type" [^:int id] {:nickname "getSystemType" :summary "Fetch type of provided system id"}
-        (success (p/get-type (:type (p/get-system id))))) 
-  )
-
-
-(defroutes- type {:path "/type" :description "Operations on types"}
-
-  (GET- "/types" [] {:nickname "getTypes" :summary "Get all types"}
-        (success {:types (map p/get-type (p/all-types))}))
-
-  (GET- "/types/:type" [^:string type] {:nickname "getType" :summary "Get type"}
-        (success (p/get-type type)))
-
-  (POST- "/types" [& ^:type props] {:nickname "addType" :summary "Add type"}
-         (wrap-errors 
-           (p/add-type props)
-           (success {:msg "new type saved"})))
-
-  (PUT- "/types" [& ^:type props] {:nickname "updateType" :summary "Update type"}
-        (wrap-errors
-          (if-not (p/type-exists? (props :type))
-            (conflict {:msg "Type does not exists, use POST /type first"}) 
-            (do (p/update-type props) 
-                (success {:msg "type updated"})))))
-
-  (DELETE- "/types/:type" [^:string type] {:nickname "deleteType" :summary "Delete type" 
-                                           :errorResponses (errors {:bad-req "Type does not exist"})}
-           (if (p/type-exists? type)
-             (do (p/delete-type type) 
-                 (success {:msg "Type deleted"}))
-             (bad-req {:msg "Type does not exist"}))))
+        (success (p/get-type (:type (p/get-system id))))))
 
 (defroutes- environments {:path "/environments" :description "Operations on environments"}
   (GET- "/environments" [] {:nickname "getEnvironments" :summary "Get all environments"}
-        (success {:environments (sanitized-envs)}))
-  )
+        (success {:environments (sanitized-envs)})))

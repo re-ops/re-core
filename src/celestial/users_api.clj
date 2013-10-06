@@ -19,6 +19,7 @@
 (defmodel user :username :string :password :string 
   :roles {:type :string :allowableValues {:valueType "LIST" :values (into [] (keys roles-m))}})
 
+(swag.core/set-base "")
 
 (defroutes- users {:path "/user" :description "User managment"}
 
