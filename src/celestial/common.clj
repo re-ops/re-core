@@ -68,4 +68,4 @@
     (catch (contains? ~'% :errors) e# (bad-req e#)))
   )
 
-(def version "0.3.4")
+(def version "0.3.5")
