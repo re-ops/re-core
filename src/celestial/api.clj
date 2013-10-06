@@ -124,7 +124,7 @@
 
   (GET- "/actions/type/:type" [^:string type] {:nickname "getActionsByTargetType" :summary "Gets actions that operate on a target type"}
         (let [ids (p/get-action-index :operates-on type)]
-           (success (apply merge (map #(hash-map % (p/get-action %)) ids)))))
+           (success (apply merge {} (map #(hash-map % (p/get-action %)) ids)))))
 
   (GET- "/actions/:id" [^:int id] {:nickname "getActions" :summary "Gets actions descriptor"}
         (success (p/get-action id)))
