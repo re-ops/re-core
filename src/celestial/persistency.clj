@@ -12,6 +12,7 @@
 (ns celestial.persistency
   (:refer-clojure :exclude [type])
   (:require 
+    [cemerick.friend :as friend]
     [proxmox.validations :as pv]
     [aws.validations :as av]
     [vc.validations :as vc]
@@ -76,12 +77,28 @@
   (doseq [[k {:keys [capistrano] :as m}] actions] 
     (when capistrano (validate! m cap-nested :error ::invalid-action)))
   (validate! action action-base-validation :error ::invalid-nested-action ))
- 
-(entity system :indices [type])
+
+(declare perm)
+
+(entity system :indices [type] :intercept {:create perm :read perm :update perm :delete perm} )
+
+(defn assert-access [env ident]
+  (let [username (:username (friend/current-authentication)) 
+        envs (into #{} (-> username get-user! :envs))]
+    (when (and env (not (contains? envs env))) 
+      (throw+ {:type ::persmission-violation} (<< "~{username} attempted to access system ~{ident} in env ~{env}")))))
+
+(defn perm
+  "checking current user env permissions" 
+  [f & args]
+  (let [ident (first args)]
+    (cond
+      (map? ident) (assert-access (ident :env) ident) 
+      :default (assert-access (robert.hooke/with-hooks-disabled get-system (get-system ident :env)) ident)) 
+    (apply f args)))
 
 (defn system-ip [id]
   (get-in (get-system id) [:machine :ip]))
-
 
 (def hyp-to-v 
   {:proxmox pv/validate-entity 
@@ -107,9 +124,9 @@
 (entity quota :id username)
 
 #_(defvalidator hypervisor-ks
-  {:default-message-format (<<  "quotas keys must be one of ~{hypervizors}")}
-  [qs]
-  (empty? (remove hypervizors (keys qs))))
+    {:default-message-format (<<  "quotas keys must be one of ~{hypervizors}")}
+    [qs]
+    (empty? (remove hypervizors (keys qs))))
 
 (validation :user-exists (when-not-nil user-exists? "No matching user found"))
 
