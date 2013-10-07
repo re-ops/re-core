@@ -12,12 +12,6 @@
   (:import java.lang.AssertionError))
 
 
-(with-state-changes [(before :facts (reset! jobs/jobs {:machine [identity 2]}))] 
-  (fact "workers creation" :integration :redis
-     (initialize-workers)
-     (keys @workers) => (just :machine)
-    ))
-
 (fact "with-lock used if :identity key was provided" 
    (job-exec identity {:message {:identity "red1" :args {:machine {:hostname "red1"}}} :attempt 1}) => {:status :success}
    (provided 
