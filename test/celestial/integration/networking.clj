@@ -6,7 +6,7 @@
  )
 
 (with-conf
-  (with-state-changes [(before :facts (clear-range :proxmox))]
+  (with-state-changes [(before :facts (do (clear-range :proxmox) (n/initialize-networking)))]
     (fact "used up ips marking" :integration :redis :ip
       (n/gen-ip {} :proxmox :ip_address)  => {:ip_address "192.168.5.100"}
       (count (n/list-free-ips :proxmox)) => 152
@@ -17,7 +17,7 @@
 
     (fact "multiple ips" :integration :redis :ip
       (dotimes [_ 5] (n/gen-ip {} :proxmox :ip_address))
-      (count (n/list-free-ips :proxmox)) => 147
+      (count (n/list-free-ips :proxmox)) => 148
       (dotimes [i 5] (n/release-ip (str  "192.168.5.10" i) :proxmox)) 
       (count (n/list-free-ips :proxmox)) => 153)
     ))
