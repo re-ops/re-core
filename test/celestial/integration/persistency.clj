@@ -60,26 +60,21 @@
             (provided (friend/current-authentication) => {:username "ronen"} :times 3)
             (p/add-system redis-prox-spec) => truthy
             (provided (friend/current-authentication) => {:username "ronen"} :times 3)
-          ))
-
-    
-  ) 
-
+          ))) 
 
 
 (with-state-changes [(before :facts (clear-all))]
   (fact "generated crud user ops" :integration :redis
-        (let [user {:username "foo" :password "bla" :roles #{:celestial.roles/user}} id (p/add-user user)]
+        (let [user {:username "foo" :password "bla" :roles #{:celestial.roles/user} :envs []} id (p/add-user user)]
           (p/get-user id) => user
           (p/user-exists? id) => truthy
           (p/update-user (merge user {:username "foo" :password "123"}))
           (p/get-user id) => (merge user {:username "foo" :password "123"})
           (p/delete-user id)
-          (p/user-exists? id) => falsey
-          ))
+          (p/user-exists? id) => falsey))
 
   (fact "non valid user" :integration :redis
-        (let [user {:username "foo" :password "bla" :roles #{:celestial.roles/user}} id (p/add-user user)]
+        (let [user {:username "foo" :password "bla" :roles #{:celestial.roles/user} :envs []} id (p/add-user user)]
           (p/add-user (dissoc user :username)) => 
           (throws ExceptionInfo (is-type? :celestial.persistency/non-valid-user))
           (p/update-user (dissoc user :username)) =>
@@ -88,7 +83,7 @@
 (with-state-changes [(before :facts (clear-all))]
   (fact "basic quota usage" :integration :redis :quota
         (with-redefs [p/curr-user (fn [] "foo")]
-          (p/add-user {:username "foo" :password "bla" :roles {}})
+          (p/add-user {:username "foo" :password "bla" :roles {} :envs []})
           (p/add-quota (assoc-in user-quota [:quotas :proxmox :used] nil)) 
           (p/increase-use 1 redis-prox-spec) => "OK"
           (:quotas (p/get-quota "foo"))  => (contains {:proxmox {:limit 2 :used #{1}}}) 

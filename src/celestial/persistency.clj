@@ -12,6 +12,7 @@
 (ns celestial.persistency
   (:refer-clojure :exclude [type])
   (:require 
+    [celestial.common :refer (import-logging)]
     [cemerick.friend :as friend]
     [proxmox.validations :as pv]
     [aws.validations :as av]
@@ -19,7 +20,7 @@
     [subs.core :as subs :refer (validate! combine when-not-nil validation every-v every-kv validation)]
     [taoensso.carmine :as car]
     [cemerick.friend :as friend]
-    proxmox.model aws.model)
+     proxmox.model aws.model)
   (:use 
     [puny.core :only (entity)]
     [celestial.roles :only (roles admin)]
@@ -30,10 +31,32 @@
     [celestial.model :only (clone hypervizors figure-virt)] 
     [clojure.core.strint :only (<<)]))
 
-(entity user :id username)
+(import-logging)
+
+(def user-version 1)
+
+(declare update-user user-exists? user-id)
+
+(defn into-v1 [user]
+  (let [upgraded (assoc user :envs [:dev])]
+    (trace "migrating" user "to version 1")
+    (update-user upgraded) upgraded))
+
+(defn migrate-user
+  "user migration"
+  [f & args] 
+  (let [res (apply f args) version (-> res meta :version)]
+    (if (and (map? res) (not (empty? res)))
+      (cond
+        (nil? version) (into-v1 res)
+        :else res)
+       res)))
+
+(entity {:version user-version}  user :id username :intercept {:read [migrate-user]})
 
 (def user-v
- {:username #{:required :String} :password #{:required :String} :roles #{:required :role*}})
+  {:username #{:required :String} :password #{:required :String} 
+   :roles #{:required :role*} :envs #{:required :Vector}})
 
 (validation :role (when-not-nil roles (<< "role must be either ~{roles}")))
 
@@ -48,11 +71,11 @@
   {
    :classes #{:required :Map}
    :puppet-std {
-    :args #{:Vector} 
-    :module {
-      :name #{:required :String}
-      :src  #{:required :String}      
-    }}})
+                :args #{:Vector} 
+                :module {
+                         :name #{:required :String}
+                         :src  #{:required :String}      
+                         }}})
 
 (defn validate-type [{:keys [puppet-std] :as t}]
   (validate! t (combine (if puppet-std puppet-std-v {}) {:type #{:required :String}}) :error ::non-valid-type ))
@@ -80,7 +103,8 @@
 
 (declare perm)
 
-(entity system :indices [type] :intercept {:create perm :read perm :update perm :delete perm} )
+(entity system :indices [type] 
+        :intercept {:create [perm] :read [perm] :update [perm] :delete [perm]} )
 
 (defn assert-access [env ident]
   (let [username (:username (friend/current-authentication)) 
@@ -119,14 +143,9 @@
   "Resets admin password if non is defined"
   []
   (when (empty? (get-user "admin"))
-    (add-user {:username "admin" :password (creds/hash-bcrypt "changeme") :roles admin})))
+    (add-user {:username "admin" :password (creds/hash-bcrypt "changeme") :roles admin :envs [:dev]})))
 
 (entity quota :id username)
-
-#_(defvalidator hypervisor-ks
-    {:default-message-format (<<  "quotas keys must be one of ~{hypervizors}")}
-    [qs]
-    (empty? (remove hypervizors (keys qs))))
 
 (validation :user-exists (when-not-nil user-exists? "No matching user found"))
 
