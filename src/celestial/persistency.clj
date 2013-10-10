@@ -68,14 +68,13 @@
 (entity type :id type)
 
 (def puppet-std-v 
-  {
-   :classes #{:required :Map}
+  {:classes #{:required :Map}
    :puppet-std {
-                :args #{:Vector} 
-                :module {
-                         :name #{:required :String}
-                         :src  #{:required :String}      
-                         }}})
+      :args #{:Vector} 
+      :module {
+         :name #{:required :String}
+         :src  #{:required :String}      
+    }}})
 
 (defn validate-type [{:keys [puppet-std] :as t}]
   (validate! t (combine (if puppet-std puppet-std-v {}) {:type #{:required :String}}) :error ::non-valid-type ))
@@ -103,8 +102,8 @@
 
 (declare perm)
 
-(entity system :indices [type] 
-        :intercept {:create [perm] :read [perm] :update [perm] :delete [perm]} )
+(entity system :indices [type env] 
+   :intercept {:create [perm] :read [perm] :update [perm] :delete [perm]} )
 
 (defn assert-access [env ident]
   (let [username (:username (friend/current-authentication)) 
