@@ -3,10 +3,8 @@
    midje.sweet 
    [celestial.roles :only (admin)]
    [celestial.persistency :only (validate-type validate-quota user-exists? validate-user)]
-   [celestial.fixtures :only (redis-type is-type? user-quota with-m?)]
-   )
- (:import clojure.lang.ExceptionInfo ) 
-  )
+   [celestial.fixtures :only (redis-type is-type? user-quota with-m?)])
+ (:import clojure.lang.ExceptionInfo))
 
 (fact "puppet std type validation"
     
@@ -38,9 +36,9 @@
    (provided (user-exists? "foo") => true :times 1))
 
 (fact "user validation"
-     (validate-user {:username "foo" :password "bar" :roles admin})  => truthy
-     (validate-user {:password "bar" :roles admin})  => 
+     (validate-user {:username "foo" :password "bar" :roles admin :envs []})  => truthy
+     (validate-user {:password "bar" :roles admin :envs []})  => 
        (throws ExceptionInfo (with-m? {:username '("must be present")} ))
-     (validate-user {:username "foo" :password "bar" :roles ["foo"]})  =>
+     (validate-user {:username "foo" :password "bar" :roles ["foo"] :envs []})  =>
        (throws ExceptionInfo (with-m? {:roles '(({0 ("role must be either #{:celestial.roles/anonymous :celestial.roles/user :celestial.roles/admin}")}))} ))
       )
