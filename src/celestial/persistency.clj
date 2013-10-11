@@ -19,7 +19,6 @@
     [vc.validations :as vc]
     [subs.core :as subs :refer (validate! combine when-not-nil validation every-v every-kv validation)]
     [taoensso.carmine :as car]
-    [cemerick.friend :as friend]
      proxmox.model aws.model)
   (:use 
     [puny.core :only (entity)]
