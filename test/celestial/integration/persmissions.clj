@@ -6,11 +6,12 @@
     [flatland.useful.map :refer (dissoc-in*)]
     [cemerick.friend :as friend]
     [celestial.redis :refer (clear-all)]  
-    [celestial.fixtures :refer (redis-prox-spec redis-type is-type? user-quota redis-actions)]
+    [celestial.fixtures :refer (redis-prox-spec redis-type is-type? with-conf)]
     [celestial.persistency :as p])
   (:use midje.sweet))
 
-(against-background 
+(with-conf
+  (against-background 
   [(friend/current-authentication) => {:identity "admin", :roles #{:celestial.roles/admin}, :username "admin"}
    (p/get-user! "admin") => {:envs [:dev :qa :prod] :roles #{:celestial.roles/admin} :username "admin"}
    (p/get-user! "ronen") => {:envs [:dev :qa] :roles #{:celestial.roles/user} :username "ronen"} ]
@@ -68,4 +69,4 @@
            ;; (count (p/all-systems)) => 1
             )
 
-    ))
+    )))
