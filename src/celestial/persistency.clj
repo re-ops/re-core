@@ -35,9 +35,11 @@
 
 (def user-version 1)
 
-(declare update-user user-exists? user-id)
+(declare migrate-user)
 
-(defn into-v1 [user]
+(entity {:version user-version}  user :id username :intercept {:read [migrate-user]})
+
+(defn into-v1-user [user]
   (let [upgraded (assoc user :envs [:dev])]
     (trace "migrating" user "to version 1")
     (update-user upgraded) upgraded))
@@ -48,12 +50,10 @@
   (let [res (apply f args) version (-> res meta :version)]
     (if (and (map? res) (not (empty? res)))
       (cond
-        (nil? version) (into-v1 res)
+        (nil? version) (into-v1-user res)
         :else res)
        res)))
-
-(entity {:version user-version}  user :id username :intercept {:read [migrate-user]})
-
+ 
 (def user-v
   {:username #{:required :String} :password #{:required :String} 
    :roles #{:required :role*} :envs #{:required :Vector}})
@@ -100,11 +100,27 @@
     (when capistrano (validate! m cap-nested :error ::invalid-action)))
   (validate! action action-base-validation :error ::invalid-nested-action ))
 
-(declare perm)
+(declare perm migrate-system)
 
-(entity system :indices [type env] 
-   :intercept {:create [perm] :read [perm] :update [perm] :delete [perm]} )
+(entity {:version 1} system :indices [type env] 
+   :intercept {:create [perm] :read [perm migrate-system] :update [perm] :delete [perm]} )
 
+(defn into-v1-system [id system]
+   (trace "migrating" system "to version 1")
+   ; causing re-indexing
+   (update-system id system) 
+   system)
+
+(defn migrate-system
+  "user migration"
+  [f & args] 
+  (let [res (apply f args) version (-> res meta :version)]
+    (if (and (map? res) (not (empty? res)))
+      (cond
+        (nil? version) (into-v1-system (first args) res)
+        :else res)
+       res)))
+ 
 (defn assert-access [env ident]
   (let [username (:username (friend/current-authentication)) 
         envs (into #{} (-> username get-user! :envs))]

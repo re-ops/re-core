@@ -55,7 +55,7 @@
             (provided (friend/current-authentication) => {:username "ronen"} :times 1) 
             (p/update-system id (assoc redis-prox-spec :cpus 20)) => (contains ["OK"])
             (provided (friend/current-authentication) => {:username "ronen"} :times 6)
-            (p/delete-system id) => [1 1]
+            (p/delete-system id) => [1 1 1]
             (provided (friend/current-authentication) => {:username "ronen"} :times 3)
             (p/add-system redis-prox-spec) => truthy
             (provided (friend/current-authentication) => {:username "ronen"} :times 3)))
