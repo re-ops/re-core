@@ -21,16 +21,20 @@
 
 (against-background 
   [(friend/current-authentication) => {:identity "admin" :username "admin"} ]
-  (with-state-changes [(before :facts (do (clear-all) (p/add-type redis-type) (add-users)))]
+  (with-state-changes 
+    [(before :facts (do (clear-all) (p/add-type redis-type) (add-users) (m/register-all)))]
     (fact "system env index migration" :integration :migration
       (let [id (s/add-system redis-prox-spec)]
             (wcar (car/hset (s/system-id id) :meta {:version nil}))
             (wcar (car/srem "system:env:dev" id))
             (wcar (car/smembers "system:env:dev")) => []
-            (m/migrate :systems) 
+            (m/migrate-all) 
             (s/get-system id)  => redis-prox-spec
             (:version (meta (s/get-system id)))  => 1
             (s/get-system-index :env :dev) => [(str id)]
-            #_(wcar (car/smembers "system:env:dev")) => [(str id)]
+            (wcar (car/smembers "system:env:dev")) => [(str id)]
+            (wcar (car/srem "system:env:dev" id))
+            (m/migrate-all) ; migrations should only run once
+            (wcar (car/smembers "system:env:dev")) => []
           )
        )))
