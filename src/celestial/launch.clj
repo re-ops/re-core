@@ -28,6 +28,7 @@
     [celestial.redis :only (clear-locks)]
     [taoensso.timbre :only (set-config! set-level!)])
   (:require 
+    [celestial.persistency.migrations :as mg]
     [hypervisors.networking :refer [initialize-networking]]
     [celestial.jobs :as jobs]))
 
@@ -87,6 +88,7 @@
   (initialize-networking)
   (setup-logging)
   (p/reset-admin)
+  (mg/setup-migrations)
   (add-shutdown)
   (setup-hooks)
   (ssh-config {:key (get! :ssh :private-key-path) :user "root"} ) 

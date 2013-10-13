@@ -13,46 +13,33 @@
   "systems persistency layer"
   (:refer-clojure :exclude [type])
   (:require 
+    [celestial.security :refer (current-user)]
+    [celestial.roles :refer (admin?)]
+    [robert.hooke :as h]
     [celestial.persistency :as p]
     [celestial.common :refer (import-logging)]
-    [cemerick.friend :as friend]
     [proxmox.validations :as pv]
     [aws.validations :as av]
     [vc.validations :as vc]
     [subs.core :as subs :refer (validate!)]
     [puny.core :refer (entity)]
     [slingshot.slingshot :refer  [throw+]]
+    [puny.migrations :refer (Migration register)]
     [celestial.model :refer (clone hypervizors figure-virt)] 
     [clojure.core.strint :refer (<<)]  
      proxmox.model aws.model))
 
 (import-logging)
 
-(declare perm migrate-system validate-system)
+(declare perm validate-system)
 
 (entity {:version 1} system :indices [type env] 
-   :intercept {:create [perm] :read [perm migrate-system] :update [perm] :delete [perm]} )
+   :intercept {:create [perm] :read [perm] :update [perm] :delete [perm]} )
 
-(defn into-v1-system [id system]
-   (trace "migrating" system "to version 1")
-   ; causing re-indexing
-   (update-system id system) 
-   system)
-
-(defn migrate-system
-  "system migration"
-  [f & args] 
-  (let [res (apply f args) version (-> res meta :version)]
-    (if (and (map? res) (not (empty? res)))
-      (cond
-        (nil? version) (into-v1-system (first args) res)
-        :else res)
-       res)))
- 
 (defn assert-access [env ident]
-  (let [username (:username (friend/current-authentication)) 
-        envs (into #{} (-> username p/get-user! :envs))]
-    (when (and env (not (envs env))) 
+  (let [username (:username (current-user)) user (p/get-user! username)
+        envs (into #{} (user :envs))]
+    (when (and (not (admin? user)) env (not (envs env))) 
       (throw+ {:type ::persmission-violation} (<< "~{username} attempted to access system ~{ident} in env ~{env}")))))
 
 (defn perm
@@ -61,7 +48,7 @@
   (let [ident (first args)]
     (cond
       (map? ident) (assert-access (ident :env) ident) 
-      :default (assert-access (robert.hooke/with-hooks-disabled get-system (get-system ident :env)) ident)) 
+      :default (assert-access (h/with-hooks-disabled get-system (get-system ident :env)) ident)) 
     (apply f args)))
 
 (defn system-ip [id]
@@ -81,3 +68,13 @@
   [id hostname]
   (add-system (clone (assoc-in (get-system id) [:machine :hostname] hostname))))
  
+(defrecord EnvIndices [identifier]
+   Migration
+   (apply- [this]
+     (doseq [id (all-systems)]  
+       (update-system id (update-in (get-system id) [:env] keyword))))  
+   (rollback [this])) 
+
+(defn register-migrations []
+  (register :systems (EnvIndices. :systems-env-indices)))
+
