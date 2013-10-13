@@ -21,6 +21,7 @@
     celestial.puppet_standalone 
     remote.capistrano remote.ruby
     [celestial.persistency :as p]
+    [celestial.persistency.systems :as s]
     [clojure.tools.macro :as tm]
    )
   (:import 
@@ -81,7 +82,7 @@
     (when (.status vm)
       (.stop vm) 
       (.delete vm)) 
-    (p/delete-system system-id)
+    (s/delete-system system-id)
     (info "system destruction done")))
 
 (deflow puppetize 
@@ -97,7 +98,7 @@
   [type {:keys [system-id] :as spec}] 
   (reload spec) 
   ; reload may change system properties like ip etc..
-  (puppetize type (assoc (p/get-system system-id) :system-id system-id)))
+  (puppetize type (assoc (s/get-system system-id) :system-id system-id)))
 
 (deflow ^{:hook-args :run-info} run-action
   "Runs an action"

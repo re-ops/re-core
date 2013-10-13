@@ -2,6 +2,7 @@
   "Capistrano remoter provider see https://github.com/narkisr/cap-demo and fixtures/cap-deploy.edn"
   (:require 
     [celestial.persistency :as p] 
+    [celestial.persistency.systems :as s]
     remote.capistrano)
   (:use 
     midje.sweet 
@@ -15,7 +16,7 @@
 (with-conf
   (with-state-changes [(before :facts ((clear-all) (p/add-type redis-type)) )] 
     (fact "basic deploy" :integration :capistrano
-      (let [id (p/add-system redis-prox-spec)
+      (let [id (s/add-system redis-prox-spec)
             cap (rconstruct redis-actions {:action :deploy :target "192.168.5.200"})]
          (reload redis-prox-spec)
          (.setup cap)
@@ -24,10 +25,10 @@
          (.cleanup cap)
          (destroy (assoc redis-prox-spec :system-id id)) 
          (exists? (:dst cap))  => falsey 
-         (p/system-exists? id)  => falsey)))
+         (s/system-exists? id)  => falsey)))
   
     (fact "ruby run-all" :integration :ruby
-      (let [id (p/add-system redis-prox-spec)
+      (let [id (s/add-system redis-prox-spec)
             cap (rconstruct redis-actions {:action :run-all :target "192.168.5.200"})]
          (reload redis-prox-spec)
          (.setup cap)
@@ -36,4 +37,4 @@
          (.cleanup cap)
          (destroy (assoc redis-prox-spec :system-id id)) 
          (exists? (:dst cap))  => falsey 
-         (p/system-exists? id)  => falsey))) 
+         (s/system-exists? id)  => falsey))) 

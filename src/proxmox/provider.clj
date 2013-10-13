@@ -29,6 +29,7 @@
     [me.raynes.fs :refer (delete-dir temp-dir)]
     [supernal.sshj :refer (copy ssh-up? execute)]
     [hypervisors.networking :refer (debian-interfaces gen-ip release-ip mark redhat-network-cfg redhat-ifcfg-eth0)]
+    [celestial.persistency.systems :as s]
     [celestial.persistency :as p])
   (:import clojure.lang.ExceptionInfo))
 
@@ -139,8 +140,8 @@
             (try+ 
               (check-task node (prox-post (str "/nodes/" node "/openvz") ct*)) 
               (enable-features this) 
-              (when (p/system-exists? id)
-                (p/partial-system id {:proxmox {:vmid vmid} :machine {:ip ip}})) 
+              (when (s/system-exists? id)
+                (s/partial-system id {:proxmox {:vmid vmid} :machine {:ip ip}})) 
               (when (ct* :netif)
                 (update-interfaces node (extended :flavor) ip network* vmid))
               (->Container node ct* extended network*)

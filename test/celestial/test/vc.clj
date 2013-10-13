@@ -1,12 +1,13 @@
 (ns celestial.test.vc
-  (:require vc.provider)
+  (:require vc.provider 
+    [celestial.persistency.systems :as s])
   (:use 
     midje.sweet
     [flatland.useful.map :only  (dissoc-in*)]
     [clojure.core.strint :only (<<)]
     [celestial.config :only (config)]
     [celestial.model :only (vconstruct)]
-    [celestial.persistency :only (validate-system type-exists?)]
+    [celestial.persistency :only (type-exists?)]
     [celestial.fixtures :only (redis-vc-spec with-conf with-m?)])
   (:import clojure.lang.ExceptionInfo) 
   )
@@ -48,17 +49,17 @@
           (vconstruct (merge-with merge redis-vc-spec {:machine {:netmask nil :ip nil}})) => truthy)
 
     (fact "entity sanity"
-        (validate-system redis-vc-spec) => truthy 
+        (s/validate-system redis-vc-spec) => truthy 
         (provided 
           (type-exists? "redis")  => true))
 
     (fact "missing guest password"
-        (validate-system (dissoc-in* redis-vc-spec [:machine :password])) => 
+        (s/validate-system (dissoc-in* redis-vc-spec [:machine :password])) => 
           (throws ExceptionInfo (with-m? {:machine {:password '("must be present")}}))
         (provided (type-exists? "redis")  => true))
 
     (fact "names aren't a vec"
-        (validate-system (assoc-in redis-vc-spec [:machine :names] "bla")) => 
+        (s/validate-system (assoc-in redis-vc-spec [:machine :names] "bla")) => 
           (throws ExceptionInfo (with-m? {:machine {:names '("must be a vector")}}))
         (provided (type-exists? "redis")  => true))
     ))

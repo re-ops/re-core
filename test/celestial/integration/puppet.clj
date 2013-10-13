@@ -1,6 +1,7 @@
 (ns celestial.integration.puppet
   "Requires both proxmox redis and a celetial instance to reply to puppet ext queries"
   (:require 
+    [celestial.persistency.systems :as s]
     [celestial.persistency :as p])
   (:use 
     midje.sweet
@@ -16,12 +17,12 @@
 (defn run-cycle [spec type]
   (clear-all) 
   (p/add-type type) 
-  (let [id (p/add-system spec)] 
+  (let [id (s/add-system spec)] 
     (try 
       (reload (assoc spec :system-id id))
-      (puppetize type (p/get-system id))
+      (puppetize type (s/get-system id))
       (finally 
-        (destroy (assoc (p/get-system id) :system-id id))))))
+        (destroy (assoc (s/get-system id) :system-id id))))))
 
 (fact "provisioning a proxmox instance" :integration :puppet :proxmox
       (with-conf

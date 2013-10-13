@@ -11,6 +11,7 @@
 
 (ns aws.provider
   (:require 
+    [celestial.persistency.systems :as s]
     [aws.sdk.ec2 :as ec2]
     [aws.sdk.ebs :as ebs]
     [clojure.string :refer (join)]
@@ -69,9 +70,9 @@
 
 (defn update-pubdns [spec endpoint instance-id]
   "updates public dns in the machine persisted data"
-  (when (p/system-exists? (spec :system-id))
+  (when (s/system-exists? (spec :system-id))
     (let [ec2-host (pub-dns endpoint instance-id)]
-      (p/partial-system (spec :system-id) {:machine {:ssh-host ec2-host :ip (pubdns-to-ip ec2-host)}}))))
+      (s/partial-system (spec :system-id) {:machine {:ssh-host ec2-host :ip (pubdns-to-ip ec2-host)}}))))
 
 (defn set-hostname [spec endpoint instance-id user]
   "Uses a generic method of setting hostname in Linux"
@@ -84,7 +85,7 @@
 (defn instance-id*
   "grabbing instance id of spec"
    [spec]
-  (get-in (p/get-system (spec :system-id)) [:aws :instance-id]))
+  (get-in (s/get-system (spec :system-id)) [:aws :instance-id]))
 
 (defmacro with-instance-id [& body]
  `(if-let [~'instance-id (instance-id* ~'spec)]
@@ -121,7 +122,7 @@
   Vm
   (create [this] 
     (let [{:keys [aws]} spec instance-id (-> (with-ctx ec2/run-instances (dissoc aws :volumes)) :instances first :id)]
-       (p/partial-system (spec :system-id) {:aws {:instance-id instance-id}})
+       (s/partial-system (spec :system-id) {:aws {:instance-id instance-id}})
        (debug "created" instance-id)
        (handle-volumes aws endpoint instance-id)    
        (when-let [ip (get-in spec [:machine :ip])] 

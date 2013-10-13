@@ -14,6 +14,7 @@
   (:refer-clojure :exclude [type])
   (:require 
     [celestial.persistency :as p]
+    [celestial.persistency.systems :as s]
     [celestial.model :refer (sanitized-envs)] 
     [clojure.core.strint :refer (<<)] 
     [slingshot.slingshot :refer  [throw+ try+]] 
@@ -60,11 +61,11 @@
   "Get systems in range by type" 
   [from to type]
   {:pre [(> from -1) (if type (p/type-exists! type) true)]}
-  (let [systems (if type (p/get-system-index :type type) (into [] (p/all-systems)))
+  (let [systems (if type (s/get-system-index :type type) (into [] (s/all-systems)))
         to* (min to (count systems))]
     (when-not (empty? systems)
       (if (and (contains? systems from) (contains? systems (- to* 1)))
-        {:meta {:total (count systems)} :systems (doall (map (juxt identity p/get-system) (subvec systems from to*)))} 
+        {:meta {:total (count systems)} :systems (doall (map (juxt identity s/get-system) (subvec systems from to*)))} 
         (throw+ {:type ::non-legal-range :message (<<  "No legal systems in range ~{from}:~{to*} try between ~{0}:~(count systems)")})))))
 
 (defroutes- systems {:path "/systems" :description "Operations on Systems"}
@@ -75,15 +76,15 @@
       (success (systems-range (* (- page* 1) offset*) (* page*  offset*) type))))
 
   (GET- "/systems/:id" [^:int id] {:nickname "getSystem" :summary "Get system by id"}
-        (success (p/get-system id)))
+        (success (s/get-system id)))
 
   (GET- "/systems/type/:type" [^:string type] {:nickname "getSystemsByType" :summary "Get systems by type"}
-        (success {:ids (p/get-system-index :type type)}))
+        (success {:ids (s/get-system-index :type type)}))
 
   (POST- "/systems" [& ^:system spec] {:nickname "addSystem" :summary "Add system" 
                                            :errorResponses (errors {:bad-req "Missing system type"})}
          (wrap-errors
-           (p/with-quota (p/add-system spec) spec
+           (p/with-quota (s/add-system spec) spec
              (success {:msg "new system saved" :id id}))))
 
   (POST- "/system/:id/:hostname" [^:int id ^:string hostname] 
@@ -91,32 +92,32 @@
           :notes "Clones a system replacing unique identifiers along the way,
                  the only user provided value is the dest hostname"
            :errorResponses (errors {:bad-req "System missing"})}
-         (if (p/system-exists? id)
+         (if (s/system-exists? id)
            (p/with-quota 
-             (p/clone-system id hostname) (p/get-system id)
+             (s/clone-system id hostname) (s/get-system id)
              (success {:msg "system cloned" :id id}))
            (conflict {:msg "System does not exists, use POST /host/system to create it first"})))
 
   (PUT- "/systems/:id" [^:int id & ^:system system] {:nickname "updateSystem" :summary "Update system" 
                                                          :errorResponses (errors {:conflict "System does not exist"}) }
-        (if-not (p/system-exists? id)
+        (if-not (s/system-exists? id)
           (conflict {:msg "System does not exists, use POST /host/system first"}) 
           (wrap-errors
-            (p/update-system id system) 
+            (s/update-system id system) 
             (success {:msg "system updated" :id id}))))
 
   (DELETE- "/systems/:id" [^:int id] {:nickname "deleteSystem" :summary "Delete System" 
                                           :errorResponses (errors {:bad-req "System does not exist"})}
            (try+ 
-             (let [spec (p/get-system! id) int-id (Integer/valueOf id)]               
-               (p/delete-system! id) 
+             (let [spec (s/get-system! id) int-id (Integer/valueOf id)]               
+               (s/delete-system! id) 
                (p/decrease-use int-id spec)
                (success {:msg "System deleted"})) 
              (catch [:type :celestial.persistency/missing-system] e 
                (bad-req {:msg "System does not exist"}))))
 
   (GET- "/systems/:id/type" [^:int id] {:nickname "getSystemType" :summary "Fetch type of provided system id"}
-        (success (p/get-type (:type (p/get-system id))))))
+        (success (p/get-type (:type (s/get-system id))))))
 
 (defroutes- environments {:path "/environments" :description "Operations on environments"}
   (GET- "/environments" [] {:nickname "getEnvironments" :summary "Get all environments"}

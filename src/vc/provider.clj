@@ -11,6 +11,7 @@
 
 (ns vc.provider 
   (:use 
+    [celestial.persistency.systems :as s]
     [celestial.provider :only (mappings)]
     [trammel.core :only  (defconstrainedrecord)]
     [clojure.core.strint :only (<<)]
@@ -53,8 +54,8 @@
         (clone hostname allocation machine) 
         (.start this)  
         (set-ip hostname (select-keys machine [:user :password :sudo]) machine*) 
-        (when (p/system-exists? id)
-           (p/partial-system id {:machine {:ip (machine* :ip)}}))
+        (when (s/system-exists? id)
+           (s/partial-system id {:machine {:ip (machine* :ip)}}))
         (.stop this)
         (->VirtualMachine hostname allocation machine* id)
       (catch Throwable e 

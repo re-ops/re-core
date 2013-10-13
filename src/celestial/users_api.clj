@@ -17,7 +17,9 @@
   (update-in user [:password] (fn [v] (creds/hash-bcrypt v))))
  
 (defmodel user :username :string :password :string 
-  :roles {:type :string :allowableValues {:valueType "LIST" :values (into [] (keys roles-m))}})
+  :roles {:type :string :allowableValues {:valueType "LIST" :values (into [] (keys roles-m))}}
+  :envs  {:type "List"} 
+  )
 
 (swag.core/set-base "")
 

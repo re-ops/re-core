@@ -5,6 +5,7 @@
   (:refer-clojure :exclude [type])
   (:require 
     [celestial.redis :as r]
+    [celestial.persistency.systems :as s]
     [celestial.persistency :as p])
   (:use [celestial.common :only (slurp-edn)]))
 
@@ -64,8 +65,14 @@
   (p/add-action redis-actions)
   (doseq [i (range 100)] 
     (if (= 0 (mod i 2)) 
-      (p/add-system redis-prox-spec)
-      (p/add-system redis-ec2-spec))))
+      (s/add-system redis-prox-spec)
+      (s/add-system redis-ec2-spec))))
+
+(defn add-users 
+   "populates admin and ronen users" 
+   []
+  (p/add-user {:envs [:dev :qa :prod] :roles #{:celestial.roles/admin} :username "admin" :password "foo"})
+  (p/add-user {:envs [:dev :qa] :roles #{:celestial.roles/user} :username "ronen" :password "bar"}))
 
 (def host (.getHostName (java.net.InetAddress/getLocalHost)))
 

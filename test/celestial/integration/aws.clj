@@ -3,6 +3,7 @@
   (:require aws.provider)
   (:import clojure.lang.ExceptionInfo)
   (:require 
+    [celestial.persistency.systems :as s]
     [aws.provider :as  awp]
     [celestial.persistency :as p])
   (:use 
@@ -12,10 +13,10 @@
     [celestial.fixtures :only (redis-ec2-spec redis-type host puppet-ami with-conf local-conf)]))
 
 (defn flow [ami ssh-host]
-  (let [system-id (p/add-system ami) instance (vconstruct (assoc ami :system-id system-id)) ]
+  (let [system-id (s/add-system ami) instance (vconstruct (assoc ami :system-id system-id)) ]
         (.create instance) 
         (.start instance) 
-        (get-in (p/get-system system-id) [:machine :ssh-host]) => ssh-host
+        (get-in (s/get-system system-id) [:machine :ssh-host]) => ssh-host
         (.status instance) => "running"
         (.stop instance) 
         (.status instance) => "stopped"

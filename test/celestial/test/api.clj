@@ -2,14 +2,14 @@
   "These scenarios describe how the API works and mainly validates routing"
   (:refer-clojure :exclude [type])
   (:use 
-    midje.sweet
+    midje.sweet ring.mock.request
     [clojure.core.strint :only (<<)]
     [celestial.common :only (slurp-edn)]
     [celestial.fixtures :only (redis-prox-spec redis-type)]
-    ring.mock.request
     [celestial.api :only (app)])
   (:require 
     [celestial.jobs :as jobs]
+    [celestial.persistency.systems :as s] 
     [celestial.persistency :as p]))
 
 ; TODO is seems that ring-mock isn't working correctly with '&' distructuing 
@@ -17,22 +17,18 @@
     (merge {:params redis-prox-spec}
            (header (request :post "/registry/host") "Content-type" "application/edn")))
 
-#_(scenario
-    (expect {:status 200} (in (non-sec-app (request :post "/registry/host" host-req)))) 
-    (expect (interaction (p/add-system redis-prox-spec))))
-
 (def non-sec-app (app false))
 
 (fact "system get"
       (non-sec-app (request :get (<< "/systems/1"))) => (contains {:status 200}) 
-      (provided (p/get-system "1") => "foo"))
+      (provided (s/get-system "1") => "foo"))
 
 (fact "getting host type"
       (non-sec-app 
         (header 
           (request :get (<< "/systems/1/type")) "accept" "application/json")) => (contains {:status 200})
       (provided 
-        (p/get-system "1") => {:type "redis"} 
+        (s/get-system "1") => {:type "redis"} 
         (p/get-type "redis") => {:classes {:redis {:append true}}}))
 
 #_(def type-req
@@ -50,25 +46,25 @@
     (fact "provisioning job"
           (non-sec-app (request :post "/jobs/provision/1")) => (contains {:status 200})
           (provided 
-            (p/system-exists? "1") => true
-            (p/get-system "1")  => machine
-            (p/get-system "1" :env)  => :dev
+            (s/system-exists? "1") => true
+            (s/get-system "1")  => machine
+            (s/get-system "1" :env)  => :dev
             (p/get-type "redis") => type
             (jobs/enqueue "provision" {:identity "1" :args [type (assoc machine :system-id 1)] :tid nil :env :dev}) => nil)))
 
 (fact "staging job" 
       (non-sec-app (request :post "/jobs/stage/1")) => (contains {:status 200})
       (provided
-        (p/system-exists? "1") => true
+        (s/system-exists? "1") => true
         (p/get-type "redis") => {:puppet-module "bar"}
-        (p/get-system "1") => {:type "redis"}
-        (p/get-system "1" :env)  => :dev
+        (s/get-system "1") => {:type "redis"}
+        (s/get-system "1" :env)  => :dev
         (jobs/enqueue "stage" {:identity "1" :args [{:puppet-module "bar"} {:system-id 1 :type "redis"}] :tid nil :env :dev}) => nil))
 
 (fact "creation job"
       (non-sec-app (request :post "/jobs/create/1"))  => (contains {:status 200})
       (provided 
-        (p/system-exists? "1") => true
-        (p/get-system "1")  => {}
-        (p/get-system "1" :env)  => :dev
+        (s/system-exists? "1") => true
+        (s/get-system "1")  => {}
+        (s/get-system "1" :env)  => :dev
         (jobs/enqueue "reload" {:identity "1" :args [{:system-id 1}] :tid nil :env :dev}) => nil))

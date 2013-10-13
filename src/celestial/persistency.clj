@@ -13,20 +13,14 @@
   (:refer-clojure :exclude [type])
   (:require 
     [celestial.common :refer (import-logging)]
+    [subs.core :as subs :refer (validate! combine when-not-nil validation every-v every-kv)]
+    [cemerick.friend.credentials :as creds]
     [cemerick.friend :as friend]
-    [proxmox.validations :as pv]
-    [aws.validations :as av]
-    [vc.validations :as vc]
-    [subs.core :as subs :refer (validate! combine when-not-nil validation every-v every-kv validation)]
-    [taoensso.carmine :as car]
      proxmox.model aws.model)
   (:use 
     [puny.core :only (entity)]
     [celestial.roles :only (roles admin)]
-    [cemerick.friend.credentials :as creds]
-    [clojure.string :only (split join)]
-    [celestial.redis :only (wcar)]
-    [slingshot.slingshot :only  [throw+ try+]]
+    [slingshot.slingshot :only  [throw+]]
     [celestial.model :only (clone hypervizors figure-virt)] 
     [clojure.core.strint :only (<<)]))
 
@@ -98,60 +92,6 @@
   (doseq [[k {:keys [capistrano] :as m}] actions] 
     (when capistrano (validate! m cap-nested :error ::invalid-action)))
   (validate! action action-base-validation :error ::invalid-nested-action ))
-
-(declare perm migrate-system)
-
-(entity {:version 1} system :indices [type env] 
-   :intercept {:create [perm] :read [perm migrate-system] :update [perm] :delete [perm]} )
-
-(defn into-v1-system [id system]
-   (trace "migrating" system "to version 1")
-   ; causing re-indexing
-   (update-system id system) 
-   system)
-
-(defn migrate-system
-  "user migration"
-  [f & args] 
-  (let [res (apply f args) version (-> res meta :version)]
-    (if (and (map? res) (not (empty? res)))
-      (cond
-        (nil? version) (into-v1-system (first args) res)
-        :else res)
-       res)))
- 
-(defn assert-access [env ident]
-  (let [username (:username (friend/current-authentication)) 
-        envs (into #{} (-> username get-user! :envs))]
-    (when (and env (not (contains? envs env))) 
-      (throw+ {:type ::persmission-violation} (<< "~{username} attempted to access system ~{ident} in env ~{env}")))))
-
-(defn perm
-  "checking current user env permissions" 
-  [f & args]
-  (let [ident (first args)]
-    (cond
-      (map? ident) (assert-access (ident :env) ident) 
-      :default (assert-access (robert.hooke/with-hooks-disabled get-system (get-system ident :env)) ident)) 
-    (apply f args)))
-
-(defn system-ip [id]
-  (get-in (get-system id) [:machine :ip]))
-
-(def hyp-to-v 
-  {:proxmox pv/validate-entity 
-   :aws av/validate-entity 
-   :vcenter vc/validate-entity})
-
-(defn validate-system
-  [system]
-  (validate! system {:type #{:required :type-exists} :env #{:required :Keyword}} :error ::non-valid-machine-type )
-  ((hyp-to-v (figure-virt system)) system))
-
-(defn clone-system 
-  "clones an existing system"
-  [id hostname]
-  (add-system (clone (assoc-in (get-system id) [:machine :hostname] hostname))))
 
 (defn reset-admin
   "Resets admin password if non is defined"

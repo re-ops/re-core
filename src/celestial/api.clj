@@ -35,6 +35,7 @@
     [ring.middleware [multipart-params :as mp] ]
     [celestial.security :as sec]
     [celestial.persistency :as p]
+    [celestial.persistency.systems :as s]
     [compojure.handler :as handler :refer (site)]
     [celestial.jobs :as jobs]
     [cemerick.friend :as friend]
@@ -58,19 +59,19 @@
 
 (defn schedule-job 
   ([id action msg]
-    (schedule-job id action msg [(assoc (p/get-system id) :system-id (Integer. id))])) 
+    (schedule-job id action msg [(assoc (s/get-system id) :system-id (Integer. id))])) 
   ([id action msg args]
-    (if-not (p/system-exists? id)
+    (if-not (s/system-exists? id)
      (bad-req {:errors (<< "No system found with given id ~{id}")})
      (success 
-       {:msg msg :id id :job (jobs/enqueue action {:identity id :args args :tid (get-tid) :env (p/get-system id :env)})}))))
+       {:msg msg :id id :job (jobs/enqueue action {:identity id :args args :tid (get-tid) :env (s/get-system id :env)})}))))
 
 (defroutes- jobs {:path "/jobs" :description "Async job scheduling"}
 
   (POST- "/jobs/stage/:id" [^:int id] 
     {:nickname "stageSystem" :summary "Complete end to end staging job"
      :notes "Combined system creation and provisioning, separate actions are available also."}
-      (let [system (p/get-system id) type (p/get-type (:type system))]
+      (let [system (s/get-system id) type (p/get-type (:type system))]
            (schedule-job id "stage" "submitted system staging" [type (assoc system :system-id (Integer. id))])))
 
   (POST- "/jobs/create/:id" [^:int id] 
@@ -88,7 +89,7 @@
     {:nickname "provisionSystem" :summary "Provisioning job"
      :notes "Starts a provisioning workflow on a remote system
              using the provisioner configured in system type"}
-         (let [system (p/get-system id) type (p/get-type (:type system))]
+         (let [system (s/get-system id) type (p/get-type (:type system))]
            (schedule-job id "provision" "submitted provisioning" 
               [type (assoc system :system-id (Integer. id))])))
 
@@ -96,7 +97,7 @@
      {:nickname "runAction" :summary "Run remote action" 
       :notes "Runs adhoc remote opertions on system (like deployment, service restart etc)
               using matching remoting capable tool like Capisrano/Supernal/Fabric"}
-       (let [{:keys [machine] :as system} (p/get-system id)]
+       (let [{:keys [machine] :as system} (s/get-system id)]
          (if-let [actions (p/find-action-for (keyword action) (:type system))]
            (schedule-job id "run-action" (<< "submitted ~{action} action") 
              [actions (merge args {:action (keyword action) :hostname (machine :hostname) :target (machine :ip) :system-id (Integer. id)})])

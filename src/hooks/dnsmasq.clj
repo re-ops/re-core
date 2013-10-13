@@ -12,7 +12,9 @@
 (ns hooks.dnsmasq
   "A basic dnsmasq registration api for static addresses using hosts file, 
    expects an Ubuntu and dnsmasq on the other end "
-  (:require [celestial.persistency :as p])
+  (:require 
+    [celestial.persistency.systems :as s] 
+    [celestial.persistency :as p])
   (:use 
     [clojure.core.strint :only (<<)]
     [supernal.sshj :only (execute)]))
@@ -29,9 +31,9 @@
 
 (defn add-host 
   "Will add host to hosts file only if missing, 
-   note that we p/get-system since the provider might updated the system during create."
+   note that we s/get-system since the provider might updated the system during create."
   [{:keys [dnsmasq user domain system-id]}]
-  (let [remote {:host dnsmasq :user user} line (hostline domain (:machine (p/get-system system-id)))]
+  (let [remote {:host dnsmasq :user user} line (hostline domain (:machine (s/get-system system-id)))]
     (execute 
       (<< "grep -q '~{line}' /etc/hosts || (echo '~{line}' | sudo tee -a /etc/hosts >> /dev/null)") remote)
     (execute restart remote)))

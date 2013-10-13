@@ -5,6 +5,7 @@
     [cemerick.friend :as friend]
     [celestial.fixtures :refer (redis-prox-spec redis-type is-type? )]
     [celestial.redis :refer (clear-all wcar)]  
+    [celestial.persistency.systems :as s]
     [celestial.persistency :as p])
   (:import clojure.lang.ExceptionInfo)
   (:use midje.sweet)
@@ -22,13 +23,13 @@
    (p/get-user! "ronen") => {:envs [:dev :qa] :roles #{:celestial.roles/user} :username "ronen"}]
   (with-state-changes [(before :facts (do (clear-all) (p/add-type redis-type)))]
     (fact "system env index migration" :integration :migration
-       (let [id (p/add-system redis-prox-spec)]
-            (wcar (car/hset (p/system-id id) :meta {:version nil}))
+       (let [id (s/add-system redis-prox-spec)]
+            (wcar (car/hset (s/system-id id) :meta {:version nil}))
             (wcar (car/srem "system:env:dev" id))
             (wcar (car/smembers "system:env:dev")) => []
-            (p/get-system id)  => redis-prox-spec
-            (:version (meta (p/get-system id)))  => 1
-            (p/get-system-index :env :dev) => [(str id)]
+            (s/get-system id)  => redis-prox-spec
+            (:version (meta (s/get-system id)))  => 1
+            (s/get-system-index :env :dev) => [(str id)]
             (wcar (car/smembers "system:env:dev")) => [(str id)]
           ))))
 
