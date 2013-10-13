@@ -1,6 +1,5 @@
 (ns celestial.roles
-  "celetial roles"
- )
+  "celetial roles")
 
 (def ^{:doc "roles string to keyword map"}
   roles-m {"admin" ::admin "user" ::user "anonymous" ::anonymous})
@@ -13,3 +12,5 @@
 
 (def admin #{::admin})
  
+(defn admin? [{:keys [roles] :as user}]
+  (clojure.set/subset? admin roles))
