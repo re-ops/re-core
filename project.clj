@@ -24,7 +24,7 @@
                  [narkisr/clj-aws-ec2 "0.2.4" :exclusions  [org.codehaus.jackson/jackson-core-asl]]
                  [narkisr/trammel "0.8.0-freez"]
                  [org.flatland/useful "0.10.3"]
-                 [substantiation "0.0.5"]
+                 [substantiation "0.0.7"]
                  [fogus/minderbinder "0.2.0"]
                  [ch.qos.logback/logback-classic "1.0.13"]
                  [org.codehaus.groovy/groovy "2.1.6"]
