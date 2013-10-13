@@ -32,11 +32,10 @@
     [ring.middleware.session :refer (wrap-session)]
     [compojure.core :refer (GET ANY)] 
     [swag.core :refer (swagger-routes GET- POST- PUT- DELETE- defroutes- errors )]
-    [ring.middleware [multipart-params :as mp] ]
     [celestial.security :as sec]
     [celestial.persistency :as p]
     [celestial.persistency.systems :as s]
-    [compojure.handler :as handler :refer (site)]
+    [compojure.handler :as handler]
     [celestial.jobs :as jobs]
     [cemerick.friend :as friend]
     [compojure.route :as route])) 
@@ -165,9 +164,8 @@
   (-> (compose-routes secured?) 
       (wrap-swag) 
       (wrap-session {:cookie-name "celestial" :store (cookie-store)})
-      (handler/api)
       (wrap-restful-format :formats [:json-kw :edn :yaml-kw :yaml-in-html])
-      (mp/wrap-multipart-params)
+      (handler/api)
       (expose-metrics-as-json)
       (instrument)
       (error-wrap)))
