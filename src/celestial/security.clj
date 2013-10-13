@@ -24,11 +24,16 @@
 
 (import-logging)
 
+(defn current-user 
+   "Grab current user, by default uses friend" 
+   []
+   (friend/current-authentication))
+
 (defn user-tracking [app]
   "A tiny middleware to track api access"
   (fn [{:keys [uri request-method] :as req}]
     (set-tid (gen-uuid)
-      (debug request-method " on " uri "by" (friend/current-authentication))
+      (debug request-method " on " uri "by" (current-user))
       (app req))))
 
 
