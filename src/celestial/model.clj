@@ -11,7 +11,8 @@
 
 (ns celestial.model 
   "Model manipulation ns"
-  (:require [celestial.common :refer (get! get*)]))
+  (:require 
+    [celestial.common :refer (get! get*)]))
 
 (def ^{:doc "A local binding of current environment (used for hypervisors, provisioners etc..)" :dynamic true :private true}
   env nil)
@@ -32,14 +33,18 @@
 (defn- select-sub
    "select sub map" 
    [m ks]
-  (if-let [v (get-in m ks)] (assoc-in {} ks v) m))
+  (reduce 
+    (fn [r k] (if-let [v (get-in m k)] (assoc-in r k v) r)) {} ks))
+
+(def whitelist
+  [[:proxmox :nodes] [:proxmox :ostemplates] [:vcenter :ostemplates] [:aws]])
 
 (defn sanitized-envs
-  "environments sanitized" 
+  "environments sanitized of sensative data" 
   []
   (let [es (keys (get* :hypervisor)) 
-        inc-nodes (map #(select-sub (get* :hypervisor) [% :proxmox :nodes]) es)
-        sanitized  [:ssh-port :username :password]]
+        inc-nodes (map (fn [e] (select-sub (get* :hypervisor) (map #(into [e] %) whitelist))) es)
+        sanitized  [:ssh-port :username :password :access-key :secret-key]]
     (apply merge (clojure.walk/postwalk #(if (map? %) (apply dissoc % sanitized) %) inc-nodes)))) 
 
 (defmulti clone
