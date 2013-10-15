@@ -89,7 +89,7 @@
   :topping {
       :service "celestial"
       :app {:app-name "celestial" :src "target/celestial-0.3.7.jar"}
-      :env {:roles {:celestial #{{:host "celestial" :user "ronen" :sudo true}}}}
+      :env {:roles {:celestial #{{:host "tk-celestial" :user "ronen" :sudo true}}}}
   } 
 
   :resource-paths  ["src/main/resources/"]
