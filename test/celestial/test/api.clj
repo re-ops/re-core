@@ -12,11 +12,6 @@
     [celestial.persistency.systems :as s] 
     [celestial.persistency :as p]))
 
-; TODO is seems that ring-mock isn't working correctly with '&' distructuing 
-#_(def host-req 
-    (merge {:params redis-prox-spec}
-           (header (request :post "/registry/host") "Content-type" "application/edn")))
-
 (def non-sec-app (app false))
 
 (fact "system get"
@@ -31,17 +26,6 @@
         (s/get-system "1") => {:type "redis"} 
         (p/get-type "redis") => {:classes {:redis {:append true}}}))
 
-#_(def type-req
-    (merge {:params (slurp-edn "fixtures/redis-type.edn")}
-           (header (request :post "/type") "Content-type" "application/edn")))
-
-; TODO is seems that ring-mock isn't working correctly with '&' distructuing 
-#_(fact "type requests"
-        (non-sec-app type-req) => {:status 200}
-        (provided 
-          (p/add-type (slurp-edn "fixtures/redis-type.edn") :type) => nil
-          ))
-
 (let [machine {:type "redis" :machine {:host "foo"}} type {:classes {:redis {}}}]
     (fact "provisioning job"
           (non-sec-app (request :post "/jobs/provision/1")) => (contains {:status 200})
@@ -50,7 +34,7 @@
             (s/get-system "1")  => machine
             (s/get-system "1" :env)  => :dev
             (p/get-type "redis") => type
-            (jobs/enqueue "provision" {:identity "1" :args [type (assoc machine :system-id 1)] :tid nil :env :dev}) => nil)))
+            (jobs/enqueue "provision" {:identity "1" :args [type (assoc machine :system-id 1)] :tid nil :env :dev :user nil}) => nil)))
 
 (fact "staging job" 
       (non-sec-app (request :post "/jobs/stage/1")) => (contains {:status 200})
@@ -59,7 +43,7 @@
         (p/get-type "redis") => {:puppet-module "bar"}
         (s/get-system "1") => {:type "redis"}
         (s/get-system "1" :env)  => :dev
-        (jobs/enqueue "stage" {:identity "1" :args [{:puppet-module "bar"} {:system-id 1 :type "redis"}] :tid nil :env :dev}) => nil))
+        (jobs/enqueue "stage" {:identity "1" :args [{:puppet-module "bar"} {:system-id 1 :type "redis"}] :tid nil :env :dev :user nil}) => nil))
 
 (fact "creation job"
       (non-sec-app (request :post "/jobs/create/1"))  => (contains {:status 200})
@@ -67,4 +51,4 @@
         (s/system-exists? "1") => true
         (s/get-system "1")  => {}
         (s/get-system "1" :env)  => :dev
-        (jobs/enqueue "reload" {:identity "1" :args [{:system-id 1}] :tid nil :env :dev}) => nil))
+        (jobs/enqueue "reload" {:identity "1" :args [{:system-id 1}] :tid nil :env :dev :user nil}) => nil))
