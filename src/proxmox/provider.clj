@@ -147,7 +147,7 @@
               (->Container node ct* extended network*)
               (catch [:status 500] e 
                 (warn "Container already exists" e) (throw e))
-              (catch Throwable e (release-ip ip :proxmox)))))
+              (catch Throwable e (release-ip ip :proxmox) (throw e)))))
 
   (delete [this]
      (try 
