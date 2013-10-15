@@ -25,9 +25,11 @@
 (import-logging)
 
 (defn current-user 
-   "Grab current user, by default uses friend" 
+   "Grab current user, by default uses friend unless binded differently" 
    []
    (friend/current-authentication))
+
+(defmacro set-user [u & body] `(with-redefs  [current-user (fn [] ~u)] ~@body))
 
 (defn user-tracking [app]
   "A tiny middleware to track api access"

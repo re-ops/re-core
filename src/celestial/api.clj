@@ -26,6 +26,7 @@
     [swag.model :only (defmodel wrap-swag defv defc)]
     [celestial.common :only (import-logging get! resp bad-req conflict success version wrap-errors)])
   (:require 
+    [celestial.security :refer (current-user)]
     [celestial.api.systems :refer (systems environments)]
     [celestial.api.types :refer (types)]
     [ring.middleware.session.cookie :refer (cookie-store)]
@@ -63,7 +64,8 @@
     (if-not (s/system-exists? id)
      (bad-req {:errors (<< "No system found with given id ~{id}")})
      (success 
-       {:msg msg :id id :job (jobs/enqueue action {:identity id :args args :tid (get-tid) :env (s/get-system id :env)})}))))
+       {:msg msg :id id :job (jobs/enqueue action {:identity id :args args 
+        :tid (get-tid) :env (s/get-system id :env) :user (current-user)})}))))
 
 (defroutes- jobs {:path "/jobs" :description "Async job scheduling"}
 

@@ -22,6 +22,7 @@
     [taoensso.carmine.locks :as with-lock]
     [celestial.workflows :only (reload destroy puppetize stage run-action)]) 
   (:require  
+    [celestial.security :refer (set-user)]
     [celestial.model :refer (set-env)]
     [taoensso.carmine :as car]
     [taoensso.carmine.message-queue :as mq]))
@@ -34,15 +35,16 @@
 
 (defn job-exec [f  {:keys [message attempt]}]
   "Executes a job function tries to lock identity first (if used)"
-  (let [{:keys [identity args tid env] :as spec} message]
-    (set-env env
-             (set-tid tid 
-                      (let [{:keys [wait-time expiry]} (map-vals (or (get* :celestial :job) defaults) #(* minute %) )]
-                        (try 
-                          (if identity
-                            (do (with-lock (server-conn) identity expiry wait-time (apply f args)) {:status :success}) 
-                            (do (apply f args) {:status :success})) 
-                          (catch Throwable e (error e) {:status  :error})))))))
+  (let [{:keys [identity args tid env user] :as spec} message]
+    (set-user user
+      (set-env env
+        (set-tid tid 
+           (let [{:keys [wait-time expiry]} (map-vals (or (get* :celestial :job) defaults) #(* minute %) )]
+            (try 
+              (if identity
+                (do (with-lock (server-conn) identity expiry wait-time (apply f args)) {:status :success}) 
+                (do (apply f args) {:status :success})) 
+              (catch Throwable e (error e) {:status  :error}))))))))
 
 (def jobs 
   (atom 
@@ -76,7 +78,7 @@
 
 (defn- message-desc [type js]
   (mapv (fn [[jid {:keys [identity args tid] :as message}]] 
-     {:type type :status (readable-status (status type jid)) :id identity :jid jid :tid tid}) (apply hash-map js)))
+          {:type type :status (readable-status (status type jid)) :id identity :jid jid :tid tid}) (apply hash-map js)))
 
 (defn queue-status 
   "The entire queue message statuses" 
@@ -84,7 +86,7 @@
   (let [ks [:messages :locks :backoffs]]
     (reduce 
       (fn [r message] (into r (message-desc job message))) []
-            (apply merge (vals (select-keys (mq/queue-status (server-conn) job) ks))))))
+      (apply merge (vals (select-keys (mq/queue-status (server-conn) job) ks))))))
 
 (defn jobs-status
   "Get all jobs status" 
