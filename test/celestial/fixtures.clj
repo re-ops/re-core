@@ -48,6 +48,15 @@
   (fn [actual]
     (= (get-in (.getData actual) [:object :errors]) m)))
 
+(def admin {:envs [:dev :qa :prod] :roles #{:celestial.roles/admin} :username "admin" :password "foo"})
+(def ronen {:envs [:dev :qa] :roles #{:celestial.roles/user} :username "ronen" :password "bar"})
+
+(defmacro with-admin [& body]
+  `(with-redefs [celestial.security/current-user (fn [] {:username "admin"})
+                celestial.persistency/get-user! (fn [a#] celestial.fixtures/admin)]
+       ~@body 
+       ))
+
 (defmacro with-conf 
   "Using fixture/celestial.edn conf file"
   [f & body]
@@ -59,6 +68,12 @@
        ~@(conj body f) 
        )))
 
+(defmacro with-defaults
+  "A fact that includes default conf and admin user" 
+  [& args]
+  `(with-admin
+    (with-conf ~@args)))
+
 (defn populate []
   (r/clear-all)
   (p/add-type redis-type)
@@ -69,10 +84,10 @@
       (s/add-system redis-ec2-spec))))
 
 (defn add-users 
-   "populates admin and ronen users" 
-   []
-  (p/add-user {:envs [:dev :qa :prod] :roles #{:celestial.roles/admin} :username "admin" :password "foo"})
-  (p/add-user {:envs [:dev :qa] :roles #{:celestial.roles/user} :username "ronen" :password "bar"}))
+  "populates admin and ronen users" 
+  []
+  (p/add-user admin)
+  (p/add-user ronen))
 
 (def host (.getHostName (java.net.InetAddress/getLocalHost)))
 

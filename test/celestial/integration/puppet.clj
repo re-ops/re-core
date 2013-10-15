@@ -2,7 +2,9 @@
   "Requires both proxmox redis and a celetial instance to reply to puppet ext queries"
   (:require 
     [celestial.persistency.systems :as s]
-    [celestial.persistency :as p])
+    [celestial.persistency :as p]
+    [celestial.fixtures :refer (with-defaults) :as f]  
+    )
   (:use 
     midje.sweet
     [clojure.java.io :only (file)]
@@ -12,7 +14,7 @@
     [celestial.workflows :only (reload puppetize destroy)]
     [celestial.config :only (path)]
     [celestial.redis :only (clear-all)]
-    [celestial.fixtures :only (with-conf redis-prox-spec redis-ec2-spec redis-vc-spec redis-type host puppet-ami)]))
+    ))
 
 (defn run-cycle [spec type]
   (clear-all) 
@@ -24,21 +26,21 @@
       (finally 
         (destroy (assoc (s/get-system id) :system-id id))))))
 
-(fact "provisioning a proxmox instance" :integration :puppet :proxmox
-      (with-conf
-        (run-cycle redis-prox-spec redis-type)))
+(with-defaults
+  (fact "provisioning a proxmox instance" :integration :puppet :proxmox
+        (run-cycle f/redis-prox-spec f/redis-type))
 
-(fact "provisioning a vcenter instance" :integration :puppet :vcenter
-      (with-conf
-        (run-cycle redis-vc-spec redis-type)))
+  (fact "provisioning a vcenter instance" :integration :puppet :vcenter
+        (with-conf
+          (run-cycle f/redis-vc-spec f/redis-type))) 
 
-(fact "provisioning an ec2 instance" :integration :puppet :ec2
-      "assumes a working ec2 defs in ~/.celestial.edn"
-       path => truthy
-      (run-cycle puppet-ami redis-type))
-
-(fact "ec2 with s3 source url type" :integration :puppet :ec2 :s3
-      "assumes a working ec2 defs in ~/.celestial.edn"
-      (let [s3-redis (assoc-in redis-type [:puppet-std :module :src] "s3://opsk-sandboxes/redis-sandbox-0.3.4.tar.gz")]
+  (fact "provisioning an ec2 instance" :integration :puppet :ec2
+        "assumes a working ec2 defs in ~/.celestial.edn"
         path => truthy
-        (run-cycle puppet-ami s3-redis)))
+        (run-cycle f/puppet-ami f/redis-type)) 
+
+  (fact "ec2 with s3 source url type" :integration :puppet :ec2 :s3
+        "assumes a working ec2 defs in ~/.celestial.edn"
+        (let [s3-redis (assoc-in f/redis-type [:puppet-std :module :src] "s3://opsk-sandboxes/redis-sandbox-0.3.4.tar.gz")]
+          path => truthy
+          (run-cycle f/puppet-ami s3-redis)))) 
