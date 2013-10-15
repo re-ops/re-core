@@ -31,8 +31,7 @@
         (run-cycle f/redis-prox-spec f/redis-type))
 
   (fact "provisioning a vcenter instance" :integration :puppet :vcenter
-        (with-conf
-          (run-cycle f/redis-vc-spec f/redis-type))) 
+        (run-cycle f/redis-vc-spec f/redis-type)) 
 
   (fact "provisioning an ec2 instance" :integration :puppet :ec2
         "assumes a working ec2 defs in ~/.celestial.edn"
