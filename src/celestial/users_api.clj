@@ -11,7 +11,7 @@
     [swag.core :only (swagger-routes GET- POST- PUT- DELETE- defroutes- errors)]))
 
 (defn convert-roles [user]
-  (update-in user [:roles] (fn [v] #{(roles-m v)})))
+  (update-in user [:roles] (fn [v] (into #{} (map #(roles-m %) v)))))
 
 (defn hash-pass [user]
   (update-in user [:password] (fn [v] (creds/hash-bcrypt v))))
