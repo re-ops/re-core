@@ -140,8 +140,9 @@
             (try+ 
               (check-task node (prox-post (str "/nodes/" node "/openvz") ct*)) 
               (enable-features this) 
-              (when (s/system-exists? id)
-                (s/partial-system id {:proxmox {:vmid vmid} :machine {:ip ip}})) 
+              (if (s/system-exists? id)
+                (s/partial-system id {:proxmox {:vmid vmid} :machine {:ip ip}})
+                (warn "Creating a proxmox instance without a valid system id")) 
               (when (ct* :netif)
                 (update-interfaces node (extended :flavor) ip network* vmid))
               (->Container node ct* extended network*)
