@@ -14,6 +14,7 @@
   (:refer-clojure :exclude [type])
   (:require 
     [celestial.persistency :as p]
+    [cemerick.friend :as friend]
     [celestial.persistency.systems :as s]
     [celestial.model :refer (sanitized-envs)] 
     [clojure.core.strint :refer (<<)] 
@@ -59,21 +60,22 @@
  
 (defn systems-range
   "Get systems in range by type" 
-  [from to type]
-  {:pre [(> from -1) (if type (p/type-exists! type) true)]}
-  (let [systems (if type (s/get-system-index :type type) (into [] (s/all-systems)))
-        to* (min to (count systems))]
+  [from to]
+  {:pre [(> from -1)]}
+  (let [{:keys [username]} (friend/current-authentication)
+         systems (into [] (s/systems-for username)) to* (min to (count systems))]
     (when-not (empty? systems)
       (if (and (contains? systems from) (contains? systems (- to* 1)))
-        {:meta {:total (count systems)} :systems (doall (map (juxt identity s/get-system) (subvec systems from to*)))} 
+        {:meta {:total (count systems)} 
+         :systems (doall (map (juxt identity s/get-system) (subvec systems from to*)))} 
         (throw+ {:type ::non-legal-range :message (<<  "No legal systems in range ~{from}:~{to*} try between ~{0}:~(count systems)")})))))
 
 (defroutes- systems {:path "/systems" :description "Operations on Systems"}
 
-  (GET- "/systems" [^:int page ^:int offset ^:string type] 
+  (GET- "/systems" [^:int page ^:int offset]
       {:nickname "getSystems" :summary "Get all systems at page with offset"}
     (let [page* (Integer/valueOf page) offset* (Integer/valueOf offset)]
-      (success (systems-range (* (- page* 1) offset*) (* page*  offset*) type))))
+      (success (systems-range (* (- page* 1) offset*) (* page*  offset*)))))
 
   (GET- "/systems/:id" [^:int id] {:nickname "getSystem" :summary "Get system by id"}
         (success (s/get-system id)))
