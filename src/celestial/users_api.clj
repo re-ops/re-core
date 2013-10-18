@@ -47,7 +47,7 @@
 
   (PUT- "/users" [& ^:user user] {:nickname "updateUser" :summary "Updates an existing user"}
         (wrap-errors 
-            (p/partial-user (dissoc (into-persisted user) :password))
+            (p/partial-user (into-persisted user))
             (success {:msg "user updated"})))
 
   (DELETE- "/users/:name" [^:string name] {:nickname "deleteUser" :summary "Deleted a user"}
