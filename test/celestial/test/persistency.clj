@@ -42,6 +42,8 @@
        (throws ExceptionInfo (with-m? {:username '("must be present")}))
      (validate-user {:username "foo" :password "bar" :roles admin})  => 
        (throws ExceptionInfo (with-m? {:envs '("must be present")}))
+     (validate-user {:username "foo" :password "bar" :roles admin :envs [""]})  => 
+       (throws ExceptionInfo (with-m? {:envs '(({0 ("must be a keyword")}))} ))
      (validate-user {:username "foo" :password "bar" :roles ["foo"] :envs []})  =>
        (throws ExceptionInfo (with-m? {:roles '(({0 ("role must be either #{:celestial.roles/anonymous :celestial.roles/user :celestial.roles/admin}")}))} ))
       )
