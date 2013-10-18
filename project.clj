@@ -54,7 +54,7 @@
                :resource-paths  ["src/main/resources/" "pkg/etc/celestial/"]
                :dependencies [[org.clojure/tools.trace "0.7.5"] [ring-mock "0.1.5"]
                               [midje "1.5.1" :exclusions [org.clojure/core.unify]]
-                              [junit/junit "4.11"]]
+                              [junit/junit "4.11"] [reiddraper/simple-check "0.5.0"]]
                :jvm-opts ~(vec (map (fn [[p v]] (str "-D" (name p) "=" v)) {:disable-conf "true" }))
                :set-version {
                   :updates [ 

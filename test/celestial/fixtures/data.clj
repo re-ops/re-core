@@ -6,7 +6,7 @@
 
 (def admin {:envs [:dev :qa :prod] :roles #{:celestial.roles/admin} :username "admin" :password "foo"})
 
-(def ronen {:envs [:dev :qa] :roles #{:celestial.roles/user} :username "ronen" :password "bar"})
+(def ronen {:envs [:dev] :roles #{:celestial.roles/user} :username "ronen" :password "bar"})
  
 (def redis-prox-spec (slurp-edn "fixtures/redis-system.edn"))
 

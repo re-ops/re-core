@@ -1,6 +1,8 @@
 (ns celestial.fixtures.populate
   "data population"
   (:require
+    [simple-check.generators :as g]
+    [celestial.redis :refer (clear-all)]  
     [celestial.persistency :as p]  
     [celestial.persistency.systems :as s]
     [celestial.fixtures.data :refer (admin ronen) :as d]))
@@ -21,16 +23,23 @@
    []
   (p/add-action d/redis-actions))
 
+(def env-gen (g/elements [:dev :qa :prod])) 
+
+(def systems-gen 
+  (g/bind env-gen 
+    (fn [v] 
+      (g/fmap #(assoc % :env v) (g/elements [d/redis-prox-spec d/redis-ec2-spec])))))
+
 (defn add-systems []
-  (doseq [i (range 100)] 
-    (if (= 0 (mod i 2)) 
-      (s/add-system d/redis-prox-spec)
-      (s/add-system d/redis-ec2-spec))))
+  (doseq [s (g/sample systems-gen 100)] 
+    (s/add-system s)))
+
 
 
 (defn populate-all 
    "populates all data types" 
    []
+   (clear-all)
    (add-users)
    (add-types)
    (add-actions)

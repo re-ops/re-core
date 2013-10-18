@@ -37,9 +37,10 @@
    :intercept {:create [perm] :read [perm] :update [perm] :delete [perm]} )
 
 (defn assert-access [env ident]
-  (let [username (:username (current-user)) user (p/get-user! username)
+  {:pre [(current-user)]}
+  (let [username ((current-user) :username) user (p/get-user! username)
         envs (into #{} (user :envs))]
-    (when (and (not (admin? user)) env (not (envs env))) 
+    (when (and env (not (envs env))) 
       (throw+ {:type ::persmission-violation} (<< "~{username} attempted to access system ~{ident} in env ~{env}")))))
 
 (defn perm
@@ -77,4 +78,11 @@
 
 (defn register-migrations []
   (register :systems (EnvIndices. :systems-env-indices)))
+
+(defn systems-for
+  "grabs all the systems ids that this user can see"
+   [username]
+  (let [envs ((p/get-user username) :envs)]
+   (flatten (map #(get-system-index :env (keyword %)) envs))))
+
 
