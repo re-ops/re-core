@@ -15,11 +15,18 @@
 
 (defn hash-pass [user]
   (update-in user [:password] (fn [v] (creds/hash-bcrypt v))))
- 
+
+(defn into-persisted
+   "converting user to persisted version" 
+   [{:keys [password envs] :as user}]
+  (cond-> (-> user convert-roles) 
+     (not (empty? envs)) (update-in [:envs] (partial mapv keyword))
+     (not (empty? password)) hash-pass
+     ))
+
 (defmodel user :username :string :password :string 
   :roles {:type :string :allowableValues {:valueType "LIST" :values (into [] (keys roles-m))}}
-  :envs  {:type "List"} 
-  )
+  :envs  {:type "List"})
 
 (swag.core/set-base "")
 
@@ -35,13 +42,13 @@
         (success (p/get-user name)))
 
   (POST- "/users" [& ^:user user] {:nickname "addUser" :summary "Adds a new user"}
-         (wrap-errors 
-           (p/add-user (-> user convert-roles hash-pass))
+         (wrap-errors (p/add-user (into-persisted user))
            (success {:msg "added user"})))
 
   (PUT- "/users" [& ^:user user] {:nickname "updateUser" :summary "Updates an existing user"}
-        (wrap-errors (p/update-user (-> user convert-roles hash-pass))
-                     (success {:msg "user updated"})))
+        (wrap-errors 
+            (p/partial-user (dissoc (into-persisted user) :password))
+            (success {:msg "user updated"})))
 
   (DELETE- "/users/:name" [^:string name] {:nickname "deleteUser" :summary "Deleted a user"}
            (p/delete-user name) 
