@@ -1,19 +1,18 @@
 (ns celestial.test.jobs
   (:require 
     [taoensso.carmine :as car]
+    [celestial.redis :refer (server-conn)]
+    [taoensso.carmine.locks :refer (with-lock acquire-lock)]
+    [celestial.common :refer (minute)]
+    [clojure.core.strint :refer (<<)]
+    [celestial.jobs :refer (initialize-workers workers job-exec create-wks enqueue)] 
     [celestial.jobs :as jobs])
-  (:use 
-    midje.sweet
-    [celestial.redis :only (server-conn)]
-    [taoensso.carmine.locks :only (with-lock acquire-lock)]
-    [celestial.common :only (minute)]
-    [clojure.core.strint :only (<<)]
-    [celestial.jobs :only (initialize-workers workers job-exec create-wks enqueue)])
+  (:use midje.sweet)
   (:import java.lang.AssertionError))
 
 
 (fact "with-lock used if :identity key was provided" 
-   (job-exec identity {:message {:identity "red1" :args {:machine {:hostname "red1"}}} :attempt 1}) => {:status :success}
+   (job-exec identity {:message {:identity "red1" :args {:machine {:hostname "red1"}}} :attempt 1 :user "ronen"}) => {:status :success}
    (provided 
      (server-conn) => {}
      (acquire-lock {} "red1" 1800000 300000) => nil :times 1))

@@ -1,9 +1,9 @@
 (ns celestial.test.config
-  (:use 
-    midje.sweet
-    [celestial.fixtures :only (local-prox)]
-    [flatland.useful.map :only (dissoc-in*)]
-    [celestial.config :only (validate-conf proxmox-v)]))
+  (:require 
+    [celestial.fixtures.data :refer (local-prox)]
+    [flatland.useful.map :refer (dissoc-in*)]
+    [celestial.config :refer (validate-conf proxmox-v)])
+  (:use midje.sweet))
 
 (defn validate-missing [& ks]
   (validate-conf (dissoc-in* local-prox ks)))

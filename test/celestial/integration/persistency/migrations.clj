@@ -3,7 +3,9 @@
   (:require 
     [taoensso.carmine :as car]
     [cemerick.friend :as friend]
-    [celestial.fixtures :refer (redis-prox-spec redis-type is-type? add-users)]
+    [celestial.fixtures.data :refer (redis-prox-spec redis-type)]
+    [celestial.fixtures.core :refer (is-type?)]
+    [celestial.fixtures.populate :refer (add-users)]
     [celestial.redis :refer (clear-all wcar)]  
     [celestial.persistency.migrations :as m]
     [celestial.persistency.systems :as s]

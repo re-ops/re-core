@@ -1,10 +1,10 @@
 (ns celestial.integration.sshj
   "Basic sshj functionlity"
-  (:use 
-    midje.sweet
-    [clojure.core.strint :only (<<)]
-    [clojure.java.io :only (file)]
-    [supernal.sshj :only (copy execute sh-)]))
+  (:require 
+    [clojure.core.strint :refer (<<)]
+    [clojure.java.io :refer (file)]
+    [supernal.sshj :refer (copy execute sh-)])
+  (:use midje.sweet))
 
 
 (def remote {:host "192.168.1.20" :user "vagrant"})

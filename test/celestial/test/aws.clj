@@ -1,11 +1,10 @@
 (ns celestial.test.aws
   (:import clojure.lang.ExceptionInfo)
-  (:use 
-    midje.sweet
-    aws.provider
-    [aws.sdk.ec2 :only (start-instances)]
-    [celestial.fixtures :only (redis-ec2-spec is-type?)]
-    [celestial.model :only (vconstruct)]))
+  (:require 
+    [celestial.fixtures.data :refer (redis-ec2-spec)]
+    [celestial.fixtures.core :refer (is-type?)]
+    [celestial.model :refer (vconstruct)])
+  (:use midje.sweet aws.provider))
 
 
 (let [instance (vconstruct redis-ec2-spec)] 

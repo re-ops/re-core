@@ -1,12 +1,12 @@
 (ns celestial.test.hooks
   "Testing misc hooks like dns and hubot"
   (:require 
+    [hooks.dnsmasq :refer (add-host)]
     [celestial.persistency.systems :as s] 
+    [supernal.sshj :refer (execute)] 
     [celestial.persistency :as p])
   (:use 
      midje.sweet
-    [hooks.dnsmasq :only (add-host remove-host hostline)]
-    [supernal.sshj :only (execute)] 
     ))
 
 (fact "machine domain precedence" 

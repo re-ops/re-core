@@ -1,6 +1,6 @@
 (ns celestial.integration.jobs
   (:require 
-    [celestial.fixtures :refer [with-conf]]  
+    [celestial.fixtures.core :refer [with-conf]]  
     [celestial.jobs :as jobs :refer (initialize-workers workers)])
   (:use midje.sweet))
 

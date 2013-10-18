@@ -3,18 +3,18 @@
   (:require 
     [celestial.persistency :as p] 
     [celestial.persistency.systems :as s]
-    remote.capistrano)
-  (:use 
-    midje.sweet 
-    [celestial.redis :only (clear-all)]
-    [celestial.fixtures :only (redis-actions redis-prox-spec redis-type with-conf)]
-    [me.raynes.fs :only (exists?)]
-    [celestial.workflows :only (reload destroy)]
-    [celestial.model :only (rconstruct)])  
+    [celestial.fixtures.data :refer (redis-actions redis-prox-spec redis-type)]
+    [celestial.fixtures.core :refer (with-defaults)]
+    [celestial.redis :refer (clear-all)]
+    [me.raynes.fs :refer (exists?)]
+    [celestial.workflows :refer (reload destroy)]
+    [celestial.model :refer (rconstruct)]   
+     remote.capistrano)
+  (:use midje.sweet)
   )
 
-(with-conf
-  (with-state-changes [(before :facts ((clear-all) (p/add-type redis-type)) )] 
+(with-defaults
+  (with-state-changes [(before :facts (do (clear-all) (p/add-type redis-type)) )] 
     (fact "basic deploy" :integration :capistrano
       (let [id (s/add-system redis-prox-spec)
             cap (rconstruct redis-actions {:action :deploy :target "192.168.5.200"})]

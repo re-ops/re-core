@@ -1,16 +1,15 @@
 (ns celestial.test.api
   "These scenarios describe how the API works and mainly validates routing"
   (:refer-clojure :exclude [type])
-  (:use 
-    midje.sweet ring.mock.request
-    [clojure.core.strint :only (<<)]
-    [celestial.common :only (slurp-edn)]
-    [celestial.fixtures :only (redis-prox-spec redis-type)]
-    [celestial.api :only (app)])
   (:require 
     [celestial.jobs :as jobs]
     [celestial.persistency.systems :as s] 
-    [celestial.persistency :as p]))
+    [clojure.core.strint :refer (<<)]
+    [celestial.persistency :as p])
+  (:use 
+    midje.sweet ring.mock.request
+    [celestial.api :only (app)])
+  )
 
 (def non-sec-app (app false))
 

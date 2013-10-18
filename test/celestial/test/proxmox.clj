@@ -1,18 +1,17 @@
 (ns celestial.test.proxmox
   (:require 
-    [celestial.fixtures :as fix :refer [redis-prox-spec redis-bridged-prox with-conf with-m?]] 
+    [clojure.core.strint :refer (<<)]
+    [celestial.common :refer (curr-time)]
+    [celestial.model :refer (vconstruct)]
+    [proxmox.generators :refer (ct-id)]
+    [proxmox.auth :refer (fetch-headers auth-headers auth-store auth-expired?)]  
+    [celestial.fixtures.data :refer [redis-prox-spec redis-bridged-prox]]
+    [celestial.fixtures.core :refer [with-conf with-m?]] 
     [hypervisors.networking :as n]
     [flatland.useful.map :refer  (dissoc-in*)]
     [proxmox.validations :refer (validate-entity)]
     [proxmox.provider :as prox :refer (vzctl enable-features assign-networking)])
-  (:use 
-    midje.sweet
-    [clojure.core.strint :only (<<)]
-    [celestial.common :only (curr-time)]
-    [celestial.config :only (config)]
-    [celestial.model :only (vconstruct)]
-    [proxmox.generators :only (ct-id)]
-    [proxmox.auth :only (fetch-headers auth-headers auth-store auth-expired?)])
+  (:use midje.sweet)
   (:import clojure.lang.ExceptionInfo))
 
 (defn nulify [spec & ks] (assoc-in spec ks nil))
@@ -52,7 +51,7 @@
 
 ; networking
 (with-conf
-  (let [{:keys [ct network] :as bridged} (vconstruct fix/redis-bridged-prox) ]
+  (let [{:keys [ct network] :as bridged} (vconstruct redis-bridged-prox) ]
     (fact "bridged construction"
           network => (contains {:gateway "192.168.5.255" :ip_address "192.168.5.200"
                                 :netif "ifname=eth0,bridge=vmbr0" :netmask "255.255.255.0"}))
@@ -62,7 +61,7 @@
           (provided 
             (n/mark "192.168.5.200" :proxmox) =>  "192.168.5.200")))
 
-  (let [{:keys [ct network] :as bridged-no-ip} (vconstruct (dissoc-in* fix/redis-bridged-prox [:machine :ip])) ]
+  (let [{:keys [ct network] :as bridged-no-ip} (vconstruct (dissoc-in* redis-bridged-prox [:machine :ip])) ]
     (fact "bridged noip construction"
           network => (contains {:gateway "192.168.5.255" :netif "ifname=eth0,bridge=vmbr0" :netmask "255.255.255.0"}))
 
@@ -72,7 +71,7 @@
           (provided 
             (n/gen-ip anything :proxmox :ip_address) =>  {:ip_address "192.168.5.201"})))
 
-  (let [non-bridged-no-ip (reduce dissoc-in* fix/redis-bridged-prox [[:machine :ip] [:machine :bridge]])
+  (let [non-bridged-no-ip (reduce dissoc-in* redis-bridged-prox [[:machine :ip] [:machine :bridge]])
         {:keys [ct network] :as non-bridged-no-ip} (vconstruct non-bridged-no-ip) ]
 
     (fact "non-bridged noip construction" network => (contains {:gateway "192.168.5.255" :netmask "255.255.255.0"}))
@@ -82,7 +81,7 @@
           (provided 
             (n/gen-ip anything :proxmox :ip_address) =>  {:ip_address "192.168.5.202"})))
 
-  (let [{:keys [ct network] :as with-ip} (vconstruct (dissoc-in* fix/redis-bridged-prox [:machine :bridge])) ]
+  (let [{:keys [ct network] :as with-ip} (vconstruct (dissoc-in* redis-bridged-prox [:machine :bridge])) ]
     (fact "non bridged has ip construction"
           network => (contains {:gateway "192.168.5.255" :netmask "255.255.255.0"}))
 

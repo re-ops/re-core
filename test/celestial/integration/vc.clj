@@ -1,15 +1,13 @@
 (ns celestial.integration.vc
   "vCenter integration test, require a vcenter instance to be configured"
-  (:use 
-     midje.sweet 
-     vc.provider 
-     vc.guest
-     [vc.vijava :only (guest-status)]
-     [celestial.fixtures :only (redis-vc-spec with-conf)]
-     [celestial.model :only (vconstruct)])
-   (:require 
+  (:require 
      [hypervisors.networking :refer (clear-range initialize-networking)]
-     [flatland.useful.map :refer (dissoc-in*)]))
+     [vc.vijava :refer (guest-status)]
+     [celestial.fixtures.data :refer (redis-vc-spec)]
+     [celestial.fixtures.core :refer (with-conf)]
+     [celestial.model :refer (vconstruct)]  
+     [flatland.useful.map :refer (dissoc-in*)])
+  (:use midje.sweet vc.provider vc.guest))
 
 (with-conf
   (with-state-changes [(before :facts (do (clear-range :vcenter) (initialize-networking)))] 

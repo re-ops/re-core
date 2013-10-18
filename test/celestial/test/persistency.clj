@@ -1,9 +1,10 @@
 (ns celestial.test.persistency
- (:use 
-   midje.sweet 
-   [celestial.roles :only (admin)]
-   [celestial.persistency :only (validate-type validate-quota user-exists? validate-user)]
-   [celestial.fixtures :only (redis-type is-type? user-quota with-m?)])
+ (:require
+   [celestial.roles :refer (admin)]
+   [celestial.persistency :refer (validate-type validate-quota user-exists? validate-user)]
+   [celestial.fixtures.data :refer (redis-type user-quota)]
+   [celestial.fixtures.core :refer (is-type? with-m?)])
+ (:use midje.sweet)
  (:import clojure.lang.ExceptionInfo))
 
 (fact "puppet std type validation"

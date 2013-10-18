@@ -4,9 +4,11 @@
   (:import clojure.lang.ExceptionInfo)
   (:require 
     [flatland.useful.map :refer (dissoc-in*)]
-    [cemerick.friend :as friend]
+    [celestial.security :refer (current-user)]
     [celestial.redis :refer (clear-all)]  
-    [celestial.fixtures :refer (redis-prox-spec redis-type is-type? with-conf add-users)]
+    [celestial.fixtures.data :refer (redis-prox-spec redis-type)]
+    [celestial.fixtures.core :refer (is-type? with-conf)]
+    [celestial.fixtures.populate :refer (add-users)]
     [celestial.persistency :as p]
     [celestial.persistency.systems :as s] 
     )
@@ -14,14 +16,14 @@
 
 (with-conf
   (against-background 
-    [(friend/current-authentication) => {:identity "admin", :roles #{:celestial.roles/admin}, :username "admin"}]
+    [(current-user) => {:identity "admin", :roles #{:celestial.roles/admin}, :username "admin"}]
     (with-state-changes [(before :facts (do (clear-all) (add-users) (p/add-type redis-type)))]
       (fact "type and host sanity" :integration :redis :systems
             (let [id (s/add-system redis-prox-spec)] 
               (p/get-type "redis") => redis-type 
               (s/get-system id) => redis-prox-spec
               (provided
-                (friend/current-authentication) => {:identity "admin", :roles #{:celestial.roles/admin} :username "admin"})))
+                (current-user) => {:identity "admin", :roles #{:celestial.roles/admin} :username "admin"})))
 
       (fact "host update" :integration  :redis :systems
             (let [id (s/add-system redis-prox-spec)] 
@@ -41,25 +43,25 @@
             (let [id (s/add-system (assoc redis-prox-spec :env :prod))] 
               (s/get-system id) => 
                  (throws ExceptionInfo (is-type? :celestial.persistency.systems/persmission-violation))
-              (provided (friend/current-authentication) => {:username "ronen"} :times 1) 
+              (provided (current-user) => {:username "ronen"} :times 2) 
               (s/update-system id {}) => 
                 (throws ExceptionInfo (is-type? :celestial.persistency.systems/persmission-violation))
-              (provided (friend/current-authentication) => {:username "ronen"} :times 1)
+              (provided (current-user) => {:username "ronen"} :times 2)
               (s/delete-system id) => 
                 (throws ExceptionInfo (is-type? :celestial.persistency.systems/persmission-violation))
-              (provided (friend/current-authentication) => {:username "ronen"} :times 1)
+              (provided (current-user) => {:username "ronen"} :times 2)
               (s/add-system {:env :prod}) => 
                 (throws ExceptionInfo (is-type? :celestial.persistency.systems/persmission-violation))
-              (provided (friend/current-authentication) => {:username "ronen"} :times 1)
+              (provided (current-user) => {:username "ronen"} :times 2)
               ))
 
       (fact "with persmission" :integration :redis :systems
             (let [id (s/add-system redis-prox-spec)] 
               (s/get-system id) => redis-prox-spec
-              (provided (friend/current-authentication) => {:username "ronen"} :times 1) 
+              (provided (current-user) => {:username "ronen"} :times 2) 
               (s/update-system id (assoc redis-prox-spec :cpus 20)) => (contains ["OK"])
-              (provided (friend/current-authentication) => {:username "ronen"} :times 6)
+              (provided (current-user) => {:username "ronen"} :times 12)
               (s/delete-system id) => [1 1 1]
-              (provided (friend/current-authentication) => {:username "ronen"} :times 3)
+              (provided (current-user) => {:username "ronen"} :times 6)
               (s/add-system redis-prox-spec) => truthy
-              (provided (friend/current-authentication) => {:username "ronen"} :times 3))))))
+              (provided (current-user) => {:username "ronen"} :times 6))))))

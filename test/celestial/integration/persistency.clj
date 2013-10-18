@@ -5,7 +5,8 @@
   (:require 
     [celestial.redis :refer (clear-all)]  
     [flatland.useful.map :refer (dissoc-in*)]
-    [celestial.fixtures :refer (redis-prox-spec redis-type is-type? user-quota redis-actions with-conf)]
+    [celestial.fixtures.core :refer (with-conf is-type?)]
+    [celestial.fixtures.data :refer (redis-prox-spec redis-type user-quota redis-actions)]
     [celestial.persistency :as p])
   (:use midje.sweet))
 

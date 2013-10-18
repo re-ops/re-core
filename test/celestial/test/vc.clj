@@ -1,16 +1,15 @@
 (ns celestial.test.vc
   (:require vc.provider 
+    [flatland.useful.map :refer  (dissoc-in*)]
+    [clojure.core.strint :refer (<<)]
+    [celestial.config :refer (config)]
+    [celestial.model :refer (vconstruct)]
+    [celestial.persistency :refer (type-exists?)]
+    [celestial.fixtures.data :refer (redis-vc-spec)]
+    [celestial.fixtures.core :refer (with-conf with-m?)] 
     [celestial.persistency.systems :as s])
-  (:use 
-    midje.sweet
-    [flatland.useful.map :only  (dissoc-in*)]
-    [clojure.core.strint :only (<<)]
-    [celestial.config :only (config)]
-    [celestial.model :only (vconstruct)]
-    [celestial.persistency :only (type-exists?)]
-    [celestial.fixtures :only (redis-vc-spec with-conf with-m?)])
-  (:import clojure.lang.ExceptionInfo) 
-  )
+  (:use midje.sweet)
+  (:import clojure.lang.ExceptionInfo))
 
 (with-conf
   (do

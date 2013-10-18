@@ -1,12 +1,11 @@
 (ns celestial.test.model
   "General model flow facts"
-  (:require proxmox.provider proxmox.model)
-  (:use 
-    midje.sweet
-    [celestial.model :only (translate clone)] 
-    [celestial.common :only (slurp-edn)]
-    [celestial.fixtures :only (with-conf)] 
-    ))
+  (:require 
+    proxmox.provider proxmox.model
+    [celestial.model :refer (translate clone)] 
+    [celestial.common :refer (slurp-edn)]
+    [celestial.fixtures.core :refer (with-conf)])
+  (:use midje.sweet))
 
 (def model (assoc (slurp-edn "fixtures/model.edn") :system-id 1))
 
