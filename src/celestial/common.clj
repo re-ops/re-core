@@ -65,7 +65,11 @@
    "Wraps validation error responses in the API layer" 
    [& body]
   `(try+ ~@body
-    (catch (contains? ~'% :errors) e# (bad-req e#)))
+    (catch (and (map? ~'%) (contains? ~'% :errors)) e# (bad-req e#))
+    (catch Throwable e# 
+      (error e#)
+      (bad-req "Error happend, please contact admin"))
+   )
   )
 
 (def version "0.3.7")
