@@ -1,7 +1,7 @@
 (ns user
   (:use midje.repl)
   (:require 
-     [clojure.tools.trace :refer (deftrace trace trace-ns trace-vars)]
+     [clojure.tools.trace :refer (deftrace trace trace-ns trace-vars) :as t]
      [clojure.java.io :as io]
      [clojure.string :as str]
      [clojure.pprint :refer (pprint)]
