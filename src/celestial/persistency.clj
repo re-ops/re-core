@@ -49,11 +49,13 @@
  
 (def user-v
   {:username #{:required :String} :password #{:required :String} 
-   :roles #{:required :role*} :envs #{:required :Vector}})
+   :roles #{:required :role*} :envs #{:required :env*}})
 
 (validation :role (when-not-nil roles (<< "role must be either ~{roles}")))
 
 (validation :role* (every-v #{:role}))
+
+(validation :env* (every-v #{:Keyword}))
 
 (defn validate-user [user]
   (validate! user user-v :error ::non-valid-user))
