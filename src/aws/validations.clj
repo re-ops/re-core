@@ -16,7 +16,7 @@
     [subs.core :as subs :refer (validate! combine every-v every-kv validation)]))
 
 (def machine-entity
-  {:machine {:hostname #{:required :String} :user #{:required :String}}})
+  {:machine {:hostname #{:required :String} :domain #{:required :String} :user #{:required :String}}})
 
 (def aws-entity
   {:aws {

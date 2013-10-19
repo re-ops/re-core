@@ -2,7 +2,7 @@
  :env :dev 
 
  :machine {
-  :hostname "red1" :user "ubuntu"
+  :hostname "red1" :user "ubuntu" :domain "local"
  }
 
  :aws {
