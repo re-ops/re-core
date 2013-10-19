@@ -73,10 +73,11 @@
 (defrecord Standalone [remote type]
   Provision
   (apply- [this]
+    (println remote)
     (let [puppet-std (type :puppet-std) module (puppet-std :module)]
         (execute puppet-provision {:module module :type type} :web :env {:roles {:web #{remote}}})))) 
 
 
 (defmethod pconstruct :puppet-std [type {:keys [machine] :as spec}]
-  (let [remote {:host (or (machine :ip) (machine :ssh-host)) :user (or (machine :user) "root")}]
+  (let [remote {:host (machine :ip) :user (or (machine :user) "root")}]
     (Standalone. remote (assoc type :hostname (machine :hostname)))))
