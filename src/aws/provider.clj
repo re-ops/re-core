@@ -75,9 +75,12 @@
       (s/partial-system (spec :system-id) {:machine {:ssh-host ec2-host :ip (pubdns-to-ip ec2-host)}}))))
 
 (defn set-hostname [spec endpoint instance-id user]
-  "Uses a generic method of setting hostname in Linux"
-  (let [hostname (get-in spec [:machine :hostname]) remote {:host (pub-dns endpoint instance-id) :user user}]
-    (execute (<< "echo kernel.hostname = ~{hostname} | sudo tee -a /etc/sysctl.conf") remote )
+  "Uses a generic method of setting hostname in Linux, not that in ec2 both Centos and Ubuntu use sudo!"
+  (let [{:keys [hostname domain]} (spec :machine) 
+        remote {:host (pub-dns endpoint instance-id) :user user}]
+    (execute (<< "echo kernel.hostname=~{hostname} | sudo tee -a /etc/sysctl.conf") remote )
+    (execute (<< "echo kernel.domainname=\"~{hostname}.~{domain}\" | sudo tee -a /etc/sysctl.conf") remote )
+    (execute (<< "echo 127.0.1.1 ~{hostname}.~{domain} ~{hostname} | sudo tee -a /etc/hosts") remote )
     (execute "sudo sysctl -e -p" remote) 
     (with-ctx ec2/create-tags [(instance-desc endpoint instance-id :id)] {:Name hostname})
     ))
