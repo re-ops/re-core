@@ -1,8 +1,8 @@
 (ns celestial.integration.workflows
   "Testing workflows"
   (:require 
-    [celestial.fixtures.core :refer  (with-defaults is-type? with-admin with-conf)]  
-    [celestial.fixtures.data :refer (redis-type redis-prox-spec redis-ec2-spec local-conf)]  
+    [celestial.fixtures.core :refer (with-defaults is-type? with-admin with-conf)]  
+    [celestial.fixtures.data :refer (redis-type redis-prox-spec redis-ec2-spec local-conf redis-ec2-centos)]  
     [celestial.fixtures.populate :refer (populate-system)]  
     [celestial.persistency.systems :as s]  
     [celestial.workflows :as wf])
@@ -40,14 +40,15 @@
         (wf/destroy (spec)) => nil
         ))
 
-    (fact "aws reload workflows" :integration :ec2 :workflow
+    (fact "aws provisioning workflows" :integration :ec2 :workflow
       (letfn [(spec [] (assoc (s/get-system 1) :system-id 1))] 
         (wf/create (spec)) => nil
         (wf/reload (spec)) => nil 
         (wf/destroy (spec)) => nil
-        ))
+        ))) 
 
-    (fact "aws provision workflows" :integration :ec2 :workflow
+    (with-state-changes [(before :facts (do (populate-system redis-type redis-ec2-centos)))]
+     (fact "aws centos provisioning" :integration :ec2 :workflow
       (letfn [(spec [] (assoc (s/get-system 1) :system-id 1))] 
         (wf/create (spec)) => nil
         (wf/stop (spec)) => nil 
@@ -55,7 +56,7 @@
         (wf/start (spec)) => nil 
         (wf/puppetize redis-type (spec)) => nil
         (wf/destroy (spec)) => nil
-        ))
-    )))
+        )))
+    ))
 
 
