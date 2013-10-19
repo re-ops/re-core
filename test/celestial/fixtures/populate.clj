@@ -34,8 +34,6 @@
   (doseq [s (g/sample systems-gen 100)] 
     (s/add-system s)))
 
-
-
 (defn populate-all 
    "populates all data types" 
    []
@@ -44,3 +42,10 @@
    (add-types)
    (add-actions)
    (add-systems))
+
+(defn populate-system 
+   "Adds single type and system" 
+   [t s]
+  (clear-all)
+  (p/add-type t)
+  (s/add-system s))
