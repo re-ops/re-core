@@ -1,6 +1,5 @@
 (ns celestial.integration.aws
   "Tests ec2, requires access key and secret key to be defined in ~/.celestial.edn"
-  (:require aws.provider)
   (:import clojure.lang.ExceptionInfo)
   (:require 
     [celestial.persistency.systems :as s]
