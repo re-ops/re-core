@@ -16,12 +16,15 @@
     [subs.core :as subs :refer (validate! combine every-v every-kv validation)]))
 
 (def machine-entity
-  {:machine {:hostname #{:required :String} :domain #{:required :String} :user #{:required :String}}})
+  {:machine {
+     :hostname #{:required :String} :domain #{:required :String} 
+     :user #{:required :String} :os #{:required :Keyword} 
+  }})
 
 (def aws-entity
   {:aws {
-     :instance-type #{:required :String} :image-id #{:required :String}
-     :key-name #{:required :String} :endpoint #{:required :String}}
+     :instance-type #{:required :String} :key-name #{:required :String}
+     :endpoint #{:required :String}}
    })
 
 
@@ -32,7 +35,7 @@
 
 
 (def aws-provider
-  {:instance-type #{:required :String} :image-id #{:required :String} :key-name #{:required :String}})
+  {:instance-type #{:required :String} :key-name #{:required :String}})
 
 (defn provider-validation [{:keys [aws] :as spec}]
   (validate! aws aws-provider :error ::invalid-aws))
