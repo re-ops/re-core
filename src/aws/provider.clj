@@ -31,7 +31,7 @@
 
 (import-logging)
 
-(defn creds [] (hypervisor :aws))
+(defn creds [] (dissoc (hypervisor :aws) :ostemplates))
 
 (defn wait-for-status [instance req-stat timeout]
   "Waiting for ec2 machine status timeout is in mili"
@@ -76,15 +76,19 @@
       (s/partial-system (spec :system-id) 
         {:machine {:ip (pubdns-to-ip ec2-host)}}))))
 
-(defn set-hostname [spec endpoint instance-id user]
+(defn set-hostname [{:keys [aws machine] :as spec} endpoint instance-id user]
   "Uses a generic method of setting hostname in Linux (see http://www.debianadmin.com/manpages/sysctlmanpage.txt)
    Note that in ec2 both Centos and Ubuntu use sudo!"
-  (let [{:keys [hostname domain]} (spec :machine) 
+  (let [{:keys [hostname domain os]} machine 
         remote {:host (pub-dns endpoint instance-id) :user user}]
     (execute (<< "echo kernel.hostname=~{hostname} | sudo tee -a /etc/sysctl.conf") remote )
     (execute (<< "echo kernel.domainname=\"~{hostname}.~{domain}\" | sudo tee -a /etc/sysctl.conf") remote )
     (execute (<< "echo 127.0.1.1 ~{hostname}.~{domain} ~{hostname} | sudo tee -a /etc/hosts") remote )
-    (execute (<< "echo ~{hostname} | sudo tee /etc/hostname") remote )
+    (case (hypervisor :aws :ostemplates os :flavor)
+      :debian  (execute (<< "echo ~{hostname} | sudo tee /etc/hostname") remote )
+      :redhat  (execute (<< "/bin/sed -i 's/HOSTNAME=.*/HOSTNAME=~{hostname}.~{domain}/g") remote )
+      (throw+ ::no-matching-flavor :msg (<< "no os flavor found for ~{os}"))
+      )
     (execute "sudo sysctl -e -p" remote) 
     (with-ctx ec2/create-tags [(instance-desc endpoint instance-id :id)] {:Name hostname})
     ))
@@ -99,13 +103,16 @@
     (do ~@body) 
     (throw+ {:type ::aws:missing-id :message "Instance id not found"}))) 
 
+(defn image-id [machine]
+  (hypervisor :aws :ostemplates (machine :os) :ami))
+
 (defn handle-volumes 
    "attached and waits for ebs volumes" 
-   [{:keys [image-id volumes]} endpoint instance-id]
-  (when (= (image-desc endpoint image-id :root-device-type) "ebs")
+   [{:keys [aws machine] :as spec} endpoint instance-id]
+  (when (= (image-desc endpoint (image-id machine) :root-device-type) "ebs")
     (wait-for-attach endpoint instance-id [10 :minute]))
   (let [zone (instance-desc endpoint instance-id :placement :availability-zone)]
-    (doseq [{:keys [device size]} volumes]
+    (doseq [{:keys [device size]} (aws :volumes)]
       (let [{:keys [volumeId]} (with-ctx ebs/create-volume size zone)]
         (wait-for {:timeout [10 :minute]} #(= "available" (with-ctx ebs/state volumeId))
            {:type ::aws:ebs-volume-availability :message "Failed to wait for ebs volume to become available"})
@@ -123,15 +130,23 @@
         {:type ::aws:ebs-volume-availability :message "Failed to wait for ebs volume to become available"})
      (with-ctx ebs/delete-volume (ebs :volume-id))))
 
+(defn create-instance 
+   "creates instance from aws" 
+   [{:keys [aws machine] :as spec} endpoint]
+   {:pre [(clojure.set/subset? (into #{} (keys aws))
+       #{:volumes :min-count :max-count :instance-type :key-name})]}
+   (let [inst (merge (dissoc aws :volumes) {:image-id (image-id machine)})]
+     (-> (with-ctx ec2/run-instances inst) :instances first :id)))
+
 (defconstrainedrecord Instance [endpoint spec user]
   "An Ec2 instance"
   [(provider-validation spec) (-> endpoint nil? not)]
   Vm
   (create [this] 
-    (let [{:keys [aws]} spec instance-id (-> (with-ctx ec2/run-instances (dissoc aws :volumes)) :instances first :id)]
+    (let [instance-id (create-instance spec endpoint)]
        (s/partial-system (spec :system-id) {:aws {:instance-id instance-id}})
        (debug "created" instance-id)
-       (handle-volumes aws endpoint instance-id)    
+       (handle-volumes spec endpoint instance-id)    
        (when-let [ip (get-in spec [:machine :ip])] 
          (debug (<<  "Associating existing ip ~{ip} to instance-id"))
           (with-ctx eip/assoc-pub-ip instance-id ip))
