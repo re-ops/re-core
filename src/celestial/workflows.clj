@@ -122,14 +122,15 @@
   [type {:keys [machine] :as spec}]
     (info "starting to provision") 
     (trace type spec) 
+    (assert (= (.status (vconstruct spec)) "running")) ; might not match all providers
     (.apply- (pconstruct type spec)) 
     (info "done provisioning"))
 
 (defn stage
   "create and provision"
   [type {:keys [system-id] :as spec}] 
-  (reload spec) 
-  ; reload may change system properties like ip etc..
+  (create spec) 
+  (start spec)
   (puppetize type (assoc (s/get-system system-id) :system-id system-id)))
 
 (deflow ^{:hook-args :run-info} run-action
