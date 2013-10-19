@@ -172,7 +172,11 @@
       (debug "deleting" instance-id)
       (delete-volumes endpoint instance-id) 
       (with-ctx ec2/terminate-instances instance-id) 
-      (wait-for-status this "terminated" [5 :minute])))
+      (wait-for-status this "terminated" [5 :minute])
+      ; for reload support
+      (s/update-system (spec :system-id) 
+         (dissoc-in* (s/get-system (spec :system-id)) [:aws :instance-id]))
+      ))
 
   (stop [this]
     (with-instance-id 
