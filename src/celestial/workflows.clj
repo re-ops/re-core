@@ -64,14 +64,15 @@
 
 (deflow reload 
   "Reloads a machine if one already exists, will distroy the old one"
-  [{:keys [machine] :as spec}]
+  [{:keys [machine system-id] :as spec}]
   (let [vm (vconstruct spec)]
     (info "setting up" machine)
     (when (.status vm)
       (info "clearing prevsious" machine)
       (.stop vm) 
       (.delete vm)) 
-    (let [vm* (.create vm)]  
+    (let [reload-spec (assoc (s/get-system system-id) :system-id system-id)
+           vm* (.create (vconstruct reload-spec))]  
       (.start vm*) 
       (assert (= (.status vm*) "running")) ; might not match all providers
       (info "done system setup"))))
