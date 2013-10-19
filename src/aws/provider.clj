@@ -14,6 +14,7 @@
     [celestial.persistency.systems :as s]
     [aws.sdk.ec2 :as ec2]
     [aws.sdk.ebs :as ebs]
+    [aws.sdk.eip :as eip]
     [clojure.string :refer (join)]
     [aws.validations :refer (provider-validation)]
     [celestial.persistency :as p]
@@ -68,19 +69,22 @@
    [pubdns]
     (join "." (rest (re-find #"ec2\-(\d+)-(\d+)-(\d+)-(\d+).*" pubdns))))
 
-(defn update-pubdns [spec endpoint instance-id]
+(defn update-ip [spec endpoint instance-id]
   "updates public dns in the machine persisted data"
   (when (s/system-exists? (spec :system-id))
     (let [ec2-host (pub-dns endpoint instance-id)]
-      (s/partial-system (spec :system-id) {:machine {:ssh-host ec2-host :ip (pubdns-to-ip ec2-host)}}))))
+      (s/partial-system (spec :system-id) 
+        {:machine {:ip (pubdns-to-ip ec2-host)}}))))
 
 (defn set-hostname [spec endpoint instance-id user]
-  "Uses a generic method of setting hostname in Linux, not that in ec2 both Centos and Ubuntu use sudo!"
+  "Uses a generic method of setting hostname in Linux (see http://www.debianadmin.com/manpages/sysctlmanpage.txt)
+   Note that in ec2 both Centos and Ubuntu use sudo!"
   (let [{:keys [hostname domain]} (spec :machine) 
         remote {:host (pub-dns endpoint instance-id) :user user}]
     (execute (<< "echo kernel.hostname=~{hostname} | sudo tee -a /etc/sysctl.conf") remote )
     (execute (<< "echo kernel.domainname=\"~{hostname}.~{domain}\" | sudo tee -a /etc/sysctl.conf") remote )
     (execute (<< "echo 127.0.1.1 ~{hostname}.~{domain} ~{hostname} | sudo tee -a /etc/hosts") remote )
+    (execute (<< "echo ~{hostname} | sudo tee /etc/hostname") remote )
     (execute "sudo sysctl -e -p" remote) 
     (with-ctx ec2/create-tags [(instance-desc endpoint instance-id :id)] {:Name hostname})
     ))
@@ -130,8 +134,8 @@
        (handle-volumes aws endpoint instance-id)    
        (when-let [ip (get-in spec [:machine :ip])] 
          (debug (<<  "Associating existing ip ~{ip} to instance-id"))
-       (with-ctx ec2/assoc-pub-ip instance-id ip))
-       (update-pubdns spec endpoint instance-id)
+          (with-ctx eip/assoc-pub-ip instance-id ip))
+       (update-ip spec endpoint instance-id)
        (wait-for-ssh endpoint instance-id user [5 :minute])
        (set-hostname spec endpoint instance-id user)
         this))
@@ -141,7 +145,12 @@
       (debug "starting" instance-id)
       (with-ctx ec2/start-instances instance-id) 
       (wait-for-status this "running" [5 :minute]) 
-      (update-pubdns spec endpoint instance-id)))
+      (when-let [ip (get-in spec [:machine :ip])] 
+        (debug (<<  "Associating existing ip ~{ip} to instance-id"))
+        (with-ctx eip/assoc-pub-ip instance-id ip))
+      (update-ip spec endpoint instance-id)
+      (wait-for-ssh endpoint instance-id user [5 :minute])
+      ))
 
   (delete [this]
     (with-instance-id
@@ -153,6 +162,10 @@
   (stop [this]
     (with-instance-id 
        (debug "stopping" instance-id)
+       (when-not (first (:addresses (with-ctx eip/describe-eip instance-id)))
+         (debug "clearing dynamic ip from system")
+         (s/update-system (spec :system-id) 
+           (dissoc-in* (s/get-system (spec :system-id)) [:machine :ip])))
        (with-ctx ec2/stop-instances instance-id) 
        (wait-for-status this "stopped" [5 :minute])))
 
@@ -161,7 +174,7 @@
       (with-instance-id 
          (instance-desc endpoint instance-id :state :name)) 
       (catch [:type ::aws:missing-id] e 
-        (info "No AWS instance id, most chances this instance hasn't been created yet") false))))
+        (debug "No AWS instance id, most chances this instance hasn't been created yet") false))))
 
 (def defaults {:aws {:min-count 1 :max-count 1}})
 
@@ -182,11 +195,13 @@
   (:endpoint m )
   (.status m)
   (.start m)
-  (clojure.pprint/pprint (celestial.model/set-env :dev 
-      (-> (instance-desc "ec2.eu-west-1.amazonaws.com" "i-395e1d76") :block-device-mappings rest)))
-  
-  
-  
+  (clojure.pprint/pprint 
+    (celestial.model/set-env :dev 
+      (instance-desc  "i-cdd59781") ))
+
+  (clojure.pprint/pprint 
+    (celestial.model/set-env :dev 
+     (first (:addresses (eip/describe-eip (assoc (creds) :endpoint "ec2.eu-west-1.amazonaws.com") "i-cdd59781"))))) 
   ) 
 
 
