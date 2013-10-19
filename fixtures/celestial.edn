@@ -39,10 +39,15 @@
          :used-ips ["192.168.5.170" "192.168.5.171" "192.168.5.173"]
        }
      }
-    ;; :aws {
+    
+    ;;:aws {
     ;;   :access-key ""
     ;;   :secret-key ""
-    ;;  } 
+         ;;:ostemplates {
+          ;; :ubuntu-12.04 {:ami "" :flavor :debian}
+          ;; :centos-6 {:ami "" :flavor :redhat}
+        ;;}
+    ;;} 
 
      :vcenter {
        :url "https://192.168.5.23/sdk"

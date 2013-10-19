@@ -4,12 +4,12 @@
  :description "A Centos based AMI"
 
  :machine {
-  :hostname "red1" :user "ec2-user" :domain "local"
+  :hostname "red1" :user "ec2-user" 
+  :domain "local" :os :centos-6.4
  }
 
  :aws {
   :instance-type "t1.micro" 
-  :image-id "ami-cf9f82bb"
   :key-name "Uranus" 
   :endpoint "ec2.eu-west-1.amazonaws.com"
   }
