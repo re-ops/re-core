@@ -63,13 +63,45 @@
            (throw t#))))))
 
 (deflow reload 
+  "Reloads a machine if one already exists, will distroy the old one"
+  [{:keys [machine] :as spec}]
+  (let [vm (vconstruct spec)]
+    (info "setting up" machine)
+    (when (.status vm)
+      (info "clearing prevsious" machine)
+      (.stop vm) 
+      (.delete vm)) 
+    (let [vm* (.create vm)]  
+      (.start vm*) 
+      (assert (= (.status vm*) "running")) ; might not match all providers
+      (info "done system setup"))))
+
+(deflow stop
+  "Stops a vm instance"
+  [{:keys [machine] :as spec}]
+  (let [vm (vconstruct spec)]
+    (info "stopping" machine)
+    (.stop vm) 
+    (assert (not (= (.status vm) "running"))) ; might not match all providers
+    ))
+
+(deflow start 
+  "Start a vm instance"
+  [{:keys [machine] :as spec}]
+  (let [vm (vconstruct spec)]
+    (info "starting" machine)
+    (.start vm) 
+    (assert (= (.status vm) "running")) ; might not match all providers
+    ))
+
+(deflow create
   "Sets up a clean machine from scratch"
   [{:keys [machine] :as spec}]
   (let [vm (vconstruct spec)]
     (info "setting up" machine)
     (when (.status vm)
-      (.stop vm) 
-      (.delete vm)) 
+       (println (.status vm))
+       (throw+ {:type ::machine-exists :msg "can't create an existing machine"})) 
     (let [vm* (.create vm)]  
       (.start vm*) 
       (assert (= (.status vm*) "running")) ; might not match all providers
