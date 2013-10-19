@@ -44,7 +44,7 @@
   :netmask {:type :string :description "used in vCenter or proxmox bridge"}
   :gateway {:type :string :description "used vCenter or proxmox bridge"})
 
-(defmodel aws :instance-type :string :image-id :string :key-name :string :endpoint :string)
+(defmodel aws :instance-type :string :os :string :key-name :string :endpoint :string)
 
 (defmodel vcenter :pool :string :datacenter :string :hostsystem :string :disk-format :string)
 
