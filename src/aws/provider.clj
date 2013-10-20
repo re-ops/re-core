@@ -11,15 +11,15 @@
 
 (ns aws.provider
   (:require 
-    [celestial.persistency.systems :as s]
+    [aws.common :refer (with-ctx instance-desc creds)]
+    [aws.networking :refer (update-ip set-hostname pub-dns)]
     [aws.sdk.ec2 :as ec2]
     [aws.sdk.ebs :as ebs]
     [aws.sdk.eip :as eip]
-    [clojure.string :refer (join)]
     [aws.validations :refer (provider-validation)]
     [celestial.persistency :as p]
     [clojure.core.strint :refer (<<)] 
-    [supernal.sshj :refer (execute ssh-up?)] 
+    [supernal.sshj :refer (ssh-up?)] 
     [flatland.useful.utils :refer (defm)] 
     [flatland.useful.map :refer (dissoc-in*)] 
     [slingshot.slingshot :refer  [throw+ try+]] 
@@ -27,71 +27,31 @@
     [celestial.provider :refer (wait-for)] 
     [celestial.core :refer (Vm)] 
     [celestial.common :refer (import-logging )] 
+    [celestial.persistency.systems :as s]
     [celestial.model :refer (translate vconstruct hypervisor)]))
 
 (import-logging)
-
-(defn creds [] (dissoc (hypervisor :aws) :ostemplates))
 
 (defn wait-for-status [instance req-stat timeout]
   "Waiting for ec2 machine status timeout is in mili"
   (wait-for {:timeout timeout} #(= req-stat (.status instance))
     {:type ::aws:status-failed :message "Timed out on waiting for status" :status req-stat :timeout timeout}))
 
-(defmacro with-ctx
-  "Run ec2 action with context (endpoint and creds)"
-  [f & args]
-  `(~f (assoc (creds) :endpoint ~'endpoint) ~@args))
-
 (defn image-desc [endpoint ami & ks]
   (-> (ec2/describe-images (assoc (creds) :endpoint endpoint) (ec2/image-id-filter ami))
       first (apply ks)))
 
-(defn instance-desc [endpoint instance-id & ks]
-  (-> (with-ctx ec2/describe-instances (ec2/instance-id-filter instance-id))
-      first :instances first (get-in ks)))
+
 
 (defn wait-for-attach [endpoint instance-id timeout]
   (wait-for {:timeout timeout} 
             #(= "attached" (instance-desc endpoint instance-id :block-device-mappings 0 :ebs :status)) 
             {:type ::aws:ebs-attach-failed :message "Failed to wait for ebs root device attach"}))
 
-(defn pub-dns [endpoint instance-id]
-  (instance-desc endpoint instance-id :public-dns))
-
 (defn wait-for-ssh [endpoint instance-id user timeout]
     (wait-for {:timeout timeout}
               #(ssh-up? {:host (pub-dns endpoint instance-id) :port 22 :user user})
               {:type ::aws:ssh-failed :message "Timed out while waiting for ssh" :timeout timeout}))
-
-(defn pubdns-to-ip
-  "Grabs public ip from dnsname ec2-54-216-121-122.eu-west-1.compute.amazonaws.com"
-   [pubdns]
-    (join "." (rest (re-find #"ec2\-(\d+)-(\d+)-(\d+)-(\d+).*" pubdns))))
-
-(defn update-ip [spec endpoint instance-id]
-  "updates public dns in the machine persisted data"
-  (when (s/system-exists? (spec :system-id))
-    (let [ec2-host (pub-dns endpoint instance-id)]
-      (s/partial-system (spec :system-id) 
-        {:machine {:ip (pubdns-to-ip ec2-host)}}))))
-
-(defn set-hostname [{:keys [aws machine] :as spec} endpoint instance-id user]
-  "Uses a generic method of setting hostname in Linux (see http://www.debianadmin.com/manpages/sysctlmanpage.txt)
-   Note that in ec2 both Centos and Ubuntu use sudo!"
-  (let [{:keys [hostname domain os]} machine 
-        remote {:host (pub-dns endpoint instance-id) :user user}]
-    (execute (<< "echo kernel.hostname=~{hostname} | sudo tee -a /etc/sysctl.conf") remote )
-    (execute (<< "echo kernel.domainname=\"~{hostname}.~{domain}\" | sudo tee -a /etc/sysctl.conf") remote )
-    (execute (<< "echo 127.0.1.1 ~{hostname}.~{domain} ~{hostname} | sudo tee -a /etc/hosts") remote )
-    (case (hypervisor :aws :ostemplates os :flavor)
-      :debian  (execute (<< "echo ~{hostname} | sudo tee /etc/hostname") remote )
-      :redhat  (execute (<< "/bin/sed -i 's/HOSTNAME=.*/HOSTNAME=~{hostname}.~{domain}/g") remote )
-      (throw+ ::no-matching-flavor :msg (<< "no os flavor found for ~{os}"))
-      )
-    (execute "sudo sysctl -e -p" remote) 
-    (with-ctx ec2/create-tags [(instance-desc endpoint instance-id :id)] {:Name hostname})
-    ))
 
 (defn instance-id*
   "grabbing instance id of spec"
