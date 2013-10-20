@@ -11,8 +11,9 @@
 
 (ns aws.provider
   (:require 
-    [aws.common :refer (with-ctx instance-desc creds)]
+    [aws.common :refer (with-ctx instance-desc creds image-id)]
     [aws.networking :refer (update-ip set-hostname pub-dns)]
+    [aws.volumes :refer (delete-volumes handle-volumes)]
     [aws.sdk.ec2 :as ec2]
     [aws.sdk.ebs :as ebs]
     [aws.sdk.eip :as eip]
@@ -28,7 +29,7 @@
     [celestial.core :refer (Vm)] 
     [celestial.common :refer (import-logging )] 
     [celestial.persistency.systems :as s]
-    [celestial.model :refer (translate vconstruct hypervisor)]))
+    [celestial.model :refer (translate vconstruct)]))
 
 (import-logging)
 
@@ -37,21 +38,10 @@
   (wait-for {:timeout timeout} #(= req-stat (.status instance))
     {:type ::aws:status-failed :message "Timed out on waiting for status" :status req-stat :timeout timeout}))
 
-(defn image-desc [endpoint ami & ks]
-  (-> (ec2/describe-images (assoc (creds) :endpoint endpoint) (ec2/image-id-filter ami))
-      first (apply ks)))
-
-
-
-(defn wait-for-attach [endpoint instance-id timeout]
-  (wait-for {:timeout timeout} 
-            #(= "attached" (instance-desc endpoint instance-id :block-device-mappings 0 :ebs :status)) 
-            {:type ::aws:ebs-attach-failed :message "Failed to wait for ebs root device attach"}))
-
 (defn wait-for-ssh [endpoint instance-id user timeout]
     (wait-for {:timeout timeout}
-              #(ssh-up? {:host (pub-dns endpoint instance-id) :port 22 :user user})
-              {:type ::aws:ssh-failed :message "Timed out while waiting for ssh" :timeout timeout}))
+      #(ssh-up? {:host (pub-dns endpoint instance-id) :port 22 :user user})
+      {:type ::aws:ssh-failed :message "Timed out while waiting for ssh" :timeout timeout}))
 
 (defn instance-id*
   "grabbing instance id of spec"
@@ -62,33 +52,6 @@
  `(if-let [~'instance-id (instance-id* ~'spec)]
     (do ~@body) 
     (throw+ {:type ::aws:missing-id :message "Instance id not found"}))) 
-
-(defn image-id [machine]
-  (hypervisor :aws :ostemplates (machine :os) :ami))
-
-(defn handle-volumes 
-   "attached and waits for ebs volumes" 
-   [{:keys [aws machine] :as spec} endpoint instance-id]
-  (when (= (image-desc endpoint (image-id machine) :root-device-type) "ebs")
-    (wait-for-attach endpoint instance-id [10 :minute]))
-  (let [zone (instance-desc endpoint instance-id :placement :availability-zone)]
-    (doseq [{:keys [device size]} (aws :volumes)]
-      (let [{:keys [volumeId]} (with-ctx ebs/create-volume size zone)]
-        (wait-for {:timeout [10 :minute]} #(= "available" (with-ctx ebs/state volumeId))
-           {:type ::aws:ebs-volume-availability :message "Failed to wait for ebs volume to become available"})
-        (with-ctx ebs/attach-volume volumeId instance-id device)
-        (wait-for {:timeout [10 :minute]} #(= "attached" (with-ctx ebs/attachment-status volumeId))
-           {:type ::aws:ebs-volume-attach-failed :message "Failed to wait for ebs volume device attach"})))))
-
-(defn delete-volumes 
-   "Clear instance volumes" 
-   [endpoint instance-id]
-   (doseq [{:keys [ebs]} (-> (instance-desc endpoint instance-id) :block-device-mappings rest)]
-     (trace "deleting volume" ebs)
-     (with-ctx ebs/detach-volume (ebs :volume-id))
-     (wait-for {:timeout [10 :minute]} #(= "available" (with-ctx ebs/state  (ebs :volume-id)))
-        {:type ::aws:ebs-volume-availability :message "Failed to wait for ebs volume to become available"})
-     (with-ctx ebs/delete-volume (ebs :volume-id))))
 
 (defn create-instance 
    "creates instance from aws" 
@@ -130,7 +93,7 @@
   (delete [this]
     (with-instance-id
       (debug "deleting" instance-id)
-      (delete-volumes endpoint instance-id) 
+      (delete-volumes endpoint instance-id (spec :system-id)) 
       (with-ctx ec2/terminate-instances instance-id) 
       (wait-for-status this "terminated" [5 :minute])
       ; for reload support
@@ -174,9 +137,6 @@
   (:endpoint m )
   (.status m)
   (.start m)
-  (clojure.pprint/pprint 
-    (celestial.model/set-env :dev 
-      (instance-desc  "i-cdd59781") ))
 
   (clojure.pprint/pprint 
     (celestial.model/set-env :dev 
