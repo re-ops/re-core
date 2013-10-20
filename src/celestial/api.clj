@@ -85,7 +85,7 @@
      {:nickname "reloadSystem" :summary "System reload job"
       :errorResponses (errors {:bad-req "Missing system"})
       :notes "Reloads a system by destroying the VM and then re-creating it"}
-         (schedule-job id "create" "submitted system creation"))
+         (schedule-job id "reload" "submitted system reloading"))
 
   (POST- "/jobs/destroy/:id" [^:int id] 
     {:nickname "destroySystem" :summary "System destruction job"
