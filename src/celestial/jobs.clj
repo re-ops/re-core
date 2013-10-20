@@ -20,8 +20,9 @@
     [celestial.redis :only (create-worker wcar server-conn)]
     [taoensso.timbre :only (debug info error warn trace)]
     [taoensso.carmine.locks :as with-lock]
-    [celestial.workflows :only (reload destroy puppetize stage run-action)]) 
+    )
   (:require  
+    [celestial.workflows :as wf]  
     [celestial.security :refer (set-user)]
     [celestial.model :refer (set-env)]
     [taoensso.carmine :as car]
@@ -48,8 +49,10 @@
 
 (def jobs 
   (atom 
-    {:reload [reload 2] :destroy [destroy 2] :provision [puppetize 2]
-     :stage [stage 2] :run-action [run-action 2] }))
+    {:reload [wf/reload 2] :destroy [wf/destroy 2] :provision [wf/puppetize 2]
+     :stage [wf/stage 2] :run-action [wf/run-action 2] :create [wf/create 2]
+     :start [wf/start 2]  :stop [wf/stop 2] 
+     }))
 
 (defn create-wks [queue f total]
   "create a count of workers for queue"

@@ -79,12 +79,26 @@
      {:nickname "createSystem" :summary "System creation job"
       :errorResponses (errors {:bad-req "Missing system"})
       :notes "Creates a new system on remote hypervisor (usually followed by provisioning)."}
-         (schedule-job id "reload" "submitted system creation"))
+         (schedule-job id "create" "submitted system creation"))
+
+  (POST- "/jobs/reload/:id" [^:int id] 
+     {:nickname "reloadSystem" :summary "System reload job"
+      :errorResponses (errors {:bad-req "Missing system"})
+      :notes "Reloads a system by destroying the VM and then re-creating it"}
+         (schedule-job id "create" "submitted system creation"))
 
   (POST- "/jobs/destroy/:id" [^:int id] 
     {:nickname "destroySystem" :summary "System destruction job"
      :notes "Destroys a system, clearing it both from Celestial's model storage and hypervisor"}
          (schedule-job id "destroy" "submitted system destruction"))
+
+  (POST- "/jobs/start/:id" [^:int id] 
+    {:nickname "startSystem" :summary "System start job" :notes "Starts a system"}
+         (schedule-job id "start" "submitted system start"))
+
+  (POST- "/jobs/stop/:id" [^:int id] 
+    {:nickname "stopSystem" :summary "System stop job" :notes "Stops a system"}
+         (schedule-job id "stop" "submitted system stop"))
 
   (POST- "/jobs/provision/:id" [^:int id] 
     {:nickname "provisionSystem" :summary "Provisioning job"
