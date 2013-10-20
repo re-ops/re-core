@@ -41,9 +41,7 @@
   "Sets up hostname under /etc/sysconfig/network in redhat based systems" 
   [fqdn remote]
   (execute 
-    (<< "grep -q '^HOSTNAME=' /etc/sysconfig/network &&
-        sudo sed -i 's/^HOSTNAME=.*/HOSTNAME=~{fqdn}' /etc/sysconfig/network 
-        || sudo sed -i '$ a\\HOSTNAME=~{fqdn}' /etc/sysconfig/network") remote )
+    (<< "grep -q '^HOSTNAME=' /etc/sysconfig/network && sudo sed -i 's/^HOSTNAME=.*/HOSTNAME=~{fqdn}' /etc/sysconfig/network || sudo sed -i '$ a\\HOSTNAME=~{fqdn}' /etc/sysconfig/network") remote )
   )
 
 (defn set-hostname [{:keys [aws machine] :as spec} endpoint instance-id user]
