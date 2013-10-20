@@ -21,11 +21,19 @@
      :user #{:required :String} :os #{:required :Keyword} 
   }})
 
+
+(validation :volume {
+    :device #{:required :String} :size #{:required :Integer}
+    :clear #{:require :Boolean}
+   })
+
+(validation :volume* (every-v #{:volume}))
+
 (def aws-entity
   {:aws {
      :instance-type #{:required :String} :key-name #{:required :String}
-     :endpoint #{:required :String}}
-   })
+     :endpoint #{:required :String} :volumes #{:volume*}
+    }})
 
 
 (defn validate-entity 
