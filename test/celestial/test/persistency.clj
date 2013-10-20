@@ -2,7 +2,8 @@
  (:require
    [celestial.roles :refer (admin)]
    [celestial.persistency :refer (validate-type validate-quota user-exists? validate-user)]
-   [celestial.fixtures.data :refer (redis-type user-quota)]
+   [aws.validations :as awsv]
+   [celestial.fixtures.data :refer (redis-type user-quota redis-ec2-spec)]
    [celestial.fixtures.core :refer (is-type? with-m?)])
  (:use midje.sweet)
  (:import clojure.lang.ExceptionInfo))
@@ -47,3 +48,9 @@
      (validate-user {:username "foo" :password "bar" :roles ["foo"] :envs []})  =>
        (throws ExceptionInfo (with-m? {:roles '(({0 ("role must be either #{:celestial.roles/anonymous :celestial.roles/user :celestial.roles/admin}")}))} ))
       )
+
+(fact "aws volumes validations" 
+  (awsv/validate-entity redis-ec2-spec) => {}
+  #_(awsv/validate-entity  
+    (merge-with merge redis-ec2-spec {:aws {:volumes [{:device "do"}]}} )) => {}
+  )
