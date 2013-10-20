@@ -53,7 +53,7 @@
         (s/system-exists? "1") => true
         (s/get-system "1")  => {}
         (s/get-system "1" :env)  => :dev
-        (jobs/enqueue "reload" {:identity "1" :args [{:system-id 1}] :tid nil :env :dev :user nil}) => nil))
+        (jobs/enqueue "create" {:identity "1" :args [{:system-id 1}] :tid nil :env :dev :user nil}) => nil))
 
 (let [user (merge d/admin {:roles ["admin"] :envs ["dev" "qa"]})]
   (fact "user conversion"
