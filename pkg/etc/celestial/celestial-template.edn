@@ -39,6 +39,10 @@
    ;; :aws {
    ;;   :access-key ""
    ;;   :secret-key ""
+   ;;   :ostemplates {
+   ;;        :ubuntu-12.10 {:ami "" :flavor :debian}
+   ;;        :centos-6.4 {:ami "" :flavor :redhat}
+   ;;   }
    ;;  } 
 
    ;; :vcenter {
