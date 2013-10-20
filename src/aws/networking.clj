@@ -55,7 +55,7 @@
     (override-hostname hostname fqdn remote)
     (case (hypervisor :aws :ostemplates os :flavor)
       :debian  true ; hothing special todo
-      :redhat  (redhat-networking fqdn remote)
+      :redhat  (redhat-hostname fqdn remote)
       (throw+ ::no-matching-flavor :msg (<< "no os flavor found for ~{os}")))
     (with-ctx ec2/create-tags [(instance-desc endpoint instance-id :id)] {:Name hostname})
     ))
