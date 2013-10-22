@@ -113,7 +113,7 @@
   [{:keys [system-id machine] :as spec}]
   (let [vm (vconstruct spec)]
     (when (.status vm)
-      (.stop vm) 
+      (when (= (.status vm) "running") (.stop vm)) 
       (.delete vm)) 
     (s/delete-system system-id)
     (info "system destruction done")))
