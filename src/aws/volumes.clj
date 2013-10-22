@@ -48,7 +48,9 @@
    "is this ebs clearable" 
    [device-name system-id]
   (let [{:keys [volumes]} ((s/get-system system-id) :aws)]
-    ((first (filter (fn [{:keys [device]}] (= device device-name)) volumes)) :clear)))
+    (if-let [e (first (filter (fn [{:keys [device]}] (= device device-name)) volumes))] 
+       (e :clear) 
+       false)))
 
 (defn delete-volumes 
   "Clear instance volumes" 
