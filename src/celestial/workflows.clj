@@ -101,7 +101,6 @@
   (let [vm (vconstruct spec)]
     (info "setting up" machine)
     (when (.status vm)
-       (println (.status vm))
        (throw+ {:type ::machine-exists :msg "can't create an existing machine"})) 
     (let [vm* (.create vm)]  
       (.start vm*) 
