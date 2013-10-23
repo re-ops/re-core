@@ -90,6 +90,7 @@
   "Start a vm instance"
   [{:keys [machine] :as spec}]
   (let [vm (vconstruct spec)]
+    (assert (not (= (.status vm) "running"))) ; might not match all providers
     (info "starting" machine)
     (.start vm) 
     (assert (= (.status vm) "running")) ; might not match all providers
