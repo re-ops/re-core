@@ -1,29 +1,37 @@
 (ns celestial.test.hooks
   "Testing misc hooks like dns and hubot"
   (:require 
-    [hooks.dnsmasq :refer (add-host)]
+    [clojure.java.shell :refer (sh)]
+    [me.raynes.fs :refer (temp-file)]
+    [hooks.dnsmasq :refer (update-dns hosts sudo)]
+    [celestial.common :refer (import-logging)]
     [celestial.persistency.systems :as s] 
     [supernal.sshj :refer (execute)] 
     [celestial.persistency :as p])
-  (:use 
-     midje.sweet
-    ))
+  (:use midje.sweet))
 
-(fact "machine domain precedence" 
-     (add-host {:system-id 1 :domain "remote" :dnsmasq "192.168.1.1" :user "foo"}) => nil
-     (provided 
-       (execute 
-         "grep -q '1.2.3.4 iobar iobar.local' /etc/hosts || (echo '1.2.3.4 iobar iobar.local' | sudo tee -a /etc/hosts >> /dev/null)" 
-           {:host "192.168.1.1", :user "foo"} ) => nil :times 1
-       (execute "sudo service dnsmasq stop && sudo service dnsmasq start"  {:host "192.168.1.1", :user "foo"}) => nil :times 1
-       (s/get-system 1) => {:machine {:domain "local" :ip "1.2.3.4" :hostname "iobar"}}))
+(import-logging)
 
-(fact "domainless machine" 
-     (add-host {:system-id 1 :domain "remote" :dnsmasq "192.168.1.1" :user "foo"}) => nil
-     (provided 
-       (execute 
-         "grep -q '1.2.3.4 iobar iobar.remote' /etc/hosts || (echo '1.2.3.4 iobar iobar.remote' | sudo tee -a /etc/hosts >> /dev/null)" 
-           {:host "192.168.1.1", :user "foo"} ) => nil :times 1
-       (execute "sudo service dnsmasq stop && sudo service dnsmasq start"  {:host "192.168.1.1", :user "foo"}) => nil :times 1
-       (s/get-system 1) => {:machine {:ip "1.2.3.4" :hostname "iobar"} }))
+(defn stubed-execute [s r] 
+  (let [run (temp-file "run")]
+    (when-not (.contains s "dnsmasq")
+      (spit run s) 
+      (assert (:exit (sh "bash" (str run))) 0))))
 
+(let [hosts-file (temp-file "hosts") machine {:domain "local" :ip "1.2.3.4" :hostname "iobar" }]
+  (with-redefs [hosts (agent hosts-file) execute stubed-execute 
+                s/get-system (fn [_] {:machine machine}) sudo ""]
+    (fact "adding a host on create" filters
+          (update-dns {:event :success :workflow :create :system-id 1
+                       :domain "local" :dnsmasq "192.168.1.1" :user "foo" }) => truthy
+          (await-for 1000 hosts) => true
+          (agent-error hosts) => nil
+          (slurp hosts-file) => "1.2.3.4 iobar iobar.local\n"
+
+    (fact "removing a host on stop" filters
+          (update-dns {:event :success :workflow :stop :system-id 1 
+                       :domain "local" :dnsmasq "192.168.1.1" :user "foo" :machine machine}) => truthy
+          (await-for 1000 hosts) => true
+          (agent-error hosts) => nil
+          (slurp hosts-file) => ""
+          ))))

@@ -10,21 +10,37 @@
    limitations under the License.)
 
 (ns hooks.dnsmasq
-  "A basic dnsmasq registration api for static addresses using hosts file, 
-   expects an Ubuntu and dnsmasq on the other end "
+  "DNS registration hook for static addresses using hosts file:
+   * expects an Ubuntu and dnsmasq on the other end.
+   * Uses an agent to make sure that only a single action will be performed concurrently. "
   (:require 
+    [pallet.stevedore :refer  [script with-script-language with-source-line-comments]]
+     pallet.stevedore.bash
     [celestial.persistency.systems :as s] 
+    [celestial.common :refer (import-logging)]
     [celestial.persistency :as p])
   (:use 
     [clojure.core.strint :only (<<)]
     [supernal.sshj :only (execute)]))
 
+(import-logging)
+
+(.bindRoot #'pallet.stevedore/*script-language* :pallet.stevedore.bash/bash)
+
 (defn- ignore-code [s]
   (with-meta s (merge (meta s) {:ignore-code true})))
 
-(def restart 
-  "sudo service dnsmasq stop && sudo service dnsmasq start")
+; using an agent makes sure that only one action will take place at a time
+(def hosts (agent "/etc/hosts"))
 
+(def ^:dynamic sudo "sudo")
+
+(defmacro sh [& forms]
+ `(with-source-line-comments false
+   (script ~@forms))) 
+
+(defn restart [remote]
+   (execute (sh (chain-and (~sudo "service" "dnsmasq" "stop") (~sudo "service" "dnsmasq" "start"))) remote))
 
 (defn hostline [domain {:keys [ip hostname] :as machine}]
   (<< "~{ip} ~{hostname} ~{hostname}.~(get machine :domain domain)"))
@@ -32,24 +48,27 @@
 (defn add-host 
   "Will add host to hosts file only if missing, 
    note that we s/get-system since the provider might updated the system during create."
-  [{:keys [dnsmasq user domain system-id]}]
-  (let [remote {:host dnsmasq :user user} line (hostline domain (:machine (s/get-system system-id)))]
+  [hosts-file {:keys [dnsmasq user domain system-id] :as args}]
+  (let [remote {:host dnsmasq :user user} line (hostline domain (:machine (s/get-system system-id)))
+        hosts-file' (str hosts-file) ]
     (execute 
-      (<< "grep -q '~{line}' /etc/hosts || (echo '~{line}' | sudo tee -a /etc/hosts >> /dev/null)") remote)
-    (execute restart remote)))
-
+       (sh (chain-or ("grep" "-q" ~line ~hosts-file') 
+           (pipe ("echo" ~line) (~sudo "tee" "-a" ~hosts-file' ">> /dev/null")))) remote)
+    (restart remote) hosts-file))
 
 (defn remove-host 
   "Removes host, 
    here we use the original machine since the last step in destroy is clearing the system" 
-  [{:keys [dnsmasq user domain machine]}]
-  (let [remote {:host dnsmasq :user user} line (hostline domain machine)]
-    (execute (<< "sudo sed -ie \"\\|^~{line}\\$|d\" /etc/hosts") remote) 
-    (execute restart remote)))
+  [hosts-file {:keys [dnsmasq user domain machine]}]
+  (let [remote {:host dnsmasq :user user} line (hostline domain machine) 
+        match (<< "\"\\|^~{line}\\$|d\"")]
+    (execute (sh (~sudo "sed" "-ie" ~match ~(str hosts-file))) remote) 
+    (restart remote) hosts-file))
 
-(def actions {:destroy {:success remove-host} :stop {:success remove-host}
-              :create {:success add-host} :reload {:success add-host} :start {:success add-host} })
+(def actions {:reload {:success add-host} :create {:success add-host} 
+              :start {:success add-host} :stop {:success remove-host}
+              :destroy {:success remove-host :error remove-host}})
 
 (defn update-dns [{:keys [event workflow] :as args}]
-  ((get-in actions [workflow event] identity) args))
+  (send-off hosts (get-in actions [workflow event] identity) args))
 
