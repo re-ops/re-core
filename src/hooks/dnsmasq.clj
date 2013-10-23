@@ -47,7 +47,8 @@
     (execute (<< "sudo sed -ie \"\\|^~{line}\\$|d\" /etc/hosts") remote) 
     (execute restart remote)))
 
-(def actions {:reload {:success add-host} :destroy {:success remove-host}})
+(def actions {:destroy {:success remove-host} :stop {:success remove-host}
+              :create {:success add-host} :reload {:success add-host} :start {:success add-host} })
 
 (defn update-dns [{:keys [event workflow] :as args}]
   ((get-in actions [workflow event] identity) args))
