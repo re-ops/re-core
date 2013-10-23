@@ -49,26 +49,31 @@
   "Will add host to hosts file only if missing, 
    note that we s/get-system since the provider might updated the system during create."
   [hosts-file {:keys [dnsmasq user domain system-id] :as args}]
-  (let [remote {:host dnsmasq :user user} line (hostline domain (:machine (s/get-system system-id)))
+  (try 
+    (let [remote {:host dnsmasq :user user} line (hostline domain (:machine (s/get-system system-id)))
         hosts-file' (str hosts-file) ]
     (execute 
        (sh (chain-or ("grep" "-q" ~line ~hosts-file') 
            (pipe ("echo" ~line) (~sudo "tee" "-a" ~hosts-file' ">> /dev/null")))) remote)
-    (restart remote) hosts-file))
+    (restart remote) hosts-file)
+    (catch Throwable t (error t) hosts-file)))
 
 (defn remove-host 
   "Removes host, 
    here we use the original machine since the last step in destroy is clearing the system" 
   [hosts-file {:keys [dnsmasq user domain machine]}]
-  (let [remote {:host dnsmasq :user user} line (hostline domain machine) 
+  (try 
+    (let [remote {:host dnsmasq :user user} line (hostline domain machine) 
         match (<< "\"\\|^~{line}\\$|d\"")]
     (execute (sh (~sudo "sed" "-ie" ~match ~(str hosts-file))) remote) 
-    (restart remote) hosts-file))
+    (restart remote) hosts-file)
+    (catch Throwable t (error t) hosts-file) 
+    ))
 
 (def actions {:reload {:success add-host} :create {:success add-host} 
               :start {:success add-host} :stop {:success remove-host}
               :destroy {:success remove-host :error remove-host}})
 
 (defn update-dns [{:keys [event workflow] :as args}]
-  (send-off hosts (get-in actions [workflow event] identity) args))
+  (send-off hosts (get-in actions [workflow event] (fn [hosts-file _] hosts-file)) args))
 
