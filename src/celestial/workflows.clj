@@ -131,7 +131,8 @@
   "create and provision"
   [type {:keys [system-id] :as spec}] 
   (create spec) 
-  (start spec)
+  (when-not (= (.status (vconstruct spec)) "running"); some providers already start the vm (AWS, vCenter)
+    (start spec))
   (puppetize type (assoc (s/get-system system-id) :system-id system-id)))
 
 (deflow ^{:hook-args :run-info} run-action
