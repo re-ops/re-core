@@ -127,7 +127,7 @@
   (GET- "/jobs" []
         {:nickname "jobsStatus" :summary "Global job status tracking" 
          :notes "job status can be either pending, processing, done or nil"}
-        (success {:jobs (jobs/jobs-status)}))
+        (success (merge {:jobs (jobs/running-jobs-status)} (jobs/done-jobs-status))))
   )
 
 (defroutes- actions {:path "/actions" :description "Adhoc actions managment"}

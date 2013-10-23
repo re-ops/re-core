@@ -19,9 +19,10 @@
     [celestial.common :only (minute import-logging)]
     [celestial.redis :only (create-worker wcar server-conn)]
     [taoensso.timbre :only (debug info error warn trace)]
-    [taoensso.carmine.locks :as with-lock]
-    )
+    [taoensso.carmine.locks :as with-lock])
   (:require  
+    [minderbinder.time :refer (parse-time-unit)]
+    [puny.core :refer (entity)]
     [celestial.workflows :as wf]  
     [celestial.security :refer (set-user)]
     [celestial.model :refer (set-env)]
@@ -34,18 +35,29 @@
 
 (def defaults {:wait-time 5 :expiry 30})
 
+(entity job-status :indices [status])
+
+(defn validate-job-status [{:keys [status] :as js}] (assert status))
+
+(defn save-status
+   "marks jobs as succesful" 
+   [spec status]
+  (let [id (add-job-status (merge spec {:status status :end (System/currentTimeMillis)})) status-exp 60]
+    (wcar (car/expire (job-status-id id) status-exp)) {:status status}))
+
 (defn job-exec [f  {:keys [message attempt]}]
   "Executes a job function tries to lock identity first (if used)"
-  (let [{:keys [identity args tid env user] :as spec} message]
+  (let [{:keys [identity args tid env user] :as spec} message 
+        spec' (merge spec (meta f) {:start (System/currentTimeMillis)})]
     (set-user user
       (set-env env
         (set-tid tid 
            (let [{:keys [wait-time expiry]} (map-vals (or (get* :celestial :job) defaults) #(* minute %) )]
             (try 
               (if identity
-                (do (with-lock (server-conn) identity expiry wait-time (apply f args)) {:status :success}) 
-                (do (apply f args) {:status :success})) 
-              (catch Throwable e (error e) {:status  :error}))))))))
+                (do (with-lock (server-conn) identity expiry wait-time (apply f args)) (save-status spec' :success)) 
+                (do (apply f args) (save-status spec' :success))) 
+              (catch Throwable e (error e) (save-status spec' :error)))))))))
 
 (def jobs 
   (atom 
@@ -56,7 +68,7 @@
 
 (defn create-wks [queue f total]
   "create a count of workers for queue"
-  (mapv (fn [v] (create-worker (name queue) (partial job-exec f))) (range total)))
+  (mapv (fn [v] (create-worker (name queue) (partial job-exec (with-meta f {:queue queue})))) (range total)))
 
 (defn initialize-workers []
   (dosync 
@@ -91,10 +103,25 @@
       (fn [r message] (into r (message-desc job message))) []
       (apply merge (vals (select-keys (mq/queue-status (server-conn) job) ks))))))
 
-(defn jobs-status
+(defn running-jobs-status
   "Get all jobs status" 
   []
   (reduce (fn [r t] (into r (queue-status (name t)))) [] (keys @jobs)))
+
+(defn clear-and-get 
+  "clears on a missing job-status" 
+  [id]
+  (let [s (get-job-status id)]
+    (if-not (empty? s) s
+      (do (wcar (clear-job-status-indices id :status)) nil)  ))) 
+
+(defn done-jobs-status 
+  "Grab done jobs statuses (changes every time due to expiry of keys)" 
+  []
+  (let [succesful (get-job-status-index :status :success)
+        erroneous (get-job-status-index :status :error)]
+    {:erroneous (filter clojure.core/identity (map clear-and-get erroneous)) 
+     :succesful (filter clojure.core/identity (map clear-and-get succesful))}))
 
 (defn shutdown-workers []
   (doseq [[k ws] @workers]

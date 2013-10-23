@@ -15,7 +15,9 @@
    (job-exec identity {:message {:identity "red1" :args {:machine {:hostname "red1"}}} :attempt 1 :user "ronen"}) => {:status :success}
    (provided 
      (server-conn) => {}
-     (acquire-lock {} "red1" 1800000 300000) => nil :times 1))
+     (acquire-lock {} "red1" 1800000 300000) => nil :times 1
+     (jobs/save-status anything :success)  => {:status :success}  :times 1
+     ))
 
 
 (fact "enqueue to workless queue should fail"
