@@ -68,7 +68,7 @@
   (let [vm (vconstruct spec)]
     (info "setting up" machine)
     (when (.status vm)
-      (info "clearing prevsious" machine)
+      (info "clearing previous" machine)
       (.stop vm) 
       (.delete vm)) 
     (let [reload-spec (assoc (s/get-system system-id) :system-id system-id)
