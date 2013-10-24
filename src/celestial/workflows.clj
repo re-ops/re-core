@@ -62,6 +62,23 @@
            (run-hooks ~hook-args ~(keyword name*) :error) 
            (throw t#))))))
 
+(defn updated-system 
+   "grabs system and associates system id" 
+   [system-id]
+   (assoc (s/get-system system-id) :system-id system-id))
+
+(defn running! 
+  "Asserts that a VM is running"
+  [vm]
+  (assert (= (.status vm) "running")) ; might not match all providers
+  )
+ 
+(defn not-running!
+  "Assert that a vm is not running"
+   [vm]
+  (assert (not (= (.status vm) "running"))) ; might not match all providers
+  )
+
 (deflow reload 
   "Reloads a machine if one already exists, will distroy the old one"
   [{:keys [machine system-id] :as spec}]
@@ -71,10 +88,9 @@
       (info "clearing previous" machine)
       (.stop vm) 
       (.delete vm)) 
-    (let [reload-spec (assoc (s/get-system system-id) :system-id system-id)
-           vm* (.create (vconstruct reload-spec))]  
+    (let [vm* (.create (vconstruct (updated-system system-id)))]  
       (.start vm*) 
-      (assert (= (.status vm*) "running")) ; might not match all providers
+      (running! vm*)
       (info "done system setup"))))
 
 (deflow stop
@@ -83,17 +99,17 @@
   (let [vm (vconstruct spec)]
     (info "stopping" machine)
     (.stop vm) 
-    (assert (not (= (.status vm) "running"))) ; might not match all providers
+    (not-running! vm)
     ))
 
 (deflow start 
   "Start a vm instance"
   [{:keys [machine] :as spec}]
   (let [vm (vconstruct spec)]
-    (assert (not (= (.status vm) "running"))) ; might not match all providers
+    (not-running! vm)
     (info "starting" machine)
     (.start vm) 
-    (assert (= (.status vm) "running")) ; might not match all providers
+    (running! vm)
     ))
 
 (deflow create
@@ -105,7 +121,7 @@
        (throw+ {:type ::machine-exists :msg "can't create an existing machine"})) 
     (let [vm* (.create vm)]  
       (.start vm*) 
-      (assert (= (.status vm*) "running")) ; might not match all providers
+      (running! vm*)
       (info "done system setup"))))
 
 (deflow destroy 
@@ -123,17 +139,19 @@
   [type {:keys [machine] :as spec}]
     (info "starting to provision") 
     (trace type spec) 
-    (assert (= (.status (vconstruct spec)) "running")) ; might not match all providers
+    (running! (vconstruct spec))
     (.apply- (pconstruct type spec)) 
     (info "done provisioning"))
+
+
 
 (defn stage
   "create and provision"
   [type {:keys [system-id] :as spec}] 
   (create spec) 
-  (when-not (= (.status (vconstruct spec)) "running"); some providers already start the vm (AWS, vCenter)
-    (start spec))
-  (puppetize type (assoc (s/get-system system-id) :system-id system-id)))
+  (when-not (= (.status (vconstruct (updated-system system-id))) "running"); some providers already start the vm (AWS, vCenter)
+    (start (updated-system system-id))) 
+  (puppetize type (updated-system system-id)))
 
 (deflow ^{:hook-args :run-info} run-action
   "Runs an action"
