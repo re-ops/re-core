@@ -1,6 +1,6 @@
 (ns celestial.test.vc
   (:require vc.provider 
-    [flatland.useful.map :refer  (dissoc-in*)]
+    [flatland.useful.map :refer (dissoc-in*)]
     [clojure.core.strint :refer (<<)]
     [celestial.config :refer (config)]
     [celestial.model :refer (vconstruct)]
