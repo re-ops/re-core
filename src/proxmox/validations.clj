@@ -34,9 +34,6 @@
 (validation :greater-then-100
   (when-not-nil (partial greater-then 100) "must be greater then 100"))
 
-(validation :ip 
-   (when-not-nil (partial re-find #"\d+\.\d+\.\d+\.\d+") "must be a legal ip address"))
-
 (def proxmox-entity
   {:proxmox {
     :type #{:required :prox-type} :vmid #{:greater-then-100}

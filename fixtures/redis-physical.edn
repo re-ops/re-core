@@ -1,0 +1,15 @@
+{
+ :env :dev 
+
+ :machine {
+  :hostname "red1" :user "ubuntu"  :ip "1.2.3.4"
+  :domain "local" :os :ubuntu-12.10
+ }
+
+ :physical {
+  :mac "9a:07:e4:bc:79:df" 
+  :broadcast "192.168.0.255" 
+ }
+
+ :type "redis"
+}

@@ -16,6 +16,8 @@
 
 (def redis-ec2-spec (slurp-edn "fixtures/redis-ec2-system.edn"))
 
+(def redis-physical (slurp-edn "fixtures/redis-physical.edn"))
+
 (def redis-ec2-centos (slurp-edn "fixtures/redis-ec2-centos.edn"))
 
 (def redis-vc-spec (slurp-edn "fixtures/redis-vc-system.edn"))

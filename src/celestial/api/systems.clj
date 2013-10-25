@@ -29,6 +29,7 @@
   :env :string
   :machine {:type "Machine"} 
   :aws {:type "Aws" :description "An EC2 based system"}
+  :physical {:type "Physical" :description "A physical machine"}
   :proxmox {:type "Proxmox" :description "A Proxmox based system"}
   :vcenter {:type "Vcenter" :description "A vCenter based system"}
   :type :string)
@@ -44,7 +45,9 @@
   :netmask {:type :string :description "used in vCenter or proxmox bridge"}
   :gateway {:type :string :description "used vCenter or proxmox bridge"})
 
-(defmodel aws :instance-type :string :os :string :key-name :string :endpoint :string)
+(defmodel physical :mac :string)
+
+(defmodel aws :instance-type :string :key-name :string :endpoint :string)
 
 (defmodel vcenter :pool :string :datacenter :string :hostsystem :string :disk-format :string)
 

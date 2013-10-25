@@ -18,6 +18,7 @@
     [robert.hooke :as h]
     [celestial.persistency :as p]
     [celestial.common :refer (import-logging)]
+    [physical.validations :as ph]
     [proxmox.validations :as pv]
     [aws.validations :as av]
     [vc.validations :as vc]
@@ -55,7 +56,9 @@
 (defn system-ip [id]
   (get-in (get-system id) [:machine :ip]))
 
-(def hyp-to-v {:proxmox pv/validate-entity 
+(def hyp-to-v {
+   :physical ph/validate-entity 
+   :proxmox pv/validate-entity 
    :aws av/validate-entity 
    :vcenter vc/validate-entity})
 

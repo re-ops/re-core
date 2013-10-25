@@ -3,7 +3,9 @@
    [celestial.roles :refer (admin)]
    [celestial.persistency :refer (validate-type validate-quota user-exists? validate-user)]
    [aws.validations :as awsv]
-   [celestial.fixtures.data :refer (redis-type user-quota redis-ec2-spec)]
+   [physical.validations :as phv]
+   [celestial.fixtures.data :refer 
+    (redis-type user-quota redis-ec2-spec redis-physical)]
    [celestial.fixtures.core :refer (is-type? with-m?)])
  (:use midje.sweet)
  (:import clojure.lang.ExceptionInfo))
@@ -51,6 +53,18 @@
 
 (fact "aws volumes validations" 
   (awsv/validate-entity redis-ec2-spec) => {}
+  ; TODO looks like a subs issue
   #_(awsv/validate-entity  
     (merge-with merge redis-ec2-spec {:aws {:volumes [{:device "do"}]}} )) => {}
   )
+
+
+(fact "physical systmes validations" 
+   (phv/validate-entity redis-physical) => {}
+   (phv/validate-entity (assoc-in redis-physical [:physical :mac] "aa:bb")) =>
+     (throws ExceptionInfo (with-m? {:physical {:mac '("must be a legal mac address")}}))
+   (phv/validate-entity (assoc-in redis-physical [:physical :broadcast] "a.1.2")) =>
+      (throws ExceptionInfo (with-m? {:physical {:broadcast '("must be a legal ip address")}}))
+
+)
+
