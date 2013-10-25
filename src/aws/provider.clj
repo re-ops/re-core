@@ -25,7 +25,7 @@
     [flatland.useful.map :refer (dissoc-in*)] 
     [slingshot.slingshot :refer  [throw+ try+]] 
     [trammel.core :refer (defconstrainedrecord)] 
-    [celestial.provider :refer (wait-for)] 
+    [celestial.provider :refer (wait-for wait-for-ssh)] 
     [celestial.core :refer (Vm)] 
     [celestial.common :refer (import-logging )] 
     [celestial.persistency.systems :as s]
@@ -37,11 +37,6 @@
   "Waiting for ec2 machine status timeout is in mili"
   (wait-for {:timeout timeout} #(= req-stat (.status instance))
     {:type ::aws:status-failed :message "Timed out on waiting for status" :status req-stat :timeout timeout}))
-
-(defn wait-for-ssh [endpoint instance-id user timeout]
-    (wait-for {:timeout timeout}
-      #(ssh-up? {:host (pub-dns endpoint instance-id) :port 22 :user user})
-      {:type ::aws:ssh-failed :message "Timed out while waiting for ssh" :timeout timeout}))
 
 (defn instance-id*
   "grabbing instance id of spec"
@@ -74,7 +69,7 @@
          (debug (<<  "Associating existing ip ~{ip} to instance-id"))
           (with-ctx eip/assoc-pub-ip instance-id ip))
        (update-ip spec endpoint instance-id)
-       (wait-for-ssh endpoint instance-id user [5 :minute])
+       (wait-for-ssh (pub-dns endpoint instance-id) user [5 :minute])
        (set-hostname spec endpoint instance-id user)
         this))
 
@@ -87,7 +82,7 @@
         (debug (<<  "Associating existing ip ~{ip} to instance-id"))
         (with-ctx eip/assoc-pub-ip instance-id ip))
       (update-ip spec endpoint instance-id)
-      (wait-for-ssh endpoint instance-id user [5 :minute])
+      (wait-for-ssh (pub-dns endpoint instance-id) user [5 :minute])
       ))
 
   (delete [this]

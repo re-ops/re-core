@@ -12,6 +12,8 @@
 (ns celestial.provider
   "common providers functions"
     (:require 
+      [subs.core :refer (validation when-not-nil)]
+      [supernal.sshj :refer (ssh-up?)] 
       [celestial.model :refer (hypervisor)]
       [minderbinder.time :refer (parse-time-unit)]
       [celestial.common :refer (get! import-logging curr-time)]
@@ -63,4 +65,15 @@
           (do (Thread/sleep (parse-time-unit sleep)) (recur))) 
         (throw+ (merge err timings))))))
 
+(defn wait-for-ssh [address user timeout]
+    {:pre [address user timeout]}
+    (wait-for {:timeout timeout}
+     #(try 
+        (ssh-up? {:host address :port 22 :user user})
+        (catch Throwable e false))
+      {:type ::ssh-failed :message "Timed out while waiting for ssh" :timeout timeout}))
+
+; common validations
+(validation :ip 
+   (when-not-nil (partial re-find #"\d+\.\d+\.\d+\.\d+") "must be a legal ip address"))
 (test #'mappings)

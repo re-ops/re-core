@@ -22,7 +22,8 @@
     [proxmox.generators :only (ct-id)]
     [celestial.model :only (translate vconstruct)])
   (:require 
-    [celestial.provider :refer (mappings transform os->template wait-for)]
+    [celestial.provider :refer 
+       (mappings transform os->template wait-for wait-for-ssh)]
     [celestial.common :refer (import-logging)]
     [proxmox.model :refer (get-node)]
     [proxmox.validations :refer (validate-provider)]
@@ -119,14 +120,6 @@
     (throw+ {:type ::missing-flavor :flavor flavor :message "No matching proxmox template flavor found"})
     )
   )
-
-(defn wait-for-ssh [ip_address user timeout]
-  {:pre [ip_address user timeout]}
-  (wait-for {:timeout timeout}
-     #(try 
-        (ssh-up? {:host ip_address :port 22 :user user})
-        (catch Throwable e false))
-     {:type ::proxmox:ssh-failed :message "Timed out while waiting for ssh" :timeout timeout}))
 
 (defconstrainedrecord Container [node ct extended network]
   "ct should match proxmox expected input (see http://pve.proxmox.com/pve2-api-doc/)
