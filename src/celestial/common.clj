@@ -11,12 +11,20 @@
 
 (ns celestial.common
   (:import java.util.Date)
+  (:require 
+    [pallet.stevedore :refer  [script with-source-line-comments]])
   (:use 
     [slingshot.slingshot :only  [throw+ try+]]
     [celestial.config :only (config)]
     [swag.core :only (http-codes)]
     [clojure.core.strint :only (<<)]
     ))
+
+(.bindRoot #'pallet.stevedore/*script-language* :pallet.stevedore.bash/bash)
+
+(defmacro bash [& forms]
+ `(with-source-line-comments false
+   (script ~@forms)))
 
 (defn import-logging []
    (use '[taoensso.timbre :only (debug info error warn trace)]))
