@@ -19,7 +19,7 @@
     "
   (:require 
     [physical.validations :refer (validate-provider)]
-    [celestial.provider :refer (wait-for-ssh)]
+    [celestial.provider :refer (wait-for-ssh mappings)]
     [celestial.common :refer (import-logging bash)] 
     [clojure.core.strint :refer (<<)] 
     [supernal.sshj :refer (ssh-up? execute)] 
@@ -53,9 +53,9 @@
      (if (ssh-up? remote) "running" "NaN")))
 
 (defmethod translate :physical 
-  [physical machine]
-  [(select-keys [:hostname :ip :user] machine)
-   (select-keys [:mac :broadcast] physical)])
+  [{:keys [physical machine]}]
+  [(mappings  (select-keys machine [:hostname :ip :user]) {:hostname :host})
+   (select-keys physical [:mac :broadcast])])
 
-(defmethod vconstruct :physical [{:keys [physical machine] :as spec}]
-   (apply ->Machine  (translate physical machine)))
+(defmethod vconstruct :physical [spec]
+   (apply ->Machine  (translate spec)))

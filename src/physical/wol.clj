@@ -35,10 +35,10 @@
   (let [bs (mac-bytes mac) rep-bs (reduce ++ (byte-array 0) (repeat 16 bs))]
    (byte-array (concat (repeat 6 (unchecked-byte 0xff)) rep-bs))))
 
-(defn wol [{:keys [mac ip]}]
+(defn wol [{:keys [mac broadcast]}]
   (let [bs (payload mac) ]
     (.send (DatagramSocket.)
-           (DatagramPacket. bs (alength bs) (InetAddress/getByName ip) 9))))
+           (DatagramPacket. bs (alength bs) (InetAddress/getByName broadcast) 9))))
 
 ;; (payload "6c:f0:49:e3:2a:4b")
 ;; (wol "00:24:8c:43:f3:f9" "192.168.5.255")

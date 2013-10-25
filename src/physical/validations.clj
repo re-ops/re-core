@@ -34,7 +34,7 @@
      :error ::invalid-system))
 
 (def physical-provider {
-  :remote {:host #{:required :String} :user #{:required :String}}                      :interface {:ip #{:required :ip} :mac {:required :mac}}  
+  :remote {:host #{:required :String} :user #{:required :String}}                      :interface {:broadcast #{:required :ip} :mac #{:required :mac}}  
  })
 
 (defn validate-provider [remote interface]
