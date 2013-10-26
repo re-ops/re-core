@@ -16,7 +16,7 @@
   (:require 
      pallet.stevedore.bash
     [celestial.persistency.systems :as s] 
-    [celestial.common :refer (import-logging bash)]
+    [celestial.common :refer (import-logging bash-)]
     [celestial.persistency :as p])
   (:use 
     [clojure.core.strint :only (<<)]
@@ -34,7 +34,7 @@
 (def ^:dynamic sudo "sudo")
 
 (defn restart [remote]
-   (execute (bash (chain-and (~sudo "service" "dnsmasq" "stop") (~sudo "service" "dnsmasq" "start"))) remote))
+   (execute (bash- (chain-and (~sudo "service" "dnsmasq" "stop") (~sudo "service" "dnsmasq" "start"))) remote))
 
 (defn hostline [domain {:keys [ip hostname] :as machine}]
   (<< "~{ip} ~{hostname} ~{hostname}.~(get machine :domain domain)"))
@@ -47,7 +47,7 @@
     (let [remote {:host dnsmasq :user user} line (hostline domain (:machine (s/get-system system-id)))
         hosts-file' (str hosts-file) ]
     (execute 
-       (bash (chain-or ("grep" "-q" ~line ~hosts-file') 
+       (bash- (chain-or ("grep" "-q" ~line ~hosts-file') 
            (pipe ("echo" ~line) (~sudo "tee" "-a" ~hosts-file' ">> /dev/null")))) remote)
     (restart remote) hosts-file)
     (catch Throwable t (error t) hosts-file)))
@@ -59,7 +59,7 @@
   (try 
     (let [remote {:host dnsmasq :user user} line (hostline domain machine) 
         match (<< "\"\\|^~{line}\\$|d\"")]
-    (execute (bash (~sudo "sed" "-ie" ~match ~(str hosts-file))) remote) 
+    (execute (bash- (~sudo "sed" "-ie" ~match ~(str hosts-file))) remote) 
     (restart remote) hosts-file)
     (catch Throwable t (error t) hosts-file) 
     ))

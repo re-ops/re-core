@@ -20,7 +20,7 @@
   (:require 
     [physical.validations :refer (validate-provider)]
     [celestial.provider :refer (wait-for-ssh mappings)]
-    [celestial.common :refer (import-logging bash)] 
+    [celestial.common :refer (import-logging bash-)] 
     [clojure.core.strint :refer (<<)] 
     [supernal.sshj :refer (ssh-up? execute)] 
     [trammel.core :refer (defconstrainedrecord)] 
@@ -47,7 +47,7 @@
      (wait-for-ssh (remote :host) (remote :user) [10 :minute]))
 
   (stop [this]
-     (execute (bash ("sudo" "shutdown" "0" "-P")) remote))
+     (execute (bash- ("sudo" "shutdown" "0" "-P")) remote))
 
   (status [this] 
      (if (ssh-up? remote) "running" "NaN")))

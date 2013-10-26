@@ -22,7 +22,7 @@
 
 (.bindRoot #'pallet.stevedore/*script-language* :pallet.stevedore.bash/bash)
 
-(defmacro bash [& forms]
+(defmacro bash- [& forms]
  `(with-source-line-comments false
    (script ~@forms)))
 
