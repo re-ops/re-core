@@ -12,6 +12,7 @@
 (ns celestial.common
   (:import java.util.Date)
   (:require 
+     pallet.stevedore.bash
     [pallet.stevedore :refer  [script with-source-line-comments]])
   (:use 
     [slingshot.slingshot :only  [throw+ try+]]
