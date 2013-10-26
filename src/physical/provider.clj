@@ -19,7 +19,7 @@
     "
   (:require 
     [physical.validations :refer (validate-provider)]
-    [celestial.provider :refer (wait-for-ssh mappings)]
+    [celestial.provider :refer (wait-for-ssh mappings wait-for)]
     [celestial.common :refer (import-logging bash-)] 
     [clojure.core.strint :refer (<<)] 
     [supernal.sshj :refer (ssh-up? execute)] 
@@ -47,10 +47,17 @@
      (wait-for-ssh (remote :host) (remote :user) [10 :minute]))
 
   (stop [this]
-     (execute (bash- ("sudo" "shutdown" "0" "-P")) remote))
+     (execute (bash- ("sudo" "shutdown" "0" "-P")) remote)
+     (wait-for {:timeout  [5 :minute]} 
+        #(try (not (ssh-up? remote))
+           (catch java.net.NoRouteToHostException t true))
+       {:type ::shutdown-failed 
+        :message "Timed out while waiting for machine to shutdown"}))
 
   (status [this] 
-     (if (ssh-up? remote) "running" "NaN")))
+     (try 
+       (if (ssh-up? remote) "running" "Nan")
+        (catch Throwable t "Nan"))))
 
 (defmethod translate :physical 
   [{:keys [physical machine]}]

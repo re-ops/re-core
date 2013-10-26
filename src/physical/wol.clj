@@ -41,4 +41,4 @@
            (DatagramPacket. bs (alength bs) (InetAddress/getByName broadcast) 9))))
 
 ;; (payload "6c:f0:49:e3:2a:4b")
-;; (wol "00:24:8c:43:f3:f9" "192.168.5.255")
+;; (wol {:mac "00:24:8c:43:f3:f9" :broadcast "192.168.5.1"})
