@@ -1,13 +1,13 @@
 (comment 
-   Celestial, Copyright 2012 Ronen Narkis, narkisr.com
-   Licensed under the Apache License,
-   Version 2.0  (the "License") you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.)
+  Celestial, Copyright 2012 Ronen Narkis, narkisr.com
+  Licensed under the Apache License,
+  Version 2.0  (the "License") you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.)
 
 (ns celestial.persistency.systems
   "systems persistency layer"
@@ -28,14 +28,14 @@
     [puny.migrations :refer (Migration register)]
     [celestial.model :refer (clone hypervizors figure-virt)] 
     [clojure.core.strint :refer (<<)]  
-     proxmox.model aws.model))
+    proxmox.model aws.model))
 
 (import-logging)
 
 (declare perm validate-system)
 
 (entity {:version 1} system :indices [type env] 
-   :intercept {:create [perm] :read [perm] :update [perm] :delete [perm]} )
+        :intercept {:create [perm] :read [perm] :update [perm] :delete [perm]} )
 
 (defn assert-access [env ident]
   {:pre [(current-user)]}
