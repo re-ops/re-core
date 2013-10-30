@@ -59,6 +59,8 @@
    ;;   :guest-timeout 120 ; at least boot time
    ;;   :session-count 2
    ;; }
+    
+   ;; :physical { }
   }
  }
   

@@ -64,8 +64,7 @@
        :session-count 2
      }
    
-    :physical {
-    }
+    :physical { }
    }
  }
   
