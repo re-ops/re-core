@@ -7,7 +7,7 @@
      :path "celestial.log"
      :gelf {
         :host "192.168.5.9"
-        :type :kibana ;:graylog2
+        :type :kibana ; :graylog2 or :logstash
       }
    }
 
