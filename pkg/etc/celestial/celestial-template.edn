@@ -6,7 +6,10 @@
    :log {
      :level :info
      :path "/var/log/celestial.log"
-     :gelf-host "1.2.3.4"
+     :gelf{
+       :host "1.2.3.4"
+       :type :kibana ; :gralog2/:logstash
+     }
    }
 
    ;; :job {
