@@ -10,11 +10,10 @@
    limitations under the License.)
 
 (ns celestial.api
-  (:refer-clojure :exclude [hash type])
+  (:refer-clojure :exclude [type])
   (:use 
     [celestial.users-api :only (users quotas)]
     [celestial.ui-api :only (public sessions)]
-    [gelfino.timbre :only (get-tid)]
     [compojure.core :only (defroutes routes)] 
     [metrics.ring.expose :only  (expose-metrics-as-json)]
     [celestial.roles :only (roles roles-m admin)]
@@ -23,21 +22,19 @@
     [ring.middleware.format :only [wrap-restful-format]]
     [ring.middleware.params :only (wrap-params)]
     [metrics.ring.instrument :only  (instrument)]
-    [swag.model :only (defmodel wrap-swag defv defc)]
-    [celestial.common :only (import-logging get! resp bad-req conflict success version wrap-errors)])
+    [swag.model :only (defmodel wrap-swag)]
+    [celestial.common :only (import-logging get! resp conflict success version wrap-errors)])
   (:require 
-    [celestial.security :refer (current-user)]
+    [celestial.persistency :as p]
+    [celestial.security :as sec]
     [celestial.api.systems :refer (systems environments)]
     [celestial.api.types :refer (types)]
+    [celestial.api.jobs :refer (jobs)]
     [ring.middleware.session.cookie :refer (cookie-store)]
     [ring.middleware.session :refer (wrap-session)]
     [compojure.core :refer (GET ANY)] 
     [swag.core :refer (swagger-routes GET- POST- PUT- DELETE- defroutes- errors )]
-    [celestial.security :as sec]
-    [celestial.persistency :as p]
-    [celestial.persistency.systems :as s]
     [compojure.handler :as handler]
-    [celestial.jobs :as jobs]
     [cemerick.friend :as friend]
     [compojure.route :as route])) 
 
@@ -53,82 +50,8 @@
 
 (defmodel action :operates-on :string :src :string :actions {:type "Actions"})
 
-(defmodel hash)
-
 (defmodel arguments :args {:type "Hash" :description "key value pairs {'foo':1 , 'bar':2 , ...}" })
 
-(defn schedule-job 
-  ([id action msg]
-    (schedule-job id action msg [(assoc (s/get-system id) :system-id (Integer. id))])) 
-  ([id action msg args]
-    (if-not (s/system-exists? id)
-     (bad-req {:errors (<< "No system found with given id ~{id}")})
-     (success 
-       {:msg msg :id id :job (jobs/enqueue action {:identity id :args args 
-        :tid (get-tid) :env (s/get-system id :env) :user (current-user)})}))))
-
-(defroutes- jobs {:path "/jobs" :description "Async job scheduling"}
-
-  (POST- "/jobs/stage/:id" [^:int id] 
-    {:nickname "stageSystem" :summary "Complete end to end staging job"
-     :notes "Combined system creation and provisioning, separate actions are available also."}
-      (let [system (s/get-system id) type (p/get-type (:type system))]
-           (schedule-job id "stage" "submitted system staging" [type (assoc system :system-id (Integer. id))])))
-
-  (POST- "/jobs/create/:id" [^:int id] 
-     {:nickname "createSystem" :summary "System creation job"
-      :errorResponses (errors {:bad-req "Missing system"})
-      :notes "Creates a new system on remote hypervisor (usually followed by provisioning)."}
-         (schedule-job id "create" "submitted system creation"))
-
-  (POST- "/jobs/reload/:id" [^:int id] 
-     {:nickname "reloadSystem" :summary "System reload job"
-      :errorResponses (errors {:bad-req "Missing system"})
-      :notes "Reloads a system by destroying the VM and then re-creating it"}
-         (schedule-job id "reload" "submitted system reloading"))
-
-  (POST- "/jobs/destroy/:id" [^:int id] 
-    {:nickname "destroySystem" :summary "System destruction job"
-     :notes "Destroys a system, clearing it both from Celestial's model storage and hypervisor"}
-         (schedule-job id "destroy" "submitted system destruction"))
-
-  (POST- "/jobs/start/:id" [^:int id] 
-    {:nickname "startSystem" :summary "System start job" :notes "Starts a system"}
-         (schedule-job id "start" "submitted system start"))
-
-  (POST- "/jobs/stop/:id" [^:int id] 
-    {:nickname "stopSystem" :summary "System stop job" :notes "Stops a system"}
-         (schedule-job id "stop" "submitted system stop"))
-
-  (POST- "/jobs/provision/:id" [^:int id] 
-    {:nickname "provisionSystem" :summary "Provisioning job"
-     :notes "Starts a provisioning workflow on a remote system
-             using the provisioner configured in system type"}
-         (let [system (s/get-system id) type (p/get-type (:type system))]
-           (schedule-job id "provision" "submitted provisioning" 
-              [type (assoc system :system-id (Integer. id))])))
-
-  (POST- "/jobs/:action/:id" [^:string action ^:int id & ^:hash args] 
-     {:nickname "runAction" :summary "Run remote action" 
-      :notes "Runs adhoc remote opertions on system (like deployment, service restart etc)
-              using matching remoting capable tool like Capisrano/Supernal/Fabric"}
-       (let [{:keys [machine] :as system} (s/get-system id)]
-         (if-let [actions (p/find-action-for (keyword action) (:type system))]
-           (schedule-job id "run-action" (<< "submitted ~{action} action") 
-             [actions (merge args {:action (keyword action) :hostname (machine :hostname) :target (machine :ip) :system-id (Integer. id)})])
-           (bad-req {:msg (<< "No action ~{action} found for id ~{id}")})
-           )))
-
-  (GET- "/jobs/:queue/:uuid/status" [^:string queue ^:string uuid]
-        {:nickname "jobStatus" :summary "single job status tracking" 
-         :notes "job status can be pending, processing, done or nil"}
-        (success {:job (jobs/status queue uuid)}))
-    
-  (GET- "/jobs" []
-        {:nickname "jobsStatus" :summary "Global job status tracking" 
-         :notes "job status can be either pending, processing, done or nil"}
-        (success (merge {:jobs (jobs/running-jobs-status)} (jobs/done-jobs-status))))
-  )
 
 (defroutes- actions {:path "/actions" :description "Adhoc actions managment"}
   (POST- "/actions" [& ^:action action] {:nickname "addActions" :summary "Adds an actions set"}
