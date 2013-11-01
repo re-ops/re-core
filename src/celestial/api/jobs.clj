@@ -11,11 +11,12 @@
 
 (ns celestial.api.jobs
   "Jobs manangement API"
-  (:refer-clojure :exclude [hash])
+  (:refer-clojure :exclude [hash type])
   (:require 
+    [flatland.useful.map :refer  (map-vals)]
     [swag.model :refer (defmodel)]
     [clojure.core.strint :refer (<<)]
-    [celestial.common :refer (bad-req success import-logging)]
+    [celestial.common :refer (bad-req success import-logging get!)]
     [gelfino.timbre :refer (get-tid)]
     [celestial.persistency :as p]
     [celestial.jobs :as jobs]
@@ -23,11 +24,22 @@
     [celestial.security :refer (current-user)]
     [celestial.persistency.systems :as s]))
 
-; http://192.168.5.9/index.html#/dashboard/script/logstash.js?query=tid:b8d9d3aa-0e2b-4d28-a495-d9f77858d454
+; 
 
 (import-logging)
 
 (defmodel hash)
+
+(defn tid-link [tid]
+  (let [{:keys [host type]} (get! :celestial :log :gelf)]
+    (case type
+     :kibana (<< "http://~{host}/index.html#/dashboard/script/logstash.js?query=tid:~{tid}")
+     :gralog2 "TBD"
+     :logstash "Nan"
+     (warn (<< "no matching tid link found for ~{type}")))))
+
+(defn add-tid-link [{:keys [tid] :as job}]
+  (assoc job :tid-link (tid-link tid)))
 
 (defn schedule-job 
   ([id action msg]
@@ -99,11 +111,8 @@
   (GET- "/jobs" []
         {:nickname "jobsStatus" :summary "Global job status tracking" 
          :notes "job status can be either pending, processing, done or nil"}
-        (success (merge {:jobs (jobs/running-jobs-status)} (jobs/done-jobs-status))))
+        (success 
+          (map-vals 
+            (merge {:jobs (jobs/running-jobs-status)} (jobs/done-jobs-status)) (partial map add-tid-link))))
 
-  (GET- "/jobs/logs/:tid" [^:string tid]
-        {:nickname "jobsLogs" :summary "Job log link (if available)" 
-         :notes "A link to a search on central loggin system (kibana/graylog2)"}
-        
-        )
   )
