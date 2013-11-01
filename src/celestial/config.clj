@@ -21,33 +21,45 @@
     [clj-config.core :as conf])
   )
 
-(def levels #{:trace :debug :info :error})
 
 (def base-v 
   {:redis {:host #{:required :String}} :ssh {:private-key-path #{:required :String}}})
 
-(validation :levels
-            (when-not-nil levels (<< "level must be either ~{levels}")))
+(def levels #{:trace :debug :info :error})
 
+(validation :levels
+  (when-not-nil levels (<< "level must be either ~{levels}")))
+
+(def central-logging #{:graylog2 :kibana :logstash})
+
+(validation :central-logging
+  (when-not-nil central-logging (<< "type must be either ~{central-logging}")))
+ 
 (def ^{:doc "Base config validation"} celestial-v
   {:celestial
    {:port #{:required :number} :https-port #{:required :number}
-    :log {:level #{:required :levels} :path #{:required :String}} 
+    :log {
+       :level #{:required :levels} 
+       :path #{:required :String}
+       :gelf {
+          :host #{:String} :type #{:central-logging}
+        }
+    } 
     :cert {:password #{:required :String} :keystore #{:required :String}} 
     :job {:expiry #{:number} :wait-time #{:number}} 
     :nrepl {:port #{:number}}}})
 
 (validation :node*
-            (every-kv {:username #{:required :String} :password #{:required :String} 
-                       :host #{:required :String} :ssh-port #{:required :number}}))
+   (every-kv {:username #{:required :String} :password #{:required :String} 
+              :host #{:required :String} :ssh-port #{:required :number}}))
 
 (def flavors #{:redhat :debian})
 
 (validation :flavor
-            (when-not-nil flavors  (<< "flavor must be either ~{flavors}")))
+   (when-not-nil flavors  (<< "flavor must be either ~{flavors}")))
 
 (validation :template*
-            (every-kv {:template #{:required :String} :flavor #{:required :Keyword :flavor}}))
+  (every-kv {:template #{:required :String} :flavor #{:required :Keyword :flavor}}))
 
 
 (def ^{:doc "proxmox section validation"} proxmox-v 

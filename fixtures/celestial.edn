@@ -5,7 +5,10 @@
    :log {
      :level :trace
      :path "celestial.log"
-     :gelf-host "192.168.5.9"
+     :gelf {
+        :host "192.168.5.9"
+        :type :kibana ;:graylog2
+      }
    }
 
    ;; :job {

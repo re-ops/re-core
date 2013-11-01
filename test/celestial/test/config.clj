@@ -34,3 +34,8 @@
    (validate-conf (assoc-in local-prox [:hypervisor :dev :vcenter :ostemplates] [])) => 
       {:hypervisor {:dev {:vcenter {:ostemplates '("must be a map")}}}}
   )
+
+(fact "wrong central logging"
+  (validate-conf (assoc-in local-prox [:celestial :log :gelf :type] :foo)) =>
+    {:celestial {:log {:gelf 
+      {:type '("type must be either #{:kibana :logstash :graylog2}")}}}})
