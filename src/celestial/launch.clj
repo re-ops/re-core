@@ -39,7 +39,7 @@
   []
   (let [log* (partial get! :celestial :log)]
     (set-config! [:appenders :gelf] gelf-appender) 
-    (set-config! [:shared-appender-config :gelf] {:host (log* :gelf-host)}) 
+    (set-config! [:shared-appender-config :gelf] {:host (log* :gelf :host)}) 
     (set-config! [:shared-appender-config :spit-filename] (log* :path)) 
     (set-config! [:appenders :spit :enabled?] true) 
     (set-level! (log* :level))))
