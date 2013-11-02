@@ -33,7 +33,7 @@
 (defn tid-link [tid]
   (let [{:keys [host type]} (get! :celestial :log :gelf)]
     (case type
-     :kibana (<< "http://~{host}/index.html#/dashboard/script/logstash.js?query=tid:~{tid}")
+     :kibana (<< "http://~{host}/index.html#/dashboard/script/logstash.js?query=tid:~{tid}&fields=@timestamp,message,tid,")
      :gralog2 "TBD"
      :logstash "Nan"
      (warn (<< "no matching tid link found for ~{type}")))))
