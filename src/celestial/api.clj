@@ -11,20 +11,17 @@
 
 (ns celestial.api
   (:refer-clojure :exclude [type])
-  (:use 
-    [celestial.users-api :only (users quotas)]
-    [celestial.ui-api :only (public sessions)]
-    [compojure.core :only (defroutes routes)] 
-    [metrics.ring.expose :only  (expose-metrics-as-json)]
-    [celestial.roles :only (roles roles-m admin)]
-    [clojure.core.strint :only (<<)]
-    [slingshot.slingshot :only  [throw+ try+]]
-    [ring.middleware.format :only [wrap-restful-format]]
-    [ring.middleware.params :only (wrap-params)]
-    [metrics.ring.instrument :only  (instrument)]
-    [swag.model :only (defmodel wrap-swag)]
-    [celestial.common :only (import-logging get! resp conflict success version wrap-errors)])
   (:require 
+    [celestial.roles :refer (admin)]
+    [ring.middleware.format :refer [wrap-restful-format]]
+    [ring.middleware.params :refer (wrap-params)]
+    [metrics.ring.instrument :refer  (instrument)]
+    [swag.model :refer (defmodel wrap-swag)]
+    [celestial.common :refer (import-logging get! version wrap-errors)]
+    [compojure.core :refer (defroutes routes)] 
+    [clojure.core.strint :refer (<<)]
+    [celestial.ui-api :refer (public sessions)]
+    [celestial.users-api :refer (users quotas)]
     [celestial.persistency :as p]
     [celestial.security :as sec]
     [celestial.api.systems :refer (systems environments)]
@@ -36,7 +33,7 @@
     [swag.core :refer (swagger-routes GET- POST- PUT- DELETE- defroutes- errors )]
     [compojure.handler :as handler]
     [cemerick.friend :as friend]
-    [compojure.route :as route])) 
+    [compojure.route :as route]))
 
 (import-logging)
 
@@ -105,6 +102,5 @@
       (wrap-session {:cookie-name "celestial" :store (cookie-store)})
       (wrap-restful-format :formats [:json-kw :edn :yaml-kw :yaml-in-html])
       (handler/api)
-      (expose-metrics-as-json)
       (instrument)
       (error-wrap)))
