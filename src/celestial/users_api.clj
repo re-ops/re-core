@@ -3,7 +3,7 @@
     [cemerick.friend.credentials :as creds]
     [celestial.persistency :as p]) 
   (:use 
-    [celestial.roles :only (roles roles-m admin)]
+    [celestial.roles :only (roles roles-m)]
     [clojure.core.strint :only (<<)]
     [slingshot.slingshot :only  [throw+ try+]]
     [swag.model :only (defmodel wrap-swag defv defc)]
