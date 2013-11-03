@@ -22,7 +22,7 @@
     [proxmox.validations :as pv]
     [aws.validations :as av]
     [vc.validations :as vc]
-    [subs.core :as subs :refer (validate!)]
+    [subs.core :as subs :refer (validate! validation when-not-nil)]
     [puny.core :refer (entity)]
     [slingshot.slingshot :refer  [throw+]]
     [puny.migrations :refer (Migration register)]
@@ -62,9 +62,19 @@
    :aws av/validate-entity 
    :vcenter vc/validate-entity})
 
+(validation :type-exists (when-not-nil p/type-exists? "type not found, create it first"))
+
+(validation :user-exists (when-not-nil p/user-exists? "user not found"))
+
+(def system-base {
+    :user #{:required :user-exists}
+    :type #{:required :type-exists} 
+    :env #{:required :Keyword}
+  })
+
 (defn validate-system
   [system]
-  (validate! system {:type #{:required :type-exists} :env #{:required :Keyword}} :error ::non-valid-machine-type )
+  (validate! system system-base :error ::non-valid-machine-type)
   ((hyp-to-v (figure-virt system)) system))
 
 (defn clone-system 

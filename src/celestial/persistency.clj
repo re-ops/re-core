@@ -85,7 +85,6 @@
 
 (def cap-nested {:capistrano {:args #{:required :Vector}}})
 
-(validation :type-exists (when-not-nil type-exists? "type not found, create it first"))
 
 (def action-base-validation
   {:src #{:required :String} :operates-on #{:required :String :type-exists}})
