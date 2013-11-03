@@ -62,7 +62,7 @@
 (defc [:env] (keyword v))
  
 (defn systems-range
-  "Get systems in range by type" 
+  "Get systems in range" 
   [from to]
   {:pre [(> from -1)]}
   (let [{:keys [username]} (friend/current-authentication)
