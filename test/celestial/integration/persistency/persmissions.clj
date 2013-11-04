@@ -10,8 +10,7 @@
     [celestial.fixtures.core :refer (is-type? with-conf)]
     [celestial.fixtures.populate :refer (add-users)]
     [celestial.persistency :as p]
-    [celestial.persistency.systems :as s] 
-    )
+    [celestial.persistency.systems :as s])
   (:use midje.sweet))
 
 (with-conf
@@ -41,14 +40,15 @@
 
       (fact "persmissionless access" :integration :redis :systems
             (let [id (s/add-system (assoc redis-prox-spec :env :prod))] 
-              (s/get-system id) => 
-                 (throws ExceptionInfo (is-type? :celestial.persistency.systems/persmission-violation))
+             (s/get-system id) => 
+               (throws ExceptionInfo (is-type? :celestial.persistency.systems/persmission-violation))
+              ; note that the assert-access precondition adds a current-user call
               (provided (current-user) => {:username "ronen"} :times 2) 
-              (s/update-system id {}) => 
-                (throws ExceptionInfo (is-type? :celestial.persistency.systems/persmission-violation))
-              (provided (current-user) => {:username "ronen"} :times 2)
+              (s/update-system id redis-prox-spec) => 
+                 (throws ExceptionInfo (is-type? :celestial.persistency.systems/persmission-violation))
+              (provided (current-user) => {:username "ronen"} :times 4)
               (s/delete-system id) => 
-                (throws ExceptionInfo (is-type? :celestial.persistency.systems/persmission-violation))
+                  (throws ExceptionInfo (is-type? :celestial.persistency.systems/persmission-violation))
               (provided (current-user) => {:username "ronen"} :times 2)
               (s/add-system {:env :prod}) => 
                 (throws ExceptionInfo (is-type? :celestial.persistency.systems/persmission-violation))
@@ -56,12 +56,13 @@
               ))
 
       (fact "with persmission" :integration :redis :systems
-            (let [id (s/add-system redis-prox-spec)] 
-              (s/get-system id) => redis-prox-spec
-              (provided (current-user) => {:username "ronen"} :times 2) 
-              (s/update-system id (assoc redis-prox-spec :cpus 20)) => (contains ["OK"])
-              (provided (current-user) => {:username "ronen"} :times 12)
-              (s/delete-system id) => [1 1 1]
-              (provided (current-user) => {:username "ronen"} :times 6)
-              (s/add-system redis-prox-spec) => truthy
-              (provided (current-user) => {:username "ronen"} :times 6))))))
+        (let [id (s/add-system redis-prox-spec)] 
+          (s/get-system id) => redis-prox-spec
+          (provided (current-user) => {:username "ronen"} :times 2) 
+          (s/update-system id (assoc redis-prox-spec :cpus 20)) => (contains ["OK"])
+          (provided (current-user) => {:username "ronen"} :times 12)
+          (s/delete-system id) => [1 1 1]
+          (provided (current-user) => {:username "ronen"} :times 6)
+          (s/add-system redis-prox-spec) => truthy
+          (provided (current-user) => {:username "ronen"} :times 6))))))
+

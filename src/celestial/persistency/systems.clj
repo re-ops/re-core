@@ -14,7 +14,7 @@
   (:refer-clojure :exclude [type])
   (:require 
     [celestial.security :refer (current-user)]
-    [celestial.roles :refer (admin?)]
+    [celestial.roles :refer (su?)]
     [robert.hooke :as h]
     [celestial.persistency :as p]
     [celestial.common :refer (import-logging)]
@@ -37,20 +37,34 @@
 (entity {:version 1} system :indices [type env] 
         :intercept {:create [perm] :read [perm] :update [perm] :delete [perm]} )
 
-(defn assert-access [env ident]
+(defn assert-access 
+  "Validates that the current user can access the system, 
+  non super users can only access systems they own.
+  All users are limited to certain environments.
+  "
+  [{:keys [env user] :as system}]
   {:pre [(current-user)]}
-  (let [username ((current-user) :username) user (p/get-user! username)
-        envs (into #{} (user :envs))]
-    (when (and env (not (envs env))) 
-      (throw+ {:type ::persmission-violation} (<< "~{username} attempted to access system ~{ident} in env ~{env}")))))
+  (let [{:keys [envs username] :as curr-user} 
+        (p/get-user! ((current-user) :username))]
+    (when-not (empty? system)
+      (when (and (not (su? curr-user)) (not= username user))
+      (throw+ {:type ::persmission-violation} (<< "non super user ~{username} attempted to access a system owned by ~{user}!"))
+      )
+    (when (and env (not ((into #{} envs) env))) 
+      (throw+ {:type ::persmission-violation} (<< "~{username} attempted to access system ~{system} in env ~{env}"))))))
+
+(defn hookless-get [id]
+  (h/with-hooks-disabled get-system (get-system id)))
 
 (defn perm
-  "checking current user env permissions" 
+  "checking current user env permissions, we grab either the system (map) 
+   or the id (first args if map not found).
+  " 
   [f & args]
-  (let [ident (first args)]
+  (let [system (first (filter map? args)) id (first (filter number? args))]
     (cond
-      (map? ident) (assert-access (ident :env) ident) 
-      :default (assert-access (h/with-hooks-disabled get-system (get-system ident :env)) ident)) 
+      (map? system) (assert-access system)
+      :default (assert-access (hookless-get id))) 
     (apply f args)))
 
 (defn system-ip [id]
@@ -70,7 +84,7 @@
     :user #{:required :user-exists}
     :type #{:required :type-exists} 
     :env #{:required :Keyword}
-  })
+   })
 
 (defn validate-system
   [system]
@@ -81,21 +95,21 @@
   "clones an existing system"
   [id hostname]
   (add-system (clone (assoc-in (get-system id) [:machine :hostname] hostname))))
- 
+
 (defrecord EnvIndices [identifier]
-   Migration
-   (apply- [this]
-     (doseq [id (all-systems)]  
-       (update-system id (update-in (get-system id) [:env] keyword))))  
-   (rollback [this])) 
+  Migration
+  (apply- [this]
+    (doseq [id (all-systems)]  
+      (update-system id (update-in (get-system id) [:env] keyword))))  
+  (rollback [this])) 
 
 (defn register-migrations []
   (register :systems (EnvIndices. :systems-env-indices)))
 
 (defn systems-for
   "grabs all the systems ids that this user can see"
-   [username]
+  [username]
   (let [envs ((p/get-user username) :envs)]
-   (flatten (map #(get-system-index :env (keyword %)) envs))))
+    (flatten (map #(get-system-index :env (keyword %)) envs))))
 
 
