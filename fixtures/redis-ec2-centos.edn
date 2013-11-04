@@ -1,6 +1,8 @@
 {
  :env :dev 
 
+ :user "admin"
+
  :description "A Centos based AMI"
 
  :machine {

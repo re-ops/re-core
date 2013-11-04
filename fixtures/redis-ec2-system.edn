@@ -1,6 +1,8 @@
 {
  :env :dev 
 
+ :user "admin"
+
  :machine {
   :hostname "red1" :user "ubuntu" 
   :domain "local" :os :ubuntu-12.10

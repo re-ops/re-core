@@ -1,6 +1,8 @@
 {
  :env :dev
 
+ :user "admin"
+
  :machine {
   :cpus 4 :memory 4096 :disk 30
   :hostname "red1" :domain "local" 
