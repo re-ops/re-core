@@ -24,7 +24,7 @@
 
 (def roles (into #{} (vals roles-m)))
 
-(derive ::admin ::user)
+(derive ::admin ::super-user)
 
 (derive ::super-user ::user)
 
@@ -38,4 +38,5 @@
   (clojure.set/subset? admin roles))
 
 (defn su? [{:keys [roles] :as user}]
-  (clojure.set/subset? su roles))
+  (some #(isa? % ::super-user) roles))
+
