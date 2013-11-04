@@ -27,12 +27,13 @@
 
 (defmodel system 
   :env :string
+  :type :string
+  :user :string
   :machine {:type "Machine"} 
   :aws {:type "Aws" :description "An EC2 based system"}
   :physical {:type "Physical" :description "A physical machine"}
   :proxmox {:type "Proxmox" :description "A Proxmox based system"}
-  :vcenter {:type "Vcenter" :description "A vCenter based system"}
-  :type :string)
+  :vcenter {:type "Vcenter" :description "A vCenter based system"})
 
 (defmodel machine 
   :cpus {:type :int :description "Not relevant in ec2"}
@@ -86,8 +87,9 @@
   (GET- "/systems/type/:type" [^:string type] {:nickname "getSystemsByType" :summary "Get systems by type"}
         (success {:ids (s/get-system-index :type type)}))
 
-  (POST- "/systems" [& ^:system spec] {:nickname "addSystem" :summary "Add system" 
-                                           :errorResponses (errors {:bad-req "Missing system type"})}
+  (POST- "/systems" [& ^:system spec] 
+    {:nickname "addSystem" :summary "Add system" 
+     :errorResponses (errors {:bad-req "Missing system type"})}
          (wrap-errors
            (p/with-quota (s/add-system spec) spec
              (success {:msg "new system saved" :id id}))))
