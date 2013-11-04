@@ -4,7 +4,7 @@
     [clojure.core.strint :refer (<<)]
     [celestial.config :refer (config)]
     [celestial.model :refer (vconstruct)]
-    [celestial.persistency :refer (type-exists?)]
+    [celestial.persistency :as p]
     [celestial.fixtures.data :refer (redis-vc-spec)]
     [celestial.fixtures.core :refer (with-conf with-m?)] 
     [celestial.persistency.systems :as s])
@@ -49,18 +49,20 @@
 
     (fact "entity sanity"
         (s/validate-system redis-vc-spec) => truthy 
-        (provided 
-          (type-exists? "redis")  => true))
+        (provided (p/type-exists? "redis")  => true)
+        (provided (p/user-exists? "admin")  => true))
 
     (fact "missing guest password"
         (s/validate-system (dissoc-in* redis-vc-spec [:machine :password])) => 
           (throws ExceptionInfo (with-m? {:machine {:password '("must be present")}}))
-        (provided (type-exists? "redis")  => true))
+        (provided (p/user-exists? "admin")  => true) 
+        (provided (p/type-exists? "redis")  => true))
 
     (fact "names aren't a vec"
         (s/validate-system (assoc-in redis-vc-spec [:machine :names] "bla")) => 
           (throws ExceptionInfo (with-m? {:machine {:names '("must be a vector")}}))
-        (provided (type-exists? "redis")  => true))
+        (provided (p/user-exists? "admin")  => true) 
+        (provided (p/type-exists? "redis")  => true))
     ))
 
 
