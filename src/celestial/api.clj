@@ -17,7 +17,7 @@
     [ring.middleware.params :refer (wrap-params)]
     [metrics.ring.instrument :refer  (instrument)]
     [swag.model :refer (defmodel wrap-swag)]
-    [celestial.common :refer (import-logging get! version wrap-errors)]
+    [celestial.common :refer (import-logging get! version wrap-errors success)]
     [compojure.core :refer (defroutes routes)] 
     [clojure.core.strint :refer (<<)]
     [celestial.ui-api :refer (public sessions)]
