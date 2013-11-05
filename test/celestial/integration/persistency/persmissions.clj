@@ -64,5 +64,11 @@
           (s/delete-system id) => [1 1 1]
           (provided (current-user) => {:username "ronen"} :times 6)
           (s/add-system redis-prox-spec) => truthy
-          (provided (current-user) => {:username "ronen"} :times 6))))))
+          (provided (current-user) => {:username "ronen"} :times 6)))
+      
+      (fact "user trying to create on another username" :integration :redis :systems
+         (s/add-system (assoc redis-prox-spec :user "foo")) =>
+           (throws ExceptionInfo (is-type? :celestial.persistency.systems/persmission-violation))
+         (provided 
+           (current-user) => {:username "ronen"} :times 2)))))
 
