@@ -70,5 +70,8 @@
          (s/add-system (assoc redis-prox-spec :user "foo")) =>
            (throws ExceptionInfo (is-type? :celestial.persistency.systems/persmission-violation))
          (provided 
-           (current-user) => {:username "ronen"} :times 2)))))
+           (current-user) => {:username "ronen"} :times 2)
+         (s/add-system (assoc redis-prox-spec :user "ronen")) => 1
+         (provided 
+           (current-user) => {:username "admin"} :times 6)))))
 
