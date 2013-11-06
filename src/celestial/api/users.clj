@@ -1,4 +1,4 @@
-(ns celestial.users-api
+(ns celestial.api.users
   (:require
     [cemerick.friend.credentials :as creds]
     [celestial.persistency :as p]) 
@@ -32,9 +32,6 @@
 
 (defroutes- users {:path "/user" :description "User managment"}
 
-  (GET- "/users" [] {:nickname "getUsers" :summary "Get all users"}
-        (success (map #(dissoc (p/get-user %) :password) (p/all-users))))
-
   (GET- "/users/roles" [] {:nickname "getRoles" :summary "Get all existing user roles"}
         (success {:roles roles-m}))
 
@@ -53,6 +50,11 @@
   (DELETE- "/users/:name" [^:string name] {:nickname "deleteUser" :summary "Deleted a user"}
            (p/delete-user name) 
            (success {:msg "user deleted" :name name})))
+
+(defroutes- users-ro {:path "/user" :description "Read only User data"}
+
+  (GET- "/users" [] {:nickname "getUsers" :summary "Get all users"}
+        (success (map #(dissoc (p/get-user %) :password) (p/all-users)))))
 
 (defmodel quota :username :string :quotas {:type :Quotas})
 

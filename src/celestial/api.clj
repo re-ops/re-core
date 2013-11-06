@@ -12,7 +12,7 @@
 (ns celestial.api
   (:refer-clojure :exclude [type])
   (:require 
-    [celestial.roles :refer (admin)]
+    [celestial.roles :refer (admin su)]
     [ring.middleware.format :refer [wrap-restful-format]]
     [ring.middleware.params :refer (wrap-params)]
     [metrics.ring.instrument :refer  (instrument)]
@@ -20,8 +20,8 @@
     [celestial.common :refer (import-logging get! version wrap-errors success)]
     [compojure.core :refer (defroutes routes)] 
     [clojure.core.strint :refer (<<)]
-    [celestial.ui-api :refer (public sessions)]
-    [celestial.users-api :refer (users quotas)]
+    [celestial.api.ui :refer (public sessions)]
+    [celestial.api.users :refer (users quotas users-ro)]
     [celestial.persistency :as p]
     [celestial.security :as sec]
     [celestial.api.systems :refer (systems environments)]
@@ -71,8 +71,11 @@
            (success {:msg "Deleted action" :id id})))
 
 (defroutes app-routes
-  systems types environments actions jobs sessions (friend/wrap-authorize users admin)
-  (friend/wrap-authorize quotas admin) (route/not-found "Not Found"))
+  systems types environments actions jobs sessions 
+  (friend/wrap-authorize users-ro su)
+  (friend/wrap-authorize users admin)
+  (friend/wrap-authorize quotas admin)
+  (route/not-found "Not Found"))
 
 (defn error-wrap
   "A catch all error handler"
