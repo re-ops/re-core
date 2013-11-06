@@ -34,7 +34,7 @@
   "A tiny middleware to track api access"
   (fn [{:keys [uri request-method] :as req}]
     (set-tid (gen-uuid)
-      (debug request-method " on " uri "by" (current-user))
+      (info request-method " on " uri "by" (current-user))
       (app req))))
 
 
