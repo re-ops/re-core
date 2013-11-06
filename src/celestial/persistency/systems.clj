@@ -44,24 +44,25 @@
   "
   [{:keys [env owner] :as system}]
   {:pre [(current-user)]}
-  (let [{:keys [envs username] :as curr-user} 
-        (p/get-user! ((current-user) :username))]
+  (let [{:keys [envs username] :as curr-user} (p/get-user! ((current-user) :username))]
     (when-not (empty? system)
       (when (and (not (su? curr-user)) (not= username owner))
-      (throw+ {:type ::persmission-violation} (<< "non super user ~{username} attempted to access a system owned by ~{owner}!"))
+      (throw+ {:type ::persmission-owner-violation} (<< "non super user ~{username} attempted to access a system owned by ~{owner}!"))
       )
     (when (and env (not ((into #{} envs) env))) 
-      (throw+ {:type ::persmission-violation} (<< "~{username} attempted to access system ~{system} in env ~{env}"))))))
+      (throw+ {:type ::persmission-env-violation} (<< "~{username} attempted to access system ~{system} in env ~{env}"))))))
 
 (defn hookless-get [id]
   (h/with-hooks-disabled get-system (get-system id)))
 
 (defn perm
-  "checking current user env permissions, we grab either the system (map) 
-   or the id (first args if map not found).
+  "A permission interceptor on systems access, we check both env and owner persmissions.
+   due to the way robert.hooke works we analyse args and not fn to decide what to verify on.
+   If we have a map we assume its a system if we have a number we assume its an id
   " 
   [f & args]
-  (let [system (first (filter map? args)) id (first (filter number? args))]
+  (let [system (first (filter map? args)) 
+        id (first (filter #(or (number? %) (and (string? %) (re-find #"\d+" %))) args))]
     (cond
       (map? system) (assert-access system)
       :default (assert-access (hookless-get id))) 
