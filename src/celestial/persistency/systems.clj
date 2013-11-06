@@ -13,6 +13,7 @@
   "systems persistency layer"
   (:refer-clojure :exclude [type])
   (:require 
+    [celestial.roles :refer (su?)]
     [celestial.security :refer (current-user)]
     [celestial.roles :refer (su?)]
     [robert.hooke :as h]
@@ -34,7 +35,7 @@
 
 (declare perm validate-system)
 
-(entity {:version 1} system :indices [type env] 
+(entity {:version 1} system :indices [type env owner] 
         :intercept {:create [perm] :read [perm] :update [perm] :delete [perm]} )
 
 (defn assert-access 
@@ -110,7 +111,9 @@
 (defn systems-for
   "grabs all the systems ids that this user can see"
   [username]
-  (let [envs ((p/get-user username) :envs)]
-    (flatten (map #(get-system-index :env (keyword %)) envs))))
+  (let [{:keys [envs username] :as user} (p/get-user username)]
+    (if (su? user)
+      (flatten (map #(get-system-index :env (keyword %)) envs))
+      (get-system-index :owner username))))
 
 

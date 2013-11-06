@@ -14,12 +14,12 @@
      #_(set-user {:username "ronen"} 
        (mapv #(-> (Integer/valueOf %) s/get-system :env) (s/systems-for "ronen")) 
           => (has every? (partial = :dev))) 
-     (set-user {:username "admin"} 
+     (set-user {:username "admin"} ; admin is set to have access to all envs
        (mapv #(-> (Integer/valueOf %) s/get-system :env) (s/systems-for "ronen")) 
-          => (has every? (partial = :dev)))
+          => (contains [:qa :dev :prod]))
      (set-user {:username "ronen"} 
         (mapv #(-> (Integer/valueOf %) s/get-system :env) (s/systems-for "admin")) 
-          => (throws ExceptionInfo (is-type? :celestial.persistency.systems/persmission-violation)))
+          => (throws ExceptionInfo (is-type? :celestial.persistency.systems/persmission-owner-violation)))
      (set-user {:username "admin"} 
         (mapv #(-> (Integer/valueOf %) s/get-system :env) (s/systems-for "admin")) 
           => (has every? #{:dev :qa :prod}))
