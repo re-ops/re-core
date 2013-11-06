@@ -3,7 +3,7 @@
   (:refer-clojure :exclude [type])
   (:require 
     [celestial.fixtures.data :as d]
-    [celestial.users-api :refer (into-persisted)]
+    [celestial.api.users :refer (into-persisted)]
     [celestial.jobs :as jobs]
     [celestial.persistency.systems :as s] 
     [clojure.core.strint :refer (<<)]
