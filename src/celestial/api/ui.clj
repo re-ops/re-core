@@ -1,4 +1,4 @@
-(ns celestial.ui-api
+(ns celestial.api.ui
   (:require
     [compojure.core :refer (defroutes GET ANY)] 
     [compojure.route :as route]   
@@ -21,6 +21,5 @@
 (defroutes public
   (GET "/login" [] (ring.util.response/file-response "assets/login.html" {:root (static-path)}))
   (friend/logout (ANY "/logout" request  (ring.util.response/redirect "/")))
-  (route/files "/" {:root (static-path)}) 
-  )
+  (route/files "/" {:root (static-path)}))
  
