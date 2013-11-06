@@ -42,13 +42,13 @@
   non super users can only access systems they own.
   All users are limited to certain environments.
   "
-  [{:keys [env user] :as system}]
+  [{:keys [env owner] :as system}]
   {:pre [(current-user)]}
   (let [{:keys [envs username] :as curr-user} 
         (p/get-user! ((current-user) :username))]
     (when-not (empty? system)
-      (when (and (not (su? curr-user)) (not= username user))
-      (throw+ {:type ::persmission-violation} (<< "non super user ~{username} attempted to access a system owned by ~{user}!"))
+      (when (and (not (su? curr-user)) (not= username owner))
+      (throw+ {:type ::persmission-violation} (<< "non super user ~{username} attempted to access a system owned by ~{owner}!"))
       )
     (when (and env (not ((into #{} envs) env))) 
       (throw+ {:type ::persmission-violation} (<< "~{username} attempted to access system ~{system} in env ~{env}"))))))
@@ -81,7 +81,7 @@
 (validation :user-exists (when-not-nil p/user-exists? "user not found"))
 
 (def system-base {
-    :user #{:required :user-exists}
+    :owner #{:required :user-exists}
     :type #{:required :type-exists} 
     :env #{:required :Keyword}
    })

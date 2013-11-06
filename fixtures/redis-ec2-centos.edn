@@ -1,7 +1,7 @@
 {
  :env :dev 
 
- :user "admin"
+ :owner "admin"
 
  :description "A Centos based AMI"
 

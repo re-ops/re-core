@@ -67,7 +67,7 @@
           (provided (current-user) => {:username "ronen"} :times 6)))
       
       (fact "user trying to create on another username" :integration :redis :systems
-         (s/add-system (assoc redis-prox-spec :user "foo")) =>
+         (s/add-system (assoc redis-prox-spec :owner "foo")) =>
            (throws ExceptionInfo (is-type? :celestial.persistency.systems/persmission-violation))
          (provided 
            (current-user) => {:username "ronen"} :times 2)

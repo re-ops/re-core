@@ -1,7 +1,7 @@
 {
  :env :dev 
 
- :user "admin"
+ :owner "admin"
 
  :machine {
   :hostname "red1" :user "ubuntu"  :ip "1.2.3.4"

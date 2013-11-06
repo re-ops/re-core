@@ -1,7 +1,7 @@
 {
  :env :dev
 
- :user "ronen"
+ :owner "ronen"
 
  :machine {
   :cpus 4 :memory 4096 :disk 30
