@@ -98,16 +98,6 @@
   [id hostname]
   (add-system (clone (assoc-in (get-system id) [:machine :hostname] hostname))))
 
-(defrecord EnvIndices [identifier]
-  Migration
-  (apply- [this]
-    (doseq [id (all-systems)]  
-      (update-system id (update-in (get-system id) [:env] keyword))))  
-  (rollback [this])) 
-
-(defn register-migrations []
-  (register :systems (EnvIndices. :systems-env-indices)))
-
 (defn systems-for
   "grabs all the systems ids that this user can see"
   [username]
@@ -115,5 +105,29 @@
     (if (su? user)
       (flatten (map #(get-system-index :env (keyword %)) envs))
       (get-system-index :owner username))))
+
+; triggering env indexing and converting to keyword
+(defrecord EnvIndices [identifier]
+  Migration
+  (apply- [this]
+    (doseq [id (systems-for "admin")]  
+      (update-system id (update-in (get-system id) [:env] keyword))))  
+  (rollback [this])) 
+
+; triggering owner indexing and setting default to admin
+(defrecord OwnerIndices [identifier]
+  Migration
+  (apply- [this]
+    (doseq [id (systems-for "admin")]  
+      (when-not ((get-system id) :owner)
+        (update-system id (assoc (get-system id) :owner "admin")))))  
+  (rollback [this]))
+
+(defn register-migrations []
+  (register :systems (OwnerIndices. :systems-owner-indices))
+  (register :systems (EnvIndices. :systems-env-indices))
+  )
+
+
 
 
