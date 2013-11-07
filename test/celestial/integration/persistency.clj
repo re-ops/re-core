@@ -7,6 +7,7 @@
     [flatland.useful.map :refer (dissoc-in*)]
     [celestial.fixtures.core :refer (with-conf is-type?)]
     [celestial.fixtures.data :refer (redis-prox-spec redis-type user-quota redis-actions)]
+    [celestial.persistency.actions :as a]
     [celestial.persistency :as p])
   (:use midje.sweet))
 
@@ -48,10 +49,10 @@
 (with-state-changes [(before :facts (clear-all))]
   (fact "basic actions usage" :integration :redis :actions
         (p/add-type redis-type) 
-        (let [id (p/add-action redis-actions)]
-          (p/get-action id) => redis-actions
-          (p/get-action-index :operates-on "redis") => [(str id)]
-          (p/find-action-for :deploy "redis") => redis-actions
+        (let [id (a/add-action redis-actions)]
+          (a/get-action id) => redis-actions
+          (a/get-action-index :operates-on "redis") => [(str id)]
+          (a/find-action-for :deploy "redis") => redis-actions
           )))
 
 

@@ -16,59 +16,26 @@
     [ring.middleware.format :refer [wrap-restful-format]]
     [ring.middleware.params :refer (wrap-params)]
     [metrics.ring.instrument :refer  (instrument)]
-    [swag.model :refer (defmodel wrap-swag)]
-    [celestial.common :refer (import-logging get! version wrap-errors success)]
+    [swag.model :refer (wrap-swag)]
+    [celestial.common :refer (import-logging get! version)]
     [compojure.core :refer (defroutes routes)] 
     [clojure.core.strint :refer (<<)]
-    [celestial.api.ui :refer (public sessions)]
-    [celestial.api.users :refer (users quotas users-ro)]
-    [celestial.persistency :as p]
+    [celestial.api  
+      [jobs :refer (jobs)]
+      [actions :refer (actions)]
+      [types :refer (types)]
+      [systems :refer (systems environments)] 
+      [users :refer (users quotas users-ro)]
+      [ui :refer (public sessions)]]
     [celestial.security :as sec]
-    [celestial.api.systems :refer (systems environments)]
-    [celestial.api.types :refer (types)]
-    [celestial.api.jobs :refer (jobs)]
     [ring.middleware.session.cookie :refer (cookie-store)]
     [ring.middleware.session :refer (wrap-session)]
-    [compojure.core :refer (GET ANY)] 
-    [swag.core :refer (swagger-routes GET- POST- PUT- DELETE- defroutes- errors )]
+    [swag.core :refer (swagger-routes)]
     [compojure.handler :as handler]
     [cemerick.friend :as friend]
     [compojure.route :as route]))
 
 (import-logging)
-
-(defmodel object)
-
-(defmodel capistrano :args {:type "List" :items {"$ref" "String"}})
-
-(defmodel ccontainer :capistrano {:type "Capistrano"} )
-
-(defmodel actions :action-a {:type "Ccontainer"})
-
-(defmodel action :operates-on :string :src :string :actions {:type "Actions"})
-
-(defmodel arguments :args {:type "Hash" :description "key value pairs {'foo':1 , 'bar':2 , ...}" })
-
-
-(defroutes- actions {:path "/actions" :description "Adhoc actions managment"}
-  (POST- "/actions" [& ^:action action] {:nickname "addActions" :summary "Adds an actions set"}
-    (wrap-errors (success {:msg "added actions" :id (p/add-action action)})))
-
-  (PUT- "/actions/:id" [^:int id & ^:action action] {:nickname "updateActions" :summary "Update an actions set"}
-        (wrap-errors
-          (p/update-action id action)
-           (success {:msg "updated actions" :id id})))
-
-  (GET- "/actions/type/:type" [^:string type] {:nickname "getActionsByTargetType" :summary "Gets actions that operate on a target type"}
-        (let [ids (p/get-action-index :operates-on type)]
-           (success (apply merge {} (map #(hash-map % (p/get-action %)) ids)))))
-
-  (GET- "/actions/:id" [^:int id] {:nickname "getActions" :summary "Gets actions descriptor"}
-        (success (p/get-action id)))
-
-  (DELETE- "/actions/:id" [^:int id] {:nickname "deleteActions" :summary "Deletes an action set"}
-           (p/delete-action id)
-           (success {:msg "Deleted action" :id id})))
 
 (defroutes app-routes
   systems types environments actions jobs sessions 

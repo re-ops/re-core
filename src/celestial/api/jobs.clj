@@ -18,7 +18,8 @@
     [clojure.core.strint :refer (<<)]
     [celestial.common :refer (bad-req success import-logging get!)]
     [gelfino.timbre :refer (get-tid)]
-    [celestial.persistency :as p]
+    [celestial.persistency :as p ]
+    [celestial.persistency.actions :refer (find-action-for)]
     [celestial.jobs :as jobs]
     [swag.core :refer (GET- POST- PUT- DELETE- defroutes- errors)]
     [celestial.security :refer (current-user)]
@@ -97,7 +98,7 @@
       :notes "Runs adhoc remote opertions on system (like deployment, service restart etc)
               using matching remoting capable tool like Capisrano/Supernal/Fabric"}
        (let [{:keys [machine] :as system} (s/get-system id)]
-         (if-let [actions (p/find-action-for (keyword action) (:type system))]
+         (if-let [actions (find-action-for (keyword action) (:type system))]
            (schedule-job id "run-action" (<< "submitted ~{action} action") 
              [actions (merge args {:action (keyword action) :hostname (machine :hostname) :target (machine :ip) :system-id (Integer. id)})])
            (bad-req {:msg (<< "No action ~{action} found for id ~{id}")})

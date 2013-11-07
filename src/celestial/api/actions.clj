@@ -1,0 +1,50 @@
+(comment 
+   Celestial, Copyright 2012 Ronen Narkis, narkisr.com
+   Licensed under the Apache License,
+   Version 2.0  (the "License") you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.)
+
+(ns celestial.api.actions
+  "Actions api"
+  (:require 
+    [celestial.persistency.actions :as a]
+    [celestial.common :refer (import-logging wrap-errors success)]
+    [swag.model :refer (defmodel)]
+    [swag.core :refer (GET- POST- PUT- DELETE- defroutes-)]))
+
+(defmodel object)
+
+(defmodel capistrano :args {:type "List" :items {"$ref" "String"}})
+
+(defmodel ccontainer :capistrano {:type "Capistrano"} )
+
+(defmodel actions :action-a {:type "Ccontainer"})
+
+(defmodel action :operates-on :string :src :string :actions {:type "Actions"})
+
+(defmodel arguments :args {:type "Hash" :description "key value pairs {'foo':1 , 'bar':2 , ...}" })
+ 
+(defroutes- actions {:path "/actions" :description "Adhoc actions managment"}
+  (POST- "/actions" [& ^:action action] {:nickname "addActions" :summary "Adds an actions set"}
+    (wrap-errors (success {:msg "added actions" :id (a/add-action action)})))
+
+  (PUT- "/actions/:id" [^:int id & ^:action action] {:nickname "updateActions" :summary "Update an actions set"}
+        (wrap-errors
+          (a/update-action id action)
+           (success {:msg "updated actions" :id id})))
+
+  (GET- "/actions/type/:type" [^:string type] {:nickname "getActionsByTargetType" :summary "Gets actions that operate on a target type"}
+        (let [ids (a/get-action-index :operates-on type)]
+           (success (apply merge {} (map #(hash-map % (a/get-action %)) ids)))))
+
+  (GET- "/actions/:id" [^:int id] {:nickname "getActions" :summary "Get actions descriptor"}
+        (success (a/get-action id)))
+
+  (DELETE- "/actions/:id" [^:int id] {:nickname "deleteActions" :summary "Deletes an action set"}
+           (a/delete-action id)
+           (success {:msg "Deleted action" :id id})))

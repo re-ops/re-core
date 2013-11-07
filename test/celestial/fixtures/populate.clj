@@ -5,6 +5,7 @@
     [celestial.redis :refer (clear-all)]  
     [celestial.persistency :as p]  
     [celestial.persistency.systems :as s]
+    [celestial.persistency.actions :as a]
     [celestial.fixtures.data :refer (admin ronen) :as d]))
 
 (defn add-users 
@@ -21,7 +22,7 @@
 (defn add-actions 
    "populates actions" 
    []
-  (p/add-action d/redis-actions))
+  (a/add-action d/redis-actions))
 
 (def env-gen (g/elements [:dev :qa :prod])) 
 
