@@ -28,7 +28,9 @@
 
 (def clustered-prox (slurp-edn "fixtures/celestial-cluster.edn"))
  
-(def redis-actions (slurp-edn "fixtures/redis-actions.edn"))
+(def redis-deploy (slurp-edn "fixtures/redis-deploy.edn"))
+
+(def redis-runall (slurp-edn "fixtures/redis-runall.edn"))
 
 (def user-quota (slurp-edn "fixtures/user-quota.edn"))
 
