@@ -26,7 +26,7 @@
    )
   (:import 
     [celestial.puppet_standalone Standalone]
-    [proxmox.provider Container]))
+    ))
 
 (import-logging)
 
@@ -65,7 +65,8 @@
 (defn updated-system 
    "grabs system and associates system id" 
    [system-id]
-   (assoc (s/get-system system-id) :system-id system-id))
+   {:pre [system-id]}
+   (assoc (s/get-system! system-id) :system-id system-id))
 
 (defn running! 
   "Asserts that a VM is running"
