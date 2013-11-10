@@ -32,7 +32,7 @@
 (defroutes- actions {:path "/actions" :description "Adhoc actions managment"}
 
   (POST- "/actions" [& ^:action action] {:nickname "addActions" :summary "Adds an actions set"}
-    (wrap-errors (success {:msg "added actions" :id (a/add-action action)})))
+    (wrap-errors (success {:msg "added action" :id (a/add-action action)})))
 
   (PUT- "/actions/:id" [^:int id & ^:action action] {:nickname "updateActions" :summary "Update an actions set"}
         (wrap-errors
