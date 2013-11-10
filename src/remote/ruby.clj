@@ -45,6 +45,5 @@
   (cleanup [this]
            (delete-dir dst)))
 
-(defmethod rconstruct :ruby [{:keys [actions src] :as spec} {:keys [action] :as run-info}]
-  (let [task (get-in actions [action :ruby])]
-    (->Ruby src (mapv #(interpulate % run-info) (task :args)) (<< "~(tmpdir)/~(gen-uuid)/~(name action)"))))
+(defmethod rconstruct :ruby [{:keys [src ruby name] :as action} run-info]
+    (->Ruby src (mapv #(interpulate % run-info) (ruby :args)) (<< "~(tmpdir)/~(gen-uuid)/~{name}")))
