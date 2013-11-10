@@ -30,6 +30,7 @@
 (defmodel arguments :args {:type "Hash" :description "key value pairs {'foo':1 , 'bar':2 , ...}" })
  
 (defroutes- actions {:path "/actions" :description "Adhoc actions managment"}
+
   (POST- "/actions" [& ^:action action] {:nickname "addActions" :summary "Adds an actions set"}
     (wrap-errors (success {:msg "added actions" :id (a/add-action action)})))
 
