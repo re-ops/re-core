@@ -22,7 +22,7 @@
 (defn add-actions 
    "populates actions" 
    []
-  (a/add-action d/redis-actions))
+  (a/add-action d/redis-deploy))
 
 (def env-gen (g/elements [:dev :qa :prod])) 
 
