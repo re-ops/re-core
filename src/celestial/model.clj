@@ -72,6 +72,6 @@
 
 (defmulti rconstruct
   "Creates a Remoter instance model from input spec"
-   (fn [actions {:keys [action] :as run-info}] 
-     (figure-rem (get-in actions [:actions action]))))
+   (fn [action run-info] 
+     (figure-rem action)))
 

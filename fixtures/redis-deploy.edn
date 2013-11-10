@@ -1,0 +1,6 @@
+{
+ :operates-on "redis"
+ :src "git://github.com/narkisr/cap-demo.git"
+ :capistrano {:args ["deploy" "-s" "hostname=~{target}"]} 
+ :name "deploy"
+}
