@@ -2,14 +2,33 @@
   "Actions persistency"
   (:refer-clojure :exclude  [name type])
   (:require
+    [clojure.string :refer (join escape)]
+    [celestial.model :refer (figure-rem)]
     [slingshot.slingshot :refer  [throw+]]
     [subs.core :as subs :refer (validate!)]
     [clojure.core.strint :refer (<<)]
     [puny.core :refer (entity)]))
 
-(declare unique-name)
+(declare unique-name with-provided)
 
-(entity action :indices [operates-on] :intercept {:create [unique-name]})
+(entity action :indices [operates-on] :intercept {:create [unique-name with-provided] :update [with-provided]})
+
+(defn- args-of [s]
+  "grab args from string"
+  (map #(escape % {\~ "" \{ "" \} ""}) (re-seq #"~\{\w+\}" s)))
+
+(defn remoter [action]
+  (get action (figure-rem action)))
+
+(defn add-provided [action]
+  "appends action expected arguments drived from args strings"
+   (assoc action :provided (remove #{"target"} (args-of (join " " ((remoter action) :args)))))) 
+
+(defn with-provided [f & [a1 a2 & r :as args]]
+  (cond
+    (map? a1) (apply f (add-provided a1) r)
+    (map? a2) (apply f a1 (add-provided a2) r)
+    :else (apply f args)))
 
 (defn find-action-for [name type]
   (let [ids (get-action-index :operates-on type) 
@@ -32,13 +51,3 @@
     (validate! capistrano has-args :error ::invalid-cap-action))
   (validate! action action-base-validation :error ::invalid-action))
 
-(defn- args-of [s]
-  "grab args from string"
-  (map #(clojure.string/escape % {\~ "" \{ "" \} ""}) (re-seq #"~\{\w+\}" s)))
-
-;; (println (args-of "-S ~{target}"))
-
-(defn action-args [as]
-  "appends action expected arguments drived from args strings"
-
-  )
