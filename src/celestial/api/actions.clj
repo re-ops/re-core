@@ -37,7 +37,7 @@
   (PUT- "/actions/:id" [^:int id & ^:action action] {:nickname "updateActions" :summary "Update an actions set"}
         (wrap-errors
           (a/update-action id action)
-           (success {:msg "updated actions" :id id})))
+           (success {:msg "updated action" :id id})))
 
   (GET- "/actions/type/:type" [^:string type] {:nickname "getActionsByTargetType" :summary "Gets actions that operate on a target type"}
         (let [ids (a/get-action-index :operates-on type)]
