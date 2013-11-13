@@ -25,8 +25,6 @@
     [celestial.security :refer (current-user)]
     [celestial.persistency.systems :as s]))
 
-; 
-
 (import-logging)
 
 (defmodel hash)
@@ -98,9 +96,9 @@
       :notes "Runs adhoc remote opertions on system (like deployment, service restart etc)
               using matching remoting capable tool like Capisrano/Supernal/Fabric"}
        (let [{:keys [machine] :as system} (s/get-system id)]
-         (if-let [actions (find-action-for action (:type system))]
+         (if-let [action* (find-action-for action (:type system))]
            (schedule-job id "run-action" (<< "submitted ~{action} action") 
-             [actions (merge args {:action (keyword action) :hostname (machine :hostname) :target (machine :ip) :system-id (Integer. id)})])
+             [action* (merge args {:action (keyword action) :hostname (machine :hostname) :target (machine :ip) :system-id (Integer. id)})])
            (bad-req {:msg (<< "No action ~{action} found for id ~{id}")})
            )))
 
