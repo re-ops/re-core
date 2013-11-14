@@ -22,7 +22,7 @@
 
 (defn add-provided [action]
   "appends action expected arguments drived from args strings"
-   (assoc action :provided (remove #{"target"} (args-of (join " " ((remoter action) :args)))))) 
+   (assoc action :provided (remove #{"target" "hostname"} (args-of (join " " ((remoter action) :args)))))) 
 
 (defn with-provided [f & [a1 a2 & r :as args]]
   (cond
