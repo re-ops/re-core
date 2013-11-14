@@ -46,8 +46,10 @@
   {:src #{:required :String} :operates-on #{:required :String :type-exists}
    :name #{:required :String}})
 
-(defn validate-action [{:keys [capistrano ruby name type] :as action}]
-  (when (or capistrano ruby) 
-    (validate! capistrano has-args :error ::invalid-cap-action))
+(defn validate-action [{:keys [name type] :as action}]
+  (if-let [r (remoter action)] 
+    (validate! r has-args :error ::invalid-remoter)
+    (throw+ {:type ::no-matching-remoter :msg (<< "no matching remoter found for ~{action}")})
+    )
   (validate! action action-base-validation :error ::invalid-action))
 
