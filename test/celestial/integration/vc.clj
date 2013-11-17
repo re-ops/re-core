@@ -4,12 +4,12 @@
      [hypervisors.networking :refer (clear-range initialize-networking)]
      [vc.vijava :refer (guest-status)]
      [celestial.fixtures.data :refer (redis-vc-spec)]
-     [celestial.fixtures.core :refer (with-conf)]
+     [celestial.fixtures.core :refer (with-defaults)]
      [celestial.model :refer (vconstruct)]  
      [flatland.useful.map :refer (dissoc-in*)])
   (:use midje.sweet vc.provider vc.guest))
 
-(with-conf
+(with-defaults
   (with-state-changes [(before :facts (do (clear-range :vcenter) (initialize-networking)))] 
     (fact "creating a virtualmachine" :integration :vcenter
       (let [vm (.create (vconstruct redis-vc-spec))]
