@@ -57,7 +57,7 @@
        :username "Administrator"
        :password "Oox1kai7"
        :ostemplates {
-          :ubuntu-13.04 "ubuntu-13.04_puppet-3.2"
+          :ubuntu-13.04 "ubuntu-13.04_puppet-3.3.2"
        }
        :generators {
          :ip-range ["192.168.5.100" "192.168.5.255"]
