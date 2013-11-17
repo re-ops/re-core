@@ -18,8 +18,7 @@
     [taoensso.timbre :only (set-config! set-level! debug info error warn trace)]
     [clojure.core.strint :only (<<)]
     [clojure.java.io :only (file)]
-    [clj-config.core :as conf])
-  )
+    [clj-config.core :as conf]))
 
 
 (def base-v 
@@ -81,7 +80,7 @@
   {:vcenter {
       :url #{:required :String} :username #{:required :String}
       :password #{:required :String} :session-count #{:required :number}
-      :ostemplates #{:required :Map} :guest-timeout #{:require :number} }})
+      :ostemplates #{:required :Map} :guest-timeout #{:required :number} }})
 
 (defn hypervisor-validations 
   "find relevant hypervisor validations per env"
