@@ -35,6 +35,13 @@
 (validation :central-logging
   (when-not-nil central-logging (<< "type must be either ~{central-logging}")))
  
+(def ^{:doc "gelf logging settings"} gelf-v
+  {:celestial
+   {:log {
+     :gelf {
+       :host #{:required :String} :type #{:required :central-logging}
+      }}}})
+
 (def ^{:doc "Base config validation"} celestial-v
   {:celestial
    {:port #{:required :number} :https-port #{:required :number}
@@ -74,16 +81,27 @@
   {:vcenter {
       :url #{:required :String} :username #{:required :String}
       :password #{:required :String} :session-count #{:required :number}
-      :ostemplates #{:required :Map} }})
+      :ostemplates #{:required :Map} :guest-timeout #{:require :number} }})
+
+(defn hypervisor-validations 
+  "find relevant hypervisor validations per env"
+  [hypervisor]
+  (let [hvs [proxmox-v aws-v vcenter-v] ks (map (comp first keys) hvs) 
+        envs (map (fn [v] (fn [env] {:hypervisor {env v}})) hvs)]
+    (first (map (fn [[e hs]] (map #(((zipmap ks envs) %) e) (filter (into #{} ks) (keys hs)))) hypervisor))))
+
+
+(defn celestial-validations [{:keys [log] :as celestial}]
+  (if (contains? log :gelf) 
+   (combine celestial-v gelf-v) celestial-v)
+  )
 
 (defn validate-conf 
   "applies all validations on a configration map"
-  [{:keys [hypervisor] :as c}]
-  (let [hvs [proxmox-v aws-v vcenter-v] ks (map (comp first keys) hvs) 
-        envs (map (fn [v] (fn [env] {:hypervisor {env v}})) hvs)]
+  [{:keys [hypervisor celestial] :as c}]
     (validate! c 
-      (apply combine (into [base-v celestial-v] 
-        (first (map (fn [[e hs]] (map #(((zipmap ks envs) %) e) (filter (into #{} ks) (keys hs)))) hypervisor)))))))
+      (apply combine 
+        (into [base-v (celestial-validations celestial)] (hypervisor-validations hypervisor) ))))
 
 (def config-paths
   ["/etc/celestial/celestial.edn" (<< "~(System/getProperty \"user.home\")/.celestial.edn")])
