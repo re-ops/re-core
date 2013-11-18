@@ -156,21 +156,21 @@
     (-> hostname find-vm bean :summary bean :runtime bean :powerState power-to-s )))
 
 (defn guest-info 
-   "Guest info map" 
-   [hostname]
-    (with-service 
-      (-> (find-vm hostname) (.getGuest) bean)))
+  "Guest info map" 
+  [hostname]
+  (with-service 
+    (-> (find-vm hostname) (.getGuest) bean)))
 
 (defn tools-installed?
-   "checks if vmware tools are installed on the host" 
-   [hostname]
-   (not (nil? (:toolsVersion (guest-info hostname)))))
+  "checks if vmware tools are installed on the host" 
+  [hostname]
+  (not (nil? (:toolsVersion (guest-info hostname)))))
 
 (defn guest-status 
-   "Get guest os status (requires vmware tools to be installed)" 
-   [hostname]
+  "Get guest os status (requires vmware tools to be installed)" 
+  [hostname]
   {:pre [(tools-installed? hostname)]}
-    (some-> (guest-info hostname) :guestState keyword))
+  (some-> (guest-info hostname) :guestState keyword))
 
 (defn power-on 
   "Power on VM"
