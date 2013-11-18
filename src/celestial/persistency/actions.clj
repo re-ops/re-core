@@ -13,9 +13,9 @@
 
 (entity action :indices [operates-on] :intercept {:create [unique-name with-provided] :update [with-provided]})
 
-(defn- args-of [s]
+(defn args-of [s]
   "grab args from string"
-  (map #(escape % {\~ "" \{ "" \} ""}) (re-seq #"~\{\w+\}" s)))
+  (into #{} (map #(escape % {\~ "" \{ "" \} ""}) (re-seq #"~\{\w+\}" s))))
 
 (defn remoter [action]
   (get action (figure-rem action)))

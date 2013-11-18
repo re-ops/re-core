@@ -1,7 +1,7 @@
 (ns celestial.test.actions
   (:require 
     [celestial.model :refer (rconstruct)]
-    [celestial.persistency.actions :refer (validate-action)]
+    [celestial.persistency.actions :refer (validate-action args-of)]
     [celestial.persistency :refer (type-exists?)]
     [celestial.fixtures.data :refer (redis-deploy)] 
     [celestial.fixtures.core :refer (with-m?)] 
@@ -25,3 +25,9 @@
      (validate-action (assoc redis-deploy :operates-on "foo")) =>
      (throws ExceptionInfo (with-m? {:operates-on  '("type not found, create it first")})) 
      (provided (type-exists? anything)  => false)))
+
+(fact "args parsing"
+   (fact "sanity" 
+     (args-of "deploy ~{a} ~{b}") => #{"a" "b"})
+   (fact "repeating args"
+     (args-of "~{a} ~{b} ~{a}") => #{"a" "b"}))
