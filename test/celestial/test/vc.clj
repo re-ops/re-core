@@ -6,22 +6,21 @@
     [celestial.model :refer (vconstruct)]
     [celestial.persistency :as p]
     [celestial.fixtures.data :refer (redis-vc-spec)]
-    [celestial.fixtures.core :refer (with-conf with-m?)] 
+    [celestial.fixtures.core :refer (with-conf with-defaults with-m?)] 
     [celestial.persistency.systems :as s])
   (:use midje.sweet)
   (:import clojure.lang.ExceptionInfo))
 
-(with-conf
-  (do
-    (fact "basic construction"
+(with-defaults
+   (fact "basic construction"
       (let [vm (vconstruct redis-vc-spec)]
-        (:allocation vm ) => {:datacenter "playground" :hostsystem "192.168.5.5" :pool "dummy" :disk-format :sparse}
+        (:allocation vm ) => {:datacenter "playground" :hostsystem "192.168.5.6" :pool "dummy" :disk-format :sparse}
         (:hostname vm)   => "red1"
         (:machine vm) => {:cpus 1 :memory 512 
                           :password "foobar" :user "ronen" :sudo true
                           :gateway "192.168.5.1" :ip "192.168.5.91" :netmask "255.255.255.0"
                           :domain "local" :names ["8.8.8.8"] :search "local"
-                          :template "ubuntu-13.04_puppet-3.2"}))
+                          :template "ubuntu-13.04_puppet-3.3.2"}))
 
     (fact "missing datacenter"
           (vconstruct (assoc-in redis-vc-spec [:vcenter :datacenter] nil)) => 
@@ -62,8 +61,5 @@
         (s/validate-system (assoc-in redis-vc-spec [:machine :names] "bla")) => 
           (throws ExceptionInfo (with-m? {:machine {:names '("must be a vector")}}))
         (provided (p/user-exists? "admin")  => true) 
-        (provided (p/type-exists? "redis")  => true))
-    ))
-
-
+        (provided (p/type-exists? "redis")  => true)))
 
