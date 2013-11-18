@@ -50,7 +50,7 @@
   {:pre [(tools-installed? hostname)]}
   (with-service 
     (let [url (.initiateFileTransferToGuest (manager hostname :file) (npa auth) dst (GuestFileAttributes.) (.length input) true)]
-      (client/put url {:body input :insecure? true}))))
+      (assert (:status (client/put url {:body input :insecure? true})) 200))))
 
 (defn download-file  
   "download a file from a guest system returns a stream" 
