@@ -113,8 +113,8 @@
       (debian-interfaces (update-in config [:names] (partial join " "))) tmp-file hostname auth)
     (guest-run hostname "/bin/cp" (<< "-v ~{tmp-file} /etc/network/interfaces") auth uuid)
     (guest-run hostname "/bin/rm" (<< "-v ~{tmp-file}") auth uuid)
-    (guest-run hostname "sed" (<< "-i '/^.*$/c\\~{hostname}' /etc/hostname") auth uuid)
-    (guest-run hostname "sed" 
+    (guest-run hostname "/bin/sed" (<< "-i '/^.*$/c\\~{hostname}' /etc/hostname") auth uuid)
+    (guest-run hostname "/bin/sed" 
                (<< "-i '/^127.0.1.1/c\\127.0.1.1     ~{hostname} ~{hostname}.~{domain}' /etc/hosts") auth uuid)
     (doseq [line (split (fetch-log hostname uuid auth) #"\n")] (debug line))))
 
