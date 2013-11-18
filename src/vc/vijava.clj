@@ -14,6 +14,7 @@
     [celestial.model :refer [hypervisor]]
     [slingshot.slingshot :refer  [throw+ try+]]
     [clojure.core.strint :refer  (<<)]
+    [flatland.useful.map :refer  (dissoc-in*)] 
     [celestial.common :refer (import-logging)])
   (:import 
     java.net.URL
@@ -30,6 +31,7 @@
     com.vmware.vim25.mo.Task
     com.vmware.vim25.mo.VirtualMachine 
     java.lang.Throwable 
+    clojure.lang.ExceptionInfo
     ))
 
 (import-logging)
@@ -59,8 +61,13 @@
   `(fn [s#]
      (binding [service (renew-session s#)]
        (try 
-         (deliver ~p ~body) service) 
-       (catch Throwable e# (deliver ~p e#) service))))
+         (deliver ~p ~body) 
+         (catch ExceptionInfo e# 
+           (deliver ~p (.getData e#)))
+         (catch Throwable e# 
+           (deliver ~p e#)))
+       service 
+       )))
 
 (def robin (atom 0N))
 
@@ -72,10 +79,11 @@
      (trace "using session " (hash a#) " robin is " @robin)
      (send a# (execute ~body p#)) 
      (let [res# @p#]
-       (when (instance? Throwable res#)
-         (throw res#))
-       res#)
-     ))
+       (cond
+         (and (map? res#) (res# :object)) (throw (ExceptionInfo. "" (dissoc-in* res# [:object :environment])))
+         (instance? Throwable res#) (throw res#)
+         :else res#
+         ))))
 
 (defn navigator 
   ([] (navigator (.getRootFolder service)))
