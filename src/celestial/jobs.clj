@@ -43,7 +43,7 @@
    "marks jobs as succesful" 
    [spec status]
   (let [id (add-job-status (merge spec {:status status :end (System/currentTimeMillis)})) 
-        status-exp (or (get* :celestial :job :status-exp) (* 5 60))]
+        status-exp (* 60 (or (get* :celestial :job :status-exp) 5))]
     (wcar (car/expire (job-status-id id) status-exp)) {:status status}))
 
 (defn job-exec [f  {:keys [message attempt]}]
