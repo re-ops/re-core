@@ -41,6 +41,16 @@
        :host #{:required :String} :type #{:required :central-logging}
       }}}})
 
+(def ^{:doc "job settings"} job-v
+  {:celestial {
+    :job {
+      :status-expiry #{:required :number}
+      :lock {
+        :expiry #{:required :number} :wait-time #{:required :number}
+      }
+    }}}
+  )
+
 (def ^{:doc "Base config validation"} celestial-v
   {:celestial
    {:port #{:required :number} :https-port #{:required :number}
@@ -52,7 +62,6 @@
         }
     } 
     :cert {:password #{:required :String} :keystore #{:required :String}} 
-    :job {:expiry #{:number} :wait-time #{:number}} 
     :nrepl {:port #{:number}}}})
 
 (validation :node*
@@ -90,17 +99,16 @@
     (first (map (fn [[e hs]] (map #(((zipmap ks envs) %) e) (filter (into #{} ks) (keys hs)))) hypervisor))))
 
 
-(defn celestial-validations [{:keys [log] :as celestial}]
-  (if (contains? log :gelf) 
-   (combine celestial-v gelf-v) celestial-v)
-  )
+(defn celestial-validations [{:keys [log job] :as celestial}]
+   (let [v  (if (contains? log :gelf) (combine celestial-v gelf-v) celestial-v)]
+     (if job (combine job-v v) v)))
 
 (defn validate-conf 
   "applies all validations on a configration map"
   [{:keys [hypervisor celestial] :as c}]
-    (validate! c 
-      (apply combine 
-        (into [base-v (celestial-validations celestial)] (hypervisor-validations hypervisor) ))))
+  (validate! c 
+    (apply combine 
+      (into [base-v (celestial-validations celestial)] (hypervisor-validations hypervisor) ))))
 
 (def config-paths
   ["/etc/celestial/celestial.edn" (<< "~(System/getProperty \"user.home\")/.celestial.edn")])

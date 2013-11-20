@@ -42,7 +42,8 @@
 (defn save-status
    "marks jobs as succesful" 
    [spec status]
-  (let [id (add-job-status (merge spec {:status status :end (System/currentTimeMillis)})) status-exp (* 5 60)]
+  (let [id (add-job-status (merge spec {:status status :end (System/currentTimeMillis)})) 
+        status-exp (or (get* :celestial :job :status-exp) (* 5 60))]
     (wcar (car/expire (job-status-id id) status-exp)) {:status status}))
 
 (defn job-exec [f  {:keys [message attempt]}]
@@ -52,7 +53,7 @@
     (set-user user
       (set-env env
         (set-tid tid 
-           (let [{:keys [wait-time expiry]} (map-vals (or (get* :celestial :job) defaults) #(* minute %) )]
+           (let [{:keys [wait-time expiry]} (map-vals (or (get* :celestial :job :lock) defaults) #(* minute %) )]
             (try 
               (if identity
                 (do (with-lock (server-conn) identity expiry wait-time (apply f args)) (save-status spec' :success)) 
