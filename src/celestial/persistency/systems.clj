@@ -56,6 +56,9 @@
 (defn hookless-get [id]
   (h/with-hooks-disabled get-system (get-system id)))
 
+(defn is-system? [s]
+  (and (map? s) (s :owner) (s :env)))
+
 (defn perm
   "A permission interceptor on systems access, we check both env and owner persmissions.
    due to the way robert.hooke works we analyse args and not fn to decide what to verify on.
@@ -64,9 +67,9 @@
   [f & args]
   (let [system (first (filter map? args)) 
         id (first (filter #(or (number? %) (and (string? %) (re-find #"\d+" %))) args))]
-    (cond
-      (map? system) (assert-access system)
-      :default (assert-access (hookless-get id))) 
+    (if (is-system? system) 
+      (assert-access system)
+      (assert-access (hookless-get id))) 
     (apply f args)))
 
 (defn system-ip [id]
