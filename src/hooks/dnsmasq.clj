@@ -47,7 +47,7 @@
     (let [remote {:host dnsmasq :user user} line (hostline domain (:machine (s/get-system system-id)))
         hosts-file' (str hosts-file) ]
     (execute 
-       (bash- (chain-or ("grep" "-q" ~line ~hosts-file') 
+       (bash- (chain-or ("grep" "-q" (quoted ~line) ~hosts-file') 
            (pipe ("echo" ~line) (~sudo "tee" "-a" ~hosts-file' ">> /dev/null")))) remote)
     (restart remote) hosts-file)
     (catch Throwable t (error t) hosts-file)))
