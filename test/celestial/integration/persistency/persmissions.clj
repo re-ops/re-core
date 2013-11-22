@@ -77,9 +77,9 @@
 
       (fact "partial update" :integration :redis :systems
          (let [id (s/add-system (assoc redis-prox-spec :owner "admin"))] 
-           (s/partial-system id {:proxmox {:vmid 100} :machine {:ip "1.2.3.4"}}) => (contains ["OK"])
+           (s/partial-system id {:proxmox {:vmid 101} :machine {:ip "1.2.3.4"}}) => (contains ["OK"])
            (provided (current-user) => {:username "admin"} :times 12)
-           (s/partial-system id {:proxmox {:vmid 100} :machine {:ip "1.2.3.4"}}) => 
+           (s/partial-system id {:proxmox {:vmid 101} :machine {:ip "1.2.3.4"}}) => 
              (throws ExceptionInfo (is-type? :celestial.persistency.systems/persmission-owner-violation))
            (provided (current-user) => {:username "ronen"} :times 2))))
 
