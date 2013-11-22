@@ -48,5 +48,6 @@
    "Adds single type and system" 
    [t s]
   (clear-all)
+  (add-users)
   (p/add-type t)
   (s/add-system s))
