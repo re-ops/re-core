@@ -81,7 +81,7 @@
             ["midje" ":filter" "-integration"] 
             }
 
-  :aot [supernal.launch capistrano.remoter proxmox.provider vc.provider
+  :aot [supernal.launch remote.capistrano proxmox.provider vc.provider
         aws.provider celestial.core celestial.puppet-standalone celestial.launch]
 
   :repositories  {"bintray"  "http://dl.bintray.com/content/narkisr/narkisr-jars"
