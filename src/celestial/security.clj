@@ -44,11 +44,15 @@
          param (<< "&login_failed=Y&user=~{user}")]
    (ring.util.response/redirect (<< "/login?~{param}"))))
 
+(defn user-with-pass [id]
+  {:post [(not-empty (% :password ))]}
+  (p/get-user! id))
+
 (defn secured-app [routes]
   (friend/authenticate 
     (friend/wrap-authorize (user-tracking routes) roles/user) 
     {:allow-anon? true
-     :credential-fn #(if (p/user-exists? (:username %)) (creds/bcrypt-credential-fn p/get-user! %) nil)
+     :credential-fn #(if (p/user-exists? (:username %)) (creds/bcrypt-credential-fn user-with-pass %) nil)
      :unauthenticated-handler #(assoc (workflows/http-basic-deny "basic-celestial" %) :body {:message "login failed" } )
      :workflows [(workflows/interactive-form :login-failure-handler login-redirect) (workflows/http-basic :realm "basic-celestial")]}))
 
