@@ -48,7 +48,7 @@
        res)))
  
 (def user-v
-  {:username #{:required :String} :password #{:required :String} 
+  {:username #{:required :String!} :password #{:required :String!} 
    :roles #{:required :role*} :envs #{:required :env*}})
 
 (validation :role (when-not-nil roles (<< "role must be either ~{roles}")))
