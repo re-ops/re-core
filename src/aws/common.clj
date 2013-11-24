@@ -12,7 +12,7 @@
 (ns aws.common
   "Common functionality like connection settings"
   (:require
-    [aws.sdk.ec2 :as ec2]
+    [amazonica.aws.ec2 :as ec2]
     [celestial.model :refer (hypervisor)]  
     ))
 
@@ -24,7 +24,8 @@
   `(~f (assoc (creds) :endpoint ~'endpoint) ~@args))
 
 (defn instance-desc [endpoint instance-id & ks]
-  (-> (with-ctx ec2/describe-instances (ec2/instance-id-filter instance-id))
+  (-> 
+    (with-ctx ec2/describe-instances {:instance-ids  [instance-id]})
       first :instances first (get-in ks)))
 
 (defn image-id [machine]
