@@ -11,11 +11,10 @@
 
 (ns aws.provider
   (:require 
+    [amazonica.aws.ec2 :as ec2]
     [aws.common :refer (with-ctx instance-desc creds image-id)]
     [aws.networking :refer (update-ip set-hostname pub-dns)]
     [aws.volumes :refer (delete-volumes handle-volumes)]
-    [aws.sdk.ec2 :as ec2]
-    [aws.sdk.ebs :as ebs]
     [aws.sdk.eip :as eip]
     [aws.validations :refer (provider-validation)]
     [celestial.persistency :as p]
@@ -48,13 +47,16 @@
     (do ~@body) 
     (throw+ {:type ::aws:missing-id :message "Instance id not found"}))) 
 
+(defn creation-keys [aws]
+  (clojure.set/subset? (into #{} (keys aws))
+    #{:volumes :min-count :max-count :instance-type :key-name}))
+
 (defn create-instance 
    "creates instance from aws" 
    [{:keys [aws machine] :as spec} endpoint]
-   {:pre [(clojure.set/subset? (into #{} (keys aws))
-       #{:volumes :min-count :max-count :instance-type :key-name})]}
+   {:pre [(creation-keys aws)]}
    (let [inst (merge (dissoc aws :volumes) {:image-id (image-id machine)})]
-     (-> (with-ctx ec2/run-instances inst) :instances first :id)))
+     (get-in (with-ctx ec2/run-instances inst) [:instances 0 :instance-id])))
 
 (defconstrainedrecord Instance [endpoint spec user]
   "An Ec2 instance"
@@ -76,7 +78,7 @@
   (start [this]
     (with-instance-id
       (debug "starting" instance-id)
-      (with-ctx ec2/start-instances instance-id) 
+      (with-ctx ec2/start-instances {:instance-ids [instance-id]}) 
       (wait-for-status this "running" [5 :minute]) 
       (when-let [ip (get-in spec [:machine :ip])] 
         (debug (<<  "Associating existing ip ~{ip} to instance-id"))
@@ -89,7 +91,7 @@
     (with-instance-id
       (debug "deleting" instance-id)
       (delete-volumes endpoint instance-id (spec :system-id)) 
-      (with-ctx ec2/terminate-instances instance-id) 
+      (with-ctx ec2/terminate-instances {:instance-ids instance-id}) 
       (wait-for-status this "terminated" [5 :minute])
       ; for reload support
       (s/update-system (spec :system-id) 
@@ -103,7 +105,7 @@
          (debug "clearing dynamic ip from system")
          (s/update-system (spec :system-id) 
            (dissoc-in* (s/get-system (spec :system-id)) [:machine :ip])))
-       (with-ctx ec2/stop-instances instance-id) 
+       (with-ctx ec2/stop-instances {:instance-ids instance-id}) 
        (wait-for-status this "stopped" [5 :minute])))
 
   (status [this] 
@@ -127,12 +129,11 @@
   (apply ->Instance (translate spec)))
 
 (comment 
-  (use 'celestial.fixtures)
-  (def m (vconstruct celestial.fixtures/puppet-ami)) 
-  (:endpoint m )
-  (.status m)
+  (use 'celestial.fixtures.data 'celestial.fixtures.core )
+  (def m (vconstruct redis-ec2-spec)) 
+  (with-admin (with-conf local-conf (.status m)))
+  (with-conf local-conf (with-admin (.create m)))
   (.start m)
-
   (clojure.pprint/pprint 
     (celestial.model/set-env :dev 
      (first (:addresses (eip/describe-eip (assoc (creds) :endpoint "ec2.eu-west-1.amazonaws.com") "i-cdd59781"))))) 
