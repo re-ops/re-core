@@ -54,6 +54,7 @@
       (throw+ {:type ::persmission-env-violation} (<< "~{username} attempted to access system ~{system} in env ~{env}"))))))
 
 (defn hookless-get [id]
+  (trace "hooks on get-system" (:robert.hooke/hooks (meta get-system)))
   (h/with-hooks-disabled get-system (get-system id)))
 
 (defn is-system? [s]
