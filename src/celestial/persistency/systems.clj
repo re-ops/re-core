@@ -67,6 +67,7 @@
   [f & args]
   (let [system (first (filter map? args)) 
         id (first (filter #(or (number? %) (and (string? %) (re-find #"\d+" %))) args))]
+    (trace "perm checking" f args)
     (if (is-system? system) 
       (assert-access system)
       (assert-access (hookless-get id))) 
