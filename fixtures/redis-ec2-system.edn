@@ -5,15 +5,15 @@
 
  :machine {
   :hostname "red1" :user "ubuntu" 
-  :domain "local" :os :ubuntu-12.10
+  :domain "local" :os :ubuntu-13.04
  }
 
  :aws {
   :instance-type "t1.micro" 
   :key-name "Uranus" 
   :endpoint "ec2.eu-west-1.amazonaws.com"
+  ;;:volumes [ {:device "sdh" :size 100 :clear false} ]
   }
 
- ;; :volumes [{:device "sdh" :size 100 :clear false}]
  :type "redis"
 }
