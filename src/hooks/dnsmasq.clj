@@ -66,7 +66,9 @@
 
 (def actions {:reload {:success add-host} :create {:success add-host} 
               :start {:success add-host} :stop {:success remove-host}
-              :destroy {:success remove-host :error remove-host}})
+              :destroy {:success remove-host :error remove-host}
+              :stage {:success add-host}
+              })
 
 (defn update-dns [{:keys [event workflow] :as args}]
   (send-off hosts (get-in actions [workflow event] (fn [hosts-file _] hosts-file)) args))
