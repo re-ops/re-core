@@ -43,7 +43,7 @@
   "Runs hooks"
   [args workflow event]
   (doseq [[f conf] (get! :hooks)]
-    (debug "running hook"  f (resolve f))
+    (debug "running hook" f (resolve- f))
     (try 
       ((resolve- f) (merge args conf {:workflow workflow :event event}))
       (catch Throwable t (error t)) 
