@@ -30,7 +30,7 @@
 
 (with-admin
  (with-conf local-conf
-  (with-state-changes [(before :facts (do (populate-system redis-type redis-ec2-spec)))]
+  (with-state-changes [(before :facts (populate-system redis-type redis-ec2-spec))]
     (fact "aws creation workflows" :integration :ec2 :workflow
       (letfn [(spec [] (assoc (s/get-system 1) :system-id 1))] 
         (wf/create (spec)) => nil 
