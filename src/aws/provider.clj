@@ -55,8 +55,9 @@
    "creates instance from aws" 
    [{:keys [aws machine] :as spec} endpoint]
    {:pre [(creation-keys aws)]}
-   (let [inst (merge (dissoc aws :volumes) {:image-id (image-id machine)})]
-     (get-in (with-ctx ec2/run-instances inst) [:instances 0 :instance-id])))
+   (let [inst (merge (dissoc aws :volumes) {:image-id (image-id machine)})
+         {:keys [reservation]} (with-ctx ec2/run-instances inst)]
+     (get-in reservation  [:instances 0 :instance-id])))
 
 (defconstrainedrecord Instance [endpoint spec user]
   "An Ec2 instance"
