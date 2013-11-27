@@ -12,7 +12,7 @@
 (ns aws.networking
   "AWS networking functions"
   (:require 
-    [aws.sdk.ec2 :as ec2]
+    [amazonica.aws.ec2 :as ec2]
     [slingshot.slingshot :refer  [throw+]] 
     [celestial.model :refer (hypervisor)]  
     [supernal.sshj :refer (execute)] 
@@ -22,18 +22,13 @@
     [celestial.persistency.systems :as s]))
 
 (defn pub-dns [endpoint instance-id]
-  (instance-desc endpoint instance-id :public-dns))
-
-(defn pubdns-to-ip
-  "Grabs public ip from dnsname ec2-54-216-121-122.eu-west-1.compute.amazonaws.com"
-  [pubdns]
-  (join "." (rest (re-find #"ec2\-(\d+)-(\d+)-(\d+)-(\d+).*" pubdns))))
+  (instance-desc endpoint instance-id :public-dns-name))
 
 (defn update-ip [spec endpoint instance-id]
   "updates public dns in the machine persisted data"
   (when (s/system-exists? (spec :system-id))
-    (let [ec2-host (pub-dns endpoint instance-id)]
-      (s/partial-system (spec :system-id) {:machine {:ip (pubdns-to-ip ec2-host)}}))))
+    (let [public-ip (instance-desc endpoint instance-id :public-ip-address)]
+      (s/partial-system (spec :system-id) {:machine {:ip public-ip}}))))
 
 (defn override-hostname 
   "sets hostname and hosts file" 
