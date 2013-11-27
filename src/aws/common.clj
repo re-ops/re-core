@@ -26,7 +26,7 @@
 (defn instance-desc [endpoint instance-id & ks]
   (-> 
     (with-ctx ec2/describe-instances {:instance-ids  [instance-id]})
-      first :instances first (get-in ks)))
+      :reservations first :instances first (get-in ks)))
 
 (defn image-id [machine]
   (hypervisor :aws :ostemplates (machine :os) :ami))
