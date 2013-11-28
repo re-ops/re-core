@@ -13,9 +13,9 @@
   (:require 
     [amazonica.aws.ec2 :as ec2]
     [aws.common :refer (with-ctx instance-desc creds image-id)]
-    [aws.networking :refer (update-ip set-hostname pub-dns)]
+    [aws.networking :refer 
+      (update-ip set-hostname pub-dns assoc-pub-ip describe-eip)]
     [aws.volumes :refer (delete-volumes handle-volumes)]
-    [aws.sdk.eip :as eip]
     [aws.validations :refer (provider-validation)]
     [celestial.persistency :as p]
     [clojure.core.strint :refer (<<)] 
@@ -70,7 +70,7 @@
        (handle-volumes spec endpoint instance-id)    
        (when-let [ip (get-in spec [:machine :ip])] 
          (debug (<<  "Associating existing ip ~{ip} to instance-id"))
-          (with-ctx eip/assoc-pub-ip instance-id ip))
+         (with-ctx (assoc-pub-ip endpoint instance-id ip)))
        (update-ip spec endpoint instance-id)
        (wait-for-ssh (pub-dns endpoint instance-id) user [5 :minute])
        (set-hostname spec endpoint instance-id user)
@@ -82,8 +82,8 @@
       (with-ctx ec2/start-instances {:instance-ids [instance-id]}) 
       (wait-for-status this "running" [5 :minute]) 
       (when-let [ip (get-in spec [:machine :ip])] 
-        (debug (<<  "Associating existing ip ~{ip} to instance-id"))
-        (with-ctx eip/assoc-pub-ip instance-id ip))
+        (debug (<<  "Associating existing ip ~{ip} to ~{instance-id}"))
+        (with-ctx (assoc-pub-ip endpoint instance-id ip)))
       (update-ip spec endpoint instance-id)
       (wait-for-ssh (pub-dns endpoint instance-id) user [5 :minute])
       ))
@@ -92,7 +92,7 @@
     (with-instance-id
       (debug "deleting" instance-id)
       (delete-volumes endpoint instance-id (spec :system-id)) 
-      (with-ctx ec2/terminate-instances {:instance-ids instance-id}) 
+      (with-ctx ec2/terminate-instances {:instance-ids [instance-id]}) 
       (wait-for-status this "terminated" [5 :minute])
       ; for reload support
       (s/update-system (spec :system-id) 
@@ -102,11 +102,11 @@
   (stop [this]
     (with-instance-id 
        (debug "stopping" instance-id)
-       (when-not (first (:addresses (with-ctx eip/describe-eip instance-id)))
+       (when-not (first (:addresses (with-ctx (describe-eip endpoint instance-id))))
          (debug "clearing dynamic ip from system")
          (s/update-system (spec :system-id) 
            (dissoc-in* (s/get-system (spec :system-id)) [:machine :ip])))
-       (with-ctx ec2/stop-instances {:instance-ids instance-id}) 
+       (with-ctx ec2/stop-instances {:instance-ids [instance-id]}) 
        (wait-for-status this "stopped" [5 :minute])))
 
   (status [this] 
