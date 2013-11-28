@@ -3,8 +3,9 @@
   (:import clojure.lang.ExceptionInfo)
   (:require 
     [celestial.persistency.systems :as s]
-    [celestial.fixtures.core :refer  (with-conf with-admin with-defaults)]  
-    [celestial.fixtures.data :refer (redis-type local-conf puppet-ami)]  
+    [celestial.fixtures.populate :refer (populate-system)]  
+    [celestial.fixtures.core :refer  (with-conf with-admin)]  
+    [celestial.fixtures.data :refer (redis-type local-conf redis-ec2-spec)]  
     [aws.provider :as awp]
     [celestial.persistency :as p])
   (:use 
@@ -26,12 +27,12 @@
 
 (with-admin
   (with-conf local-conf
-   (with-state-changes [(before :facts (do (clear-all) (p/add-type redis-type)))]
-    (fact "aws full scenario works" :ec2  :integration (flow puppet-ami truthy))
+   (with-state-changes [(before :facts (populate-system redis-type redis-ec2-spec))]
+    (fact "aws full scenario works" :ec2  :integration (flow redis-ec2-spec truthy))
  
     (fact "aws with elastic ip" :ec2 :integration :eip
-       (flow (merge-with merge puppet-ami {:machine {:ip "54.217.236.112"}})
+       (flow (merge-with merge redis-ec2-spec {:machine {:ip "54.217.236.112"}})
            "ec2-54-217-236-112.eu-west-1.compute.amazonaws.com")) 
 
     (fact "aws with volumes" :ec2 :integration :volumes
-      (flow (merge-with merge puppet-ami {:aws {:volumes [{:device "/dev/sdn" :size 10}]}}) truthy))))) 
+      (flow (merge-with merge redis-ec2-spec {:aws {:volumes [{:device "/dev/sdn" :size 10}]}}) truthy))))) 

@@ -31,10 +31,10 @@
   (fact "provisioning an ec2 instance" :integration :puppet :ec2
         "assumes a working ec2 defs in ~/.celestial.edn"
         path => truthy
-        (run-cycle d/puppet-ami d/redis-type)) 
+        (run-cycle d/redis-ec2-spec d/redis-type)) 
 
   (fact "ec2 with s3 source url type" :integration :puppet :ec2 :s3
         "assumes a working ec2 defs in ~/.celestial.edn"
         (let [s3-redis (assoc-in d/redis-type [:puppet-std :module :src] "s3://opsk-sandboxes/redis-sandbox-0.3.4.tar.gz")]
           path => truthy
-          (run-cycle d/puppet-ami s3-redis)))) 
+          (run-cycle d/redis-ec2-spec s3-redis)))) 

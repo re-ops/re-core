@@ -39,6 +39,3 @@
 (def local-conf 
   (let [path (me.raynes.fs/expand-home "~/.celestial.edn")]
     (when (me.raynes.fs/exists? path) (slurp-edn path))))
-
-(def ^{:doc "an ami with puppet baked in"}
-  puppet-ami (assoc-in redis-ec2-spec [:aws :image-id] "ami-f5e2ff81"))
