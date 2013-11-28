@@ -2,9 +2,11 @@
   "Testing workflows"
   (:require 
     [celestial.fixtures.core :refer (with-defaults is-type? with-admin with-conf)]  
-    [celestial.fixtures.data :refer (redis-type redis-prox-spec redis-ec2-spec local-conf redis-ec2-centos)]  
+    [celestial.fixtures.data :refer 
+     (redis-type redis-prox-spec redis-ec2-spec local-conf redis-ec2-centos)]  
     [celestial.fixtures.populate :refer (populate-system)]  
     [celestial.persistency.systems :as s]  
+    [celestial.persistency :as p]  
     [celestial.workflows :as wf])
   (:import clojure.lang.ExceptionInfo)
   (:use midje.sweet))
@@ -50,9 +52,27 @@
         (when-let [eip (System/getenv "EIP")]
           (wf/create (spec {:machine {:ip eip}})) => nil
           (wf/reload (spec {:machine {:ip eip}})) => nil 
-          (wf/destroy (spec {:machine {:ip eip}})) => nil))) 
+          (wf/destroy (spec {:machine {:ip eip}})) => nil))
 
-(with-state-changes [(before :facts (do (populate-system redis-type redis-ec2-centos)))]
+      (fact "aws with volumes" :integration :ec2 :workflow
+        (let [with-vol {:aws {:volumes [{:device "/dev/sdn" :size 10 :clear true}]}}]
+          (wf/create (spec with-vol)) => nil
+          (wf/reload (spec with-vol)) => nil 
+          (wf/destroy (spec with-vol)) => nil))
+
+      (fact "aws puppetization" :integration :ec2 :workflow
+          (wf/create (spec)) => nil
+          (wf/puppetize redis-type (spec)) => nil 
+          (wf/destroy (spec)) => nil)
+
+      (fact "aws puppetization of s3" :integration :ec2 :workflow
+          (let [s3-redis (assoc-in redis-type [:puppet-std :module :src] 
+                            "s3://opsk-sandboxes/redis-sandbox-0.3.5.tar.gz")]
+            (wf/create (spec)) => nil
+            (wf/puppetize s3-redis (spec)) => nil 
+            (wf/destroy (spec)) => nil))) 
+
+(with-state-changes [(before :facts (populate-system redis-type redis-ec2-centos))]
      (fact "aws centos provisioning" :integration :ec2 :workflow
         (wf/create (spec)) => nil
         (wf/stop (spec)) => nil 

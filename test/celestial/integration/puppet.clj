@@ -4,6 +4,7 @@
     [celestial.persistency.systems :as s]
     [celestial.persistency :as p]
     [celestial.fixtures.core :refer (with-defaults) :as f]  
+    [celestial.fixtures.populate :refer (add-users)]  
     [celestial.fixtures.data :as d]  
     [celestial.workflows :refer (reload puppetize destroy)]
     [celestial.redis :refer (clear-all)]
@@ -27,14 +28,4 @@
 
   (fact "provisioning a vcenter instance" :integration :puppet :vcenter
         (run-cycle d/redis-vc-spec d/redis-type)) 
-
-  (fact "provisioning an ec2 instance" :integration :puppet :ec2
-        "assumes a working ec2 defs in ~/.celestial.edn"
-        path => truthy
-        (run-cycle d/redis-ec2-spec d/redis-type)) 
-
-  (fact "ec2 with s3 source url type" :integration :puppet :ec2 :s3
-        "assumes a working ec2 defs in ~/.celestial.edn"
-        (let [s3-redis (assoc-in d/redis-type [:puppet-std :module :src] "s3://opsk-sandboxes/redis-sandbox-0.3.4.tar.gz")]
-          path => truthy
-          (run-cycle d/redis-ec2-spec s3-redis)))) 
+  )
