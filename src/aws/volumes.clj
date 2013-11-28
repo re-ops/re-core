@@ -13,8 +13,7 @@
   (:require 
     [celestial.common :refer (import-logging )] 
     [celestial.provider :refer (wait-for)] 
-    [aws.sdk.ebs :as ebs]
-    [aws.sdk.ec2 :as ec2]
+    [amazonica.aws.ec2 :as ec2]
     [celestial.persistency.systems :as s]
     [aws.common :refer (with-ctx instance-desc creds image-id)]
     )) 
@@ -22,13 +21,20 @@
 (import-logging)
 
 (defn image-desc [endpoint ami & ks]
-  (-> (ec2/describe-images (assoc (creds) :endpoint endpoint) (ec2/image-id-filter ami))
-      first (apply ks)))
+  (-> 
+    (ec2/describe-images (assoc (creds) :endpoint endpoint) 
+       :image-ids [ami]) :images first (apply ks)
+      ))
 
 (defn wait-for-attach [endpoint instance-id timeout]
   (wait-for {:timeout timeout} 
     #(= "attached" (instance-desc endpoint instance-id :block-device-mappings 0 :ebs :status)) 
     {:type ::aws:ebs-attach-failed :message "Failed to wait for ebs root device attach"}))
+
+(defn volume-desc [endpoint volume-id & ks]
+  (-> 
+   (with-ctx ec2/describe-volumes {:volume-ids [volume-id]}))
+    :volumes first (get-in ks))
 
 (defn handle-volumes 
    "attached and waits for ebs volumes" 
@@ -37,11 +43,14 @@
     (wait-for-attach endpoint instance-id [10 :minute]))
   (let [zone (instance-desc endpoint instance-id :placement :availability-zone)]
     (doseq [{:keys [device size]} (aws :volumes)]
-      (let [{:keys [volumeId]} (with-ctx ebs/create-volume size zone)]
-        (wait-for {:timeout [10 :minute]} #(= "available" (with-ctx ebs/state volumeId))
+      (let [{:keys [volume-id]} (with-ctx ec2/create-volume {:size size :availability-zone zone})]
+        (wait-for {:timeout [10 :minute]} 
+           #(= "available" (volume-desc endpoint volume-id :state))
            {:type ::aws:ebs-volume-availability :message "Failed to wait for ebs volume to become available"})
-        (with-ctx ebs/attach-volume volumeId instance-id device)
-        (wait-for {:timeout [10 :minute]} #(= "attached" (with-ctx ebs/attachment-status volumeId))
+        (with-ctx ec2/attach-volume 
+          {:volume-id volume-id :instance-id instance-id :device device})
+        (wait-for {:timeout [10 :minute]} 
+           #(= "attached" (volume-desc endpoint volume-id :attachments 0 :state))
            {:type ::aws:ebs-volume-attach-failed :message "Failed to wait for ebs volume device attach"})))))
 
 (defn clear?
@@ -58,16 +67,9 @@
   (doseq [{:keys [ebs device-name]} (-> (instance-desc endpoint instance-id) :block-device-mappings rest)]
     (when (clear? device-name system-id)
       (trace "deleting volume" ebs) 
-      (with-ctx ebs/detach-volume (ebs :volume-id)) 
+      (with-ctx ec2/detach-volume {:volume-id (ebs :volume-id)}) 
       (wait-for {:timeout [10 :minute]} 
-        #(= "available" (with-ctx ebs/state  (ebs :volume-id)))
+        #(= "available" (with-ctx (volume-desc endpoint (ebs :volume-id) :state)))
         {:type ::aws:ebs-volume-availability 
          :message "Failed to wait for ebs volume to become available"}) 
-      (with-ctx ebs/delete-volume (ebs :volume-id)))))
-
-(comment
-  (clojure.pprint/pprint 
-    (celestial.model/set-env :dev 
-                             (-> (instance-desc "ec2.eu-west-1.amazonaws.com" "i-a5a88de9") :block-device-mappings rest)
-                             ))
-  )
+      (with-ctx ec2/delete-volume {:volume-id (ebs :volume-id)}))))
