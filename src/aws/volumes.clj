@@ -37,13 +37,15 @@
     :volumes first (get-in ks)))
 
 (defn handle-volumes 
-   "attached and waits for ebs volumes" 
+   "attaches and waits for ebs volumes" 
    [{:keys [aws machine] :as spec} endpoint instance-id]
   (when (= (image-desc endpoint (image-id machine) :root-device-type) "ebs")
     (wait-for-attach endpoint instance-id [10 :minute]))
   (let [zone (instance-desc endpoint instance-id :placement :availability-zone)]
-    (doseq [{:keys [device size]} (aws :volumes)]
-      (let [{:keys [volume-id]} (with-ctx ec2/create-volume {:size size :availability-zone zone})]
+    (doseq [{:keys [device size]} (aws :volumes)
+            :let [{:keys [volume]} 
+                  (with-ctx ec2/create-volume {:size size :availability-zone zone}) 
+                  {:keys [volume-id]} volume]]
         (wait-for {:timeout [10 :minute]} 
            #(= "available" (volume-desc endpoint volume-id :state))
            {:type ::aws:ebs-volume-availability :message "Failed to wait for ebs volume to become available"})
@@ -51,7 +53,9 @@
           {:volume-id volume-id :instance-id instance-id :device device})
         (wait-for {:timeout [10 :minute]} 
            #(= "attached" (volume-desc endpoint volume-id :attachments 0 :state))
-           {:type ::aws:ebs-volume-attach-failed :message "Failed to wait for ebs volume device attach"})))))
+           {:type ::aws:ebs-volume-attach-failed :message "Failed to wait for ebs volume device attach"})
+        (debug "attached volume" volume-id "owened by" instance-id)
+        )))
 
 (defn clear?
    "is this ebs clearable" 
@@ -64,12 +68,13 @@
 (defn delete-volumes 
   "Clear instance volumes" 
   [endpoint instance-id system-id]
-  (doseq [{:keys [ebs device-name]} (-> (instance-desc endpoint instance-id) :block-device-mappings rest)]
+  (doseq [{:keys [ebs device-name]} (-> (instance-desc endpoint instance-id) :block-device-mappings rest)
+          :let [{:keys [volume-id]} ebs]]
     (when (clear? device-name system-id)
-      (trace "deleting volume" ebs) 
-      (with-ctx ec2/detach-volume {:volume-id (ebs :volume-id)}) 
+      (debug "deleting volume" volume-id) 
+      (with-ctx ec2/detach-volume {:volume-id volume-id}) 
       (wait-for {:timeout [10 :minute]} 
-        #(= "available" (with-ctx (volume-desc endpoint (ebs :volume-id) :state)))
+        #(= "available" (volume-desc endpoint volume-id :state))
         {:type ::aws:ebs-volume-availability 
          :message "Failed to wait for ebs volume to become available"}) 
-      (with-ctx ec2/delete-volume {:volume-id (ebs :volume-id)}))))
+      (with-ctx ec2/delete-volume {:volume-id volume-id}))))
