@@ -14,11 +14,13 @@
 
 (def redis-type (slurp-edn "fixtures/redis-type.edn"))
 
-(def redis-ec2-spec (slurp-edn "fixtures/redis-ec2-system.edn"))
+(def redis-ec2-spec 
+  (assoc-in (slurp-edn "fixtures/redis-ec2-system.edn") [:aws :key-name] host))
+
+(def redis-ec2-centos 
+  (assoc-in (slurp-edn "fixtures/redis-ec2-centos.edn") [:aws :key-name] host))
 
 (def redis-physical (slurp-edn "fixtures/redis-physical.edn"))
-
-(def redis-ec2-centos (slurp-edn "fixtures/redis-ec2-centos.edn"))
 
 (def redis-vc-spec (slurp-edn "fixtures/redis-vc-system.edn"))
 
@@ -39,4 +41,4 @@
     (when (me.raynes.fs/exists? path) (slurp-edn path))))
 
 (def ^{:doc "an ami with puppet baked in"}
-  puppet-ami (merge-with merge redis-ec2-spec {:aws {:image-id "ami-f5e2ff81" :key-name host}}))
+  puppet-ami (assoc-in redis-ec2-spec [:aws :image-id] "ami-f5e2ff81"))
