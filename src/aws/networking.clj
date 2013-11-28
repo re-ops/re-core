@@ -61,5 +61,13 @@
       :debian  true ; hothing special todo
       :redhat  (redhat-hostname fqdn remote)
       (throw+ ::no-matching-flavor :msg (<< "no os flavor found for ~{os}")))
-    (with-ctx ec2/create-tags [(instance-desc endpoint instance-id :id)] {:Name hostname})
+    (with-ctx ec2/create-tags 
+      {:resources [instance-id] :tags [{:key "Name" :value hostname}]})
     ))
+
+(defn describe-eip [endpoint instance-id]
+  (with-ctx ec2/describe-addresses :filters 
+    [{:name "instance-id" :values [instance-id]}]))
+
+(defn assoc-pub-ip [endpoint instance-id ip]
+  (with-ctx ec2/associate-address {:instance-id instance-id :public-ip ip}))
