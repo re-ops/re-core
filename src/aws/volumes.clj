@@ -33,8 +33,8 @@
 
 (defn volume-desc [endpoint volume-id & ks]
   (-> 
-   (with-ctx ec2/describe-volumes {:volume-ids [volume-id]}))
-    :volumes first (get-in ks))
+   (with-ctx ec2/describe-volumes {:volume-ids [volume-id]})
+    :volumes first (get-in ks)))
 
 (defn handle-volumes 
    "attached and waits for ebs volumes" 
