@@ -35,4 +35,5 @@
            "ec2-54-217-236-112.eu-west-1.compute.amazonaws.com")) 
 
     (fact "aws with volumes" :ec2 :integration :volumes
-      (flow (merge-with merge redis-ec2-spec {:aws {:volumes [{:device "/dev/sdn" :size 10}]}}) truthy))))) 
+      (flow (merge-with merge redis-ec2-spec 
+        {:aws {:volumes [{:device "/dev/sdn" :size 10 :clear true}]}}) truthy))))) 
