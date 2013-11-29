@@ -26,7 +26,7 @@
   (if (set? k) (interleave k (repeat (count k) v)) [k v]))
 
 (defn mappings 
-  {:test #(assert (= {:template :ubuntu, :flavor :ubuntu, :search "local"}
+  {:test #(assert (= {:template :ubuntu :flavor :ubuntu :search "local"}
                      (mappings {:os :ubuntu :domain "local"} {:os #{:template :flavor} :domain :search})))
    :doc "Maps raw model keys to specific model keys, single key can fan out to multiple keys using a set"} 
   [res ms]
