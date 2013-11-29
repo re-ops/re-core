@@ -1,36 +1,15 @@
-(ns celestial.integration.workflows
-  "Testing workflows"
+(ns celestial.integration.workflows.ec2
+  "ec2 workflows"
   (:require 
+    [aws.common :refer (with-ctx instance-desc)]
     [celestial.fixtures.core :refer (with-defaults is-type? with-admin with-conf)]  
     [celestial.fixtures.data :refer 
-     (redis-type redis-prox-spec redis-ec2-spec local-conf redis-ec2-centos)]  
+     (redis-type redis-ec2-spec local-conf redis-ec2-centos)]  
     [celestial.fixtures.populate :refer (populate-system)]  
-    [celestial.persistency.systems :as s]  
-    [celestial.persistency :as p]  
+    [celestial.integration.workflows.common :refer (spec)]
     [celestial.workflows :as wf])
   (:import clojure.lang.ExceptionInfo)
   (:use midje.sweet))
-
-
-(defn spec 
-  ([] (spec {}))
-  ([m] (assoc (merge-with merge (s/get-system 1) m) :system-id 1)))
-
-(with-defaults 
-  (with-state-changes [(before :facts (populate-system redis-type redis-prox-spec))]
-    (fact "proxmox creation workflows" :integration :proxmox :workflow
-        (wf/create (spec)) => nil 
-        (wf/create (spec)) => (throws ExceptionInfo  (is-type? :celestial.workflows/machine-exists)) 
-        (wf/stop (spec)) => nil 
-        (wf/create (spec)) => (throws ExceptionInfo  (is-type? :celestial.workflows/machine-exists)) 
-        (wf/destroy (spec)) => nil)
-
-    (fact "proxmox reload workflows" :integration :proxmox :workflow
-        (wf/create (spec)) => nil
-        (wf/reload (spec)) => nil 
-        (wf/destroy (spec)) => nil
-        )
-    ))
 
 (with-admin
   (with-conf local-conf
@@ -60,6 +39,15 @@
           (wf/reload (spec with-vol)) => nil 
           (wf/destroy (spec with-vol)) => nil))
 
+      (fact "aws with availability zone" :integration :ec2 :workflow
+        (let [with-zone {:aws {:availability-zone "eu-west-1a"}} ]
+          (wf/create (spec with-zone)) => nil
+          (:placement (instance-desc 
+            (get-in (spec) [:aws :endpoint]) (get-in (spec) [:aws :instance-id]))) 
+             => (contains {:availability-zone "eu-west-1a"})
+          (wf/reload (spec with-zone)) => nil 
+          (wf/destroy (spec with-zone)) => nil))
+
       (fact "aws puppetization" :integration :ec2 :workflow
           (wf/create (spec)) => nil
           (wf/puppetize redis-type (spec)) => nil 
@@ -72,7 +60,7 @@
             (wf/puppetize s3-redis (spec)) => nil 
             (wf/destroy (spec)) => nil))) 
 
-(with-state-changes [(before :facts (populate-system redis-type redis-ec2-centos))]
+  (with-state-changes [(before :facts (populate-system redis-type redis-ec2-centos))]
      (fact "aws centos provisioning" :integration :ec2 :workflow
         (wf/create (spec)) => nil
         (wf/stop (spec)) => nil 
@@ -80,5 +68,3 @@
         (wf/start (spec)) => nil 
         (wf/puppetize redis-type (spec)) => nil
         (wf/destroy (spec)) => nil))))
-
-
