@@ -29,10 +29,13 @@
 
 (validation :volume* (every-v #{:volume}))
 
+(validation :group* (every-v #{:String}))
+
 (def aws-entity
   {:aws {
      :instance-type #{:required :String} :key-name #{:required :String}
      :endpoint #{:required :String} :volumes #{:volume*}
+     :security-groups #{:Vector :group*} :availability-zone #{:String}
     }})
 
 
@@ -43,7 +46,10 @@
 
 
 (def aws-provider
-  {:instance-type #{:required :String} :key-name #{:required :String}})
+  {:instance-type #{:required :String} :key-name #{:required :String}
+   :placement {:availability-zone #{:String}} :security-groups #{:Vector :group*}
+   :min-count #{:required :Integer} :max-count #{:required :Integer} 
+   })
 
 (defn provider-validation [{:keys [aws] :as spec}]
   (validate! aws aws-provider :error ::invalid-aws))
