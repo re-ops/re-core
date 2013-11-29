@@ -6,7 +6,7 @@
     [celestial.fixtures.data :refer 
      (redis-type redis-ec2-spec local-conf redis-ec2-centos)]  
     [celestial.fixtures.populate :refer (populate-system)]  
-    [celestial.integration.workflows.common :refer (spec)]
+    [celestial.integration.workflows.common :refer (spec get-spec)]
     [celestial.workflows :as wf])
   (:import clojure.lang.ExceptionInfo)
   (:use midje.sweet))
@@ -39,12 +39,14 @@
           (wf/reload (spec with-vol)) => nil 
           (wf/destroy (spec with-vol)) => nil))
 
-      (fact "aws with availability zone" :integration :ec2 :workflow
-        (let [with-zone {:aws {:availability-zone "eu-west-1a"}} ]
+      (fact "aws with zone and groups" :integration :ec2 :workflow
+        (let [with-zone {:aws {:availability-zone "eu-west-1a" :security-groups ["test"]}} ]
           (wf/create (spec with-zone)) => nil
-          (:placement (instance-desc 
-            (get-in (spec) [:aws :endpoint]) (get-in (spec) [:aws :instance-id]))) 
-             => (contains {:availability-zone "eu-west-1a"})
+          (let [{:keys [placement security-groups]} 
+                (instance-desc (get-spec :aws :endpoint) 
+                               (get-spec :aws :instance-id))]
+            placement  => (contains {:availability-zone "eu-west-1a"})
+            (first security-groups) => (contains {:group-name "Test"}))
           (wf/reload (spec with-zone)) => nil 
           (wf/destroy (spec with-zone)) => nil))
 
