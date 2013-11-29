@@ -12,8 +12,9 @@
   :instance-type "t1.micro" 
   :key-name "Uranus" 
   :endpoint "ec2.eu-west-1.amazonaws.com"
-  ;;:volumes [ {:device "sdh" :size 100 :clear false} ]
-  }
+  ;; :availability-zone "eu-west-1a"
+  ;; :security-groups ["default"]
+ }
 
  :type "redis"
 }
