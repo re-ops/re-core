@@ -26,7 +26,7 @@
     [trammel.core :refer (defconstrainedrecord)] 
     [celestial.provider :refer (wait-for wait-for-ssh)] 
     [celestial.core :refer (Vm)] 
-    [celestial.common :refer (import-logging )] 
+    [celestial.common :refer (import-logging)] 
     [celestial.persistency.systems :as s]
     [celestial.model :refer (translate vconstruct)]))
 
@@ -49,7 +49,8 @@
 
 (defn creation-keys [aws]
   (clojure.set/subset? (into #{} (keys aws))
-    #{:volumes :min-count :max-count :instance-type :key-name}))
+    #{:volumes :min-count :max-count :instance-type 
+      :key-name :placement :security-groups}))
 
 (defn create-instance 
    "creates instance from aws" 
@@ -57,7 +58,7 @@
    {:pre [(creation-keys aws)]}
    (let [inst (merge (dissoc aws :volumes) {:image-id (image-id machine)})
          {:keys [reservation]} (with-ctx ec2/run-instances inst)]
-     (get-in reservation  [:instances 0 :instance-id])))
+     (get-in reservation [:instances 0 :instance-id])))
 
 (defconstrainedrecord Instance [endpoint spec user]
   "An Ec2 instance"
@@ -118,10 +119,15 @@
 
 (def defaults {:aws {:min-count 1 :max-count 1}})
 
+(defn map-key [m from to]
+  (dissoc-in* (assoc-in m to (get-in m from)) from))
+
 (defn aws-spec 
   "creates an ec2 spec" 
   [{:keys [aws machine] :as spec}]
-  (merge-with merge (dissoc-in* spec [:aws :endpoint]) defaults))
+  (cond-> (merge-with merge (dissoc-in* spec [:aws :endpoint]) defaults)
+    :availability-zone 
+      (map-key [:aws :availability-zone] [:aws :placement :availability-zone])))
 
 (defmethod translate :aws [{:keys [aws machine] :as spec}] 
   [(aws :endpoint) (aws-spec spec) (or (machine :user) "root")])
