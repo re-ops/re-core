@@ -75,6 +75,11 @@
      :notes "Destroys a system, clearing it both from Celestial's model storage and hypervisor"}
          (schedule-job id "destroy" "submitted system destruction"))
 
+  (POST- "/jobs/clear/:id" [^:int id] 
+    {:nickname "clearSystem" :summary "System clearence job"
+     :notes "Clears a system, only clearing it both from Celestial's model storage not the hypervisor"}
+         (schedule-job id "clear" "submitted system clearence"))
+
   (POST- "/jobs/start/:id" [^:int id] 
     {:nickname "startSystem" :summary "System start job" :notes "Starts a system"}
          (schedule-job id "start" "submitted system start"))

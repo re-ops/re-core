@@ -135,6 +135,12 @@
     (s/delete-system system-id)
     (info "system destruction done")))
 
+(deflow clear
+  "Clear system model (no machine destruction)"
+  [{:keys [system-id] :as spec}]
+    (s/delete-system system-id)
+    (info "system deleted"))
+
 (deflow puppetize 
   "Provisions an instance"
   [type {:keys [machine] :as spec}]
@@ -143,8 +149,6 @@
     (running! (vconstruct spec))
     (.apply- (pconstruct type spec)) 
     (info "done provisioning"))
-
-
 
 (defn stage
   "create and provision"
