@@ -21,7 +21,6 @@
                  [org.clojure/data.json "0.2.2" ]
                  [com.taoensso/carmine "2.0.0"]
                  [org.clojure/core.memoize "0.5.2" :exclusions [org.clojure/core.cache]]
-                 [narkisr/clj-aws-ec2 "0.2.5" :exclusions  [org.codehaus.jackson/jackson-core-asl com.amazonaws/aws-java-sdk]]
                  [amazonica "0.1.29"]
                  [narkisr/trammel "0.8.0-freez"]
                  [org.flatland/useful "0.10.3"]
