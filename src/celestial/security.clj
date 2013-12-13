@@ -37,12 +37,15 @@
       (info request-method " on " uri "by" (current-user))
       (app req))))
 
-
 (defn login-redirect
   [{:keys [form-params params] :as request}]
   (let [ user (java.net.URLEncoder/encode (or (get form-params "username") (:username params "")))
          param (<< "&login_failed=Y&user=~{user}")]
    (ring.util.response/redirect (<< "/login?~{param}"))))
+
+(defn sign-in-resp 
+   [req]
+   {:status 401 :body "please sign in first"})
 
 (defn user-with-pass [id]
   {:post [(not-empty (% :password ))]}
@@ -51,8 +54,10 @@
 (defn secured-app [routes]
   (friend/authenticate 
     (friend/wrap-authorize (user-tracking routes) roles/user) 
-    {:allow-anon? true
+    {:allow-anon? false
      :credential-fn #(if (p/user-exists? (:username %)) (creds/bcrypt-credential-fn user-with-pass %) nil)
-     :unauthenticated-handler #(assoc (workflows/http-basic-deny "basic-celestial" %) :body {:message "login failed" } )
-     :workflows [(workflows/interactive-form :login-failure-handler login-redirect) (workflows/http-basic :realm "basic-celestial")]}))
+     :unauthenticated-handler sign-in-resp 
+     :workflows [
+        (workflows/interactive-form :login-failure-handler login-redirect)
+        (workflows/http-basic :realm "basic-celestial")]}))
 
