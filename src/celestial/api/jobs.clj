@@ -13,6 +13,7 @@
   "Jobs manangement API"
   (:refer-clojure :exclude [hash type])
   (:require 
+    [cemerick.friend :as friend]
     [flatland.useful.map :refer  (map-vals)]
     [swag.model :refer (defmodel)]
     [clojure.core.strint :refer (<<)]
@@ -115,8 +116,8 @@
   (GET- "/jobs" []
         {:nickname "jobsStatus" :summary "Global job status tracking" 
          :notes "job status can be either pending, processing, done or nil"}
-        (success 
-          (map-vals 
-            (merge {:jobs (jobs/running-jobs-status)} (jobs/done-jobs-status)) (partial map add-tid-link))))
+        (let [{:keys [username]} (friend/current-authentication)
+              {:keys [envs] :as user} (p/get-user username)]
+          (success (map-vals (jobs/jobs-status envs) (partial map add-tid-link)))))
 
   )

@@ -14,13 +14,13 @@
   (:use   
     [gelfino.timbre :only (set-tid)]
     [celestial.common :only (get*)]
-    [flatland.useful.map :on map-vals]
     [clojure.core.strint :only (<<)]
     [celestial.common :only (minute import-logging)]
     [celestial.redis :only (create-worker wcar server-conn)]
     [taoensso.timbre :only (debug info error warn trace)]
     [taoensso.carmine.locks :as with-lock])
   (:require  
+    [flatland.useful.map :refer (map-vals filter-vals)]
     [minderbinder.time :refer (parse-time-unit)]
     [puny.core :refer (entity)]
     [celestial.workflows :as wf]  
@@ -123,6 +123,16 @@
         erroneous (get-job-status-index :status :error)]
     {:erroneous (filter clojure.core/identity (map clear-and-get erroneous)) 
      :succesful (filter clojure.core/identity (map clear-and-get succesful))}))
+
+(defn by-env 
+   "filter jobs status by envs" 
+   [envs js]
+   (filter (fn [{:keys [env]}] (envs env)) js))
+
+(defn jobs-status [envs]
+  (map-vals  
+    (merge {:jobs (running-jobs-status)} (done-jobs-status)) 
+    (partial by-env (into #{} envs))))
 
 (defn shutdown-workers []
   (doseq [[k ws] @workers]
