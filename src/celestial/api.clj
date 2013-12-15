@@ -38,9 +38,10 @@
 (import-logging)
 
 (defroutes app-routes
-  systems types environments actions jobs sessions 
+  systems types environments jobs sessions 
   (friend/wrap-authorize users-ro su)
   (friend/wrap-authorize users admin)
+  (friend/wrap-authorize actions admin)
   (friend/wrap-authorize quotas admin)
   (route/not-found "Not Found"))
 
