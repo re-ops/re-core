@@ -131,9 +131,6 @@
    [envs js]
    (filter (fn [{:keys [env]}] (info env) (envs env)) js))
 
-#_(defn jobs-status [envs]
-  (merge {:jobs (running-jobs-status)} (done-jobs-status)))
-
 (defn jobs-status [envs]
   (map-vals  
     (merge {:jobs (running-jobs-status)} (done-jobs-status)) 
