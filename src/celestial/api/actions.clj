@@ -29,6 +29,14 @@
 
 (defmodel arguments :args {:type "Hash" :description "key value pairs {'foo':1 , 'bar':2 , ...}" })
  
+(defroutes- actions-ro {:path "/actions" :description "Read only actions api"}
+  (GET- "/actions/type/:type" [^:string type] {:nickname "getActionsByTargetType" :summary "Gets actions that operate on a target type"}
+        (let [ids (a/get-action-index :operates-on type)]
+           (success (apply merge {} (map #(hash-map % (a/get-action %)) ids)))))
+
+  (GET- "/actions/:id" [^:int id] {:nickname "getActions" :summary "Get actions descriptor"}
+        (success (a/get-action id))))
+
 (defroutes- actions {:path "/actions" :description "Adhoc actions managment"}
 
   (POST- "/actions" [& ^:action action] {:nickname "addActions" :summary "Adds an actions set"}
@@ -39,12 +47,6 @@
           (a/update-action id action)
            (success {:msg "updated action" :id id})))
 
-  (GET- "/actions/type/:type" [^:string type] {:nickname "getActionsByTargetType" :summary "Gets actions that operate on a target type"}
-        (let [ids (a/get-action-index :operates-on type)]
-           (success (apply merge {} (map #(hash-map % (a/get-action %)) ids)))))
-
-  (GET- "/actions/:id" [^:int id] {:nickname "getActions" :summary "Get actions descriptor"}
-        (success (a/get-action id)))
 
   (DELETE- "/actions/:id" [^:int id] {:nickname "deleteActions" :summary "Deletes an action set"}
            (a/delete-action id)

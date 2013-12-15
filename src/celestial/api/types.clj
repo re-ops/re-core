@@ -28,14 +28,14 @@
 
 (defmodel module :name :string :src :string)
 
-(defroutes- types {:path "/type" :description "Operations on types"}
-
+(defroutes- types-ro {:path "/type" :description "Read only type api"}
   (GET- "/types" [] {:nickname "getTypes" :summary "Get all types"}
         (success {:types (map p/get-type (p/all-types))}))
 
   (GET- "/types/:type" [^:string type] {:nickname "getType" :summary "Get type"}
-        (success (p/get-type type)))
+        (success (p/get-type type))))
 
+(defroutes- types {:path "/type" :description "Operations on types"}
   (POST- "/types" [& ^:type props] {:nickname "addType" :summary "Add type"}
          (wrap-errors 
            (p/add-type props)

@@ -22,8 +22,8 @@
     [clojure.core.strint :refer (<<)]
     [celestial.api  
       [jobs :refer (jobs)]
-      [actions :refer (actions)]
-      [types :refer (types)]
+      [actions :refer (actions actions-ro)]
+      [types :refer (types types-ro)]
       [systems :refer (systems environments)] 
       [users :refer (users quotas users-ro)]
       [ui :refer (public sessions)]]
@@ -38,10 +38,11 @@
 (import-logging)
 
 (defroutes app-routes
-  systems types environments jobs sessions 
+  systems types-ro actions-ro environments jobs sessions 
   (friend/wrap-authorize users-ro su)
   (friend/wrap-authorize users admin)
   (friend/wrap-authorize actions admin)
+  (friend/wrap-authorize types admin)
   (friend/wrap-authorize quotas admin)
   (route/not-found "Not Found"))
 
