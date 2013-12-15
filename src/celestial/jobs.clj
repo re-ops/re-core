@@ -93,8 +93,10 @@
   {:queued :queued :locked :processing :recently-done :done :backoff :backing-off nil :unkown})
 
 (defn- message-desc [type js]
-  (mapv (fn [[jid {:keys [identity args tid] :as message}]] 
-          {:type type :status (readable-status (status type jid)) :id identity :jid jid :tid tid}) (apply hash-map js)))
+  (mapv 
+    (fn [[jid {:keys [identity args tid env] :as message}]] 
+      {:type type :status (readable-status (status type jid))
+       :env env :id identity :jid jid :tid tid}) (apply hash-map js)))
 
 (defn queue-status 
   "The entire queue message statuses" 
@@ -127,7 +129,10 @@
 (defn by-env 
    "filter jobs status by envs" 
    [envs js]
-   (filter (fn [{:keys [env]}] (envs env)) js))
+   (filter (fn [{:keys [env]}] (info env) (envs env)) js))
+
+#_(defn jobs-status [envs]
+  (merge {:jobs (running-jobs-status)} (done-jobs-status)))
 
 (defn jobs-status [envs]
   (map-vals  
