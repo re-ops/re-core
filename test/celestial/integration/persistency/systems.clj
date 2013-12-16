@@ -16,7 +16,7 @@
           => (has every? (partial = :dev))) 
      (set-user {:username "admin"} ; admin is set to have access to all envs
        (mapv #(-> (Integer/valueOf %) s/get-system :env) (s/systems-for "ronen")) 
-          => (contains [:qa :dev :prod]))
+          => (contains [:qa :dev :prod] :gaps-ok :in-any-order))
      (set-user {:username "ronen"} 
         (mapv #(-> (Integer/valueOf %) s/get-system :env) (s/systems-for "admin")) 
           => (throws ExceptionInfo (is-type? :celestial.persistency.systems/persmission-owner-violation)))
