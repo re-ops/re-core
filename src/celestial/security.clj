@@ -15,6 +15,7 @@
     [gelfino.timbre :only (set-tid)]
     [celestial.common :only (import-logging)])
   (:require 
+    [slingshot.slingshot :refer  [throw+ try+]]
     [celestial.roles :as roles]
     [celestial.persistency :as p]
     [clojure.core.strint :refer (<<)]
@@ -51,11 +52,22 @@
   {:post [(not-empty (% :password ))]}
   (p/get-user! id))
 
+(defn check-creds 
+   "Runs bcrypt password check if user exists" 
+  [creds]
+  (if (p/user-exists? (:username creds))
+    (try 
+      (creds/bcrypt-credential-fn user-with-pass creds)
+      (catch IllegalArgumentException e 
+       (throw+ {:msg "Please ask admin to reset your password, persisted hashed version has been correupted"})))
+   
+    nil))
+
 (defn secured-app [routes]
   (friend/authenticate 
     (friend/wrap-authorize (user-tracking routes) roles/user) 
     {:allow-anon? false
-     :credential-fn #(if (p/user-exists? (:username %)) (creds/bcrypt-credential-fn user-with-pass %) nil)
+     :credential-fn check-creds
      :unauthenticated-handler sign-in-resp 
      :workflows [
         (workflows/interactive-form :login-failure-handler login-redirect)
