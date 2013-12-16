@@ -128,4 +128,6 @@
 
 (defroutes- environments {:path "/environments" :description "Operations on environments"}
   (GET- "/environments" [] {:nickname "getEnvironments" :summary "Get all environments"}
-        (success {:environments (sanitized-envs)})))
+     (let [{:keys [username]} (friend/current-authentication)
+           {:keys [envs] :as user} (p/get-user username)]
+        (success {:environments (sanitized-envs (into #{} envs))}))))

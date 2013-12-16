@@ -41,9 +41,9 @@
    [:aws] [:physical]])
 
 (defn sanitized-envs
-  "environments sanitized of sensative data" 
-  []
-  (let [es (keys (get* :hypervisor)) 
+  "sanitized (from sensative data) environments " 
+  [envs]
+  (let [es (filter envs (keys (get* :hypervisor))) 
         inc-nodes (map (fn [e] (select-sub (get* :hypervisor) (map #(into [e] %) whitelist))) es)
         sanitized  [:ssh-port :username :password :access-key :secret-key]]
     (apply merge (clojure.walk/postwalk #(if (map? %) (apply dissoc % sanitized) %) inc-nodes)))) 
