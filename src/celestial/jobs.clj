@@ -17,7 +17,6 @@
     [clojure.core.strint :only (<<)]
     [celestial.common :only (minute import-logging)]
     [celestial.redis :only (create-worker wcar server-conn)]
-    [taoensso.timbre :only (debug info error warn trace)]
     [taoensso.carmine.locks :as with-lock])
   (:require  
     [flatland.useful.map :refer (map-vals filter-vals)]
@@ -129,7 +128,7 @@
 (defn by-env 
    "filter jobs status by envs" 
    [envs js]
-   (filter (fn [{:keys [env]}] (info env) (envs env)) js))
+   (filter (fn [{:keys [env]}] (envs env)) js))
 
 (defn jobs-status [envs]
   (map-vals  
