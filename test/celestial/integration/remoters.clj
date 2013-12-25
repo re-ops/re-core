@@ -18,7 +18,7 @@
     (fact "basic deploy" :integration :capistrano
       (let [id (s/add-system redis-prox-spec) 
             spec (assoc redis-prox-spec :system-id id)
-            cap (rconstruct redis-deploy {:target "192.168.5.200"})]
+            cap (rconstruct redis-deploy {:target "192.168.3.200"})]
          (reload spec)
          (.setup cap)
          (exists? (:dst cap)) => truthy 
@@ -31,7 +31,7 @@
     (fact "ruby runall" :integration :ruby :capistrano
       (let [id (s/add-system redis-prox-spec)
             spec (assoc redis-prox-spec :system-id id)
-            cap (rconstruct redis-runall {:target "192.168.5.200"}) ]
+            cap (rconstruct redis-runall {:target "192.168.3.200"}) ]
          (reload spec)
          (.setup cap)
          (exists? (:dst cap)) => truthy 
