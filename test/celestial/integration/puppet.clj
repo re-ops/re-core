@@ -14,6 +14,7 @@
 
 (defn run-cycle [spec type]
   (clear-all) 
+  (add-users)
   (p/add-type type) 
   (let [id (s/add-system spec)] 
     (try 
