@@ -32,14 +32,15 @@
          (when (exists? (dest-path src dst)) 
            (throw+ {:type ::old-code :message "Old code found in place, cleanup first"})) 
          (mkdirs dst) 
-         (try (with-sh-dir dst (sh- "cap" "-T"))
+         (try 
+           (sh- "cap" "-T" {:dir dst})
            (catch Throwable e
+             (error e)
              (throw+ {:type ::cap-not-found :message "Capistrano binary not found in path"})))
          (copy src dst))
   (run [this]
        (info (dest-path src dst))
-       (with-sh-dir (dest-path src dst)
-         (apply sh- (into ["cap"] args))))
+       (apply sh- "cap" (conj args {:dir (dest-path src dst)})))
   (cleanup [this]
            (delete-dir dst)))
 

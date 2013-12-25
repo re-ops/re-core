@@ -17,7 +17,6 @@
     [clojure.java.shell :refer (with-sh-dir)]
     [supernal.sshj :refer (copy sh- dest-path)]
     [celestial.common :refer (import-logging gen-uuid interpulate)]
-    [clojure.java.shell :refer [sh]]
     [me.raynes.fs :refer (delete-dir exists? mkdirs tmpdir)]
     [trammel.core :refer  (defconstrainedrecord)]
     [celestial.core :refer (Remoter)]
@@ -34,14 +33,14 @@
          (when (exists? (dest-path src dst)) 
            (throw+ {:type ::old-code :message "Old code found in place, cleanup first"})) 
          (mkdirs dst) 
-         (try (with-sh-dir dst (sh- "ruby" "-v"))
+         (try 
+           (sh- "ruby" "-v" {:dir dst})
            (catch Throwable e
              (throw+ {:type ::cap-not-found :message "Ruby binary not found in path"})))
          (copy src dst))
   (run [this]
        (info (dest-path src dst))
-       (with-sh-dir (dest-path src dst)
-         (apply sh- (into ["ruby"] args))))
+       (apply sh- "ruby" (conj args {:dir (dest-path src dst)})))
   (cleanup [this]
            (delete-dir dst)))
 
