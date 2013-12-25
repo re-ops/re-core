@@ -41,8 +41,8 @@
           :centos-6 {:template "local:vztmpl/centos-6-standard_6.3-1_i386.tar.gz" :flavor :redhat}
         }
        :generators {
-         :ip-range ["192.168.5.100" "192.168.5.255"]
-         :used-ips ["192.168.5.170" "192.168.5.171" "192.168.5.173"]
+         :ip-range ["192.168.3.200" "192.168.3.255"]
+         :used-ips []
        }
      }
     
@@ -56,15 +56,15 @@
     ;;} 
 
      :vcenter {
-       :url "https://192.168.5.23/sdk"
+       :url "https://192.168.3.23/sdk"
        :username "Administrator"
        :password "Oox1kai7"
        :ostemplates {
           :ubuntu-13.04 "ubuntu-13.04_puppet-3.3.2"
        }
        :generators {
-         :ip-range ["192.168.5.100" "192.168.5.255"]
-         :used-ips ["192.168.5.170" "192.168.5.171" "192.168.5.173"]
+         :ip-range ["192.168.3.200" "192.168.3.255"]
+         :used-ips []
        }
        :guest-timeout 120 ; at least boot time
        :session-count 2
