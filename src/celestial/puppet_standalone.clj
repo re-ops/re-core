@@ -73,9 +73,12 @@
 (defrecord Standalone [remote type]
   Provision
   (apply- [this]
-    (println remote)
-    (let [puppet-std (type :puppet-std) module (puppet-std :module)]
-        (execute puppet-provision {:module module :type type} :web :env {:roles {:web #{remote}}})))) 
+    (let [puppet-std (type :puppet-std) module (puppet-std :module)
+          roles {:roles {:web #{remote}}}
+          res (execute puppet-provision {:module module :type type} :web :env roles)]
+        (when-let [fail (-> res first :fail)] 
+          (throw fail))
+      ))) 
 
 
 (defmethod pconstruct :puppet-std [type {:keys [machine] :as spec}]
