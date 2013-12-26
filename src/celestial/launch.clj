@@ -45,15 +45,6 @@
     (set-config! [:appenders :spit :enabled?] true) 
     (set-level! (log* :level))))
 
-(defn tid-hook
-  "sets up env binding for a Java based thread see http://bit.ly/14F7clG"
-  [b & [f & _]] (b (bound-fn* f)))
-
-(defn setup-hooks 
-   "setting up misc hooks" 
-   []
-  (add-hook #'supernal.core/bound-future #'tid-hook))
-
 (defn clean-up []
   (debug "Shutting down...")
   (jobs/shutdown-workers)
@@ -91,7 +82,6 @@
   (p/reset-admin)
   (mg/setup-migrations)
   (add-shutdown)
-  (setup-hooks)
   (ssh-config {:key (get! :ssh :private-key-path) :user "root"} ) 
   (default-key)
   (start-nrepl)
