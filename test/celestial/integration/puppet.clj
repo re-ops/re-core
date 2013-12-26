@@ -27,6 +27,8 @@
   (fact "provisioning a proxmox instance" :integration :puppet :proxmox
         (run-cycle d/redis-prox-spec d/redis-type))
 
+  ; TODO add a case where puppet fails
+
   (fact "provisioning a vcenter instance" :integration :puppet :vcenter
         (run-cycle d/redis-vc-spec d/redis-type)) 
   )
