@@ -13,7 +13,6 @@
   "celestial lanching ground aka main"
   (:gen-class true)
   (:use 
-    [robert.hooke :only (add-hook)]
     [clojure.core.strint :only (<<)]
     [clojure.tools.nrepl.server :only (start-server stop-server)]
     [celestial.persistency :as p]
