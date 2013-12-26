@@ -53,45 +53,43 @@
     (when (and env (not ((into #{} envs) env))) 
       (throw+ {:type ::persmission-env-violation} (<< "~{username} attempted to access system ~{system} in env ~{env}"))))))
 
-(defn hookless-get [id]
-  (trace "hooks on get-system" (:robert.hooke/hooks (meta get-system)))
-  (h/with-hooks-disabled get-system (get-system id)))
-
 (defn is-system? [s]
   (and (map? s) (s :owner) (s :env)))
 
 (defn perm
   "A permission interceptor on systems access, we check both env and owner persmissions.
-   due to the way robert.hooke works we analyse args and not fn to decide what to verify on.
-   If we have a map we assume its a system if we have a number we assume its an id
+  due to the way robert.hooke works we analyse args and not fn to decide what to verify on.
+  If we have a map we assume its a system if we have a number we assume its an id
   " 
   [f & args]
   (let [system (first (filter map? args)) 
-        id (first (filter #(or (number? %) (and (string? %) (re-find #"\d+" %))) args))]
-    (trace "perm checking" f args)
-    (if (is-system? system) 
-      (assert-access system)
-      (assert-access (hookless-get id))) 
-    (apply f args)))
+        id (first (filter #(or (number? %) (and (string? %) (re-find #"\d+" %))) args))
+        skip (first (filter #{:skip-assert} args))]
+    (when-not skip
+      (trace "perm checking" f args)
+      (if (is-system? system) 
+        (assert-access system)
+        (assert-access (get-system id :skip-assert)))) 
+    (if skip (apply f (butlast args)) (apply f args))))
 
 (defn system-ip [id]
   (get-in (get-system id) [:machine :ip]))
 
 (def hyp-to-v {
-   :physical ph/validate-entity 
-   :proxmox pv/validate-entity 
-   :aws av/validate-entity 
-   :vcenter vc/validate-entity})
+               :physical ph/validate-entity 
+               :proxmox pv/validate-entity 
+               :aws av/validate-entity 
+               :vcenter vc/validate-entity})
 
 (validation :type-exists (when-not-nil p/type-exists? "type not found, create it first"))
 
 (validation :user-exists (when-not-nil p/user-exists? "user not found"))
 
 (def system-base {
-    :owner #{:required :user-exists}
-    :type #{:required :type-exists} 
-    :env #{:required :Keyword}
-   })
+                  :owner #{:required :user-exists}
+                  :type #{:required :type-exists} 
+                  :env #{:required :Keyword}
+                  })
 
 (defn validate-system
   [system]
