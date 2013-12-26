@@ -5,8 +5,9 @@
     [celestial.security :refer (current-user)]
     [celestial.fixtures.core :refer  (is-type?)]
     [celestial.fixtures.data :refer (redis-prox-spec)]
-    [celestial.persistency.systems :as s :refer (perm hookless-get)]
-    [celestial.persistency :as p])
+    [celestial.persistency.systems :as s :refer (perm)]
+    [celestial.persistency :as p]
+    [celestial.persistency.systems :as s])
   (:use midje.sweet))
 
 (def curr-admin {:username "admin"})
@@ -25,10 +26,9 @@
   (fact 
    (perm identity ?id) => ?res 
    (provided 
-    (hookless-get ?id) => redis-prox-spec
+    (s/get-system ?id :skip-assert) => redis-prox-spec
     (current-user) =>  ?curr
-    (p/get-user! anything) => ?user)
-  )
+    (p/get-user! anything) => ?user))
    ?id  ?curr      ?user ?res
    "1" curr-admin  admin "1"
     1  curr-admin  admin  1 
@@ -40,7 +40,7 @@
   (fact 
    (perm identity ?id) => ?res 
    (provided 
-    (hookless-get ?id) => (assoc redis-prox-spec :env "prod")
+    (s/get-system ?id :skip-assert) => (assoc redis-prox-spec :env "prod")
     (current-user) =>  ?curr
     (p/get-user! anything) => ?user)
   )
