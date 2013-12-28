@@ -70,7 +70,7 @@
        (debug "created" instance-id)
        (handle-volumes spec endpoint instance-id)    
        (when-let [ip (get-in spec [:machine :ip])] 
-         (debug (<<  "Associating existing ip ~{ip} to instance-id"))
+         (debug (<<  "Associating existing ip ~{ip} to ~{instance-id}"))
          (assoc-pub-ip endpoint instance-id ip))
        (update-ip spec endpoint instance-id)
        (wait-for-ssh (pub-dns endpoint instance-id) user [5 :minute])
@@ -103,7 +103,7 @@
   (stop [this]
     (with-instance-id 
        (debug "stopping" instance-id)
-       (when-not (first (:addresses (describe-eip endpoint instance-id)))
+       (when-not (describe-eip endpoint instance-id)
          (debug "clearing dynamic ip from system")
          (s/update-system (spec :system-id) 
            (dissoc-in* (s/get-system (spec :system-id)) [:machine :ip])))
@@ -143,7 +143,7 @@
   (.start m)
   (clojure.pprint/pprint 
     (celestial.model/set-env :dev 
-     (first (:addresses (eip/describe-eip (assoc (creds) :endpoint "ec2.eu-west-1.amazonaws.com") "i-cdd59781"))))) 
+     (first (:addresses (describe-eip "ec2.ap-southeast-2.amazonaws.com" "i-b6974489"))))) 
   ) 
 
 
