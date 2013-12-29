@@ -29,14 +29,14 @@
       (fact "aws eip workflows" :integration :ec2 :workflow
         ; will be run only if EIP env var is defined
         (when-let [eip (System/getenv "EIP")]
-          (wf/create (spec {:machine {:ip eip}})) => nil
-          (:machine (spec)) => (contains {:ip eip})
-          ;; (wf/stop (spec)) => nil 
-          ;; (wf/reload (spec)) => nil 
-          ;; (instance-desc (get-spec :aws :endpoint) (get-spec :aws :instance-id))
-          ;; => (contains {:public-ip-address eip}) 
-          ;; (:machine (spec)) => (contains {:ip eip})
-          ;; (wf/destroy (spec)) => nil
+           (wf/create (spec {:machine {:ip eip}})) => nil
+           (:machine (spec)) => (contains {:ip eip})
+           (wf/stop (spec)) => nil 
+           (wf/reload (spec)) => nil 
+           (instance-desc (get-spec :aws :endpoint) (get-spec :aws :instance-id))
+             => (contains {:public-ip-address eip}) 
+           (:machine (spec)) => (contains {:ip eip})
+           (wf/destroy (spec)) => nil
           ))
 
       (fact "aws with volumes" :integration :ec2 :workflow
