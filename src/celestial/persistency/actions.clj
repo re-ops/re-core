@@ -44,7 +44,7 @@
 
 (def action-base-validation
   {:src #{:required :String} :operates-on #{:required :String :type-exists}
-   :name #{:required :String}})
+   :name #{:required :String} :timeout #{:Integer :required}})
 
 (defn validate-action [{:keys [name type] :as action}]
   (if-let [r (remoter action)] 

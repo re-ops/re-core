@@ -24,7 +24,7 @@
 
 (import-logging)
 
-(defconstrainedrecord Capistrano [src args dst]
+(defconstrainedrecord Capistrano [src args dst timeout]
   "A capistrano remote agent"
   []
   Remoter
@@ -40,11 +40,11 @@
          (copy src dst))
   (run [this]
        (info (dest-path src dst))
-       (apply sh- "cap" (conj args {:dir (dest-path src dst)})))
+       (apply sh- "cap" (conj args {:dir (dest-path src dst) :timeout timeout})))
   (cleanup [this]
            (delete-dir dst)))
 
-(defmethod rconstruct :capistrano [{:keys [src capistrano name] :as spec} run-info]
-    (->Capistrano src (mapv #(interpulate % run-info) (capistrano :args)) (<< "~(tmpdir)/~(gen-uuid)/~{name}")))
+(defmethod rconstruct :capistrano [{:keys [src capistrano name timeout] :as spec} run-info]
+    (->Capistrano src (mapv #(interpulate % run-info) (capistrano :args)) (<< "~(tmpdir)/~(gen-uuid)/~{name}") timeout))
 
 

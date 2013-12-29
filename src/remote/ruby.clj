@@ -25,7 +25,7 @@
 
 (import-logging)
 
-(defconstrainedrecord Ruby [src args dst]
+(defconstrainedrecord Ruby [src args dst timeout]
   "A Ruby remote agent"
   []
   Remoter
@@ -40,9 +40,9 @@
          (copy src dst))
   (run [this]
        (info (dest-path src dst))
-       (apply sh- "ruby" (conj args {:dir (dest-path src dst)})))
+       (apply sh- "ruby" (conj args {:dir (dest-path src dst) :timeout timeout})))
   (cleanup [this]
            (delete-dir dst)))
 
-(defmethod rconstruct :ruby [{:keys [src ruby name] :as action} run-info]
-    (->Ruby src (mapv #(interpulate % run-info) (ruby :args)) (<< "~(tmpdir)/~(gen-uuid)/~{name}")))
+(defmethod rconstruct :ruby [{:keys [src ruby name timeout] :as action} run-info]
+    (->Ruby src (mapv #(interpulate % run-info) (ruby :args)) (<< "~(tmpdir)/~(gen-uuid)/~{name}") timeout))

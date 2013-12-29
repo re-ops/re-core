@@ -5,4 +5,5 @@
     :args ["config/runall.rb" "tasks=deploy,deploy:restart" "-s" "hostname=~{target}"]
  } 
  :name "runall"
+ :timeout 300000
 }
