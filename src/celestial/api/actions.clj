@@ -34,20 +34,20 @@
         (let [ids (a/get-action-index :operates-on type)]
            (success (apply merge {} (map #(hash-map % (a/get-action %)) ids)))))
 
-  (GET- "/actions/:id" [^:int id] {:nickname "getActions" :summary "Get actions descriptor"}
+  (GET- "/actions/:id" [^:int id] {:nickname "getAction" :summary "Get action descriptor"}
         (success (a/get-action id))))
 
-(defroutes- actions {:path "/actions" :description "Adhoc actions managment"}
+(defroutes- actions {:path "/actions" :description "Adhoc action managment"}
 
-  (POST- "/actions" [& ^:action action] {:nickname "addActions" :summary "Adds an actions set"}
+  (POST- "/actions" [& ^:action action] {:nickname "addAction" :summary "Adds an actions set"}
     (wrap-errors (success {:msg "added action" :id (a/add-action action)})))
 
-  (PUT- "/actions/:id" [^:int id & ^:action action] {:nickname "updateActions" :summary "Update an actions set"}
+  (PUT- "/actions/:id" [^:int id & ^:action action] {:nickname "updateAction" :summary "Update an actions set"}
         (wrap-errors
           (a/update-action id action)
            (success {:msg "updated action" :id id})))
 
 
-  (DELETE- "/actions/:id" [^:int id] {:nickname "deleteActions" :summary "Deletes an action set"}
+  (DELETE- "/actions/:id" [^:int id] {:nickname "deleteAction" :summary "Deletes an action set"}
            (a/delete-action id)
            (success {:msg "Deleted action" :id id})))
