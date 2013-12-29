@@ -2,6 +2,7 @@
   "Actions persistency"
   (:refer-clojure :exclude  [name type])
   (:require
+    [puny.migrations :refer (Migration register)]
     [clojure.string :refer (join escape)]
     [celestial.model :refer (figure-rem)]
     [slingshot.slingshot :refer  [throw+]]
@@ -52,4 +53,16 @@
     (throw+ {:type ::no-matching-remoter :msg (<< "no matching remoter found for ~{action}")})
     )
   (validate! action action-base-validation :error ::invalid-action))
+
+(defrecord Timeout [identifier]
+  Migration
+  (apply- [this]
+    (doseq [id (all-actions)]  
+      (when-not ((get-action id) :timeout)
+        (update-action id (assoc (get-action id) :timeout (* 1000 60 15))))))  
+  (rollback [this]))
+
+(defn register-migrations []
+  (register :actions (Timeout. :default-timeout)))
+
 
