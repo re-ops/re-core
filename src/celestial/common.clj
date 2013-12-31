@@ -37,7 +37,7 @@
   [& keys] 
   (if-let [v (get-in config keys)]
     v
-    (throw+ {:type ::missing-conf :message (<< "No matching configuration keys ~{keys} found")})))
+    (throw+ {:type ::missing-conf} (<< "No matching configuration keys ~{keys} found"))))
 
 (defn get* 
   "nil on missing version of get!"
@@ -74,12 +74,12 @@
    "Wraps validation error responses in the API layer" 
    [& body]
   `(try+ ~@body
-    (catch (and (map? ~'%) (or (contains? ~'% :errors) (contains? ~'% :msg))) e#
+    (catch (map? ~'%) e#
       (info e#)
-      (bad-req e#))
+      (bad-req (select-keys ~'&throw-context [:message :object])))
     (catch Object e# 
       (error e#)
-      (bad-req "Error happend, please contact admin"))
+      (bad-req {:message "Error happend, please contact admin"}))
    )
   )
 
