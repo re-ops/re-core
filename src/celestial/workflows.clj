@@ -37,7 +37,7 @@
       (require (symbol n))
       (ns-resolve (find-ns (symbol n)) (symbol f)) 
      (catch java.io.FileNotFoundException e
-       (throw+ {:type ::hook-missing :message (<<  "Could not locate hook ~{fqn-fn}")}))))) 
+       (throw+ {:type ::hook-missing} (<< "Could not locate hook ~{fqn-fn}")))))) 
 
 (defn run-hooks 
   "Runs hooks"
@@ -119,7 +119,7 @@
   (let [vm (vconstruct spec)]
     (info "setting up" machine)
     (when (.status vm)
-       (throw+ {:type ::machine-exists :msg "can't create an existing machine"})) 
+       (throw+ {:type ::machine-exists} "can't create an existing machine")) 
     (let [vm* (.create vm)]  
       (.start vm*) 
       (running! vm*)

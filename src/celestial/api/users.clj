@@ -40,16 +40,16 @@
 
   (POST- "/users" [& ^:user user] {:nickname "addUser" :summary "Adds a new user"}
          (wrap-errors (p/add-user (into-persisted user))
-           (success {:msg "added user"})))
+           (success {:message "added user"})))
 
   (PUT- "/users" [& ^:user user] {:nickname "updateUser" :summary "Updates an existing user"}
         (wrap-errors 
             (p/partial-user (into-persisted user))
-            (success {:msg "user updated"})))
+            (success {:message "user updated"})))
 
   (DELETE- "/users/:name" [^:string name] {:nickname "deleteUser" :summary "Deleted a user"}
            (p/delete-user name) 
-           (success {:msg "user deleted" :name name})))
+           (success {:message "user deleted" :name name})))
 
 (defroutes- users-ro {:path "/user" :description "Read only User data"}
 
@@ -69,13 +69,13 @@
   (POST- "/quotas/" [& ^:quota quota] {:nickname "addQuota" :summary "Adds a user quota"}
     (wrap-errors 
        (p/add-quota quota)
-       (success {:msg "added quota"})))
+       (success {:message "added quota"})))
 
   (PUT- "/quotas/" [& ^:quota quota] {:nickname "updateQuota" :summary "Updates an existing quota"}
     (wrap-errors 
       (p/update-quota quota)
-      (success {:msg "quota updated"})))
+      (success {:message "quota updated"})))
 
   (DELETE- "/quotas/:name" [^:string name] {:nickname "deleteQuota" :summary "Deleted users quota"}
      (p/delete-quota! name) 
-     (success {:msg "quota deleted"})))
+     (success {:message "quota deleted"})))

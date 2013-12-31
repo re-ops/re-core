@@ -18,10 +18,8 @@
   [{:keys [event workflow system-id hubot-host]}]
   {:pre [hubot-host system-id]}
   (client/post (<< "~{hubot-host}/hubot/creation-notify") 
-               {:body (<< "{\"id\": \"~{system-id}\", \"msg\": \"~(reply workflow event)\"}")
+               {:body (<< "{\"id\": \"~{system-id}\", \"message\": \"~(reply workflow event)\"}")
                 :content-type :json
                 :socket-timeout 1000 :conn-timeout 1000 :accept :json})) 
 
-
-;; (notify-hubot {:system-id "1"  :hubot-host "http://192.168.5.14:8083" :msg "hello"})
 

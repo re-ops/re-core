@@ -29,7 +29,7 @@
 (defn wait-for-attach [endpoint instance-id timeout]
   (wait-for {:timeout timeout} 
     #(= "attached" (instance-desc endpoint instance-id :block-device-mappings 0 :ebs :status)) 
-    {:type ::aws:ebs-attach-failed :message "Failed to wait for ebs root device attach"}))
+    {:type ::aws:ebs-attach-failed} "Failed to wait for ebs root device attach"))
 
 (defn volume-desc [endpoint volume-id & ks]
   (-> 
@@ -48,12 +48,12 @@
                   {:keys [volume-id]} volume]]
         (wait-for {:timeout [10 :minute]} 
            #(= "available" (volume-desc endpoint volume-id :state))
-           {:type ::aws:ebs-volume-availability :message "Failed to wait for ebs volume to become available"})
+           {:type ::aws:ebs-volume-availability} "Failed to wait for ebs volume to become available")
         (with-ctx ec2/attach-volume 
           {:volume-id volume-id :instance-id instance-id :device device})
         (wait-for {:timeout [10 :minute]} 
            #(= "attached" (volume-desc endpoint volume-id :attachments 0 :state))
-           {:type ::aws:ebs-volume-attach-failed :message "Failed to wait for ebs volume device attach"})
+           {:type ::aws:ebs-volume-attach-failed} "Failed to wait for ebs volume device attach")
         (debug "attached volume" volume-id "owened by" instance-id)
         )))
 
@@ -75,6 +75,5 @@
       (with-ctx ec2/detach-volume {:volume-id volume-id}) 
       (wait-for {:timeout [10 :minute]} 
         #(= "available" (volume-desc endpoint volume-id :state))
-        {:type ::aws:ebs-volume-availability 
-         :message "Failed to wait for ebs volume to become available"}) 
+        {:type ::aws:ebs-volume-availability} "Failed to wait for ebs volume to become available") 
       (with-ctx ec2/delete-volume {:volume-id volume-id}))))

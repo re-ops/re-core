@@ -35,7 +35,8 @@
 (defn wait-for-status [instance req-stat timeout]
   "Waiting for ec2 machine status timeout is in mili"
   (wait-for {:timeout timeout} #(= req-stat (.status instance))
-    {:type ::aws:status-failed :message "Timed out on waiting for status" :status req-stat :timeout timeout}))
+    {:type ::aws:status-failed :status req-stat :timeout timeout} 
+      "Timed out on waiting for status"))
 
 (defn instance-id*
   "grabbing instance id of spec"
@@ -45,7 +46,7 @@
 (defmacro with-instance-id [& body]
  `(if-let [~'instance-id (instance-id* ~'spec)]
     (do ~@body) 
-    (throw+ {:type ::aws:missing-id :message "Instance id not found"}))) 
+    (throw+ {:type ::aws:missing-id} "Instance id not found"))) 
 
 (defn creation-keys [aws]
   (clojure.set/subset? (into #{} (keys aws))

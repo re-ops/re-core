@@ -60,7 +60,7 @@
     (case (hypervisor :aws :ostemplates os :flavor)
       :debian  true ; hothing special todo
       :redhat  (redhat-hostname fqdn remote)
-      (throw+ ::no-matching-flavor :msg (<< "no os flavor found for ~{os}")))
+      (throw+ {:type ::no-matching-flavor} (<< "no os flavor found for ~{os}")))
     (with-ctx ec2/create-tags 
       {:resources [instance-id] :tags [{:key "Name" :value hostname}]})
     ))

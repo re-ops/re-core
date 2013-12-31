@@ -35,7 +35,7 @@
   "waiting for guest to boot up"
   [hostname timeout]
   (wait-for {:timeout timeout} #(= :running (guest-status hostname))
-    {:type ::vc:guest-failed :message "Timed out on waiting for guest to start" :hostname hostname}))
+    {:type ::vc:guest-failed :hostname hostname} "Timed out on waiting for guest to start"))
 
 (defn assign-networking
   "Generate ip only if missing"

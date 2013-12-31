@@ -39,19 +39,19 @@
   (POST- "/types" [& ^:type props] {:nickname "addType" :summary "Add type"}
          (wrap-errors 
            (p/add-type props)
-           (success {:msg "new type saved"})))
+           (success {:message "new type saved"})))
 
   (PUT- "/types" [& ^:type props] {:nickname "updateType" :summary "Update type"}
         (wrap-errors
           (if-not (p/type-exists? (props :type))
-            (conflict {:msg "Type does not exists, use POST /type first"}) 
+            (conflict {:message "Type does not exists, use POST /type first"}) 
             (do (p/update-type props) 
-                (success {:msg "type updated"})))))
+                (success {:message "type updated"})))))
 
   (DELETE- "/types/:type" [^:string type] {:nickname "deleteType" :summary "Delete type" 
                                            :errorResponses (errors {:bad-req "Type does not exist"})}
            (if (p/type-exists? type)
              (do (p/delete-type type) 
-                 (success {:msg "Type deleted"}))
-             (bad-req {:msg "Type does not exist"}))))
+                 (success {:message "Type deleted"}))
+             (bad-req {:message "Type does not exist"}))))
  

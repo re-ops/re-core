@@ -100,7 +100,7 @@
   ([type name* within] 
    (if-let [entity (.searchManagedEntity within type name*)]
      entity 
-     (throw+ {:type ::missing-entity :message (<< "No matching entity named '~{name*}' of type ~{type} found")}))))
+     (throw+ {:type ::missing-entity} (<< "No matching entity named '~{name*}' of type ~{type} found")))))
 
 (defn find-vm 
   "locates a vm or a template" 
@@ -137,7 +137,7 @@
 (defmacro wait-for [task]
   `(let [status# (.waitForTask ~task 1000 1000)]
      (when-not (= status# "success")
-       (throw+ {:type ::task-fail :message (str "Vmware task failed with status:" status#)}))))
+       (throw+ {:type ::task-fail} (str "Vmware task failed with status:" status#)))))
 
 (defn clone [hostname {:keys [datacenter] :as allocation} {:keys [template] :as machine}]
   (with-service

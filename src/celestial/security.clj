@@ -59,7 +59,7 @@
     (try 
       (creds/bcrypt-credential-fn user-with-pass creds)
       (catch IllegalArgumentException e 
-       (throw+ {:msg "Please ask admin to reset your password, persisted hashed version has been correupted"})))
+       (throw+ {} "Please ask admin to reset your password, persisted hashed version has been correupted")))
    
     nil))
 

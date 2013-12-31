@@ -83,9 +83,11 @@
           pid (.startProgramInGuest m (npa auth) (prog-spec cmd args* auth))]
          (trace (<< "guest running: ~{cmd} ~{args*}"))
          (wait-for {:timeout timeout :sleep [200 :ms]} #(-> (exit-code m pid auth) nil? not) 
-           {:type ::vc:guest-run-timeout :message (<< "Timed out on running ~{cmd} ~{args} in guest") :timeout timeout})
+           {:type ::vc:guest-run-timeout :timeout timeout}
+             (<< "Timed out on running ~{cmd} ~{args} in guest"))
          (when-not (= (exit-code m pid auth) 0)
-           (throw+ {:type ::vc:guest-run-fail :message (<< "Failed running ~{cmd} ~{args} in guest") :timeout timeout})))))
+           (throw+ {:type ::vc:guest-run-fail :timeout timeout}
+             (<< "Failed running ~{cmd} ~{args} in guest"))))))
 
 (defn- fetch-log 
    "fetched remote log file by uuid"
@@ -100,7 +102,8 @@
     (try+ 
       (guest-run hostname "/usr/bin/sudo" "-n true" (dissoc auth :sudo) uuid)
       (catch [:type ::vc:guest-run-fail] e 
-        (throw+ {:type ::vc:guest-sudo :message (<< "guest system does not have password less sudo user set!")})) 
+        (throw+ {:type ::vc:guest-sudo}
+          (<< "guest system does not have password less sudo user set!"))) 
       ))) 
 
 (defn set-ip 

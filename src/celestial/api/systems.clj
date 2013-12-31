@@ -92,7 +92,7 @@
      :errorResponses (errors {:bad-req "Missing system type"})}
          (wrap-errors
            (p/with-quota (s/add-system spec) spec
-             (success {:msg "new system saved" :id id}))))
+             (success {:message "new system saved" :id id}))))
 
   (POST- "/system/:id/:hostname" [^:int id ^:string hostname] 
          {:nickname "cloneSystem" :summary "Clone an existing system " 
@@ -102,16 +102,16 @@
          (if (s/system-exists? id)
            (p/with-quota 
              (s/clone-system id hostname) (s/get-system id)
-             (success {:msg "system cloned" :id id}))
-           (conflict {:msg "System does not exists, use POST /host/system to create it first"})))
+             (success {:message "system cloned" :id id}))
+           (conflict {:message "System does not exists, use POST /host/system to create it first"})))
 
   (PUT- "/systems/:id" [^:int id & ^:system system] {:nickname "updateSystem" :summary "Update system" 
                                                          :errorResponses (errors {:conflict "System does not exist"}) }
         (if-not (s/system-exists? id)
-          (conflict {:msg "System does not exists, use POST /host/system first"}) 
+          (conflict {:message "System does not exists, use POST /host/system first"}) 
           (wrap-errors
             (s/update-system id system) 
-            (success {:msg "system updated" :id id}))))
+            (success {:message "system updated" :id id}))))
 
   (DELETE- "/systems/:id" [^:int id] {:nickname "deleteSystem" :summary "Delete System" 
                                           :errorResponses (errors {:bad-req "System does not exist"})}
@@ -119,9 +119,9 @@
              (let [spec (s/get-system! id) int-id (Integer/valueOf id)]               
                (s/delete-system! id) 
                (p/decrease-use int-id spec)
-               (success {:msg "System deleted"})) 
+               (success {:message "System deleted"})) 
              (catch [:type :celestial.persistency/missing-system] e 
-               (bad-req {:msg "System does not exist"}))))
+               (bad-req {:message "System does not exist"}))))
 
   (GET- "/systems/:id/type" [^:int id] {:nickname "getSystemType" :summary "Fetch type of provided system id"}
         (success (p/get-type (:type (s/get-system id))))))

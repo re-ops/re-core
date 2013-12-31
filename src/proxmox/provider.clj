@@ -52,10 +52,10 @@
   "Checking that a proxmox task has succeeded"
   [node upid]
   (wait-for {:timeout [5 :minute]} 
-      (fn [] 
-        (debug "Waiting for task" upid "to end")
-        (not= "running" (:status (task-status node upid))))      
-     {:type ::proxmo:task-timeout :message "Timed out while waiting for proxmox task" :upid upid :node node})
+    (fn [] 
+       (debug "Waiting for task" upid "to end")
+       (not= "running" (:status (task-status node upid))))      
+     {:type ::proxmo:task-timeout :upid upid :node node} "Timed out while waiting for proxmox task")
   (let [{:keys [exitstatus] :as res} (task-status node upid)]
     (when (not= exitstatus "OK")
       (throw+ (assoc res :type ::task-failed)))))
@@ -66,7 +66,7 @@
   `(try+ 
      (use 'proxmox.provider)
      (when-not (node-available? ~'node)
-       (throw+ {:type ::missing-node :node ~'node :message "No matching proxmox hypervisor node found"}))
+       (throw+ {:type ::missing-node :node ~'node} "No matching proxmox hypervisor node found"))
      (check-task ~'node ~f) 
      (catch [:status 500] e# (warn  "container does not exist"))))
 
@@ -117,7 +117,8 @@
   (case flavor 
     :redhat (redhat-network node ip_address network vmid)
     :debian (debian-network node ip_address network vmid)
-    (throw+ {:type ::missing-flavor :flavor flavor :message "No matching proxmox template flavor found"})
+    (throw+ {:type ::missing-flavor :flavor flavor}
+       "No matching proxmox template flavor found")
     )
   )
 

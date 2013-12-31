@@ -31,12 +31,12 @@
   Remoter
   (setup [this] 
          (when (exists? (dest-path src dst)) 
-           (throw+ {:type ::old-code :message "Old code found in place, cleanup first"})) 
+           (throw+ {:type ::old-code} "Old code found in place, cleanup first")) 
          (mkdirs dst) 
          (try 
            (sh- "ruby" "-v" {:dir dst})
            (catch Throwable e
-             (throw+ {:type ::cap-not-found :message "Ruby binary not found in path"})))
+             (throw+ {:type ::cap-not-found} "Ruby binary not found in path")))
          (copy src dst))
   (run [this]
        (info (dest-path src dst))

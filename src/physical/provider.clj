@@ -37,10 +37,10 @@
   [(validate-provider remote interface)]
   Vm
   (create [this] 
-     (throw+ {:type ::not-supported :msg "cannot create a phaysical machine"}))
+     (throw+ {:type ::not-supported} "cannot create a phaysical machine"))
 
   (delete [this]
-     (throw+ {:type ::not-supported :msg "cannot delete a phaysical machine"}))
+     (throw+ {:type ::not-supported} "cannot delete a phaysical machine"))
 
   (start [this]
      (wol interface)
@@ -48,11 +48,11 @@
 
   (stop [this]
      (execute (bash- ("sudo" "shutdown" "0" "-P")) remote)
-     (wait-for {:timeout  [5 :minute]} 
-        #(try (not (ssh-up? remote))
-           (catch java.net.NoRouteToHostException t true))
-       {:type ::shutdown-failed 
-        :message "Timed out while waiting for machine to shutdown"}))
+     (wait-for {:timeout [5 :minute]} 
+        #(try 
+           (not (ssh-up? remote))
+          (catch java.net.NoRouteToHostException t true))
+       {:type ::shutdown-failed} "Timed out while waiting for machine to shutdown"))
 
   (status [this] 
      (try 

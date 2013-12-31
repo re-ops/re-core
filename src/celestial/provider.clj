@@ -44,8 +44,8 @@
      (try+ 
       (apply hypervisor ks)
       (catch [:type :celestial.common/missing-conf] e
-        (throw+ {:type :missing-template :message 
-          (<< "no matching vmware template found for ~{os} add one to configuration under ~{ks}")}))))))
+        (throw+ {:type :missing-template} 
+          (<< "no matching vmware template found for ~{os} add one to configuration under ~{ks}")))))))
 
 (defn transform 
   "specific model transformations"
@@ -55,7 +55,7 @@
 
 (defn wait-for 
   "A general wait for pred function"
-  [{:keys [timeout sleep] :or {sleep [1 :seconds]} :as timings} pred err]
+  [{:keys [timeout sleep] :or {sleep [1 :seconds]} :as timings} pred err message]
   {:pre [(map? timings)]}
   (let [wait (+ (curr-time) (parse-time-unit timeout))  ]
     (loop []
@@ -63,15 +63,15 @@
         (if (pred) 
           true
           (do (Thread/sleep (parse-time-unit sleep)) (recur))) 
-        (throw+ (merge err timings))))))
+        (throw+ (merge err timings) message)))))
 
 (defn wait-for-ssh [address user timeout]
     {:pre [address user timeout]}
     (wait-for {:timeout timeout}
-     #(try 
-        (ssh-up? {:host address :port 22 :user user})
-        (catch Throwable e false))
-      {:type ::ssh-failed :message "Timed out while waiting for ssh" :timeout timeout}))
+      #(try 
+         (ssh-up? {:host address :port 22 :user user})
+       (catch Throwable e false))
+      {:type ::ssh-failed :timeout timeout} "Timed out while waiting for ssh"))
 
 ; common validations
 (validation :ip 

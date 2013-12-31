@@ -38,7 +38,7 @@
 
 (defn unique-name [f & [{:keys [name operates-on]} & r :as args]]
   (when (and name operates-on (find-action-for name operates-on))
-    (throw+ {:type ::duplicated-action :msg (<< "action for ~{operates-on} named ~{name} already exists")}))
+    (throw+ {:type ::duplicated-action } (<< "action for ~{operates-on} named ~{name} already exists")))
   (apply f args))
 
 (def has-args {:args #{:required :Vector}})
@@ -50,7 +50,7 @@
 (defn validate-action [{:keys [name type] :as action}]
   (if-let [r (remoter action)] 
     (validate! r has-args :error ::invalid-remoter)
-    (throw+ {:type ::no-matching-remoter :msg (<< "no matching remoter found for ~{action}")})
+    (throw+ {:type ::no-matching-remoter } (<< "no matching remoter found for ~{action}"))
     )
   (validate! action action-base-validation :error ::invalid-action))
 
