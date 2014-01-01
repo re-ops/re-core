@@ -9,6 +9,7 @@
  (:use midje.sweet))
 
 (def redis-deploy-provided (assoc redis-deploy :provided nil))
+
 (with-state-changes [(before :facts (clear-all))]
   (fact "basic actions usage" :integration :redis :actions
     (p/add-type redis-type) 
