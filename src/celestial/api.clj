@@ -24,6 +24,7 @@
       [jobs :refer (jobs)]
       [actions :refer (actions actions-ro)]
       [types :refer (types types-ro)]
+      [audits :refer (audits-ro)]
       [systems :refer (systems environments)] 
       [users :refer (users quotas users-ro)]
       [ui :refer (public sessions)]]
@@ -38,7 +39,7 @@
 (import-logging)
 
 (defroutes app-routes
-  systems types-ro actions-ro environments jobs sessions 
+  systems types-ro audits-ro actions-ro environments jobs sessions 
   (friend/wrap-authorize users-ro su)
   (friend/wrap-authorize users admin)
   (friend/wrap-authorize actions admin)
