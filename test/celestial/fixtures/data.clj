@@ -34,6 +34,8 @@
 
 (def redis-runall (slurp-edn "fixtures/redis-runall.edn"))
 
+(def basic-audit (slurp-edn "fixtures/basic-audit.edn"))
+
 (def user-quota (slurp-edn "fixtures/user-quota.edn"))
 
 (def local-conf 

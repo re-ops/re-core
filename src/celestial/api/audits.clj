@@ -9,10 +9,10 @@
    See the License for the specific language governing permissions and
    limitations under the License.)
 
-(ns celestial.api.audit
+(ns celestial.api.audits
   "Auditing api" 
   (:require 
-    [celestial.persistency.audit :as a]
+    [celestial.persistency.audits :as a]
     [celestial.common :refer (import-logging wrap-errors success)]
     [swag.model :refer (defmodel)]
     [swag.core :refer (GET- POST- PUT- DELETE- defroutes-)]))
@@ -21,5 +21,7 @@
                  :args {:type "List" :items {"$ref" "String"}})
 
 (defroutes- audits-ro {:path "/audits" :description "Read only audits api"}
-  (GET- "/audits/:id" [^:string name] {:nickname "getAudit" :summary "Get audit by name"}
-        (success (a/get-audit id))))
+  (GET- "/audits" [] {:nickname "getAudits" :summary "Get all audits"}
+        (success {:types (map a/get-audit (a/all-audits))}))
+  (GET- "/audits/:name" [^:string name] {:nickname "getAudit" :summary "Get audit by name"}
+        (success (a/get-audit name))))

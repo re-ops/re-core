@@ -1,0 +1,6 @@
+{
+ :name "tid" 
+ :query "query=tid:~{tid}&fields=@timestamp,message,~{tid},"
+ :args ["tid"]
+ :type :kibana
+}
