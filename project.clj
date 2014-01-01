@@ -50,7 +50,22 @@
 
   :bin {:name "celestial"}
 
-  :profiles {:dev {
+  :profiles {
+             
+             :refresh {
+                :dependencies [[org.clojure/tools.namespace "0.2.4"] 
+                               [org.clojure/tools.trace "0.7.5"]
+                               [midje "1.5.1" :exclusions [org.clojure/core.unify]]]
+                :resource-paths  ["src/main/resources/" "pkg/etc/celestial/"]
+                :source-paths  ["dev" "src"]
+                :test-paths  []
+                :jvm-opts ~(vec (map (fn [[p v]] (str "-D" (name p) "=" v)) {:disable-conf "true" }))
+             }
+             :dev {
+               :aot [supernal.launch remote.capistrano proxmox.provider vc.provider
+                     aws.provider celestial.core celestial.puppet-standalone celestial.launch]
+ 
+               :test-paths ["test"]
                :source-paths  ["dev"]
                :resource-paths  ["src/main/resources/" "pkg/etc/celestial/"]
                :dependencies [[org.clojure/tools.trace "0.7.5"] [ring-mock "0.1.5"]
@@ -81,12 +96,11 @@
             ["midje" ":filter" "-integration"] 
             }
 
-  :aot [supernal.launch remote.capistrano proxmox.provider vc.provider
-        aws.provider celestial.core celestial.puppet-standalone celestial.launch]
-
+  
   :repositories  {"bintray"  "http://dl.bintray.com/content/narkisr/narkisr-jars"
                   "sonatype" "http://oss.sonatype.org/content/repositories/releases"}
 
+  :test-paths []
   :topping {
       :service "celestial"
       :app {:app-name "celestial" :src "target/celestial-0.4.9.jar"}
