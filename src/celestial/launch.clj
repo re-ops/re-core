@@ -84,12 +84,11 @@
   (ssh-config {:key (get! :ssh :private-key-path) :user "root"} ) 
   (default-key)
   (start-nrepl)
-  (reset! jetty 
-          (run-jetty (app true)
-                     {:port (get! :celestial :port) :join? false
-                      :ssl? true :keystore (cert-conf :keystore)
-                      :key-password  (cert-conf :password)
-                      :ssl-port (get! :celestial :https-port)})))
+  (run-jetty (app true)
+     {:port (get! :celestial :port) :join? false
+      :ssl? true :keystore (cert-conf :keystore)
+      :key-password  (cert-conf :password)
+      :ssl-port (get! :celestial :https-port)}))
 
 ; hack http://bit.ly/YfXnXG
 (def proxy-handler #'ring.adapter.jetty/proxy-handler)
@@ -101,23 +100,21 @@
 
 (defn start 
   "main componenets startup (jetty, job workers etc..)"
-  []
+  [jetty]
   (jobs/initialize-workers)
-  (when-not (.isStarted @jetty) (.start @jetty))
   (info (slurp (resource "main/resources/celestial.txt")))
   (info (<<  "version ~{version} see http://celestial-ops.com"))
+   jetty
   )
 
 (defn stop 
   "stopping the application"
-  []
+  [jetty]
   (clean-up)
-  (.stop @jetty)
-  (reload-handler @jetty (app true)))
+  (when jetty (.stop jetty)))
 
 (defn -main [& args]
-  (setup)
-  (start))
+  (start (setup)))
 
 (comment
   (setup)
