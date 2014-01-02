@@ -55,7 +55,9 @@
              :refresh {
                 :dependencies [[org.clojure/tools.namespace "0.2.4"] 
                                [org.clojure/tools.trace "0.7.5"]
-                               [midje "1.5.1" :exclusions [org.clojure/core.unify]]]
+                               [midje "1.5.1" :exclusions [org.clojure/core.unify]]
+                               [clojure-complete "0.2.3"] [redl "0.2.0"]]
+                :injections  [(require '[redl core complete])]
                 :resource-paths  ["src/main/resources/" "pkg/etc/celestial/"]
                 :source-paths  ["dev" "src"]
                 :test-paths  []
@@ -91,7 +93,7 @@
             "autotest" ["midje" ":autotest" ":filter" "-integration"] 
             "runtest" ["midje" ":filter" "-integration"] 
             ; https://github.com/stuartsierra/reloaded workflow
-            "dev-repl" ["with-profile" "refresh" "do" "clean," "repl"] 
+            "dev-repl" ["with-profile" "refresh" "do" "repl"] 
             }
 
   
