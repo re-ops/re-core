@@ -90,14 +90,6 @@
       :key-password  (cert-conf :password)
       :ssl-port (get! :celestial :https-port)}))
 
-; hack http://bit.ly/YfXnXG
-(def proxy-handler #'ring.adapter.jetty/proxy-handler)
-
-(defn reload-handler 
-  "Re sets the handler passed to jetty see http://bit.ly/12NnSL4"
-  [s handler]
-  (doto s (.setHandler (proxy-handler handler))))
-
 (defn start 
   "main componenets startup (jetty, job workers etc..)"
   [jetty]
