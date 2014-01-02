@@ -1,7 +1,8 @@
 (ns celestial.test.actions
   (:require 
     [celestial.model :refer (rconstruct)]
-    [celestial.persistency.actions :refer (validate-action args-of)]
+    [celestial.persistency.actions :refer (validate-action)]
+    [celestial.persistency.common :refer (args-of)]
     [celestial.persistency :refer (type-exists?)]
     [celestial.fixtures.data :refer (redis-deploy)] 
     [celestial.fixtures.core :refer (with-m?)] 

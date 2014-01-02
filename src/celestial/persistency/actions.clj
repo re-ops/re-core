@@ -1,9 +1,21 @@
+(comment 
+   Celestial, Copyright 2012 Ronen Narkis, narkisr.com
+   Licensed under the Apache License,
+   Version 2.0  (the "License") you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.)
+
 (ns celestial.persistency.actions
   "Actions persistency"
   (:refer-clojure :exclude  [name type])
   (:require
     [puny.migrations :refer (Migration register)]
     [clojure.string :refer (join escape)]
+    [celestial.persistency.common :as c]
     [celestial.model :refer (figure-rem)]
     [slingshot.slingshot :refer  [throw+]]
     [subs.core :as subs :refer (validate!)]
@@ -14,22 +26,14 @@
 
 (entity action :indices [operates-on] :intercept {:create [unique-name with-provided] :update [with-provided]})
 
-(defn args-of [s]
-  "grab args from string"
-  (into #{} (map #(escape % {\~ "" \{ "" \} ""}) (re-seq #"~\{\w+\}" s))))
-
 (defn remoter [action]
   (get action (figure-rem action)))
 
 (defn add-provided [action]
-  "appends action expected arguments drived from args strings"
-   (assoc action :provided (remove #{"target" "hostname"} (args-of (join " " ((remoter action) :args)))))) 
+  "appends action expected arguments derived from args strings"
+   (assoc action :provided (remove #{"target" "hostname"} (c/args-of (join " " ((remoter action) :args)))))) 
 
-(defn with-provided [f & [a1 a2 & r :as args]]
-  (cond
-    (map? a1) (apply f (add-provided a1) r)
-    (map? a2) (apply f a1 (add-provided a2) r)
-    :else (apply f args)))
+(def with-provided (partial c/with-transform add-provided))
 
 (defn find-action-for [name type]
   (let [ids (get-action-index :operates-on type) 
