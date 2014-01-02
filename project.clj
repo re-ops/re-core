@@ -86,14 +86,12 @@
     :init-ns user               
   }
 
-  :aliases {"celestial" 
-            [ "with-profile" "prod" "do" "compile," "trampoline" "run"]
-            "remote-repl"
-            ["repl" ":connect" "celestial:7888"]
-            "autotest"
-            ["midje" ":autotest" ":filter" "-integration"] 
-            "runtest"
-            ["midje" ":filter" "-integration"] 
+  :aliases {"celestial" [ "with-profile" "prod" "do" "compile," "trampoline" "run"]
+            "remote-repl" ["repl" ":connect" "celestial:7888"]
+            "autotest" ["midje" ":autotest" ":filter" "-integration"] 
+            "runtest" ["midje" ":filter" "-integration"] 
+            ; https://github.com/stuartsierra/reloaded workflow
+            "dev-repl" ["with-profile" "refresh" "do" "clean," "repl"] 
             }
 
   
