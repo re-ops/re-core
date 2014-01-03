@@ -9,6 +9,5 @@
 (with-state-changes [(before :facts (clear-all))]
   (fact "basic audits usage" :integration :redis :audits
       (a/add-audit basic-audit)
-      (a/get-audit "tid") =>  basic-audit)
-  )
+      (a/get-audit "tid") =>  (assoc basic-audit :args ["tid"])))
 

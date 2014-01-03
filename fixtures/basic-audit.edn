@@ -2,6 +2,5 @@
  :name "tid" 
  :query "query=tid:~{tid}&fields=@timestamp,message,~{tid},"
  :description "Find a transaction"
- :args []
  :type :kibana
 }

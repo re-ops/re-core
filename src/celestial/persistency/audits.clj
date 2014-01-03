@@ -24,7 +24,7 @@
 
 (declare with-args)
 
-(entity audit :id name)
+(entity audit :id name :intercept  {:create [with-args] :update [with-args]})
 
 (defn add-args [{:keys [query] :as audit}]
   "appends audit expected arguments derived from args strings"
