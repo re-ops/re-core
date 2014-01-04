@@ -6,7 +6,7 @@
     [celestial.roles :only (roles roles-m)]
     [clojure.core.strint :only (<<)]
     [slingshot.slingshot :only  [throw+ try+]]
-    [swag.model :only (defmodel wrap-swag defv defc)]
+    [swag.model :only (defmodel wrap-swag defc)]
     [celestial.common :only (import-logging resp bad-req conflict success wrap-errors)]
     [swag.core :only (swagger-routes GET- POST- PUT- DELETE- defroutes- errors)]))
 
@@ -27,8 +27,6 @@
 (defmodel user :username :string :password :string 
   :roles {:type :string :allowableValues {:valueType "LIST" :values (into [] (keys roles-m))}}
   :envs  {:type "List"})
-
-(swag.core/set-base "")
 
 (defroutes- users {:path "/user" :description "User managment"}
 
