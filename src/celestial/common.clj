@@ -70,6 +70,16 @@
   (clojure.string/replace text #"~\{\w+\}" 
     (fn [groups] ((keyword (subs groups 2 (dec (.length groups)))) m))))
 
+(defn link 
+  "Returns a link for a given query and args matching current central logging system"
+  [query args]
+  (when-let [{:keys [host type]} (get* :celestial :log :gelf)]
+    (case type
+     :kibana (<< "http://~{host}/index.html#/dashboard/script/logstash.js?~(interpulate query args)")
+     :gralog2 "TBD"
+     :logstash "NaN"
+     (warn (<< "no matching link found for ~{type}")))))
+
 (defmacro wrap-errors 
    "Wraps validation error responses in the API layer" 
    [& body]

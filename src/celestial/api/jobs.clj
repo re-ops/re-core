@@ -17,7 +17,7 @@
     [flatland.useful.map :refer  (map-vals)]
     [swag.model :refer (defmodel)]
     [clojure.core.strint :refer (<<)]
-    [celestial.common :refer (bad-req success import-logging get*)]
+    [celestial.common :refer (bad-req success import-logging get* link)]
     [gelfino.timbre :refer (get-tid)]
     [celestial.persistency :as p]
     [celestial.persistency.actions :refer (find-action-for)]
@@ -30,16 +30,8 @@
 
 (defmodel hash)
 
-(defn tid-link [tid]
-  (when-let [{:keys [host type]} (get* :celestial :log :gelf)]
-    (case type
-     :kibana (<< "http://~{host}/index.html#/dashboard/script/logstash.js?query=tid:~{tid}&fields=@timestamp,message,tid,")
-     :gralog2 "TBD"
-     :logstash "Nan"
-     (warn (<< "no matching tid link found for ~{type}")))))
-
 (defn add-tid-link [{:keys [tid] :as job}]
-  (assoc job :tid-link (tid-link tid)))
+  (assoc job :tid-link (link "query=tid:~{tid}&fields=@timestamp,message,tid," {:tid tid})))
 
 (defn schedule-job 
   ([id action msg]

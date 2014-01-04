@@ -14,7 +14,7 @@
   (:refer-clojure :exclude  [name type])
   (:require 
     [celestial.persistency.audits :as a]
-    [celestial.common :refer (import-logging success wrap-errors conflict bad-req)]
+    [celestial.common :refer (import-logging success wrap-errors conflict bad-req link)]
     [swag.model :refer (defmodel defc)]
     [swag.core :refer (GET- POST- PUT- DELETE- defroutes- errors)]))
 
@@ -23,12 +23,19 @@
 (defmodel audit :name :string :query :string :type :string :type :string
                  :args {:type "List" :items {"$ref" "String"}})
 
+(defmodel link-input :name :string :args {:type "Hash" :description "args to value"})
+
 (defroutes- audits-ro {:path "/audits" :description "Read only audits api"}
   (GET- "/audits" [] {:nickname "getAudits" :summary "Get all audits"}
         (success {:audits (map a/get-audit (a/all-audits))}))
 
   (GET- "/audits/:name" [^:string name] {:nickname "getAudit" :summary "Get audit by name"}
-        (success (a/get-audit name))))
+        (success (a/get-audit name)))
+ 
+  (GET- "/audits/link" [^:link-input in] {:nickname "linkFor" :summary "Get audit link"}
+     (let [{:keys [name args]} in {:keys [query]} (a/get-audit name)]
+          (success (link query args)) 
+          ))) 
 
 (defroutes- audits {:path "/audit" :description "Operations on audits"}
   (POST- "/audits" [& ^:audit audit] {:nickname "addAudit" :summary "Add audit"}
@@ -43,7 +50,7 @@
             (do (a/update-audit audit) 
                 (success {:message "Audit updated"})))))
 
-  (DELETE- "/audits/:audit" [^:string audit] {:nickname "deleteaudit" :summary "Delete audit" 
+  (DELETE- "/audits/:audit" [^:string audit] {:nickname "deleteAudit" :summary "Delete audit" 
                                            :errorResponses (errors {:bad-req "audit does not exist"})}
            (if (a/audit-exists? audit)
              (do (a/delete-audit audit) 
