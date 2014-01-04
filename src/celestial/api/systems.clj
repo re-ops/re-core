@@ -56,11 +56,11 @@
   :type {:type :string :allowableValues {:valueType "LIST" :values ["ct" "vm"]}}
   :features {:type "List"})
 
-(defc [:proxmox :type] (keyword v))
+(defc "/systems" [:proxmox :type] (keyword v))
 
-(defc [:machine :os] (keyword v))
+(defc "/systems" [:machine :os] (keyword v))
 
-(defc [:env] (keyword v))
+(defc "/systems" [:env] (keyword v))
  
 (defn systems-range
   "Get systems in range" 

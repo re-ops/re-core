@@ -18,7 +18,7 @@
     [swag.model :refer (defmodel defc)]
     [swag.core :refer (GET- POST- PUT- DELETE- defroutes- errors)]))
 
-(defc [:type] (keyword v))
+(defc "/audits" [:type] (keyword v))
 
 (defmodel audit :name :string :query :string :type :string :type :string
                  :args {:type "List" :items {"$ref" "String"}})
