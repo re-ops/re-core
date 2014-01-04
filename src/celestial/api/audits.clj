@@ -11,6 +11,7 @@
 
 (ns celestial.api.audits
   "Auditing api" 
+  (:refer-clojure :exclude  [name type])
   (:require 
     [celestial.persistency.audits :as a]
     [celestial.common :refer (import-logging success wrap-errors conflict bad-req)]
@@ -25,6 +26,7 @@
 (defroutes- audits-ro {:path "/audits" :description "Read only audits api"}
   (GET- "/audits" [] {:nickname "getAudits" :summary "Get all audits"}
         (success {:audits (map a/get-audit (a/all-audits))}))
+
   (GET- "/audits/:name" [^:string name] {:nickname "getAudit" :summary "Get audit by name"}
         (success (a/get-audit name))))
 
