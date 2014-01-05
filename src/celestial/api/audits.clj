@@ -17,6 +17,7 @@
     [celestial.persistency.audits :as a]
     [celestial.common :refer (import-logging success wrap-errors conflict bad-req link)]
     [swag.model :refer (defmodel defc)]
+    [ring.util.codec :refer (base64-decode)]
     [swag.core :refer (GET- POST- PUT- DELETE- defroutes- errors)]))
 
 (defc "/audits" [:type] (keyword v))
@@ -35,7 +36,7 @@
  
   (GET- "/audits/:name/:args" [^:string name ^:string args] {:nickname "linkFor" :summary "Get audit link"}
     (let [{:keys [query]} (a/get-audit name)]
-       (success {:link (link query (json/read-str args :key-fn keyword))})))) 
+       (success {:link (link query (json/read-str (String. (base64-decode args)) :key-fn keyword))})))) 
 
 (defroutes- audits {:path "/audit" :description "Operations on audits"}
   (POST- "/audits" [& ^:audit audit] {:nickname "addAudit" :summary "Add audit"}
