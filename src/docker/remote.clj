@@ -20,11 +20,12 @@
     [clj-http.client :as client]))
 
 (import-logging)
+
 (defn root [node] 
-  (<< "http://~(hypervisor :docker node :host):(hypervisor :docker node :port)/"))
+  (<< "http://~(hypervisor :docker :nodes node :host):~(hypervisor :docker :nodes node :port)/"))
 
 (defn call [verb api args node]
-  (:data (parse-string (:body (verb (<< "~(root node)~{api}") args)) true)))
+  (parse-string (:body (verb (<< "~(root node)~{api}") args)) true))
 
 (defn docker-post 
   "A post against a docker instance with provided params"
@@ -38,3 +39,7 @@
 
 (defn docker-get [node api] (call client/get api {} node))
 
+
+(celestial.model/set-env :dev 
+ (docker-get :local-docker "/images/json?all=0")) 
+  
