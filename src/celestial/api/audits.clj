@@ -13,6 +13,7 @@
   "Auditing api" 
   (:refer-clojure :exclude  [name type])
   (:require 
+    [clojure.data.json :as json]
     [celestial.persistency.audits :as a]
     [celestial.common :refer (import-logging success wrap-errors conflict bad-req link)]
     [swag.model :refer (defmodel defc)]
@@ -32,10 +33,9 @@
   (GET- "/audits/:name" [^:string name] {:nickname "getAudit" :summary "Get audit by name"}
         (success (a/get-audit name)))
  
-  (GET- "/audits/link" [^:link-input in] {:nickname "linkFor" :summary "Get audit link"}
-     (let [{:keys [name args]} in {:keys [query]} (a/get-audit name)]
-          (success (link query args)) 
-          ))) 
+  (GET- "/audits/:name/:args" [^:string name ^:string args] {:nickname "linkFor" :summary "Get audit link"}
+    (let [{:keys [query]} (a/get-audit name)]
+       (success {:link (link query (json/read-str args :key-fn keyword))})))) 
 
 (defroutes- audits {:path "/audit" :description "Operations on audits"}
   (POST- "/audits" [& ^:audit audit] {:nickname "addAudit" :summary "Add audit"}
