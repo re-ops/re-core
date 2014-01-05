@@ -31,6 +31,16 @@
 
  :hypervisor {
    :dev {
+
+     :docker {
+       :nodes {
+          :local-docker {
+             :host "localhost" :port 4243
+             :images {:ubuntu-12.04 {:name "precise"}}
+          }
+        }
+     }
+
      :proxmox {
        :master :proxmox-a
        :nodes {

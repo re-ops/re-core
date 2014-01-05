@@ -51,6 +51,15 @@
     }}}
   )
 
+
+(validation :docker-image* (every-kv #{:required :Map}))
+
+(validation :docker-node*
+   (every-kv {:host #{:required :String} :port #{:required :number} :images #{:required :docker-image*} }))
+
+(def ^{:doc "docker section validation"} docker-v
+  {:docker {:nodes #{:required :docker-node*} }})
+
 (def ^{:doc "Base config validation"} celestial-v
   {:celestial
    {:port #{:required :number} :https-port #{:required :number}
@@ -65,13 +74,13 @@
     :nrepl {:port #{:number}}}})
 
 (validation :node*
-   (every-kv {:username #{:required :String} :password #{:required :String} 
+  (every-kv {:username #{:required :String} :password #{:required :String} 
               :host #{:required :String} :ssh-port #{:required :number}}))
 
 (def flavors #{:redhat :debian})
 
 (validation :flavor
-   (when-not-nil flavors  (<< "flavor must be either ~{flavors}")))
+  (when-not-nil flavors  (<< "flavor must be either ~{flavors}")))
 
 (validation :template*
   (every-kv {:template #{:required :String} :flavor #{:required :Keyword :flavor}}))
@@ -94,7 +103,7 @@
 (defn hypervisor-validations 
   "find relevant hypervisor validations per env"
   [hypervisor]
-  (let [hvs [proxmox-v aws-v vcenter-v] ks (map (comp first keys) hvs) 
+  (let [hvs [proxmox-v aws-v vcenter-v docker-v] ks (map (comp first keys) hvs) 
         envs (map (fn [v] (fn [env] {:hypervisor {env v}})) hvs)]
     (first (map (fn [[e hs]] (map #(((zipmap ks envs) %) e) (filter (into #{} ks) (keys hs)))) hypervisor))))
 

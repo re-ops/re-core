@@ -17,7 +17,11 @@
 
 (fact "missing proxmox options"
     (validate-missing :hypervisor :dev :proxmox :nodes :proxmox-a :password) =>  
-      '{:hypervisor {:dev {:proxmox {:nodes (({:proxmox-a {:password ("must be present")}}))}}}} )
+      '{:hypervisor {:dev {:proxmox {:nodes (({:proxmox-a {:password ("must be present")}}))}}}}
+     
+    (validate-missing :hypervisor :dev :proxmox :nodes) => '{:hypervisor {:dev {:proxmox {:nodes ("must be present")}}}}
+    (validate-missing :hypervisor :dev :proxmox :master) => '{:hypervisor {:dev {:proxmox {:master ("must be present")}}}}
+      )
 
 (fact "non legal proxmox template flavor" 
   (validate-conf (assoc-in local-prox [:hypervisor :dev :proxmox :ostemplates :ubuntu-12.04 :flavor] :bar)) => 
@@ -39,3 +43,11 @@
   (validate-conf (assoc-in local-prox [:celestial :log :gelf :type] :foo)) =>
     {:celestial {:log {:gelf 
       {:type '("type must be either #{:kibana :logstash :graylog2}")}}}})
+
+(fact "docker sanity"
+   (validate-conf (assoc-in local-prox [:hypervisor :dev :docker :nodes] nil)) =>
+       {:hypervisor {:dev {:docker {:nodes '("must be present")}}}}
+   (validate-missing :hypervisor :dev :docker :nodes :local-docker :host) => 
+      {:hypervisor {:dev {:docker {:nodes '(({:local-docker {:host ("must be present")}}))}}}}
+  )
+

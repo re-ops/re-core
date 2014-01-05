@@ -21,7 +21,7 @@
 
 (defn get-env! [] {:pre [env]} env)
 
-(def hypervizors #{:proxmox :aws :vcenter :physical})
+(def hypervizors #{:proxmox :aws :vcenter :vagrant :physical :docker})
 
 (defn figure-virt [spec] (first (filter hypervizors (keys spec))))
 
