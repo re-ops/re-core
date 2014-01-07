@@ -24,6 +24,8 @@
 
 (def redis-vc-spec (slurp-edn "fixtures/redis-vc-system.edn"))
 
+(def redis-docker-spec (slurp-edn "fixtures/redis-docker-system.edn"))
+
 (def local-prox (slurp-edn "fixtures/celestial.edn"))
 
 (def proxmox-3 (slurp-edn "fixtures/proxmox-3.edn"))

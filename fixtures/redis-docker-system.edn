@@ -1,0 +1,18 @@
+{
+ :env :dev
+
+ :owner "ronen"
+
+ :machine {
+  :cpus 4 :memory 4096 :disk 30
+ }
+
+ :docker {
+   :image "ubuntu/precise"
+   :node :local
+   :ports [22]
+   :mounts ["/media/foo"]
+ }
+
+ :type "redis"
+}
