@@ -22,10 +22,10 @@
 (import-logging)
 
 (defn root [node] 
-  (<< "http://~(hypervisor :docker :nodes node :host):~(hypervisor :docker :nodes node :port)/"))
+  (<< "https://~(hypervisor :docker :nodes node :host):~(hypervisor :docker :nodes node :port)/"))
 
-(defn call [verb api args node]
-  (parse-string (:body (verb (<< "~(root node)~{api}") args)) true))
+(defn call [verb api node]
+  (parse-string (:body (verb (<< "~(root node)~{api}") {:insecure? true})) true))
 
 (defn docker-post 
   "A post against a docker instance with provided params"
@@ -35,11 +35,11 @@
      (call client/post api {} node) 
      (call client/post api {:form-params params} node))))
 
-(defn docker-delete [node api] (call client/delete api {} node))
+(defn docker-delete [node api] (call client/delete api node))
 
-(defn docker-get [node api] (call client/get api {} node))
+(defn docker-get [node api] (call client/get api node))
 
 
 (celestial.model/set-env :dev 
- (docker-get :local-docker "/images/json?all=0")) 
+ (docker-get :local "/images/json?all=0")) 
   
