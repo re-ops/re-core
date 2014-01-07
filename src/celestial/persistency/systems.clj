@@ -21,6 +21,7 @@
     [celestial.common :refer (import-logging)]
     [physical.validations :as ph]
     [proxmox.validations :as pv]
+    [docker.validations :as dv]
     [aws.validations :as av]
     [vc.validations :as vc]
     [subs.core :as subs :refer (validate! validation when-not-nil)]
@@ -78,6 +79,7 @@
 (def hyp-to-v {
                :physical ph/validate-entity 
                :proxmox pv/validate-entity 
+               :docker dv/validate-entity 
                :aws av/validate-entity 
                :vcenter vc/validate-entity})
 
@@ -86,10 +88,10 @@
 (validation :user-exists (when-not-nil p/user-exists? "user not found"))
 
 (def system-base {
-                  :owner #{:required :user-exists}
-                  :type #{:required :type-exists} 
-                  :env #{:required :Keyword}
-                  })
+   :owner #{:required :user-exists}
+   :type #{:required :type-exists} 
+   :env #{:required :Keyword}
+  })
 
 (defn validate-system
   [system]
