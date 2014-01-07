@@ -4,8 +4,9 @@
    [celestial.persistency :refer (validate-type validate-quota user-exists? validate-user)]
    [aws.validations :as awsv]
    [physical.validations :as phv]
+   [docker.validations :as dv]
    [celestial.fixtures.data :refer 
-    (redis-type user-quota redis-ec2-spec redis-physical)]
+    (redis-type user-quota redis-ec2-spec redis-physical redis-docker-spec)]
    [celestial.fixtures.core :refer (is-type? with-m?)])
  (:use midje.sweet)
  (:import clojure.lang.ExceptionInfo))
@@ -87,7 +88,7 @@
       )
 
 
-(fact "physical systmes validations" 
+(fact "physical systmes validation" 
    (phv/validate-entity redis-physical) => {}
 
    (phv/validate-entity (assoc-in redis-physical [:physical :mac] "aa:bb")) =>
@@ -97,4 +98,7 @@
       (throws ExceptionInfo (with-m? {:physical {:broadcast '("must be a legal ip address")}}))
 
 )
+
+(fact "docker systems validation" 
+   (dv/validate-entity redis-docker-spec) => {})
 
