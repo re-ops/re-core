@@ -21,14 +21,14 @@
     [celestial.persistency :as p]
     [celestial.persistency.systems :as s]))
 
-
 (import-logging)
 
-(defconstrainedrecord Instance [docker node]
+(defconstrainedrecord Container [node container]
   "A docker container instance"
   []
   Vm
   (create [this] 
+    
     )
 
   (start [this]
@@ -43,10 +43,11 @@
   (status [this] 
     ))
 
-(defmethod translate :proxmox [{:keys [machine docker system-id] :as spec}]
+(defmethod translate :docker [{:keys [machine docker system-id] :as spec}]
   "Convert the general model into a docker specific one"
-  )
+   (merge machine docker {:system-id system-id}))
 
 (defmethod vconstruct :docker [{:keys [docker] :as spec}]
   (let [{:keys [type node]} docker]
+    (apply ->Container node (translate spec))
     ))
