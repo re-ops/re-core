@@ -47,7 +47,7 @@
 (fact "docker sanity"
    (validate-conf (assoc-in local-prox [:hypervisor :dev :docker :nodes] nil)) =>
        {:hypervisor {:dev {:docker {:nodes '("must be present")}}}}
-   (validate-missing :hypervisor :dev :docker :nodes :local-docker :host) => 
-      {:hypervisor {:dev {:docker {:nodes '(({:local-docker {:host ("must be present")}}))}}}}
+   (validate-missing :hypervisor :dev :docker :nodes :local :host) => 
+      {:hypervisor {:dev {:docker {:nodes '(({:local {:host ("must be present")}}))}}}}
   )
 
