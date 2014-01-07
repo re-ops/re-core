@@ -51,11 +51,8 @@
     }}}
   )
 
-
-(validation :docker-image* (every-kv #{:required :Map}))
-
 (validation :docker-node*
-   (every-kv {:host #{:required :String} :port #{:required :number} :images #{:required :docker-image*} }))
+   (every-kv {:host #{:required :String} :port #{:required :number}}))
 
 (def ^{:doc "docker section validation"} docker-v
   {:docker {:nodes #{:required :docker-node*} }})
