@@ -12,6 +12,8 @@
 (ns docker.remote
   "Docker http remote API client"
   (:require 
+    [flatland.useful.map :refer [map-keys]]
+    [camel-snake-kebab :as k]
     [celestial.model :refer (clone hypervisor)] 
     [cheshire.core :refer :all]
     [clojure.core.strint :refer (<<)]
@@ -24,8 +26,9 @@
 (defn root [node] 
   (<< "https://~(hypervisor :docker :nodes node :host):~(hypervisor :docker :nodes node :port)/"))
 
-(defn call [verb api node]
-  (parse-string (:body (verb (<< "~(root node)~{api}") {:insecure? true})) true))
+(defn call [verb api args node]
+  (-> (verb (<< "~(root node)~{api}") (merge args {:insecure? true}))
+    :body (parse-string true)))
 
 (defn docker-post 
   "A post against a docker instance with provided params"
@@ -33,13 +36,13 @@
   ([node api params] 
    (if (nil? params)
      (call client/post api {} node) 
-     (call client/post api {:form-params params} node))))
+     (call client/post api 
+        {:form-params (map-keys params k/->CamelCase) :content-type :json} node))))
 
-(defn docker-delete [node api] (call client/delete api node))
+(defn docker-delete [node api] (call client/delete api {} node))
 
-(defn docker-get [node api] (call client/get api node))
+(defn docker-get [node api] (call client/get api {} node))
 
+(comment 
+  (celestial.model/set-env :dev (docker-get :local "/images/json?all=0"))) 
 
-(celestial.model/set-env :dev 
- (docker-get :local "/images/json?all=0")) 
-  

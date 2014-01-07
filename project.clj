@@ -41,6 +41,7 @@
                  [org.nmap4j/org.nmap4j "1.0.4"]
                  [selmer "0.3.4"]; for templating
                  [com.palletops/stevedore "0.8.0-beta.5"]
+                 [camel-snake-kebab "0.1.2"]
                  ]
 
   :exclusions [org.clojure/clojure]
