@@ -17,6 +17,11 @@
 (def ^{:doc "A local binding of current environment (used for hypervisors, provisioners etc..)" :dynamic true :private true}
   env nil)
 
+(defn set-dev
+  "set root env to :dev"
+  []
+  (alter-var-root (var celestial.model/env) (fn [_] :dev)))
+
 (defmacro set-env [e & body] `(binding  [env ~e] ~@body))
 
 (defn get-env! [] {:pre [env]} env)

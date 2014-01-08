@@ -11,6 +11,8 @@
 
 (def system nil)
 
+(celestial.model/set-dev)
+
 (defn init
   "Constructs the current development system."
   []
