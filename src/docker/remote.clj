@@ -36,6 +36,10 @@
    (map uncamel m) 
    (uncamel m)))
 
+(defn camelize 
+   "camlize map keys" 
+   [m]
+  (map-keys m k/->CamelCase))
 
 (defn call [verb api args node]
   (-> (verb (<< "~(root node)~{api}") (merge args {:insecure? true}))
@@ -48,7 +52,7 @@
    (if (nil? params)
      (call client/post api {} node) 
      (call client/post api 
-        {:form-params (map-keys params k/->CamelCase) :content-type :json} node))))
+        {:form-params (camelize params) :content-type :json} node))))
 
 (defn docker-delete [node api] (call client/delete api {} node))
 

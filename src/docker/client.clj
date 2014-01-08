@@ -34,21 +34,44 @@
   ([node id] (stop node id 5))
   ([node id timeout] (r/docker-post node (<< "containers/~{id}/stop?t~{timeout}") {})))
 
+(defn to-params
+   "converts a map into a url params" 
+   [m]
+  (reduce (fn [r [k v]] (<< "~{r}&~(name k)=~(str v)")) "" 
+    (update-in m [:config] r/camelize)))
+
+(defn commit 
+  "Commit a container into an image" 
+  {:pre [(every? (partial contains? spec) [:image :memory] )]}
+  [node id m]
+  (r/docker-post node (<< "commit?container=~{id}~(to-params m)") {}))
+
+(defn delete 
+  "Delete a container" 
+  [node id]
+  (r/docker-delete node "containers/~{id}?v=1"))
+
 (defn find-image
-   "find image id from tags, a tag has the form ubuntu:precise" 
-   [node tag]
+  "find image id from tags, a tag has the form ubuntu:precise" 
+  [node tag]
   (find-first (fn [{:keys [repo-tags]}] (find-first #{tag} repo-tags))
-    (r/docker-get node "images/json?all=0")))
+              (r/docker-get node "images/json?all=0")))
 
 (defn list-containers 
-   "list all containers" 
-   [node]
-   (r/docker-get node "containers/json?all=0"))
+  "list all containers" 
+  [node]
+  (r/docker-get node "containers/json?all=0"))
 
 
 (comment 
- (-> (list-containers :local) first :id)
- (create :local {:image "b36f06432104" :memory 0 :args ["-d" "-n"]})
- (stop :local "032f7071997a286f1caadce4f8915cf9982df7c42d9c9a36eb1209250d340242")
- (find-image :local "narkisr/sshd:latest")) 
+  (-> (list-containers :local) first :id)
+  (start :local "0870ab0ded8a260cd18021151399a58c7b65e1351e83348b544aa05f623c1307")
+  (commit :local "0870ab0ded8a260cd18021151399a58c7b65e1351e83348b544aa05f623c1307" 
+     {:m "latest changes" :tag "v1" :author "ronen" :repo "narkisr" 
+      :config {:cmd ["cat" "/world"] :port-specs ["22"]}})
+  (create :local {:image "b36f06432104" :memory 0 :args ["-d" "-n"]})
+  (stop :local "")
+  (delete :local "")
+  (find-image :local "narkisr/sshd:latest")) 
+
 
