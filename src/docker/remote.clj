@@ -26,9 +26,20 @@
 (defn root [node] 
   (<< "https://~(hypervisor :docker :nodes node :host):~(hypervisor :docker :nodes node :port)/"))
 
+(defn uncamel [m]
+ (map-keys m k/->kebab-case)) 
+
+(defn uncamelize
+   "uncammel responses" 
+   [m]
+ (if (sequential? m)
+   (map uncamel m) 
+   (uncamel m)))
+
+
 (defn call [verb api args node]
   (-> (verb (<< "~(root node)~{api}") (merge args {:insecure? true}))
-    :body (parse-string true)))
+    :body (parse-string true) uncamelize))
 
 (defn docker-post 
   "A post against a docker instance with provided params"
@@ -41,7 +52,8 @@
 
 (defn docker-delete [node api] (call client/delete api {} node))
 
-(defn docker-get [node api] (call client/get api {} node))
+(defn docker-get [node api] 
+  (call client/get api {} node))
 
 (comment 
   (celestial.model/set-env :dev (docker-get :local "/images/json?all=0"))) 
