@@ -4,14 +4,19 @@
  :owner "ronen"
 
  :machine {
-  :cpus 4 :memory 4096 :disk 30
+  :hostname "foo" :cpus 4 :memory 4096 :disk 30
  }
 
  :docker {
-   :image "ubuntu/precise"
+   ; used in creation
    :node :local
-   :ports [22]
-   :mounts ["/media/foo"]
+   :image "narkisr:latest"
+   :exposed-ports ["22/tcp"]
+   :volumes ["/tmp"]
+
+   ; used in start
+   :port-bindings {"22/tcp" [{:host-ip "0.0.0.0" :host-port "2222"}]}
+   :binds ["/vagrant:/vagrant"]
  }
 
  :type "redis"
