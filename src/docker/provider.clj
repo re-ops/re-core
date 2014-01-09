@@ -12,7 +12,8 @@
 (ns docker.provider
   "Provides Docker support in Celestial "
   (:require 
-    [docker.remote :as r]
+    [slingshot.slingshot :refer  [throw+ try+]]
+    [docker.client :as c]
     [trammel.core :refer (defconstrainedrecord)]
     [clojure.core.strint :refer (<<)]
     [celestial.model :refer (translate vconstruct)]
@@ -23,31 +24,49 @@
 
 (import-logging)
 
-(defconstrainedrecord Container [node container]
+(defn container-id 
+   "grab container id"
+   [system-id]
+  (get-in (s/get-system system-id) [:docker :container-id]))
+
+(defconstrainedrecord Container [node create-spec start-spec system-id ]
   "A docker container instance"
   []
   Vm
   (create [this] 
-    
-    )
+    (let [{:keys [id]} (c/create node create-spec)]
+      (when (s/system-exists? id)
+         (s/partial-system id {:docker {:container-id id}})))
+       this)
 
   (start [this]
+     (c/start node (container-id system-id) start-spec) 
     )
 
   (delete [this]
+    (c/delete node (container-id system-id)) 
     )
 
   (stop [this]
+    (c/stop node (container-id system-id))
     )
 
   (status [this] 
-    ))
+    (try+ 
+      (let [{:keys [running]} (:state (c/inspect :local (container-id system-id)))]
+        (if running "running" "stopped")) 
+      (catch [:status 404] e false)))
+  ) 
+
+(def starts-ks [:port-bindings :binds])
+
+(def create-ks [:image :exposed-ports :volumes])
 
 (defmethod translate :docker [{:keys [machine docker system-id] :as spec}]
   "Convert the general model into a docker specific one"
-   (merge machine docker {:system-id system-id}))
+   (let [{:keys [node]} docker]
+     [node (merge machine docker) system-id]))
 
 (defmethod vconstruct :docker [{:keys [docker] :as spec}]
-  (let [{:keys [type node]} docker]
-    (apply ->Container node (translate spec))
-    ))
+    (apply ->Container (translate spec))
+    )
