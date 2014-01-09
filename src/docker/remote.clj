@@ -12,7 +12,6 @@
 (ns docker.remote
   "Docker http remote API client"
   (:require 
-    [flatland.useful.map :refer [map-keys]]
     [camel-snake-kebab :as k]
     [celestial.model :refer (clone hypervisor)] 
     [cheshire.core :refer :all]
@@ -25,6 +24,11 @@
 
 (defn root [node] 
   (<< "https://~(hypervisor :docker :nodes node :host):~(hypervisor :docker :nodes node :port)/"))
+
+(defn map-keys
+  "Recursively transforms all map keys"
+  [m f]
+  (clojure.walk/postwalk (fn [x] (if (map? x) (into {} (map (fn [[k v]] [(f k) v]) x)) x)) m))
 
 (defn uncamel [m]
  (map-keys m k/->kebab-case)) 
