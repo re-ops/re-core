@@ -11,7 +11,8 @@
 
 (fact "constructing a proxmox model"
   (with-conf 
-    (second (translate model))) => {:node "proxmox" :flavor :debian :features ["nfs:on"] :system-id 1})
+    (second (translate model))) => 
+      {:node "proxmox" :flavor :debian :features ["nfs:on"] :system-id 1})
 
 (fact "cloning purge"
    (:proxmox (clone model)) =not=> (contains [[:vmid 101]])
