@@ -23,7 +23,7 @@
     [celestial.model :only (translate vconstruct)])
   (:require 
     [celestial.provider :refer 
-       (mappings transform os->template wait-for wait-for-ssh)]
+       (selections mappings transform os->template wait-for wait-for-ssh)]
     [celestial.common :refer (import-logging)]
     [proxmox.model :refer (get-node)]
     [proxmox.validations :refer (validate-provider)]
@@ -193,10 +193,6 @@
 
 (def ex-ks [:features :node :system-id :flavor :user])
 
-(def selections 
-  (letfn [(select [k] (fn [m] (select-keys m k)))]
-    (apply juxt (map select [ct-ks ex-ks net-ks]))))
-
 (defn template-k [k] (fn [os]  (k ((os->template :proxmox) os))))
 
 (defn transformations [{:keys [bridge interface domain ostemplate]}]
@@ -208,7 +204,7 @@
   (-> (merge machine proxmox {:system-id system-id})
       (mappings {:ip :ip_address :os #{:ostemplate :flavor} :domain :searchdomain})
       (transform (transformations machine))
-      generate selections))
+      generate (selections [ct-ks ex-ks net-ks])))
 
 (defmethod vconstruct :proxmox [{:keys [proxmox] :as spec}]
   (let [{:keys [type node]} proxmox]

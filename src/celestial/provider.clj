@@ -36,6 +36,12 @@
        (reduce (fn [r [k v]] (apply assoc r (repeates (ms k) v))) {} mapped)) 
      ))
 
+(defn selections 
+  "Select group of keys from map"
+  [kys]
+  (letfn [(select [k] (fn [m] (select-keys m k)))]
+    (apply juxt (map select kys))))
+
 (defn os->template 
   "Os key to vmware template" 
   [hyp]

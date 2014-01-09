@@ -24,7 +24,7 @@
     [celestial.model :only (translate vconstruct)])
   (:require 
     [celestial.persistency :as p] 
-    [celestial.provider :refer (mappings transform os->template wait-for)]
+    [celestial.provider :refer (mappings transform os->template wait-for selections)]
     [hypervisors.networking :refer (gen-ip release-ip mark)]
     )
   )
@@ -86,16 +86,12 @@
 
 (def allocation-ks [:pool :datacenter :disk-format :hostsystem])
 
-(defn select-from [ks] (fn[m] (select-keys m ks)))
-
-(def selections (juxt :hostname (select-from allocation-ks) (select-from machine-ks) :system-id))
-
 (defmethod translate :vcenter [{:keys [machine vcenter system-id]}]
   "Convert the general model into a vc specific one"
   (-> (merge machine vcenter {:system-id system-id})
       (mappings {:os :template})
       (transform {:template (os->template :vcenter) :disk-format keyword})
-      selections
+      (selections :hostname allocation-ks machine-ks :system-id)
       ))
 
 (defmethod vconstruct :vcenter [spec]
