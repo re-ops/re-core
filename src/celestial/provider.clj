@@ -38,26 +38,27 @@
 
 (defn selections 
   "Select group of keys from map"
-  [kys]
-  (letfn [(select [k] (fn [m] (select-keys m k)))]
-    (apply juxt (map select kys))))
+  ([m kys] ((selections kys) m))
+  ([kys]
+   (letfn [(select [k] (fn [m] (select-keys m k)))]
+     (apply juxt (map select kys)))))
 
 (defn os->template 
   "Os key to vmware template" 
   [hyp]
   (fn [os]
-   (let [ks [hyp :ostemplates os]]
-     (try+ 
-      (apply hypervisor ks)
-      (catch [:type :celestial.common/missing-conf] e
-        (throw+ {:type :missing-template} 
-          (<< "no matching vmware template found for ~{os} add one to configuration under ~{ks}")))))))
+    (let [ks [hyp :ostemplates os]]
+      (try+ 
+        (apply hypervisor ks)
+        (catch [:type :celestial.common/missing-conf] e
+          (throw+ {:type :missing-template} 
+                  (<< "no matching vmware template found for ~{os} add one to configuration under ~{ks}")))))))
 
 (defn transform 
   "specific model transformations"
   [res ts]
-    (reduce 
-      (fn [res [k v]] (update-in res [k] v)) res ts))
+  (reduce 
+    (fn [res [k v]] (update-in res [k] v)) res ts))
 
 (defn wait-for 
   "A general wait for pred function"
@@ -72,14 +73,14 @@
         (throw+ (merge err timings) message)))))
 
 (defn wait-for-ssh [address user timeout]
-    {:pre [address user timeout]}
-    (wait-for {:timeout timeout}
-      #(try 
-         (ssh-up? {:host address :port 22 :user user})
-       (catch Throwable e false))
-      {:type ::ssh-failed :timeout timeout} "Timed out while waiting for ssh"))
+  {:pre [address user timeout]}
+  (wait-for {:timeout timeout}
+            #(try 
+               (ssh-up? {:host address :port 22 :user user})
+               (catch Throwable e false))
+            {:type ::ssh-failed :timeout timeout} "Timed out while waiting for ssh"))
 
 ; common validations
 (validation :ip 
-   (when-not-nil (partial re-find #"\d+\.\d+\.\d+\.\d+") "must be a legal ip address"))
+            (when-not-nil (partial re-find #"\d+\.\d+\.\d+\.\d+") "must be a legal ip address"))
 (test #'mappings)
