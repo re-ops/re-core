@@ -42,8 +42,8 @@
 
 (defn commit 
   "Commit a container into an image" 
-  {:pre [(every? (partial contains? spec) [:image :memory] )]}
   [node id m]
+  {:pre [(every? (partial contains? m) [:m :repo])]}
   (r/docker-post node (<< "commit?container=~{id}~(to-params m)") {}))
 
 (defn delete 
