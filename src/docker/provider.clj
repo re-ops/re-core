@@ -12,6 +12,7 @@
 (ns docker.provider
   "Provides Docker support in Celestial "
   (:require 
+    [celestial.provider :refer [selections]]
     [slingshot.slingshot :refer  [throw+ try+]]
     [docker.client :as c]
     [trammel.core :refer (defconstrainedrecord)]
@@ -29,7 +30,7 @@
    [system-id]
   (get-in (s/get-system system-id) [:docker :container-id]))
 
-(defconstrainedrecord Container [node create-spec start-spec system-id ]
+(defconstrainedrecord Container [node system-id create-spec start-spec]
   "A docker container instance"
   []
   Vm
@@ -65,8 +66,7 @@
 (defmethod translate :docker [{:keys [machine docker system-id] :as spec}]
   "Convert the general model into a docker specific one"
    (let [{:keys [node]} docker]
-     [node (merge machine docker) system-id]))
+     (into [node system-id] (selections (merge machine docker) [create-ks starts-ks]))))
 
 (defmethod vconstruct :docker [{:keys [docker] :as spec}]
-    (apply ->Container (translate spec))
-    )
+    (apply ->Container (translate spec)))

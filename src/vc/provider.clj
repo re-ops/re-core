@@ -91,10 +91,10 @@
   (-> (merge machine vcenter {:system-id system-id})
       (mappings {:os :template})
       (transform {:template (os->template :vcenter) :disk-format keyword})
-      (selections :hostname allocation-ks machine-ks :system-id)
+      (selections [[:hostname] allocation-ks machine-ks [:system-id]])
       ))
 
 (defmethod vconstruct :vcenter [spec]
-  (let [[hostname allocation machine system-id] (translate spec)]
+  (let [[{:keys [hostname]} allocation machine {:keys [system-id]}] (translate spec)]
     (->VirtualMachine hostname allocation machine system-id)))
 
