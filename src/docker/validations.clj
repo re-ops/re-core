@@ -22,19 +22,23 @@
 
 (def docker-entity
   {:docker
-   {:image #{:required :String} :node #{:required :Keyword} 
+   {:node #{:required :Keyword} :image #{:required :String} 
     :ports #{:required :Vector :port*} :mounts #{:required :Vector :mount*}
     } 
    }
   )
 
-(def machine-entity
+(def machine-common
   {:machine
-    {:cpus #{:required :Integer} :memory #{:required :Integer} 
-     :disk #{:required :Integer}}})
+    {:cpus #{:required :Integer} 
+     :memory #{:required :Integer} 
+     :disk #{:required :Integer} }})
 
 (defn validate-entity [spec]
-  (validate! spec (combine machine-entity)))
+  (validate! spec (combine machine-common)))
 
-(defn provider-validation [spec]
+(defn validate-provider [start-spec create-spec]
+   true  
   )
+
+

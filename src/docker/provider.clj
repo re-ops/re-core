@@ -20,6 +20,7 @@
     [celestial.model :refer (translate vconstruct)]
     [celestial.common :refer (import-logging)]
     [celestial.core :refer (Vm)] 
+    [docker.validations :refer (validate-provider)]
     [celestial.persistency :as p]
     [celestial.persistency.systems :as s]))
 
@@ -32,7 +33,7 @@
 
 (defconstrainedrecord Container [node system-id create-spec start-spec]
   "A docker container instance"
-  []
+  [(validate-provider create-spec start-spec) (not (nil? node))]
   Vm
   (create [this] 
     (let [{:keys [id]} (c/create node create-spec)]
