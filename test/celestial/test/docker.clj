@@ -11,5 +11,11 @@
 
 (with-conf
   (fact "basic creation"
-     (vconstruct redis-docker-spec) => (contains {})))
+    (let [{:keys [start-spec create-spec]} (vconstruct redis-docker-spec)]
+      start-spec => 
+         (contains {:binds ["/vagrant:/vagrant"]
+                    :port-bindings {"22/tcp" [{:host-ip "0.0.0.0" :host-port "2222"}]}})
+      create-spec => 
+         (contains {:image "narkisr:latest" :exposed-ports ["22/tcp"] :volumes ["/tmp"]})
+      )))
 
