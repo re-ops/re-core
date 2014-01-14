@@ -12,7 +12,8 @@
 (ns docker.provider
   "Provides Docker support in Celestial "
   (:require 
-    [celestial.provider :refer [selections]]
+    [clojure.string :refer [split]]
+    [celestial.provider :refer [selections mappings transform]]
     [slingshot.slingshot :refer  [throw+ try+]]
     [docker.client :as c]
     [trammel.core :refer (defconstrainedrecord)]
@@ -64,10 +65,28 @@
 
 (def create-ks [:image :exposed-ports :volumes])
 
+(defn to-binds
+  "Trasnforms 22/tcp:2222 to {22/tcp [{:host-ip 0.0.0.0 :host-port 2222}]}" 
+  {:test 
+    #(assert (= (to-binds ["22/tcp:2222"])
+         {"22/tcp" [{:host-ip "0.0.0.0" :host-port "2222"}]}))}
+  [bs]
+  (apply merge 
+    (map 
+      #(let [[f s] (split % #":")]
+        {f [{:host-ip "0.0.0.0" :host-port s}]}) bs)))
+
+(test #'to-binds)
+
 (defmethod translate :docker [{:keys [machine docker system-id] :as spec}]
   "Convert the general model into a docker specific one"
-   (let [{:keys [node]} docker]
-     (into [node system-id] (selections (merge machine docker) [create-ks starts-ks]))))
+  (let [{:keys [node]} docker]
+    (into [node system-id]  
+          (-> (merge machine docker)
+              (mappings {:mount-bindings :binds})
+              (transform {:port-bindings to-binds})
+              (selections [create-ks starts-ks])
+              ))))
 
 (defmethod vconstruct :docker [{:keys [docker] :as spec}]
-    (apply ->Container (translate spec)))
+  (apply ->Container (translate spec)))

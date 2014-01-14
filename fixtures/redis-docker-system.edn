@@ -8,15 +8,12 @@
  }
 
  :docker {
-   ; used in creation
    :node :local
    :image "narkisr:latest"
    :exposed-ports ["22/tcp"]
    :volumes ["/tmp"]
-
-   ; used in start
-   :port-bindings {"22/tcp" [{:host-ip "0.0.0.0" :host-port "2222"}]}
-   :binds ["/vagrant:/vagrant"]
+   :mount-bindings ["/vagrant:/vagrant"]
+   :port-bindings ["22/tcp:2222"]
  }
 
  :type "redis"
