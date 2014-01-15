@@ -13,7 +13,7 @@
   "Provides Docker support in Celestial "
   (:require 
     [clojure.string :refer [split]]
-    [celestial.provider :refer [selections mappings transform]]
+    [celestial.provider :refer [selections mappings transform wait-for]]
     [slingshot.slingshot :refer  [throw+ try+]]
     [docker.client :as c]
     [trammel.core :refer (defconstrainedrecord)]
@@ -38,21 +38,19 @@
   Vm
   (create [this] 
     (let [{:keys [id]} (c/create node create-spec)]
-      (when (s/system-exists? id)
-         (s/partial-system id {:docker {:container-id id}})))
+      (when (s/system-exists? system-id)
+         (s/partial-system system-id {:docker {:container-id id}})
+        ))
        this)
 
   (start [this]
-     (c/start node (container-id system-id) start-spec) 
-    )
+    (c/start node (container-id system-id) start-spec))
 
   (delete [this]
-    (c/delete node (container-id system-id)) 
-    )
+    (c/delete node (container-id system-id)))
 
   (stop [this]
-    (c/stop node (container-id system-id))
-    )
+    (c/stop node (container-id system-id)))
 
   (status [this] 
     (try+ 
@@ -92,7 +90,7 @@
           (-> (merge machine docker)
               (mappings {:mount-bindings :binds})
               (transform {:port-bindings to-binds :exposed-ports empty-hashes-map 
-                          :volumes empty-hashes-map :memory #(* % 1024)})
+                          :volumes empty-hashes-map :memory #(* % 1024 1024)})
               (selections [create-ks starts-ks])
               ))))
 
