@@ -21,7 +21,7 @@
 (defn create 
    "Create a new container instance" 
    [node spec]
-  {:pre [(every? (partial contains? spec) [:image :memory] )]}
+  {:pre [(every? (partial contains? spec) [:image :memory :exposed-ports :volumes] )]}
   (r/docker-post node "containers/create" (merge defaults spec)))
 
 (defn to-params
@@ -54,6 +54,7 @@
 (defn inspect 
    "retuns container status" 
    [node id]
+  {:pre [id]}
    (r/docker-get node (<< "containers/~{id}/json")))
 
 (defn find-image
@@ -74,11 +75,11 @@
      (catch Throwable e# (println e#))) 
     )
 
-  (def id "1901ac2149b30bc39c3e7357455bb8929318e67ba4f7e09ffb51ed3adde2480e")
+  (def id "14f6cd07873bdadb84bb8ddd86f73d89ce3be3759ffec6194fb59e748afe6579")
 
   (list-containers :local {:all false})
 
-  (create :local {:image "narkisr:latest" :memory 0 :args ["-d" "-n"]})
+  {:id "14f6cd07873bdadb84bb8ddd86f73d89ce3be3759ffec6194fb59e748afe6579", :warnings ["Your kernel does not support memory swap capabilities. Limitation discarded."]}
 
   (trace-error
     (start :local id 
@@ -93,7 +94,7 @@
       :config {:cmd ["cat" "/world"] :port-specs ["22"]}})
 
   (find-image :local "narkisr/latest")
-  (clojure.pprint/pprint (:config (inspect :local ))) 
+  (clojure.pprint/pprint (:state (inspect :local id))) 
   ) 
 
 
