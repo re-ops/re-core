@@ -56,14 +56,16 @@
 
   (status [this] 
     (try+ 
-      (let [{:keys [running]} (:state (c/inspect :local (container-id system-id)))]
-        (if running "running" "stopped")) 
+      (if-let [id (container-id system-id)]
+        (if (get-in (c/inspect :local id) [:state :running])
+          "running" "stopped")
+        false) 
       (catch [:status 404] e false)))
   ) 
 
 (def starts-ks [:port-bindings :binds])
 
-(def create-ks [:image :exposed-ports :volumes])
+(def create-ks [:image :memory :exposed-ports :volumes])
 
 (defn to-binds
   "Trasnforms 22/tcp:2222 to {22/tcp [{:host-ip 0.0.0.0 :host-port 2222}]}" 
@@ -78,13 +80,19 @@
 
 (test #'to-binds)
 
+(defn empty-hashes-map
+   "convert a vector [:a] to empty hash map {:a {}}" 
+   [v]
+  (zipmap v (repeat {})))
+
 (defmethod translate :docker [{:keys [machine docker system-id] :as spec}]
   "Convert the general model into a docker specific one"
   (let [{:keys [node]} docker]
     (into [node system-id]  
           (-> (merge machine docker)
               (mappings {:mount-bindings :binds})
-              (transform {:port-bindings to-binds})
+              (transform {:port-bindings to-binds :exposed-ports empty-hashes-map 
+                          :volumes empty-hashes-map :memory #(* % 1024)})
               (selections [create-ks starts-ks])
               ))))
 
