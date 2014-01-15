@@ -70,13 +70,13 @@
 (defn to-binds
   "Trasnforms 22/tcp:2222 to {22/tcp [{:host-ip 0.0.0.0 :host-port 2222}]}" 
   {:test 
-    #(assert (= (to-binds ["22/tcp:2222"])
+    #(assert (= (to-binds ["22/tcp:2222/0.0.0.0"])
          {"22/tcp" [{:host-ip "0.0.0.0" :host-port "2222"}]}))}
   [bs]
   (apply merge 
     (map 
-      #(let [[f s] (split % #":")]
-        {f [{:host-ip "0.0.0.0" :host-port s}]}) bs)))
+      #(let [[c h] (split % #":") [hpo hip] (split h #"\/")]
+        {c [{:host-ip hip :host-port hpo}]}) bs)))
 
 (test #'to-binds)
 
