@@ -16,10 +16,28 @@
   (with-state-changes [(before :facts (populate-system redis-type redis-docker-spec))]
     (fact "docker creation workflows" :integration :docker :workflow
        (wf/create (spec)) => nil 
+       (get-in (spec) [:docker :container-id]) => (comp not nil?)
        (wf/create (spec)) => (throws ExceptionInfo  (is-type? :celestial.workflows/machine-exists)) 
        (wf/stop (spec)) => nil 
        (wf/destroy (spec)) => nil 
       )
+
+    (fact "docker start/stop workflows" :integration :docker :workflow
+       (wf/create (spec)) => nil 
+       (wf/stop (spec)) => nil 
+       (let [{:keys [docker]} (spec)]
+         (wf/start (spec)) => nil
+         (get-in (spec) [:docker :container-id]) => (docker :container-id)
+         ) 
+       (wf/destroy (spec)) => nil 
+      )
+
+   (fact "docker reload workflows" :integration :docker :workflow
+        (wf/create (spec)) => nil
+        (let [{:keys [docker]} (spec)]
+          (wf/reload (spec)) => nil 
+          (get-in (spec) [:docker :container-id]) =not=> (docker :container-id))
+        (wf/destroy (spec)) => nil)
     ) 
    ) 
   )
