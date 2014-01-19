@@ -63,7 +63,7 @@
 
 (def starts-ks [:port-bindings :binds])
 
-(def create-ks [:image :memory :exposed-ports :volumes])
+(def create-ks [:image :cpu-shares :memory :exposed-ports :volumes])
 
 (defn to-binds
   "Trasnforms 22/tcp:2222 to {22/tcp [{:host-ip 0.0.0.0 :host-port 2222}]}" 
@@ -88,7 +88,7 @@
   (let [{:keys [node]} docker]
     (into [node system-id]  
           (-> (merge machine docker)
-              (mappings {:mount-bindings :binds})
+              (mappings {:mount-bindings :binds :cpus :cpu-shares})
               (transform {:port-bindings to-binds :exposed-ports empty-hashes-map 
                           :volumes empty-hashes-map :memory #(* % 1024 1024)})
               (selections [create-ks starts-ks])

@@ -4,7 +4,7 @@
  :owner "ronen"
 
  :machine {
-  :hostname "foo" :cpus 4 :memory 4096 :disk 30
+  :hostname "foo" :cpus 4 :memory 4096 
  }
 
  :docker {

@@ -31,8 +31,7 @@
 (def machine-common
   {:machine
     {:cpus #{:required :Integer} 
-     :memory #{:required :Integer} 
-     :disk #{:required :Integer} }})
+     :memory #{:required :Integer}}})
 
 (defn validate-entity [spec]
   (validate! spec (combine machine-common)))
