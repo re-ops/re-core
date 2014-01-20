@@ -42,8 +42,9 @@
     (fn [r k] (if-let [v (get-in m k)] (assoc-in r k v) r)) {} ks))
 
 (def whitelist
-  [[:proxmox :nodes] [:proxmox :ostemplates] [:vcenter :ostemplates]
-   [:aws] [:physical]])
+  [[:proxmox :nodes] [:proxmox :ostemplates]
+   [:docker :nodes]
+   [:vcenter :ostemplates] [:aws] [:physical]])
 
 (defn sanitized-envs
   "sanitized (from sensative data) environments " 
