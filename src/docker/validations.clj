@@ -30,14 +30,23 @@
 
 (def machine-common
   {:machine
-    {:cpus #{:required :Integer} 
+    {:cpus #{:required :Integer} :hostname #{:required :String}
      :memory #{:required :Integer}}})
 
 (defn validate-entity [spec]
   (validate! spec (combine machine-common)))
 
+;; (validation :quota* (every-kv {:limit #{:required :Integer}}))
+
+(def start-v 
+ {:port-bindings #{:required :Map} :binds #{:required :Map}})
+
+(def create-v
+ {:image #{:required :String} :cpu-shares #{:required :Integer}
+  :memory #{:required :Integer} :exposed-ports #{:Map} :volumes #{:Map}})
+
 (defn validate-provider [start-spec create-spec]
-   true  
-  )
+  (validate! start-spec start-v)
+  (validate! create-spec create-v))
 
 
