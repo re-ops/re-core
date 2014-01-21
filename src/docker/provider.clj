@@ -86,7 +86,7 @@
 (defmethod translate :docker [{:keys [machine docker system-id] :as spec}]
   "Convert the general model into a docker specific one"
   (let [{:keys [node]} docker]
-    (into [node system-id]  
+    (into [(keyword node) system-id]  
           (-> (merge machine docker)
               (mappings {:mount-bindings :binds :cpus :cpu-shares})
               (transform {:port-bindings to-binds :exposed-ports empty-hashes-map 
