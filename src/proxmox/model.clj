@@ -8,7 +8,8 @@
   "Clones the model replace unique identifiers in the process" 
   (-> spec 
       (dissoc-in* [:proxmox :vmid])
-      (dissoc-in* [:machine :ip])))
+      (dissoc-in* [:machine :ip])
+      ))
 
 (defn get-node [node] 
   (hypervisor :proxmox :nodes (keyword node)))

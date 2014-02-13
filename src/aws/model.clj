@@ -17,4 +17,5 @@
 (defmethod clone :aws [spec]
   "Clones the model replace unique identifiers in the process" 
   (-> spec 
-      (dissoc-in* [:machine :ssh-host])))
+      (dissoc-in* [:machine :ip])
+      (dissoc-in* [:aws :instance-id])))
