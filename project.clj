@@ -68,7 +68,7 @@
                :aot [supernal.launch remote.capistrano proxmox.provider vc.provider
                      aws.provider celestial.core celestial.puppet-standalone celestial.launch]
  
-               :test-paths ["test"]
+               :test-paths ["test" "data"]
                :source-paths  ["dev"]
                :resource-paths  ["src/main/resources/" "pkg/etc/celestial/"]
                :dependencies [[org.clojure/tools.trace "0.7.5"] [ring-mock "0.1.5"]

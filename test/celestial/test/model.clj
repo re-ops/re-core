@@ -7,7 +7,7 @@
     [celestial.fixtures.core :refer (with-conf)])
   (:use midje.sweet))
 
-(def model (assoc (slurp-edn "fixtures/model.edn") :system-id 1))
+(def model (assoc (slurp-edn "data/resources/model.edn") :system-id 1))
 
 (fact "constructing a proxmox model"
   (with-conf 
