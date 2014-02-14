@@ -1,6 +1,9 @@
 (ns celestial.fixtures.populate
   "data population"
+  (:gen-class true)
   (:require
+    [celestial.security :refer (set-user)]
+    [celestial.fixtures.core :refer (with-conf)]
     [simple-check.generators :as g]
     [celestial.redis :refer (clear-all)]  
     [celestial.persistency :as p]  
@@ -51,3 +54,12 @@
   (add-users)
   (p/add-type t)
   (s/add-system s))
+
+(defn -main 
+   "run populate all" 
+   [& args]
+  (with-conf
+   (set-user {:username "admin"}
+     (populate-all)
+     (p/delete-user "admin")
+     (println "populate done!")        )))

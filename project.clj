@@ -93,6 +93,7 @@
             "remote-repl" ["repl" ":connect" "celestial:7888"]
             "autotest" ["midje" ":autotest" ":filter" "-integration"] 
             "runtest" ["midje" ":filter" "-integration"] 
+            "populate" ["run" "-m" "celestial.fixtures.populate"]
             ; https://github.com/stuartsierra/reloaded workflow
             "dev-repl" ["with-profile" "refresh" "do" "repl"] 
             }
