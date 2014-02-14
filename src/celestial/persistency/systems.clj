@@ -18,6 +18,7 @@
     [celestial.roles :refer (su?)]
     [robert.hooke :as h]
     [celestial.persistency :as p]
+    [celestial.persistency.quotas :as q]
     [celestial.common :refer (import-logging)]
     [physical.validations :as ph]
     [proxmox.validations :as pv]
@@ -34,16 +35,18 @@
 
 (import-logging)
 
-(declare perm validate-system)
+(declare perm validate-system increase-quota decrease-quota)
 
 (entity {:version 1} system :indices [type env owner] 
-        :intercept {:create [perm] :read [perm] :update [perm] :delete [perm]} )
+        :intercept {
+            :create [perm increase-quota]
+            :read [perm] :update [perm]
+            :delete [perm ]})
 
 (defn assert-access 
   "Validates that the current user can access the system, 
-  non super users can only access systems they own.
-  All users are limited to certain environments.
-  "
+   non super users can only access systems they own.
+   All users are limited to certain environments."
   [{:keys [env owner] :as system}]
   {:pre [(current-user)]}
   (let [{:keys [envs username] :as curr-user} (p/get-user! ((current-user) :username))]
@@ -60,8 +63,7 @@
 (defn perm
   "A permission interceptor on systems access, we check both env and owner persmissions.
   due to the way robert.hooke works we analyse args and not fn to decide what to verify on.
-  If we have a map we assume its a system if we have a number we assume its an id
-  " 
+  If we have a map we assume its a system if we have a number we assume its an id." 
   [f & args]
   (let [system (first (filter map? args)) 
         id (first (filter #(or (number? %) (and (string? %) (re-find #"\d+" %))) args))
@@ -72,6 +74,22 @@
         (assert-access system)
         (assert-access (get-system id :skip-assert)))) 
     (if skip (apply f (butlast args)) (apply f args))))
+
+(defn decrease-quota 
+   "reducing usage quotas for owning user on delete" 
+   [f & args]
+  (let [system (first (filter map? args))]
+   (when (is-system? system) (apply q/decrease-use args)))
+   (apply f args))
+
+(defn increase-quota 
+   "reducing usage quotas for owning user on delete" 
+   [f & args]
+   (if (map? (first args)) 
+     (let [id (apply f args) spec (first args)]  
+       (q/quota-assert spec)
+       (q/increase-use id spec) id)
+     (apply f args)))
 
 (defn system-ip [id]
   (get-in (get-system id) [:machine :ip]))
@@ -100,8 +118,10 @@
 
 (defn clone-system 
   "clones an existing system"
-  [id hostname]
-  (add-system (clone (assoc-in (get-system id) [:machine :hostname] hostname))))
+  [id {:keys [hostname owner]}]
+  (add-system 
+    (-> (get-system id) 
+      (assoc :owner owner) (assoc-in [:machine :hostname] hostname) clone)))
 
 (defn systems-for
   "grabs all the systems ids that this user can see"

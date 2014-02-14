@@ -1,7 +1,9 @@
 (ns celestial.api.users
   (:require
     [cemerick.friend.credentials :as creds]
-    [celestial.persistency :as p]) 
+    [celestial.persistency :as p]
+    [celestial.persistency.quotas :as q]
+    ) 
   (:use 
     [celestial.roles :only (roles roles-m)]
     [clojure.core.strint :only (<<)]
@@ -62,18 +64,18 @@
 
 (defroutes- quotas {:path "/quota" :description "User quota managment"}
   (GET- "/quotas/:name" [^:string name] {:nickname "getQuota" :summary "Get users quota"}
-    (success (p/get-quota! name)))
+    (success (q/get-quota! name)))
 
   (POST- "/quotas/" [& ^:quota quota] {:nickname "addQuota" :summary "Adds a user quota"}
     (wrap-errors 
-       (p/add-quota quota)
+       (q/add-quota quota)
        (success {:message "added quota"})))
 
   (PUT- "/quotas/" [& ^:quota quota] {:nickname "updateQuota" :summary "Updates an existing quota"}
     (wrap-errors 
-      (p/update-quota quota)
+      (q/update-quota quota)
       (success {:message "quota updated"})))
 
   (DELETE- "/quotas/:name" [^:string name] {:nickname "deleteQuota" :summary "Deleted users quota"}
-     (p/delete-quota! name) 
+     (q/delete-quota! name) 
      (success {:message "quota deleted"})))

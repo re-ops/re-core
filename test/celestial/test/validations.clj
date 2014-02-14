@@ -1,7 +1,8 @@
 (ns celestial.test.validations
  (:require
    [celestial.roles :refer (admin)]
-   [celestial.persistency :refer (validate-type validate-quota user-exists? validate-user)]
+   [celestial.persistency :refer (validate-type user-exists? validate-user)]
+   [celestial.persistency.quotas :refer (validate-quota)]
    [aws.validations :as awsv]
    [physical.validations :as phv]
    [docker.validations :as dv]

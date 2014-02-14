@@ -91,19 +91,8 @@
     {:nickname "addSystem" :summary "Add system" 
      :errorResponses (errors {:bad-req "Missing system type"})}
          (wrap-errors
-           (p/with-quota (s/add-system spec) spec
+           (let [id (s/add-system spec)]
              (success {:message "new system saved" :id id}))))
-
-  (POST- "/system/:id/:hostname" [^:int id ^:string hostname] 
-         {:nickname "cloneSystem" :summary "Clone an existing system " 
-          :notes "Clones a system replacing unique identifiers along the way,
-                 the only user provided value is the dest hostname"
-           :errorResponses (errors {:bad-req "System missing"})}
-         (if (s/system-exists? id)
-           (p/with-quota 
-             (s/clone-system id hostname) (s/get-system id)
-             (success {:message "system cloned" :id id}))
-           (conflict {:message "System does not exists, use POST /host/system to create it first"})))
 
   (PUT- "/systems/:id" [^:int id & ^:system system] {:nickname "updateSystem" :summary "Update system" 
                                                          :errorResponses (errors {:conflict "System does not exist"}) }
@@ -118,7 +107,6 @@
            (try+ 
              (let [spec (s/get-system! id) int-id (Integer/valueOf id)]               
                (s/delete-system! id) 
-               (p/decrease-use int-id spec)
                (success {:message "System deleted"})) 
              (catch [:type :celestial.persistency/missing-system] e 
                (bad-req {:message "System does not exist"}))))

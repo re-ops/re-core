@@ -31,12 +31,12 @@
 
       (fact "simple clone" :integration :redis :systems
             (let [id (s/add-system redis-prox-spec)
-                  cloned (s/clone-system id "foo")] 
+                  cloned (s/clone-system id {:hostname "bar" :owner "ronen"})] 
               (s/get-system cloned) => 
               (-> redis-prox-spec 
                   (dissoc-in* [:proxmox :vmid])
                   (dissoc-in* [:machine :ip]) 
-                  (assoc-in [:machine :hostname] "foo"))))
+                  (assoc-in [:machine :hostname] "bar"))))
 
       (fact "persmissionless access" :integration :redis :systems
             (let [id (s/add-system (assoc redis-prox-spec :env :prod))] 
@@ -65,7 +65,7 @@
           (provided (current-user) => {:username "ronen"} :times 6)
           (s/add-system redis-prox-spec) => truthy
           (provided (current-user) => {:username "ronen"} :times 6)))
-      
+
       (fact "user trying to create on another username" :integration :redis :systems
          (s/add-system (assoc redis-prox-spec :owner "foo")) =>
            (throws ExceptionInfo (is-type? :celestial.persistency.systems/persmission-owner-violation))
@@ -81,7 +81,7 @@
            (provided (current-user) => {:username "admin"} :times 12)
            (s/partial-system id {:proxmox {:vmid 101} :machine {:ip "1.2.3.4"}}) => 
              (throws ExceptionInfo (is-type? :celestial.persistency.systems/persmission-owner-violation))
-           (provided (current-user) => {:username "ronen"} :times 2))))
+           (provided (current-user) => {:username "ronen"} :times 2)))
 
-      ))
+      )))
 
