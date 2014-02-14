@@ -136,6 +136,15 @@
     (s/delete-system system-id)
     (info "system destruction done")))
 
+(deflow ^{:hook-args :clone-spec} clone
+  "Clones a system model and creates it"
+  [system-id clone-spec]
+   (when-not (s/system-exists? system-id)
+      (throw+ {:type ::system-missing} (<< "Could not clone missing system ~{system-id}")))
+    (let [id (s/clone-system system-id clone-spec)]
+      (create (s/get-system id) (s/get-system id)) 
+      (info "system cloned into" id)))
+
 (deflow clear
   "Clear system model (no machine destruction)"
   [{:keys [system-id] :as spec}]
