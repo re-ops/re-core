@@ -1,44 +1,48 @@
 (ns celestial.fixtures.data
   "loading fixtures data"
   (:require 
+    [clojure.core.strint :refer  (<<)]
     [celestial.common :refer (slurp-edn)]
     [celestial.fixtures.core :refer (host)]))
 
 (def admin {:envs [:dev :qa :prod] :roles #{:celestial.roles/admin} :username "admin" :password "foo"})
 
 (def ronen {:envs [:dev] :roles #{:celestial.roles/user} :username "ronen" :password "bar"})
+
+(defn read-fixture [fixture]
+  (slurp-edn (<< "data/resources/~{fixture}.edn")))
  
-(def redis-prox-spec (slurp-edn "fixtures/redis-system.edn"))
+(def redis-prox-spec (read-fixture "redis-system"))
 
-(def redis-bridged-prox (slurp-edn "fixtures/redis-system-bridged.edn"))
+(def redis-bridged-prox (read-fixture "redis-system-bridged"))
 
-(def redis-type (slurp-edn "fixtures/redis-type.edn"))
+(def redis-type (read-fixture "redis-type"))
 
 (def redis-ec2-spec 
-  (assoc-in (slurp-edn "fixtures/redis-ec2-system.edn") [:aws :key-name] host))
+  (assoc-in (read-fixture "redis-ec2-system") [:aws :key-name] host))
 
 (def redis-ec2-centos 
-  (assoc-in (slurp-edn "fixtures/redis-ec2-centos.edn") [:aws :key-name] host))
+  (assoc-in (read-fixture "redis-ec2-centos") [:aws :key-name] host))
 
-(def redis-physical (slurp-edn "fixtures/redis-physical.edn"))
+(def redis-physical (read-fixture "redis-physical"))
 
-(def redis-vc-spec (slurp-edn "fixtures/redis-vc-system.edn"))
+(def redis-vc-spec (read-fixture "redis-vc-system"))
 
-(def redis-docker-spec (slurp-edn "fixtures/redis-docker-system.edn"))
+(def redis-docker-spec (read-fixture "redis-docker-system"))
 
-(def local-prox (slurp-edn "fixtures/celestial.edn"))
+(def local-prox (read-fixture "celestial"))
 
-(def proxmox-3 (slurp-edn "fixtures/proxmox-3.edn"))
+(def proxmox-3 (read-fixture "proxmox-3"))
 
-(def clustered-prox (slurp-edn "fixtures/celestial-cluster.edn"))
+(def clustered-prox (read-fixture "celestial-cluster"))
  
-(def redis-deploy (slurp-edn "fixtures/redis-deploy.edn"))
+(def redis-deploy (read-fixture "redis-deploy"))
 
-(def redis-runall (slurp-edn "fixtures/redis-runall.edn"))
+(def redis-runall (read-fixture "redis-runall"))
 
-(def basic-audit (slurp-edn "fixtures/basic-audit.edn"))
+(def basic-audit (read-fixture "basic-audit"))
 
-(def user-quota (slurp-edn "fixtures/user-quota.edn"))
+(def user-quota (read-fixture "user-quota"))
 
 (def local-conf 
   (let [path (me.raynes.fs/expand-home "~/.celestial.edn")]
