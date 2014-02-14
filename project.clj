@@ -46,13 +46,14 @@
 
   :exclusions [org.clojure/clojure]
 
-  :plugins  [[jonase/eastwood "0.0.2"] [lein-midje "3.0.0"] [lein-ancient "0.4.2"]
-             [lein-tar "2.0.0" ] [lein-tag "0.1.0"] [lein-set-version "0.3.0"] [topping "0.0.2"]]
+  :plugins  [[jonase/eastwood "0.1.0"] 
+             [lein-ancient "0.4.2"] [lein-tar "2.0.0" ]
+             [lein-tag "0.1.0"] [lein-set-version "0.3.0"]
+             [topping "0.0.2"] ]
 
   :bin {:name "celestial"}
 
   :profiles {
-             
              :refresh {
                 :dependencies [[org.clojure/tools.namespace "0.2.4"] 
                                [org.clojure/tools.trace "0.7.5"]
@@ -64,6 +65,7 @@
                 :test-paths  []
                 :jvm-opts ~(vec (map (fn [[p v]] (str "-D" (name p) "=" v)) {:disable-conf "true" }))
              }
+
              :dev {
                :aot [supernal.launch remote.capistrano proxmox.provider vc.provider
                      aws.provider celestial.core celestial.puppet-standalone celestial.launch]
@@ -74,6 +76,7 @@
                :dependencies [[org.clojure/tools.trace "0.7.5"] [ring-mock "0.1.5"]
                               [midje "1.5.1" :exclusions [org.clojure/core.unify]]
                               [junit/junit "4.11"] [reiddraper/simple-check "0.5.0"]]
+               :plugins [[lein-midje "3.0.0"]]
                :jvm-opts ~(vec (map (fn [[p v]] (str "-D" (name p) "=" v)) {:disable-conf "true" }))
                :set-version {
                   :updates [ 
