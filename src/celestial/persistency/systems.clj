@@ -41,7 +41,7 @@
         :intercept {
             :create [perm increase-quota]
             :read [perm] :update [perm]
-            :delete [perm ]})
+            :delete [perm decrease-quota]})
 
 (defn assert-access 
   "Validates that the current user can access the system, 
