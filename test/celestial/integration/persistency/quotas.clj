@@ -5,7 +5,7 @@
     [celestial.redis :refer (clear-all)]  
     [celestial.fixtures.core :refer (is-type? with-admin)]
     [celestial.fixtures.data :refer (redis-prox-spec user-quota)]
-    [celestial.fixtures.populate :refer (add-types)]
+    [celestial.fixtures.populate :refer (add-types add-users)]
     [celestial.persistency :as p]
     [celestial.persistency.systems :as s]
     [celestial.persistency.quotas :as q]))
@@ -13,6 +13,7 @@
 (defn quotas-populate []
   (clear-all)
   (add-types)
+  (add-users)
   (p/add-user {:username "foo" :password "bla" :roles {} :envs []})
   (q/add-quota (assoc-in user-quota [:quotas :proxmox :used] nil)) )
 
@@ -35,7 +36,16 @@
         (s/add-system redis-prox-spec') => truthy
         (s/add-system redis-prox-spec') => (throws ExceptionInfo (is-type? :celestial.persistency.quotas/quota-limit-reached))
         (s/delete-system id) => truthy
-        (s/add-system redis-prox-spec') => truthy)))
+        (s/add-system redis-prox-spec') => truthy))))
+
+  (fact "quotasless user can run forever" :integration :redis :quota
+    (let [redis-prox-admin (assoc redis-prox-spec :owner "admin")]
+      (with-admin 
+        (s/add-system redis-prox-admin) => truthy
+        (s/add-system redis-prox-admin) => truthy
+        (s/add-system redis-prox-admin) => truthy
+        (s/add-system redis-prox-admin) => truthy
+        ))
     )
   )
 
