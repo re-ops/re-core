@@ -17,7 +17,7 @@
                     :port-bindings {"22/tcp" [{:host-ip "0.0.0.0" :host-port "2222"}]}})
       create-spec => 
          (contains 
-          {:exposed-ports {"22/tcp"  {}} :image "narkisr:latest" :memory 
+          {:exposed-ports {"22/tcp"  {}} :image "narkisr/latest" :memory 
            4294967296 :volumes  {"/tmp"  {}}})
       )))
 
