@@ -21,6 +21,7 @@
     physical.provider docker.provider
     celestial.puppet_standalone 
     remote.capistrano remote.ruby
+    docker.model
     [celestial.persistency :as p]
     [celestial.persistency.systems :as s]
     [clojure.tools.macro :as tm]
@@ -142,7 +143,7 @@
    (when-not (s/system-exists? system-id)
       (throw+ {:type ::system-missing} (<< "Could not clone missing system ~{system-id}")))
     (let [id (s/clone-system system-id clone-spec)]
-      (create (s/get-system id) (s/get-system id)) 
+      (create (assoc (s/get-system id) :system-id id)) 
       (info "system cloned into" id)))
 
 (deflow clear
