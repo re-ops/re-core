@@ -9,13 +9,10 @@
   See the License for the specific language governing permissions and
   limitations under the License.)
 
-(ns aws.model
+(ns vc.model
   (:use [flatland.useful.map :only  (dissoc-in*)]
-        [celestial.model :only (clone)]) 
-  )
+        [celestial.model :only (clone)]))
 
-(defmethod clone :aws [spec clone-spec]
+(defmethod clone :vcenter [spec clone-spec]
   "Clones the model replace unique identifiers in the process" 
-  (-> spec 
-      (dissoc-in* [:machine :ip])
-      (dissoc-in* [:aws :instance-id])))
+  )

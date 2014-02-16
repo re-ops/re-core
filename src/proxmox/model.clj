@@ -4,7 +4,7 @@
     [celestial.model :refer (clone hypervisor)] 
     [celestial.common :refer (get!)]))
 
-(defmethod clone :proxmox [spec]
+(defmethod clone :proxmox [spec clone-spec]
   "Clones the model replace unique identifiers in the process" 
   (-> spec 
       (dissoc-in* [:proxmox :vmid])

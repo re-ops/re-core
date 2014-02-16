@@ -56,7 +56,7 @@
 
 (defmulti clone
  "Clones an existing system map replacing unique identifiers in the process"
-  (fn [spec] (figure-virt spec)))
+  (fn [spec clone-spec] (figure-virt spec)))
 
 (defmulti translate
   "Converts general model to specific virtualization model" 
