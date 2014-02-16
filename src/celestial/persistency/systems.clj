@@ -118,10 +118,12 @@
 
 (defn clone-system 
   "clones an existing system"
-  [id {:keys [hostname owner]}]
+  [id {:keys [hostname owner] :as clone-spec}]
   (add-system 
     (-> (get-system id) 
-      (assoc :owner owner) (assoc-in [:machine :hostname] hostname) clone)))
+      (assoc :owner owner) 
+      (assoc-in [:machine :hostname] hostname)
+      (clone clone-spec))))
 
 (defn systems-for
   "grabs all the systems ids that this user can see"
