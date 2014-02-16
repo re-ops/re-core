@@ -4,6 +4,7 @@
     [celestial.fixtures.core :refer (with-defaults is-type? with-admin with-conf)]  
     [celestial.fixtures.data :refer 
      (redis-type local-conf redis-docker-spec)]
+    [celestial.persistency.systems :as s]
     [celestial.fixtures.populate :refer (populate-system)]  
     [celestial.integration.workflows.common :refer (spec get-spec)]
     [celestial.workflows :as wf])
@@ -38,6 +39,10 @@
           (wf/reload (spec)) => nil 
           (get-in (spec) [:docker :container-id]) =not=> (docker :container-id))
         (wf/destroy (spec)) => nil)
-    ) 
-   ) 
-  )
+
+   (fact "docker clone workflows" :integration :docker :workflow
+        (wf/create (spec)) => nil
+        (wf/clone 1 {:hostname "bar" :owner "ronen" :docker {:port-bindings ["22/tcp:2223/0.0.0.0"]}}) => nil
+        (wf/destroy (assoc (s/get-system 2) :system-id 2)) => nil
+        (wf/destroy (spec)) => nil))) 
+) 
