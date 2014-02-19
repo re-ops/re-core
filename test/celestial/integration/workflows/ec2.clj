@@ -3,6 +3,7 @@
   (:require 
     [aws.common :refer (with-ctx instance-desc)]
     [celestial.fixtures.core :refer (with-defaults is-type? with-admin with-conf)]  
+    [celestial.persistency.systems :as s]
     [celestial.fixtures.data :refer 
      (redis-type redis-ec2-spec local-conf redis-ec2-centos)]  
     [celestial.fixtures.populate :refer (populate-system)]  
@@ -66,7 +67,14 @@
                             "s3://opsk-sandboxes/redis-sandbox-0.3.5.tar.gz")]
             (wf/create (spec)) => nil
             (wf/puppetize s3-redis (spec)) => nil 
-            (wf/destroy (spec)) => nil))) 
+            (wf/destroy (spec)) => nil))
+      
+      (fact "aws clone workflows" :integration :ec2 :workflow
+        (wf/create (spec)) => nil
+        (wf/clone 1 {:hostname "bar" :owner "ronen"}) => nil
+        (wf/destroy (assoc (s/get-system 2) :system-id 2)) => nil
+        (wf/destroy (spec)) => nil)
+      ) 
 
   (with-state-changes [(before :facts (populate-system redis-type redis-ec2-centos))]
      (fact "aws centos provisioning" :integration :ec2 :workflow
