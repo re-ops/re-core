@@ -104,7 +104,7 @@
   (stop [this]
     (with-instance-id 
        (debug "stopping" instance-id)
-       (when-not (describe-eip endpoint instance-id)
+       (when-not (first (:addresses (describe-eip endpoint instance-id)))
          (debug "clearing dynamic ip from system")
          (s/update-system (spec :system-id) 
            (dissoc-in* (s/get-system (spec :system-id)) [:machine :ip])))
@@ -144,7 +144,7 @@
   (.start m)
   (clojure.pprint/pprint 
     (celestial.model/set-env :dev 
-     (first (:addresses (describe-eip "ec2.ap-southeast-2.amazonaws.com" "i-b6974489"))))) 
+     (first (:addresses (describe-eip "ec2.ap-southeast-2.amazonaws.com" "i-9fc092de"))))) 
   ) 
 
 
