@@ -21,7 +21,8 @@
     physical.provider docker.provider
     celestial.puppet_standalone 
     remote.capistrano remote.ruby
-    docker.model
+    ;cloning
+    docker.model aws.model proxmox.model
     [celestial.persistency :as p]
     [celestial.persistency.systems :as s]
     [clojure.tools.macro :as tm]
