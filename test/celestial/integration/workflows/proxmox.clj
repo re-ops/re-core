@@ -4,6 +4,7 @@
     [celestial.fixtures.core :refer (with-defaults is-type?)]  
     [celestial.fixtures.data :refer 
      (redis-type redis-prox-spec local-conf)]
+    [celestial.persistency.systems :as s]
     [celestial.fixtures.populate :refer (populate-system)]  
     [celestial.workflows :as wf])
   (:import clojure.lang.ExceptionInfo)
@@ -21,7 +22,15 @@
     (fact "proxmox reload workflows" :integration :proxmox :workflow
         (wf/create (spec)) => nil
         (wf/reload (spec)) => nil 
-        (wf/destroy (spec)) => nil)))
+        (wf/destroy (spec)) => nil)
+
+    (fact "proxmox clone workflows" :integration :docker :workflow
+        (wf/create (spec)) => nil
+        (wf/clone 1 
+          {:hostname "bar" :owner "ronen" :machine {:ip "192.168.21.253"}}) => nil
+        (wf/destroy (assoc (s/get-system 2) :system-id 2)) => nil
+        (wf/destroy (spec)) => nil)
+    ))
 
 
 
