@@ -18,6 +18,8 @@
 
 (def redis-type (read-fixture "redis-type"))
 
+(def smokeping-type (read-fixture "smokeping-type"))
+
 (def redis-ec2-spec 
   (assoc-in (read-fixture "redis-ec2-system") [:aws :key-name] host))
 
