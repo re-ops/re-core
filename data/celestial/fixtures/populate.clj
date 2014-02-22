@@ -26,12 +26,16 @@
 (defn add-actions 
    "populates actions" 
    []
-  (a/add-action d/redis-deploy))
+  (a/add-action d/redis-deploy)
+  ; these actions won't work
+  (a/add-action (assoc d/redis-deploy :name "restart-tomcat"))
+  (a/add-action (assoc d/redis-deploy :name "flush-cache")))
 
 (def machines 
   (g/fmap (partial zipmap [:hostname]) 
      (g/tuple 
-       (g/fmap (partial apply str) (g/tuple (g/elements ["red-" "smokeping-"]) g/nat)))))
+       (g/fmap (partial apply str) 
+          (g/tuple (g/elements ["zeus-" "atlas-" "romulus-" "remus-"]) g/nat)))))
 
 (def host-env-gen
   (g/fmap (partial zipmap [:env :type])
