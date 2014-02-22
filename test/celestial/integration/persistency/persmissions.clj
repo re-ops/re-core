@@ -30,13 +30,14 @@
               (:foo (s/get-system id)) => 2))
 
       (fact "simple clone" :integration :redis :systems
-            (let [id (s/add-system redis-prox-spec)
-                  cloned (s/clone-system id {:hostname "bar" :owner "ronen"})] 
+            (let [spec {:hostname "bar" :owner "ronen" :machine {:ip "192.168.3.201"}}
+                  id (s/add-system redis-prox-spec)
+                  cloned (s/clone-system id spec)] 
               (s/get-system cloned) => 
-              (-> redis-prox-spec 
-                  (dissoc-in* [:proxmox :vmid])
-                  (dissoc-in* [:machine :ip]) 
-                  (assoc-in [:machine :hostname] "bar"))))
+                 (-> redis-prox-spec 
+                   (dissoc-in* [:proxmox :vmid])
+                   (assoc-in [:machine :ip] "192.168.3.201") 
+                   (assoc-in [:machine :hostname] "bar"))))
 
       (fact "persmissionless access" :integration :redis :systems
             (let [id (s/add-system (assoc redis-prox-spec :env :prod))] 
