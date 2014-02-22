@@ -20,6 +20,7 @@
 (defn add-types 
    "populates types" 
    []
+  (p/add-type d/smokeping-type)
   (p/add-type d/redis-type))
 
 (defn add-actions 
@@ -27,15 +28,29 @@
    []
   (a/add-action d/redis-deploy))
 
-(def env-gen (g/elements [:dev :qa :prod])) 
+(def machines 
+  (g/fmap (partial zipmap [:hostname]) 
+     (g/tuple 
+       (g/fmap (partial apply str) (g/tuple (g/elements ["red-" "smokeping-"]) g/nat)))))
+
+(def host-env-gen
+  (g/fmap (partial zipmap [:env :type])
+      (g/tuple 
+         (g/elements [:dev :qa :prod]) 
+         (g/elements ["redis" "smokeping"]))))
 
 (def systems-gen 
-  (g/bind env-gen 
+  (g/bind host-env-gen
     (fn [v] 
-      (g/fmap #(assoc % :env v) (g/elements [d/redis-prox-spec d/redis-ec2-spec])))))
+      (g/fmap #(merge % v) (g/elements [d/redis-prox-spec d/redis-ec2-spec])))))
+
+(def systems-with-machines
+  (g/bind machines
+    (fn [v] 
+      (g/fmap #(update-in % [:machine] (fn [m] (merge m v))) systems-gen))))
 
 (defn add-systems []
-  (doseq [s (g/sample systems-gen 100)] 
+  (doseq [s (g/sample systems-with-machines 100)] 
     (s/add-system s)))
 
 (defn populate-all 
