@@ -89,6 +89,11 @@
            (schedule-job id "provision" "submitted provisioning" 
               [type (assoc system :system-id (Integer. id))])))
 
+  (POST- "/jobs/clone/:id" [^:int id & ^:hash clone-spec] 
+     {:nickname "cloneSystem" :summary "Clones a system" 
+      :notes "Clones a system by copying its model and replacing unique identifiers."}
+      (schedule-job id "clone" (<< "submitted cloning") [id clone-spec]))
+
   (POST- "/jobs/:action/:id" [^:string action ^:int id & ^:hash args] 
      {:nickname "runAction" :summary "Run remote action" 
       :notes "Runs adhoc remote opertions on system (like deployment, service restart etc)
@@ -99,11 +104,6 @@
              [action* (merge args {:action (keyword action) :hostname (machine :hostname) :target (machine :ip) :system-id (Integer. id)})])
            (bad-req {:message (<< "No action ~{action} found for id ~{id}")})
            )))
-
-  (POST- "/jobs/clone/:id" [^:int id & ^:hash clone-spec] 
-     {:nickname "cloneSystem" :summary "Clones a system" 
-      :notes "Clones a system by copying its model and replacing unique identifiers."}
-      (schedule-job id "clone" (<< "submitted cloning") [id clone-spec]))
 
   (GET- "/jobs/:queue/:uuid/status" [^:string queue ^:string uuid]
         {:nickname "jobStatus" :summary "single job status tracking" 
