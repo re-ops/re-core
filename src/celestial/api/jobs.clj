@@ -100,6 +100,11 @@
            (bad-req {:message (<< "No action ~{action} found for id ~{id}")})
            )))
 
+  (POST- "/jobs/clone/:id" [^:int id & ^:hash clone-spec] 
+     {:nickname "cloneSystem" :summary "Clones a system" 
+      :notes "Clones a system by copying its model and replacing unique identifiers."}
+      (schedule-job id "clone" (<< "submitted cloning") [id clone-spec]))
+
   (GET- "/jobs/:queue/:uuid/status" [^:string queue ^:string uuid]
         {:nickname "jobStatus" :summary "single job status tracking" 
          :notes "job status can be pending, processing, done or nil"}

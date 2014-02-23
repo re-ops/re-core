@@ -63,7 +63,7 @@
   (atom 
     {:reload [wf/reload 2] :destroy [wf/destroy 2] :provision [wf/puppetize 2]
      :stage [wf/stage 2] :run-action [wf/run-action 2] :create [wf/create 2]
-     :start [wf/start 2]  :stop [wf/stop 2] :clear [wf/clear 1]
+     :start [wf/start 2] :stop [wf/stop 2] :clear [wf/clear 1] :clone [wf/clone 1]
      }))
 
 (defn create-wks [queue f total]
