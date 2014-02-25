@@ -1,12 +1,11 @@
 # Celestial
 
+A provisioning server for reliable automated infra management, Celestial enables you to integrate hypervisors, configuration managments and deployment tools into a chohesive, servicable systems.
+
+For how to get started and more info please checkout [celestial-ops.com](celestial-ops.com)
 
 [![Build Status](https://travis-ci.org/celestial-ops/celestial-core.png)](https://travis-ci.org/celestial-ops/celestial-core)
 
-## Usage
-
-TBD
- 
 # Copyright and license
 
 Copyright [2013] [Ronen Narkis]
