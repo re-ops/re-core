@@ -29,7 +29,7 @@
        :master :proxmox-a
        :nodes {
           :proxmox-a {:username "root" :password "foobar" :host "localhost" :ssh-port 22222}
-          :proxmox-b {:username "root" :password "foobar" :host "192.168.3.202" :ssh-port 22}
+          :proxmox-b {:username "root" :password "foobar" :host "192.168.3.206" :ssh-port 22}
         }
        :ostemplates {
           :ubuntu-12.04 {:template "local:vztmpl/ubuntu-12.04-puppet_3-x86_64.tar.gz" :flavor :debian}
