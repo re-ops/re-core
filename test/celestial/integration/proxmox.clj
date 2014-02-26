@@ -32,14 +32,14 @@
 
 (with-defaults
   (with-state-changes [(before :facts (do (clear-range :proxmox) (initialize-networking)))] 
-    (fact "non generated" :integration :proxmox :generators
+    (fact "non generated ip" :integration :proxmox :generators
           (running-seq (vconstruct d/redis-prox-spec))) 
 
     (fact "ip and vmid generated" :integration :proxmox :generators
           (running-seq 
             (vconstruct (-> d/redis-prox-spec (dissoc-in* [:machine :ip]) (dissoc-in* [:proxmox :vmid]))))) 
 
-    (fact "bridged" :integration :proxmox :bridge
+    (fact "bridged address" :integration :proxmox :bridge
           (running-seq (vconstruct d/redis-bridged-prox))) 
 
     (fact "cluster" :integration :proxmox :bridge :cluster
