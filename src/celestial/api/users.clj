@@ -63,8 +63,12 @@
 (defmodel limit :limit :int)
 
 (defroutes- quotas {:path "/quota" :description "User quota managment"}
+
+  (GET- "/quotas" [] {:nickname "getQuotas" :summary "Get all quotas"}
+    (success (map q/get-quota (q/all-quotas))))
+
   (GET- "/quotas/:name" [^:string name] {:nickname "getQuota" :summary "Get users quota"}
-    (success (q/get-quota! name)))
+    (success (q/get-quota name)))
 
   (POST- "/quotas/" [& ^:quota quota] {:nickname "addQuota" :summary "Adds a user quota"}
     (wrap-errors 
