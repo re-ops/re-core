@@ -37,8 +37,8 @@
      (provided (user-exists? "foo") => true :times 1))
 
 (fact "non int limit quota" filters
-   (validate-quota (assoc-in user-quota [:quotas :aws :limit] "1")) => 
-      (throws ExceptionInfo (with-m? {:quotas '(({:aws {:limit ("must be a integer")}}))}))
+   (validate-quota (assoc-in user-quota [:quotas :dev :aws :limit] "1")) => 
+      (throws ExceptionInfo (with-m? {:quotas '(({:dev {:aws {:limit ("must be a integer")}}}))}))
    (provided (user-exists? "foo") => true :times 1))
 
 (fact "user validation"
