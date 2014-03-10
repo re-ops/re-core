@@ -13,4 +13,4 @@
 (fact "basic physical machine instance creation" 
   (vconstruct redis-physical) => truthy
   (vconstruct (dissoc-in* redis-physical [:physical :mac])) => 
-    (throws ExceptionInfo (with-m? {:interface {:mac '("must be present")}})))
+    (throws ExceptionInfo (with-m? {:interface {:mac "must be present"}})))

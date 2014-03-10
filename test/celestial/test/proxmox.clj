@@ -21,10 +21,10 @@
     (with-redefs [ct-id (fn [_] (fn [_] nil))]
       (fact "missing vmid"
             (vconstruct (nulify redis-prox-spec :proxmox :vmid)) => 
-            (throws ExceptionInfo (with-m? {:ct {:vmid '("must be present")}} ))))
+            (throws ExceptionInfo (with-m? {:ct {:vmid "must be present"}} ))))
     (fact "non int vmid"
           (vconstruct (assoc-in redis-prox-spec [:proxmox :vmid] "string")) => 
-          (throws ExceptionInfo (with-m? {:ct {:vmid '("must be a number")}})))
+          (throws ExceptionInfo (with-m? {:ct {:vmid "must be a number"}})))
     (with-redefs [ct-id (fn [_] 101)]
       (let [ct (vconstruct (assoc-in redis-prox-spec [:proxmox :features] ["nfs:on"]))]
         (fact "vzctl usage"
@@ -94,31 +94,31 @@
    (validate-entity redis-prox-spec) => truthy
 
    (validate-entity (nulify redis-prox-spec :machine :cpus)) => ; common validation 
-      (throws ExceptionInfo (with-m? {:machine {:cpus '("must be present")}}))
+      (throws ExceptionInfo (with-m? {:machine {:cpus "must be present"}}))
 
    (validate-entity (nulify redis-prox-spec :machine :domain)) => ; non fqdn
-      (throws ExceptionInfo (with-m? {:machine {:domain '("must be present")}}))
+      (throws ExceptionInfo (with-m? {:machine {:domain "must be present"}}))
 
    (validate-entity (assoc-in redis-prox-spec [:machine :os] "ubutnu-12.04")) => ; entity validation 
-      (throws ExceptionInfo (with-m? {:machine {:os '("must be a keyword")}}))
+      (throws ExceptionInfo (with-m? {:machine {:os "must be a keyword"}}))
 
    (validate-entity (assoc-in redis-prox-spec [:proxmox :vmid] 33)) => 
-      (throws ExceptionInfo (with-m? {:proxmox {:vmid '("must be greater then 100")}}))
+      (throws ExceptionInfo (with-m? {:proxmox {:vmid "must be greater then 100"}}))
 
    (validate-entity (nulify redis-prox-spec :proxmox :vmid)) => truthy
 
    (validate-entity (nulify redis-prox-spec :proxmox :password)) => ; proxmox validation
-      (throws ExceptionInfo (with-m? {:proxmox {:password '("must be present")}})))
+      (throws ExceptionInfo (with-m? {:proxmox {:password "must be present"}})))
 
 
 (fact "bridged entity validation"
    (validate-entity redis-bridged-prox) => truthy
 
    (validate-entity (nulify redis-bridged-prox :machine :netmask)) => 
-      (throws ExceptionInfo (with-m? {:machine {:netmask '("must be present")}}))
+      (throws ExceptionInfo (with-m? {:machine {:netmask "must be present"}}))
 
    (validate-entity (assoc-in redis-bridged-prox [:machine :netmask] "123")) => 
-      (throws ExceptionInfo (with-m? {:machine {:netmask '("must be a legal ip address")}})))
+      (throws ExceptionInfo (with-m? {:machine {:netmask "must be a legal ip address"}})))
 
 
 

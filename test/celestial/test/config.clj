@@ -12,42 +12,42 @@
       (validate-conf local-prox)  => {})
 
 (fact "missing celestial options detected"
-      (validate-missing :celestial :https-port) =>  {:celestial {:https-port '("must be present")}}  
-      (validate-missing :celestial :port) => {:celestial {:port '("must be present")}})
+      (validate-missing :celestial :https-port) =>  {:celestial {:https-port "must be present"}}  
+      (validate-missing :celestial :port) => {:celestial {:port "must be present"}})
 
 (fact "missing proxmox options"
     (validate-missing :hypervisor :dev :proxmox :nodes :proxmox-a :password) =>  
-      '{:hypervisor {:dev {:proxmox {:nodes (({:proxmox-a {:password ("must be present")}}))}}}}
+      '{:hypervisor {:dev {:proxmox {:nodes ({:proxmox-a {:password "must be present"}})}}}}
      
-    (validate-missing :hypervisor :dev :proxmox :nodes) => '{:hypervisor {:dev {:proxmox {:nodes ("must be present")}}}}
-    (validate-missing :hypervisor :dev :proxmox :master) => '{:hypervisor {:dev {:proxmox {:master ("must be present")}}}}
+    (validate-missing :hypervisor :dev :proxmox :nodes) => {:hypervisor {:dev {:proxmox {:nodes "must be present"}}}}
+    (validate-missing :hypervisor :dev :proxmox :master) => {:hypervisor {:dev {:proxmox {:master "must be present"}}}}
       )
 
 (fact "non legal proxmox template flavor" 
   (validate-conf (assoc-in local-prox [:hypervisor :dev :proxmox :ostemplates :ubuntu-12.04 :flavor] :bar)) => 
-     {:hypervisor {:dev {:proxmox {:ostemplates '(({:ubuntu-12.04 {:flavor ("flavor must be either #{:debian :redhat}")}}))}}}} 
+     '{:hypervisor {:dev {:proxmox {:ostemplates ({:ubuntu-12.04 {:flavor "flavor must be either #{:debian :redhat}"}})}}}} 
       )
 
 (fact "missing aws options"
     (validate-conf (assoc-in local-prox [:hypervisor :dev :aws] {})) => 
-      {:hypervisor {:dev {:aws {:access-key '("must be present") :secret-key '("must be present")}}}})
+      {:hypervisor {:dev {:aws {:access-key "must be present" :secret-key "must be present"}}}})
 
 (fact "vcenter validations" 
-   (validate-missing :hypervisor :dev :vcenter :password) => {:hypervisor {:dev {:vcenter {:password '("must be present")}}}}
-   (validate-missing :hypervisor :dev :vcenter :url) => {:hypervisor {:dev {:vcenter {:url '("must be present")}}}}
+   (validate-missing :hypervisor :dev :vcenter :password) => {:hypervisor {:dev {:vcenter {:password "must be present"}}}}
+   (validate-missing :hypervisor :dev :vcenter :url) => {:hypervisor {:dev {:vcenter {:url "must be present"}}}}
    (validate-conf (assoc-in local-prox [:hypervisor :dev :vcenter :ostemplates] [])) => 
-      {:hypervisor {:dev {:vcenter {:ostemplates '("must be a map")}}}}
+      {:hypervisor {:dev {:vcenter {:ostemplates "must be a map"}}}}
   )
 
 (fact "wrong central logging"
   (validate-conf (assoc-in local-prox [:celestial :log :gelf :type] :foo)) =>
     {:celestial {:log {:gelf 
-      {:type '("type must be either #{:kibana :logstash :graylog2}")}}}})
+      {:type "type must be either #{:kibana :logstash :graylog2}"}}}})
 
 (fact "docker sanity"
    (validate-conf (assoc-in local-prox [:hypervisor :dev :docker :nodes] nil)) =>
-       {:hypervisor {:dev {:docker {:nodes '("must be present")}}}}
+       {:hypervisor {:dev {:docker {:nodes "must be present"}}}}
    (validate-missing :hypervisor :dev :docker :nodes :local :host) => 
-      {:hypervisor {:dev {:docker {:nodes '(({:local {:host ("must be present")}}))}}}}
+      {:hypervisor {:dev {:docker {:nodes '({:local {:host "must be present"}})}}}}
   )
 

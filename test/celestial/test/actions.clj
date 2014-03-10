@@ -19,12 +19,12 @@
   (with-redefs [type-exists? (fn [_] true)]
     (validate-action redis-deploy)  => truthy
     (validate-action (assoc-in redis-deploy [:capistrano :args] nil)) =>
-    (throws ExceptionInfo (with-m? {:args '("must be present")})) 
+    (throws ExceptionInfo (with-m? {:args "must be present"})) 
     (validate-action (assoc-in redis-deploy [:actions :stop :supernal :args] nil)) => truthy)
 
    (fact "missing type" 
      (validate-action (assoc redis-deploy :operates-on "foo")) =>
-     (throws ExceptionInfo (with-m? {:operates-on  '("type not found, create it first")})) 
+     (throws ExceptionInfo (with-m? {:operates-on  "type not found, create it first"})) 
      (provided (type-exists? anything)  => false)))
 
 (fact "args parsing"
