@@ -7,42 +7,48 @@
     [slingshot.slingshot :refer  [throw+]]
     [clojure.core.strint :refer (<<)]))
 
-(defn used-key [spec]
-  [:quotas (figure-virt spec) :used])
+(defn used-key [{:keys [env] :as spec} k]
+  [:quotas env (figure-virt spec) :used :count])
 
 (entity quota :id username)
 
 (validation :user-exists (when-not-nil user-exists? "No matching user found"))
  
-(validation :quota* (every-kv {:limit #{:required :Integer}}))
+(validation :env
+   (every-kv {:subs/ANY {:subs/ANY {:limit #{:required :Integer}}}}))
 
 (def quota-v
-  {:username #{:required :user-exists} :quotas #{:required :Map :quota*}})
+  {:username #{:required :user-exists} :quotas #{:required :Map :env*}})
 
-(defn validate-quota [q]
-  (validate! q quota-v :error ::non-valid-quota))
+(defn validate-quota [{:keys [quotas] :as q}]
+  (validate! q quota-v :error ::non-valid-quota)
+  (doseq [[k e] quotas]
+    (validate! e {
+      :limits {:count #{:required :Integer}}
+      :used {:count #{:required :Integer}}})))
  
 (defn quota-assert
-  [{:keys [owner] :as spec}]
-  (let [hyp (figure-virt spec) {:keys [limit used]} (get-in (get-quota owner) [:quotas hyp])]
-    (when (= (count used) limit)
-      (throw+ {:type ::quota-limit-reached} (<< "Quota limit ~{limit} on ~{hyp} for ~{owner} was reached")))))
+  [{:keys [owner env] :as spec}]
+  (let [hyp (figure-virt spec) 
+       {:keys [limits used]} (get-in (get-quota owner) [:quotas hyp env])]
+    (when (= (:count used) (:count limits))
+      (throw+ {:type ::quota-limit-reached} (<< "Quota limit ~{limits} on ~{hyp} for ~{owner} was reached")))))
 
-(defn quota-change [id {:keys [owner] :as spec} f]
+(defn quota-change [{:keys [owner] :as spec} f]
     (when (quota-exists? owner)
       (update-quota 
-        (update-in (get-quota owner) (used-key spec) f id))))
+        (update-in (get-quota owner) (used-key spec) f))))
 
 (defn increase-use 
   "increases user quota use"
   [id spec]
-  (quota-change id spec (fnil conj #{id})))
+  (quota-change spec inc))
 
 (defn decrease-use 
   "decreases usage"
   [id {:keys [owner] :as spec}]
   (when-not (empty? (get-in (get-quota owner) (used-key spec)))
-    (quota-change id spec (fn [old id*] (clojure.set/difference old #{id*})))))
+    (quota-change spec dec)))
 
 (defmacro with-quota [action spec & body]
   `(do 
