@@ -102,7 +102,8 @@
   [hypervisor]
   (let [hvs [proxmox-v aws-v vcenter-v docker-v] ks (map (comp first keys) hvs) 
         envs (map (fn [v] (fn [env] {:hypervisor {env v}})) hvs)]
-    (first (map (fn [[e hs]] (map #(((zipmap ks envs) %) e) (filter (into #{} ks) (keys hs)))) hypervisor))))
+    (first 
+      (map (fn [[e hs]] (map #(((zipmap ks envs) %) e) (filter (into #{} ks) (keys hs)))) hypervisor))))
 
 
 (defn celestial-validations [{:keys [log job] :as celestial}]
