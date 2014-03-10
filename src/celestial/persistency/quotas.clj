@@ -14,18 +14,16 @@
 
 (validation :user-exists (when-not-nil user-exists? "No matching user found"))
  
-(validation :env
-   (every-kv {:subs/ANY {:subs/ANY {:limit #{:required :Integer}}}}))
 
 (def quota-v
-  {:username #{:required :user-exists} :quotas #{:required :Map :env*}})
+  {:username #{:required :user-exists} 
+   :quotas {
+      :subs/ANY { 
+        :subs/ANY {:limits { :count #{:required :Integer}} :used  { :count #{:required :Integer}}
+    }}}})
 
 (defn validate-quota [{:keys [quotas] :as q}]
-  (validate! q quota-v :error ::non-valid-quota)
-  (doseq [[k e] quotas]
-    (validate! e {
-      :limits {:count #{:required :Integer}}
-      :used {:count #{:required :Integer}}})))
+  (validate! q quota-v :error ::non-valid-quota))
  
 (defn quota-assert
   [{:keys [owner env] :as spec}]

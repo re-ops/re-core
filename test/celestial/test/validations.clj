@@ -32,13 +32,13 @@
 (fact "non puppet type"
   (validate-type {:type "foo"}) => truthy)
 
-#_(fact "quotas validations"
+(fact "quotas validations"
      (validate-quota user-quota) => truthy
      (provided (user-exists? "foo") => true :times 1))
 
-#_(fact "non int limit quota" filters
-   (validate-quota (assoc-in user-quota [:quotas :dev :aws :limit] "1")) => 
-      (throws ExceptionInfo (with-m? {:quotas {:dev {:aws {:limit "must be a integer"}}}}))
+(fact "non int limit quota" filters
+   (validate-quota (assoc-in user-quota [:quotas :dev :aws :limits :count] "1")) => 
+      (throws ExceptionInfo (with-m? {:quotas {:dev {:aws {:limits {:count  "must be a integer"}}}}}))
    (provided (user-exists? "foo") => true :times 1))
 
 (fact "user validation"
