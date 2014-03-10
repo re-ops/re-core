@@ -24,7 +24,7 @@
                  [amazonica "0.1.29"]
                  [narkisr/trammel "0.8.0-freez"]
                  [org.flatland/useful "0.10.3"]
-                 [substantiation "0.0.8"]
+                 [substantiation "0.1.0"]
                  [fogus/minderbinder "0.2.0"]
                  [ch.qos.logback/logback-classic "1.0.13"]
                  [org.codehaus.groovy/groovy "2.1.6"]
@@ -49,7 +49,7 @@
   :plugins  [[jonase/eastwood "0.1.0"] 
              [lein-ancient "0.4.2"] [lein-tar "2.0.0" ]
              [lein-tag "0.1.0"] [lein-set-version "0.3.0"]
-             [topping "0.0.2"] ]
+             [topping "0.0.2"] [self-build "0.0.3"]]
 
   :bin {:name "celestial"}
 
