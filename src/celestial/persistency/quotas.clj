@@ -7,7 +7,7 @@
     [slingshot.slingshot :refer  [throw+]]
     [clojure.core.strint :refer (<<)]))
 
-(defn used-key [{:keys [env] :as spec} k]
+(defn used-key [{:keys [env] :as spec}]
   [:quotas env (figure-virt spec) :used :count])
 
 (entity quota :id username)
@@ -28,8 +28,9 @@
 (defn quota-assert
   [{:keys [owner env] :as spec}]
   (let [hyp (figure-virt spec) 
-       {:keys [limits used]} (get-in (get-quota owner) [:quotas hyp env])]
-    (when (= (:count used) (:count limits))
+        q (or (get-quota owner) {})
+       {:keys [limits used]} (get-in q [:quotas env hyp])]
+    (when (and (not (empty? q)) (= (:count used) (:count limits)))
       (throw+ {:type ::quota-limit-reached} (<< "Quota limit ~{limits} on ~{hyp} for ~{owner} was reached")))))
 
 (defn quota-change [{:keys [owner] :as spec} f]
@@ -39,19 +40,18 @@
 
 (defn increase-use 
   "increases user quota use"
-  [id spec]
+  [spec]
   (quota-change spec inc))
 
 (defn decrease-use 
   "decreases usage"
-  [id {:keys [owner] :as spec}]
-  (when-not (empty? (get-in (get-quota owner) (used-key spec)))
+  [{:keys [owner] :as spec}]
+  (when (get-in (get-quota owner) (used-key spec))
     (quota-change spec dec)))
 
-(defmacro with-quota [action spec & body]
+(defmacro with-quota [spec & body]
   `(do 
      (quota-assert ~spec)
-     (let [~'id ~action]
-       (increase-use ~'id ~spec)    
-       ~@body)))
+      ~@body
+     (increase-use ~spec)))
  
