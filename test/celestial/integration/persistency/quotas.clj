@@ -15,20 +15,21 @@
   (add-types)
   (add-users)
   (p/add-user {:username "foo" :password "bla" :roles {} :envs []})
-  (q/add-quota (assoc-in user-quota [:quotas :proxmox :used] nil)) )
+  (q/add-quota (assoc-in user-quota [:quotas :dev :proxmox :used :count] 0)) )
 
 (with-state-changes [(before :facts (quotas-populate))]
   (let [redis-prox-spec' (assoc redis-prox-spec :owner "foo")]
     (fact "basic quota usage" :integration :redis :quota
-       (q/increase-use 1 redis-prox-spec') => "OK"
-       (:quotas (q/get-quota "foo"))  => (contains {:proxmox {:limit 2 :used #{1}}}) 
-       (q/increase-use 2  redis-prox-spec') 
-       (:quotas (q/get-quota "foo"))  => (contains {:proxmox {:limit 2 :used #{1 2}}}) 
-       (q/with-quota (fn [] 1) redis-prox-spec') => (throws ExceptionInfo (is-type? :celestial.persistency.quotas/quota-limit-reached)) 
-       (q/decrease-use 2 redis-prox-spec') 
-       (:quotas (q/get-quota "foo"))  => (contains {:proxmox {:limit 2 :used #{1}}})  
-       (q/increase-use 3  redis-prox-spec') 
-       (:quotas (q/get-quota "foo"))  => (contains {:proxmox {:limit 2 :used #{1 3}}}))
+       (q/increase-use redis-prox-spec') => "OK"
+       (get-in (q/get-quota "foo") [:quotas :dev])  => (contains {:proxmox {:limits {:count 2} :used {:count 1}}}) 
+       (q/increase-use redis-prox-spec') 
+       (get-in (q/get-quota "foo") [:quotas :dev])  => (contains {:proxmox {:limits {:count 2} :used {:count 2}}}) 
+       (q/with-quota redis-prox-spec') => (throws ExceptionInfo (is-type? :celestial.persistency.quotas/quota-limit-reached)) 
+       (q/decrease-use redis-prox-spec') 
+       (get-in (q/get-quota "foo") [:quotas :dev])  => (contains {:proxmox {:limits {:count 2} :used {:count 1}}}) 
+       (q/increase-use redis-prox-spec') 
+       (get-in (q/get-quota "foo") [:quotas :dev])  => (contains {:proxmox {:limits {:count 2} :used {:count 2}}}) 
+          )
    
   (fact "system quota interception" :integration :redis :quota
     (with-admin 
