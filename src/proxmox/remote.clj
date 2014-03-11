@@ -16,7 +16,6 @@
     [clojure.core.strint :refer (<<)]
     [proxmox.http-common :refer (root http-opts)]
     [celestial.common :refer (curr-time minute import-logging)]
-    [slingshot.slingshot :refer [try+]]  
     [clj-http.client :as client]))
 
 (import-logging)
