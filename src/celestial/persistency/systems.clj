@@ -79,7 +79,7 @@
    "reducing usage quotas for owning user on delete" 
    [f & args]
   (let [system (first (filter map? args))]
-   (when (is-system? system) (apply q/decrease-use args)))
+   (when (is-system? system) (q/decrease-use system)))
    (apply f args))
 
 (defn increase-quota 
@@ -88,7 +88,7 @@
    (if (map? (first args)) 
      (let [id (apply f args) spec (first args)]  
        (q/quota-assert spec)
-       (q/increase-use id spec) id)
+       (q/increase-use spec) id)
      (apply f args)))
 
 (defn system-ip [id]
