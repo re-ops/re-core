@@ -58,9 +58,13 @@
 
 (defmodel quota :username :string :quotas {:type :Quotas})
 
-(defmodel quotas :proxmox {:type :Limit})
+(defmodel quotas :env {:type :Env})
 
-(defmodel limit :limit :int)
+(defmodel env :hypervisor {:type :Limits})
+
+(defmodel limits :limits {:type :Counts} :used {:type :Counts})
+
+(defmodel counts :count :int)
 
 (defroutes- quotas {:path "/quota" :description "User quota managment"}
 
@@ -70,12 +74,12 @@
   (GET- "/quotas/:name" [^:string name] {:nickname "getQuota" :summary "Get users quota"}
     (success (q/get-quota name)))
 
-  (POST- "/quotas/" [& ^:quota quota] {:nickname "addQuota" :summary "Adds a user quota"}
+  (POST- "/quotas" [& ^:quota quota] {:nickname "addQuota" :summary "Adds a user quota"}
     (wrap-errors 
        (q/add-quota quota)
        (success {:message "added quota"})))
 
-  (PUT- "/quotas/" [& ^:quota quota] {:nickname "updateQuota" :summary "Updates an existing quota"}
+  (PUT- "/quotas" [& ^:quota quota] {:nickname "updateQuota" :summary "Updates an existing quota"}
     (wrap-errors 
       (q/update-quota quota)
       (success {:message "quota updated"})))
