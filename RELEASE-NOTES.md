@@ -1,15 +1,16 @@
 # Celestial 0.5.1 (12/03/14):
 
 ## Fixes:
-* Systems listing now follows url 
-* Quotas fixed and UI working
-* Owner in systems listing
-* Fixed AWS reload
+* Systems listing now follows URL.
+* Quotas fixed and UI working.
+* Owner in systems listing.
+* Fixed AWS reload.
 
 
 ## New Features:
-* Docker support
-* New audits section, a place where you can save kibana queries and run them finding common issues, trouble shoot, etc..
-* Operations menu on existing system view
-* Clone an existing system (removing unique identifiers and hostname)
-* Stage or create option after new system save
+* Docker hypervisor [support](http://celestial-ops.com/posts/docker.html).
+* New audits section, a place where you can save central logging queries and launch them.
+* Operations menu on single system view.
+* Clone an existing system (removing unique identifiers and hostname).
+* Run Stage or create automatically after creating a new system in the UI.
+
