@@ -9,7 +9,7 @@
 
 ## New Features:
 * Docker hypervisor [support](http://celestial-ops.com/posts/docker.html).
-* New audits section, a place where you can save central logging queries and launch them.
+* New  [audits](http://celestial-ops.com/posts/audits.html) section.
 * Operations menu on single system view.
 * Clone an existing system (removing unique identifiers and hostname).
 * Run Stage or create automatically after creating a new system in the UI.
