@@ -141,3 +141,8 @@
       (trace "shutting down" k w) 
       (mq/stop w))))
 
+(defn clean-shutdown
+  "Clear jobs and shutdown workers"
+  []
+  (shutdown-workers)
+  (clear-all))
