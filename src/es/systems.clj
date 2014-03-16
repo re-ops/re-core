@@ -49,6 +49,6 @@
 
 (defn query 
    "basic query string" 
-   [query]
-  (doc/search index "system" :query query :fields ["owner" "env"])
+   [query & {:keys [from size] :or {size 100 from 0}}]
+  (doc/search index "system" :from from :size size :query query :fields ["owner" "env"])
   )
