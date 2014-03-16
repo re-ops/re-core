@@ -14,9 +14,9 @@
   (:refer-clojure :exclude [get])
   (:require 
     [clojurewerkz.elastisch.native :as es]
+    [clojurewerkz.elastisch.query :as q]
     [clojurewerkz.elastisch.native.index :as idx]
-    [clojurewerkz.elastisch.native.document :as doc])
-  )
+    [clojurewerkz.elastisch.native.document :as doc]))
 
 (def ^:const index "celestial-systems")
 
@@ -37,8 +37,8 @@
   (when-not (idx/exists? index)
     (idx/create index :mappings system-types)))
 
-(defn add 
-   "Adds a system into ES"
+(defn put
+   "Add/Update a system into ES"
    [id system]
   (doc/put index "system" id system))
 
@@ -46,3 +46,9 @@
    "Grabs a system by an id"
    [id]
   (doc/get index "system" id))
+
+(defn query 
+   "basic query string" 
+   [query]
+  (doc/search index "system" :query query :fields ["owner" "env"])
+  )
