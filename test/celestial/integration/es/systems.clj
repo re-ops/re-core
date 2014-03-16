@@ -26,7 +26,9 @@
   (fact "pagination" :integration :elasticsearch
     (let [query {:bool {:must {:term {"machine.cpus" "4" }}}}
           {:keys [hits]} (sys/query query :size 2 :from 1)]
-       (-> hits :hits count) => 1
-      ) 
+       (-> hits :hits count) => 1))
+
+  (fact "find systems for user" :integration :elasticsearch
+     (target) => (expected)
     )
   )

@@ -15,7 +15,6 @@
   (:require 
     [celestial.roles :refer (su?)]
     [celestial.security :refer (current-user)]
-    [celestial.roles :refer (su?)]
     [robert.hooke :as h]
     [celestial.persistency :as p]
     [celestial.persistency.quotas :as q]
@@ -124,6 +123,7 @@
       (assoc :owner owner) 
       (assoc-in [:machine :hostname] hostname)
       (clone clone-spec))))
+
 
 (defn systems-for
   "grabs all the systems ids that this user can see"

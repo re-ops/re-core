@@ -13,6 +13,8 @@
   "Systems indexing/searching"
   (:refer-clojure :exclude [get])
   (:require 
+    [celestial.persistency :as p]
+    [celestial.roles :refer (su?)]
     [clojurewerkz.elastisch.native :as es]
     [clojurewerkz.elastisch.query :as q]
     [clojurewerkz.elastisch.native.index :as idx]
@@ -50,5 +52,13 @@
 (defn query 
    "basic query string" 
    [query & {:keys [from size] :or {size 100 from 0}}]
-  (doc/search index "system" :from from :size size :query query :fields ["owner" "env"])
-  )
+  (doc/search index "system" :from from :size size :query query :fields ["owner" "env"]))
+
+(defn systems-for
+  "grabs all the systems ids that this user can see from ES"
+  [username query]
+  (let [{:keys [envs username] :as user} (p/get-user username)]
+    (if (su? user)
+      (flatten (map #(get-system-index :env (keyword %)) envs))
+      (get-system-index :owner username))))
+ 

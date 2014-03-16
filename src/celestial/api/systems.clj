@@ -62,6 +62,13 @@
 
 (defc "/systems" [:env] (keyword v))
  
+(defn systems-by-query 
+   "Get systems in range by query" 
+   [from to query]
+  {:pre [(> from -1)]}
+
+  )
+
 (defn systems-range
   "Get systems in range" 
   [from to]
@@ -80,6 +87,12 @@
       {:nickname "getSystems" :summary "Get all systems at page with offset"}
     (let [page* (Integer/valueOf page) offset* (Integer/valueOf offset)]
       (success (systems-range (* (- page* 1) offset*) (* page*  offset*)))))
+
+  (GET- "/systems/query" [^:int page ^:int offset & ^:query query]
+      {:nickname "getSystems" :summary "Get all systems at page with offset"}
+    (let [page* (Integer/valueOf page) offset* (Integer/valueOf offset)]
+      (success (systems-range (* (- page* 1) offset*) (* page*  offset*)))))
+
 
   (GET- "/systems/:id" [^:int id] {:nickname "getSystem" :summary "Get system by id"}
         (success (s/get-system id)))
