@@ -43,8 +43,7 @@
                  [com.palletops/stevedore "0.8.0-beta.5"]
                  [camel-snake-kebab "0.1.2"]
                  ; elastic search 
-                 [org.elasticsearch/elasticsearch "1.0.1"]
-                 [clojurewerkz/elastisch "2.0.0-beta2-SNAPSHOT"]
+                 [clojurewerkz/elastisch "2.0.0-beta1"]
                  ]
 
   :exclusions [org.clojure/clojure]
