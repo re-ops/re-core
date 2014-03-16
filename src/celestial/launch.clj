@@ -27,6 +27,7 @@
     [celestial.redis :only (clear-locks)]
     [taoensso.timbre :only (set-config! set-level!)])
   (:require 
+    [es.node :as es]
     [celestial.persistency.migrations :as mg]
     [hypervisors.networking :refer [initialize-networking]]
     [celestial.jobs :as jobs]))
@@ -44,11 +45,13 @@
     (set-config! [:appenders :spit :enabled?] true) 
     (set-level! (log* :level))))
 
-(defn clean-up []
+(defn clean-up 
+  "Clean/release resources, used also as a shutdown hook"
+  []
   (debug "Shutting down...")
-  (jobs/shutdown-workers)
-  (jobs/clear-all)
-  (clear-locks))
+  (jobs/clean-shutdown)
+  (clear-locks)
+  (es/stop))
 
 (defn add-shutdown []
   (.addShutdownHook (Runtime/getRuntime) (Thread. clean-up)))
@@ -66,6 +69,7 @@
     (generate-store (cert-conf :keystore) (cert-conf :password))))
 
 (defn start-nrepl
+  "Starts nrepl if enabled"
   []
   (when-let [port (get* :celestial :nrepl :port)]
     (info (<< "starting nrepl on port ~{port}"))
@@ -74,7 +78,7 @@
 (def jetty (atom nil))
 
 (defn setup 
-  "one time setup" 
+  "One time setup" 
   []
   (initialize-networking)
   (setup-logging)
@@ -91,7 +95,7 @@
       :ssl-port (get! :celestial :https-port)}))
 
 (defn start 
-  "main componenets startup (jetty, job workers etc..)"
+  "Main componenets startup (jetty, job workers etc..)"
   [jetty]
   (jobs/initialize-workers)
   (info (slurp (resource "main/resources/celestial.txt")))
