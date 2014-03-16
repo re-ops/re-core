@@ -35,7 +35,9 @@
    []
    (merge (get! :elasticsearch) {
       :node.name "celestial" :cluser.name "celestial-cluster"
-      :local true :http.enabled false 
+      :http.enabled false 
+      :index.number_of_shards 1
+      :index.number_of_replicas 1
     }))
 
 (defn start
