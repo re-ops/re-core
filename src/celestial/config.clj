@@ -22,7 +22,9 @@
 
 
 (def base-v 
-  {:redis {:host #{:required :String}} :ssh {:private-key-path #{:required :String}}})
+  {:redis {:host #{:required :String}}
+   :elasticsearch {:path.data #{:required :String} :path.work #{:required :String}} 
+   :ssh {:private-key-path #{:required :String}}})
 
 (def levels #{:trace :debug :info :error})
 

@@ -87,6 +87,11 @@
    :host "localhost"
  } 
 
+ :elasticsearch {
+   :path.data "/tmp/celestial-es/data"
+   :path.work "/tmp/celestial-es/work"
+ }
+
  :ssh {
    :private-key-path "/home/ronen/.ssh/id_rsa"
  }
