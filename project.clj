@@ -42,6 +42,9 @@
                  [selmer "0.3.4"]; for templating
                  [com.palletops/stevedore "0.8.0-beta.5"]
                  [camel-snake-kebab "0.1.2"]
+                 ; elastic search 
+                 [org.elasticsearch/elasticsearch "1.0.1"]
+                 [clojurewerkz/elastisch "2.0.0-beta2-SNAPSHOT"]
                  ]
 
   :exclusions [org.clojure/clojure]
@@ -64,7 +67,7 @@
                 :resource-paths  ["src/main/resources/" "pkg/etc/celestial/"]
                 :source-paths  ["dev" "src"]
                 :test-paths  []
-                :jvm-opts ~(vec (map (fn [[p v]] (str "-D" (name p) "=" v)) {:disable-conf "true" }))
+                :jvm-opts ~(into (vec (map (fn [[p v]] (str "-D" (name p) "=" v)) {:disable-conf "true" })) ["-XX:MaxPermSize=256m"])
              }
 
              :dev {
@@ -78,7 +81,7 @@
                               [midje "1.5.1" :exclusions [org.clojure/core.unify]]
                               [junit/junit "4.11"] [reiddraper/simple-check "0.5.0"]]
                :plugins [[lein-midje "3.0.0"]]
-               :jvm-opts ~(vec (map (fn [[p v]] (str "-D" (name p) "=" v)) {:disable-conf "true" }))
+               :jvm-opts ~(into (vec (map (fn [[p v]] (str "-D" (name p) "=" v)) {:disable-conf "true" })) ["-XX:MaxPermSize=256m"])
                :set-version {
                   :updates [ 
                     {:path "project.clj" :search-regex #"\"target\/celestial-\d+\.\d+\.\d+\.jar"}
