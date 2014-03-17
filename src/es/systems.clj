@@ -25,8 +25,8 @@
 (def ^:const system-types
   {:system 
    {:properties {
-      :owner {:type "string"}
-      :env {:type "string"}
+      :owner {:type "string" }
+      :env {:type "string" :index "not_analyzed"}
       :type {:type "string"}
       }
     }
@@ -57,7 +57,8 @@
 (defn- query-for [username q]
   (let [{:keys [envs username] :as user} (p/get-user! username)]
     (if (su? user)
-      (update-in q [:bool :should] (fn [v] (into v (mapv #(hash-map :term {"env" (str %)}) envs))))
+      (let [ts (mapv #(hash-map :term {"env" (str %)}) envs)] 
+        (-> q (update-in [:bool :should] (fn [v] (into v ts))) (assoc-in [:bool :minimum_should_match] 1)))
       (update-in q [:bool :must] (fn [v] (into v {:term {"owner" username}}))))))
 
 (defn systems-for

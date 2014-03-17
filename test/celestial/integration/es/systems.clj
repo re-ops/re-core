@@ -13,9 +13,11 @@
 (defn add-systems 
    "adds a list of systems into ES" 
    []
-  (sys/put "1" redis-prox-spec)        
+  (sys/put "1" (assoc redis-prox-spec :owner "admin"))        
   (sys/put "2" redis-ec2-spec)        
-  (sys/put "3" redis-prox-spec))
+  (sys/put "3" (assoc redis-ec2-spec :env :prod-1))        
+  (sys/put "4" redis-prox-spec)
+  )
 
 (defn total [res] (get-in res [:hits :total]))
 
@@ -40,13 +42,13 @@
   (fact "aws" :integration :elasticsearch
     (let [query {:wildcard {:aws.endpoint "*"}}
           {:keys [hits]} (sys/query query :size 2 :from 0)]
-       (-> hits :hits count) => 1))
+       (-> hits :hits count) => 2))
 
   (fact "find proxmox systems for su user" :integration :elasticsearch
       (total (sys/systems-for "admin" {:bool {:must {:term {"machine.cpus" "4" }}}} 0 5)) => 2)
 
   (fact "find proxmox systems for non su user" :integration :elasticsearch
-      (total (sys/systems-for "ronen" {:bool {:must {:term {"machine.cpus" "4" }}}} 0 5)) => 2)
+      (total (sys/systems-for "ronen" {:bool {:must {:term {"machine.cpus" "4" }}}} 0 5)) => 1)
 
  (fact "find ec2 systems for su user" :integration :elasticsearch
       (total (sys/systems-for "admin" {:bool {:must {:wildcard {:aws.endpoint "*"}}}} 0 5)) => 1)
