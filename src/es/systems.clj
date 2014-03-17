@@ -54,11 +54,14 @@
    [query & {:keys [from size] :or {size 100 from 0}}]
   (doc/search index "system" :from from :size size :query query :fields ["owner" "env"]))
 
-(defn systems-for
-  "grabs all the systems ids that this user can see from ES"
-  [username query]
-  (let [{:keys [envs username] :as user} (p/get-user username)]
+(defn- query-for [username q]
+  (let [{:keys [envs username] :as user} (p/get-user! username)]
     (if (su? user)
-      (flatten (map #(get-system-index :env (keyword %)) envs))
-      (get-system-index :owner username))))
- 
+      (update-in q [:bool :should] (fn [v] (into v (mapv #(hash-map :term {"env" (str %)}) envs))))
+      (update-in q [:bool :must] (fn [v] (into v {:term {"owner" username}}))))))
+
+(defn systems-for
+  "grabs all the systems ids that this user can manipulate from ES"
+  [username q from size]
+  (query (query-for username q) :from from :size size))
+
