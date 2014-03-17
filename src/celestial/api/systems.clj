@@ -56,6 +56,8 @@
   :type {:type :string :allowableValues {:valueType "LIST" :values ["ct" "vm"]}}
   :features {:type "List"})
 
+(defmodel query :must {:type "List"} :should {:type "List"} :must_not {:type "List"})
+
 (defc "/systems" [:proxmox :type] (keyword v))
 
 (defc "/systems" [:machine :os] (keyword v))
