@@ -46,7 +46,6 @@
       {:envs [:dev] :roles #{:celestial.roles/user} :username "ronen" :password "bar"})
   (p/reset-admin)
   (with-redefs [celestial.security/current-user (fn [] {:username "admin"})]
-    
     (p/add-type (slurp-edn "fixtures/redis-type.edn"))
     (s/add-system (slurp-edn "fixtures/redis-system.edn"))))
 
