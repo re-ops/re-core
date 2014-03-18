@@ -44,6 +44,11 @@
   [& keys]
    (get-in config keys))
 
+(defn envs 
+   "get all currently defined env keys" 
+   []
+  (keys (get* :hypervisor)))
+
 (defn slurp-edn [file] (read-string (slurp file)))
 
 ; basic time manipulation
