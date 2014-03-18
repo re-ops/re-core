@@ -45,15 +45,15 @@
   []
   (reset! ES (es/start-local-node (build-local-node (settings)))))
 
-(defn connect 
-   []
+(defn connect []
   (es/connect-to-local-node! @ES))
 
 (defn start-n-connect 
-   "Both starts the node and connects to it" 
+   "Both starts the node and connects to it if not ready" 
    []
-  (start)
-  (connect))
+  (when-not (and @ES (.isClosed @ES)) 
+    (start)
+    (connect)))
 
 (defn stop
   "stops embedded ES node" 
