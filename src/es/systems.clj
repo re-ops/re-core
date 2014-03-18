@@ -13,7 +13,11 @@
   "Systems indexing/searching"
   (:refer-clojure :exclude [get])
   (:require 
+    [es.node :as node]
+    [puny.migrations :refer (Migration register)]
     [celestial.persistency :as p]
+    [celestial.common :refer (envs)]
+    [celestial.persistency.systems :as s]
     [celestial.roles :refer (su?)]
     [clojurewerkz.elastisch.native :as es]
     [clojurewerkz.elastisch.query :as q]
@@ -28,7 +32,7 @@
       :owner {:type "string" }
       :env {:type "string" :index "not_analyzed"}
       :type {:type "string"}
-      }
+     }
     }
    }
   )
@@ -36,6 +40,7 @@
 (defn initialize 
   "Creates systems index and type" 
   []
+  (node/start-n-connect)
   (when-not (idx/exists? index)
     (idx/create index :mappings system-types)))
 
@@ -66,3 +71,15 @@
   [username q from size]
   (query (query-for username q) :from from :size size))
 
+; indexing all systems
+(defrecord ElasticSystems [identifier]
+  Migration
+  (apply- [this]
+    (initialize)
+    (doseq [id (flatten (map #(s/get-system-index :env (keyword %)) (envs)))]  
+      (put id (s/get-system id))))  
+
+  (rollback [this]))
+
+(defn register-migrations []
+  (register :systems-es (ElasticSystems. :systems-es-indexing)))

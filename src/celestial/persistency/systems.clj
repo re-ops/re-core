@@ -51,9 +51,9 @@
   (let [{:keys [envs username] :as curr-user} (p/get-user! ((current-user) :username))]
     (when-not (empty? system)
       (when (and (not (su? curr-user)) (not= username owner))
-      (throw+ {:type ::persmission-owner-violation} (<< "non super user ~{username} attempted to access a system owned by ~{owner}!"))
+        (throw+ {:type ::persmission-owner-violation} (<< "non super user ~{username} attempted to access a system owned by ~{owner}!"))
       )
-    (when (and env (not ((into #{} envs) env))) 
+     (when (and env (not ((into #{} envs) env))) 
       (throw+ {:type ::persmission-env-violation} (<< "~{username} attempted to access system ~{system} in env ~{env}"))))))
 
 (defn is-system? [s]
@@ -124,7 +124,6 @@
       (assoc-in [:machine :hostname] hostname)
       (clone clone-spec))))
 
-
 (defn systems-for
   "grabs all the systems ids that this user can see"
   [username]
@@ -149,6 +148,8 @@
       (when-not ((get-system id) :owner)
         (update-system id (assoc (get-system id) :owner "admin")))))  
   (rollback [this]))
+
+; index all existing systems into ES
 
 (defn register-migrations []
   (register :systems (OwnerIndices. :systems-owner-indices))
