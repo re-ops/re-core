@@ -14,10 +14,11 @@
   (:import 
     [org.elasticsearch.node NodeBuilder])
   (:require 
-    [celestial.common :refer (get!)]
+    [celestial.common :refer (get! import-logging)]
     [clojurewerkz.elastisch.native.conversion :as cnv]
-    [clojurewerkz.elastisch.native :as es]
-    ))
+    [clojurewerkz.elastisch.native :as es]))
+
+(import-logging)
 
 (def ES (atom nil))
 
@@ -43,6 +44,7 @@
 (defn start
   "launch en embedded ES node" 
   []
+  (info "Starting local elasticsearch node")
   (reset! ES (es/start-local-node (build-local-node (settings)))))
 
 (defn connect []
@@ -58,11 +60,6 @@
 (defn stop
   "stops embedded ES node" 
   []
+  (info "Stoping local elasticsearch node")
   (.close @ES) 
   (reset! ES nil))
-
-;; (start)
-;; (stop)
-;; (idx/create "myapp2_development" )
-;; (doc/put "myapp2_development" "person"  "10" {:username "ronen"})
-;; (doc/get "myapp2_development" "person" "10")
