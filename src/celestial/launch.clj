@@ -17,20 +17,18 @@
     [clojure.tools.nrepl.server :only (start-server stop-server)]
     [celestial.persistency :as p]
     [gelfino.timbre :only (set-tid get-tid)]
-    [celestial.ssl :only (generate-store)]
-    [clojure.java.io :only (file resource)]
-    [celestial.api :only (app)]
+    [clojure.java.io :only (resource)]
     [gelfino.timbre :only (gelf-appender)]
     [supernal.core :only [ssh-config]]
-    [ring.adapter.jetty :only (run-jetty)] 
     [celestial.common :only (get! get* import-logging version)]
-    [celestial.redis :only (clear-locks)]
     [taoensso.timbre :only (set-config! set-level!)])
   (:require 
-    [es.node :as es]
+    [components.core :refer (start-all stop-all setup-all)]
     [celestial.persistency.migrations :as mg]
     [hypervisors.networking :refer [initialize-networking]]
-    [celestial.jobs :as jobs]))
+    [es.core :as es]
+    [celestial.jobs :as jobs]
+    [celestial.api.core :as api]))
 
 (import-logging)
 
@@ -45,28 +43,17 @@
     (set-config! [:appenders :spit :enabled?] true) 
     (set-level! (log* :level))))
 
+(defn build-components []
+  {:es (es/instance) :jobs (jobs/instance) :jetty (api/instance)})
+
 (defn clean-up 
   "Clean/release resources, used also as a shutdown hook"
-  []
+  [components]
   (debug "Shutting down...")
-  (jobs/clean-shutdown)
-  (clear-locks)
-  (es/stop))
+  (stop-all components))
 
-(defn add-shutdown []
-  (.addShutdownHook (Runtime/getRuntime) (Thread. clean-up)))
-
-(defn cert-conf 
-  "Celetial cert configuration" 
-  [k]
-  (get! :celestial :cert k))
-
-(defn default-key 
-  "Generates a default keystore if missing" 
-  []
-  (when-not (.exists (file (cert-conf :keystore)))
-    (info "generating a default keystore")
-    (generate-store (cert-conf :keystore) (cert-conf :password))))
+(defn add-shutdown [components]
+  (.addShutdownHook (Runtime/getRuntime) (Thread. (fn [] (clean-up components)))))
 
 (defn start-nrepl
   "Starts nrepl if enabled"
@@ -75,39 +62,35 @@
     (info (<< "starting nrepl on port ~{port}"))
     (defonce server (start-server :port port))))
 
-(def jetty (atom nil))
-
 (defn setup 
   "One time setup" 
   []
-  (initialize-networking)
-  (setup-logging)
-  (p/reset-admin)
-  (mg/setup-migrations)
-  (add-shutdown)
-  (ssh-config {:key (get! :ssh :private-key-path) :user "root"} ) 
-  (default-key)
-  (start-nrepl)
-  (run-jetty (app true)
-     {:port (get! :celestial :port) :join? false
-      :ssl? true :keystore (cert-conf :keystore)
-      :key-password  (cert-conf :password)
-      :ssl-port (get! :celestial :https-port)}))
+  (let [components (build-components)]
+    (initialize-networking)
+    (setup-logging)
+    (p/reset-admin)
+    (mg/setup-migrations)
+    (add-shutdown components)
+    (ssh-config {:key (get! :ssh :private-key-path) :user "root"} ) 
+    (start-nrepl)
+    (setup-all components) 
+     components)
+  )
 
 (defn start 
-  "Main componenets startup (jetty, job workers etc..)"
-  [jetty]
-  (jobs/initialize-workers)
+  "Main components startup (jetty, job workers etc..)"
+  [components]
+  (start-all components)
   (info (slurp (resource "main/resources/celestial.txt")))
   (info (<<  "version ~{version} see http://celestial-ops.com"))
-   jetty
+  components
   )
 
 (defn stop 
   "stopping the application"
-  [jetty]
-  (clean-up)
-  (when jetty (.stop jetty)))
+  [components]
+  (clean-up components) 
+  components)
 
 (defn -main [& args]
   (start (setup)))

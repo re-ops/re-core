@@ -16,7 +16,6 @@
     [celestial.common :only (get*)]
     [clojure.core.strint :only (<<)]
     [celestial.common :only (minute import-logging)]
-    [celestial.redis :only (create-worker wcar server-conn)]
     [taoensso.carmine.locks :as with-lock])
   (:require  
     [flatland.useful.map :refer (map-vals filter-vals)]
@@ -26,7 +25,10 @@
     [celestial.security :refer (set-user)]
     [celestial.model :refer (set-env)]
     [taoensso.carmine :as car]
-    [taoensso.carmine.message-queue :as mq]))
+    [taoensso.carmine.message-queue :as mq]
+    [components.core :refer (Lifecyle)] 
+    [celestial.redis :refer (create-worker wcar server-conn clear-locks)]
+    ))
 
 (import-logging)
 
@@ -138,7 +140,7 @@
 (defn shutdown-workers []
   (doseq [[k ws] @workers]
     (doseq [w ws]
-      (trace "shutting down" k w) 
+      (trace "Shutting down" k w) 
       (mq/stop w))))
 
 (defn clean-shutdown
@@ -146,3 +148,21 @@
   []
   (shutdown-workers)
   (clear-all))
+
+(defrecord Jobs
+  []
+  Lifecyle
+  (setup [this]) 
+  (start [this] 
+    (info "Starting job workers")
+    (initialize-workers))
+  (stop [this]
+   (info "Stopping job workers")
+   (clean-shutdown) 
+   (clear-locks))
+  )
+
+(defn instance 
+   "creats a jobs instance" 
+   []
+  (Jobs.))
