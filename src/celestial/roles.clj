@@ -20,7 +20,8 @@
   ")
 
 (def ^{:doc "roles string to keyword map"}
-  roles-m {"admin" ::admin "user" ::user "super-user" ::super-user "anonymous" ::anonymous})
+  roles-m {"admin" ::admin "user" ::user "super-user" ::super-user 
+           "anonymous" ::anonymous "system" ::system})
 
 (def roles (into #{} (vals roles-m)))
 
@@ -28,11 +29,15 @@
 
 (derive ::super-user ::user)
 
+(derive ::system ::super-user)
+
 (def user #{::user})
 
 (def admin #{::admin})
  
 (def su #{::super-user})
+
+(def system #{::system})
 
 (defn admin? [{:keys [roles] :as user}]
   (clojure.set/subset? admin roles))
@@ -40,3 +45,5 @@
 (defn su? [{:keys [roles] :as user}]
   (some #(isa? % ::super-user) roles))
 
+(defn system? [{:keys [roles] :as user}]
+  (some #(isa? % ::super-user) roles))

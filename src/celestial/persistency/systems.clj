@@ -13,7 +13,7 @@
   "systems persistency layer"
   (:refer-clojure :exclude [type])
   (:require 
-    [celestial.roles :refer (su?)]
+    [celestial.roles :refer (su? system?)]
     [celestial.security :refer (current-user)]
     [robert.hooke :as h]
     [celestial.persistency :as p]
@@ -53,7 +53,7 @@
       (when (and (not (su? curr-user)) (not= username owner))
         (throw+ {:type ::persmission-owner-violation} (<< "non super user ~{username} attempted to access a system owned by ~{owner}!"))
       )
-     (when (and env (not ((into #{} envs) env))) 
+     (when (and (not (system? curr-user)) env (not ((into #{} envs) env))) 
       (throw+ {:type ::persmission-env-violation} (<< "~{username} attempted to access system ~{system} in env ~{env}"))))))
 
 (defn is-system? [s]

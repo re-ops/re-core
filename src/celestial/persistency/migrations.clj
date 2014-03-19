@@ -8,7 +8,7 @@
     [puny.migrations :refer (migrate)]
     [celestial.persistency.systems :as s]
     [celestial.persistency.actions :as a]
-    [celestial.roles :refer (su)]
+    [celestial.roles :refer (system)]
     [es.systems :as e]
     [celestial.persistency :as p]))
 
@@ -28,16 +28,13 @@
   )
 
 (defn migration-user 
-   "This user is used for migrations, he need access to all envs, 
-    A random password is generated for him making him login disabled in effect (unless admin will change it)
-   "
+   "This user is used for migrations he is a system user which means that he has access to all envs,
+    A random password is generated for him making its login disabled in effect (unless admin will change it)."
    []
   (let [pass (.toString (BigInteger. 130 (SecureRandom.)) 32) 
-        user {:username "migrations" :password (creds/hash-bcrypt pass) :roles su :envs (envs)}]
-    (if-not (p/user-exists? "migrations")
-      (p/add-user user)
-      (p/update-user user) 
-      )))
+        user {:username "migrations" :password (creds/hash-bcrypt pass) :roles system :envs []}]
+    (when-not (p/user-exists? "migrations")
+      (p/add-user user))))
 
 
 (defn setup-migrations 
