@@ -51,9 +51,9 @@
   (es/connect-to-local-node! @ES))
 
 (defn start-n-connect 
-   "Both starts the node and connects to it if not ready" 
+   "Both starts the node and connects to it (only) if not ready" 
    []
-  (when-not (and @ES (.isClosed @ES)) 
+  (when-not (and @ES (not (.isClosed @ES))) 
     (start)
     (connect)))
 
