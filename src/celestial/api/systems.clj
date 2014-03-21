@@ -13,9 +13,13 @@
   "Celestial systems api"
   (:refer-clojure :exclude [type])
   (:require 
+    [celestial.security :refer (current-user)]
+    [ring.util.codec :refer (base64-decode)]
+    [clojure.data.json :as json]
     [celestial.persistency :as p]
     [cemerick.friend :as friend]
     [celestial.persistency.systems :as s]
+    [es.systems :as es]
     [celestial.model :refer (sanitized-envs)] 
     [clojure.core.strint :refer (<<)] 
     [slingshot.slingshot :refer  [throw+ try+]] 
@@ -64,19 +68,15 @@
 
 (defc "/systems" [:env] (keyword v))
  
-(defn systems-by-query 
-   "Get systems in range by query" 
-   [from to query]
-  {:pre [(> from -1)]}
-
-  )
+(defn working-username  []
+   (let [{:keys [username]} (current-user) ] 
+     username))
 
 (defn systems-range
   "Get systems in range" 
   [from to]
   {:pre [(> from -1)]}
-  (let [{:keys [username]} (friend/current-authentication)
-         systems (into [] (s/systems-for username)) to* (min to (count systems))]
+  (let [systems (into [] (s/systems-for (working-username))) to* (min to (count systems))]
     (when-not (empty? systems)
       (if (and (contains? systems from) (contains? systems (- to* 1)))
         {:meta {:total (count systems)} 
@@ -90,11 +90,14 @@
     (let [page* (Integer/valueOf page) offset* (Integer/valueOf offset)]
       (success (systems-range (* (- page* 1) offset*) (* page*  offset*)))))
 
-  (GET- "/systems/query" [^:int page ^:int offset & ^:query query]
-      {:nickname "getSystems" :summary "Get all systems at page with offset"}
-    (let [page* (Integer/valueOf page) offset* (Integer/valueOf offset)]
-      (success (systems-range (* (- page* 1) offset*) (* page*  offset*)))))
-
+  (GET- "/systems/query" [^:int page ^:int offset ^:query query]
+      {:nickname "getSystemsBy" :summary "Get all systems at page with offset by query"}
+    (let [page* (Integer/valueOf page) offset* (Integer/valueOf offset) 
+          query-m (json/read-str (String. (base64-decode query)) :key-fn keyword)
+          {:keys [hits]} (es/systems-for (working-username) {:bool query-m} (- page* 1)  offset*)]
+      (success 
+        {:meta {:total (:total hits)} 
+         :systems (doall (map (juxt identity s/get-system) (map :_id (:hits hits))))})))
 
   (GET- "/systems/:id" [^:int id] {:nickname "getSystem" :summary "Get system by id"}
         (success (s/get-system id)))
@@ -119,7 +122,7 @@
 
   (DELETE- "/systems/:id" [^:int id] {:nickname "deleteSystem" :summary "Delete System" 
                                           :errorResponses (errors {:bad-req "System does not exist"})}
-           (try+ 
+         (try+ 
              (let [spec (s/get-system! id) int-id (Integer/valueOf id)]               
                (s/delete-system! id) 
                (success {:message "System deleted"})) 
@@ -131,6 +134,5 @@
 
 (defroutes- environments {:path "/environments" :description "Operations on environments"}
   (GET- "/environments" [] {:nickname "getEnvironments" :summary "Get all environments"}
-     (let [{:keys [username]} (friend/current-authentication)
-           {:keys [envs] :as user} (p/get-user username)]
+     (let [{:keys [envs] :as user} (p/get-user (working-username))]
         (success {:environments (sanitized-envs (into #{} envs))}))))
