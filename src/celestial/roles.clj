@@ -46,4 +46,4 @@
   (some #(isa? % ::super-user) roles))
 
 (defn system? [{:keys [roles] :as user}]
-  (some #(isa? % ::super-user) roles))
+  (some #(= % ::system) roles))
