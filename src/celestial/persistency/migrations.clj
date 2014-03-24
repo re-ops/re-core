@@ -2,14 +2,13 @@
   "Celestial global migrations"
   (:import java.security.SecureRandom )
   (:require 
-    [celestial.common :refer (envs)]
     [cemerick.friend.credentials :as creds]
     [celestial.security :refer (set-user)]
     [puny.migrations :refer (migrate)]
     [celestial.persistency.systems :as s]
     [celestial.persistency.actions :as a]
     [celestial.roles :refer (system)]
-    [es.systems :as e]
+    [es.migrations :as e]
     [celestial.persistency :as p]))
 
 (defn register-all 
