@@ -19,15 +19,10 @@
   (sys/put "4" redis-prox-spec)
   )
 
-(defn initiliaze-es []
-  (sys/initialize) 
-  (add-systems) 
-  )
-
 (defn total [res] (get-in res [:hits :total]))
 
 (with-conf
-  (against-background [(before :contents (do (initiliaze-es) (set-user {:username "admin"} (populate-all)))) (after :contents (es/stop))]
+  (against-background [(before :contents (do (add-systems) (set-user {:username "admin"} (populate-all))))]
 
   (fact "basic system put and get" :integration :elasticsearch
     (get-in (sys/get "1") [:source :env]) => ":dev")
