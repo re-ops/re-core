@@ -13,6 +13,7 @@
   "systems persistency layer"
   (:refer-clojure :exclude [type])
   (:require 
+    [es.systems :as es]
     [celestial.roles :refer (su? system?)]
     [celestial.security :refer (current-user)]
     [robert.hooke :as h]
@@ -34,13 +35,13 @@
 
 (import-logging)
 
-(declare perm validate-system increase-quota decrease-quota)
+(declare perm validate-system increase-quota decrease-quota es-put es-delete)
 
 (entity {:version 1} system :indices [type env owner] 
         :intercept {
-            :create [perm increase-quota]
-            :read [perm] :update [perm]
-            :delete [perm decrease-quota]})
+            :create [perm increase-quota es-put]
+            :read [perm] :update [perm es-put]
+            :delete [perm decrease-quota es-delete]})
 
 (defn assert-access 
   "Validates that the current user can access the system, 
@@ -89,6 +90,19 @@
        (q/quota-assert spec)
        (q/increase-use spec) id)
      (apply f args)))
+
+(defn es-action
+   "runs a specified es function on system fn call" 
+  [es-fn]
+   (fn [f & args]
+     (when (map? (first args)) 
+      (let [id (apply f args) spec (first args)]  
+        (es-fn (str id) spec)))
+      (apply f args)))
+
+(def es-put (es-action es/put))
+
+(def es-delete (es-action es/delete))
 
 (defn system-ip [id]
   (get-in (get-system id) [:machine :ip]))
