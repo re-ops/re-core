@@ -91,18 +91,21 @@
        (q/increase-use spec) id)
      (apply f args)))
 
-(defn es-action
+(defn es-put
    "runs a specified es function on system fn call" 
-  [es-fn]
-   (fn [f & args]
-     (when (map? (first args)) 
+   [f & args]
+     (if (map? (first args)) 
       (let [id (apply f args) spec (first args)]  
-        (es-fn (str id) spec)))
-      (apply f args)))
+        (es/put (str id) spec) id)
+       (apply f args)))
 
-(def es-put (es-action es/put))
+(defn es-delete
+   "reducing usage quotas for owning user on delete" 
+   [f & args]
+  (let [system (first (filter map? args)) id (first (filter number? args))]
+   (when-not (is-system? system) (es/delete (str id))))
+   (apply f args))
 
-(def es-delete (es-action es/delete))
 
 (defn system-ip [id]
   (get-in (get-system id) [:machine :ip]))
