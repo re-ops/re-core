@@ -2,6 +2,7 @@
   "data population"
   (:gen-class true)
   (:require
+    [es.systems :as es]
     [celestial.security :refer (set-user)]
     [celestial.fixtures.core :refer (with-conf)]
     [simple-check.generators :as g]
@@ -10,6 +11,8 @@
     [celestial.persistency.systems :as s]
     [celestial.persistency.actions :as a]
     [celestial.fixtures.data :refer (admin ronen) :as d]))
+
+(es/initialize)
 
 (defn add-users 
   "populates admin and ronen users" 
@@ -81,4 +84,4 @@
    (set-user {:username "admin"}
      (populate-all)
      (p/delete-user "admin")
-     (println "populate done!")        )))
+     (println "populate done!"))))
