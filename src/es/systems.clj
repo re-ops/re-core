@@ -49,8 +49,8 @@
 
 (defn delete
    "delete a system from ES"
-   [id system]
-  (doc/delete index "system" id system))
+   [id]
+  (doc/delete index "system" id))
 
 (defn get 
    "Grabs a system by an id"
