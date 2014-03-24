@@ -14,10 +14,8 @@
   (:refer-clojure :exclude [get])
   (:require 
     [es.node :as node]
-    [puny.migrations :refer (Migration register)]
     [celestial.persistency :as p]
     [celestial.common :refer (envs)]
-    [celestial.persistency.systems :as s]
     [celestial.roles :refer (su?)]
     [clojurewerkz.elastisch.native :as es]
     [clojurewerkz.elastisch.query :as q]
@@ -28,7 +26,7 @@
 
 (def ^:const system-types
   {:system 
-   {:properties {
+    {:properties {
       :owner {:type "string" }
       :env {:type "string" :index "not_analyzed"}
       :type {:type "string"}
@@ -48,6 +46,11 @@
    "Add/Update a system into ES"
    [id system]
   (doc/put index "system" id system))
+
+(defn delete
+   "delete a system from ES"
+   [id system]
+  (doc/delete index "system" id system))
 
 (defn get 
    "Grabs a system by an id"
@@ -70,16 +73,3 @@
   "grabs all the systems ids that this user can manipulate from ES"
   [username q from size]
   (query (query-for username q) :from from :size size))
-
-; indexing all systems
-(defrecord ElasticSystems [identifier]
-  Migration
-  (apply- [this]
-    (initialize)
-    (doseq [id (flatten (map #(s/get-system-index :env (keyword %)) (envs)))]  
-      (put id (s/get-system id))))  
-
-  (rollback [this]))
-
-(defn register-migrations []
-  (register :systems-es (ElasticSystems. :systems-es-indexing)))
