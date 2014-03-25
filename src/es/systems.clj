@@ -42,6 +42,13 @@
   (when-not (idx/exists? index)
     (idx/create index :mappings system-types)))
 
+(defn clear 
+  "Creates systems index and type" 
+  []
+  (node/start-n-connect)
+  (when (idx/exists? index)
+    (idx/delete index)))
+
 (defn put
    "Add/Update a system into ES"
    [id system]

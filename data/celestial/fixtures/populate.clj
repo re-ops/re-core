@@ -63,6 +63,7 @@
 (defn populate-all 
    "populates all data types" 
    []
+   (es/clear)
    (clear-all)
    (add-users)
    (add-types)
