@@ -60,11 +60,15 @@
   (doseq [s (g/sample systems-with-machines 100)] 
     (s/add-system s)))
 
+(defn cleanup  
+   []
+  (es/clear)
+  (clear-all))
+
 (defn populate-all 
    "populates all data types" 
    []
-   (es/clear)
-   (clear-all)
+   (cleanup)
    (add-users)
    (add-types)
    (add-actions)
