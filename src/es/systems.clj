@@ -15,12 +15,14 @@
   (:require 
     [es.node :as node]
     [celestial.persistency :as p]
-    [celestial.common :refer (envs)]
+    [celestial.common :refer (envs import-logging)]
     [celestial.roles :refer (su?)]
     [clojurewerkz.elastisch.native :as es]
     [clojurewerkz.elastisch.query :as q]
     [clojurewerkz.elastisch.native.index :as idx]
     [clojurewerkz.elastisch.native.document :as doc]))
+
+(import-logging)
 
 (def ^:const index "celestial-systems")
 
@@ -40,6 +42,7 @@
   []
   (node/start-n-connect)
   (when-not (idx/exists? index)
+    (info "Creating index" index)
     (idx/create index :mappings system-types)))
 
 (defn clear 
@@ -47,12 +50,20 @@
   []
   (node/start-n-connect)
   (when (idx/exists? index)
+    (info "Clearing index" index)
     (idx/delete index)))
+
+(defn flush- 
+  []
+  (when (idx/exists? index)
+    (info "Flushing index" index)
+    (idx/flush index)))
 
 (defn put
    "Add/Update a system into ES"
-   [id system]
-  (doc/put index "system" id system))
+   [id system & {:keys [flush?]}]
+  (doc/put index "system" id system)
+  (when flush? (flush-)))
 
 (defn delete
    "delete a system from ES"
