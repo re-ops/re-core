@@ -94,7 +94,7 @@
       {:nickname "getSystemsBy" :summary "Get all systems at page with offset by query"}
     (let [page* (Integer/valueOf page) offset* (Integer/valueOf offset) 
           query-m (json/read-str (String. (base64-decode query)) :key-fn keyword)
-          {:keys [hits]} (es/systems-for (working-username) {:bool query-m} (- page* 1)  offset*)]
+          {:keys [hits]} (es/systems-for (working-username) {:bool query-m} (* (- page* 1) offset*)  offset*)]
       (success 
         {:meta {:total (:total hits)} 
          :systems (doall (map (juxt identity s/get-system) (map :_id (:hits hits))))})))
