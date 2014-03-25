@@ -12,7 +12,7 @@
     [celestial.persistency.actions :as a]
     [celestial.fixtures.data :refer (admin ronen) :as d]))
 
-(es/initialize)
+(with-conf (es/initialize))
 
 (defn add-users 
   "populates admin and ronen users" 
