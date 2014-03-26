@@ -66,7 +66,7 @@
                 :resource-paths  ["src/main/resources/" "pkg/etc/celestial/"]
                 :source-paths  ["dev" "src"]
                 :test-paths  []
-                :jvm-opts ~(into (vec (map (fn [[p v]] (str "-D" (name p) "=" v)) {:disable-conf "true" })) ["-XX:MaxPermSize=256m"])
+                :jvm-opts ["-XX:MaxPermSize=256m"]
              }
 
              :dev {
