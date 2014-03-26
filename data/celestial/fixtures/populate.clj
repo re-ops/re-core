@@ -6,13 +6,12 @@
     [celestial.security :refer (set-user)]
     [celestial.fixtures.core :refer (with-conf)]
     [simple-check.generators :as g]
-    [celestial.redis :refer (clear-all)]  
+    [celestial.redis :as red]  
     [celestial.persistency :as p]  
     [celestial.persistency.systems :as s]
     [celestial.persistency.actions :as a]
     [celestial.fixtures.data :refer (admin ronen) :as d]))
 
-(with-conf (es/initialize))
 
 (defn add-users 
   "populates admin and ronen users" 
@@ -63,7 +62,7 @@
 (defn cleanup  
    []
   (es/clear)
-  (clear-all))
+  (red/clear-all))
 
 (defn populate-all 
    "populates all data types" 
@@ -77,7 +76,7 @@
 (defn populate-system 
    "Adds single type and system" 
    [t s]
-  (clear-all)
+  (cleanup)
   (add-users)
   (p/add-type t)
   (s/add-system s))
@@ -85,8 +84,7 @@
 (defn -main 
    "run populate all" 
    [& args]
-  (with-conf
    (set-user {:username "admin"}
      (populate-all)
-     (p/delete-user "admin")
-     (println "populate done!"))))
+     (p/delete-user "admin"); will be set up in next launch
+     (println "populate done!")))
