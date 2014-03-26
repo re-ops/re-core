@@ -21,11 +21,14 @@
     [taoensso.carmine.locks :only (with-lock)]
     [taoensso.timbre :only (debug trace info error warn)])
   (:require  
+    [puny.redis :as r]
     [taoensso.carmine.message-queue :as carmine-mq]
     [taoensso.carmine :as car])
   (:import java.util.Date))
 
-(defm server-conn [] {:pool {} :spec {:host (get! :redis :host)}})
+(defm server-conn [] {:pool {} :spec (get! :redis)})
+
+(r/server-conn (server-conn))
 
 (defmacro wcar [& body] 
    `(try 
@@ -49,5 +52,7 @@
   (carmine-mq/worker (server-conn) name {:handler f :eoq-backoff-ms 200}))
 
 (defn clear-all []
-  (wcar (car/flushdb)))
+  (info "Clearing redis db" (server-conn))
+  (wcar (car/flushdb))
+  )
 
