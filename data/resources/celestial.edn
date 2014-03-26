@@ -85,11 +85,12 @@
   
  :redis {
    :host "localhost"
+   :db 3
  } 
 
  :elasticsearch {
-   :path.data "/tmp/celestial-es/data"
-   :path.work "/tmp/celestial-es/work"
+   :path.data "/tmp/celestial-es-testing/data"
+   :path.work "/tmp/celestial-es-testing/work"
  }
 
  :ssh {
