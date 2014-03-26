@@ -78,6 +78,7 @@
   "Resets admin password if non is defined"
   []
   (when (empty? (get-user "admin"))
+    (info "Reseting admin password")
     (add-user {:username "admin" :password (creds/hash-bcrypt "changeme") :roles admin :envs [:dev]})))
 
 (defn curr-user []
