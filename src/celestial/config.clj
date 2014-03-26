@@ -147,7 +147,7 @@
 (def ^{:doc "main configuation"} config 
   (if path
     (read-and-validate)      
-    (when-not (System/getProperty "disable-conf") 
+    (when-not (System/getProperty "disable-conf") ; enables repl/testing
       (error 
         (<< "Missing configuration file, you should configure celestial in either ~{config-paths}"))  
       (System/exit 1))))
