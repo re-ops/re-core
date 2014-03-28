@@ -21,14 +21,11 @@
     [taoensso.carmine.locks :only (with-lock)]
     [taoensso.timbre :only (debug trace info error warn)])
   (:require  
-    [puny.redis :as r]
     [taoensso.carmine.message-queue :as carmine-mq]
     [taoensso.carmine :as car])
   (:import java.util.Date))
 
-(defm server-conn [] {:pool {} :spec (get! :redis)})
-
-(r/server-conn (server-conn))
+(defn server-conn [] {:pool {} :spec (get! :redis)})
 
 (defmacro wcar [& body] 
    `(try 
