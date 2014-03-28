@@ -61,32 +61,33 @@
 
 (defn re-initlize
   "Re-init datastores"
-   []
-  (c/initilize-puny)
-  (es/clear)
-  (red/clear-all))
+  ([] (re-initlize false))
+  ([clear-es]
+   (c/initilize-puny)
+   (when clear-es (es/clear))
+   (red/clear-all)))
 
 (defn populate-all 
-   "populates all data types" 
-   []
-   (re-initlize)
-   (add-users)
-   (add-types)
-   (add-actions)
-   (add-systems))
+  "populates all data types" 
+  []
+  (re-initlize true)
+  (add-users)
+  (add-types)
+  (add-actions)
+  (add-systems))
 
 (defn populate-system 
-   "Adds single type and system" 
-   [t s]
+  "Adds single type and system" 
+  [t s]
   (re-initlize)
   (add-users)
   (p/add-type t)
   (s/add-system s))
 
 (defn -main 
-   "run populate all" 
-   [& args]
-   (set-user {:username "admin"}
-     (populate-all)
-     (p/delete-user "admin"); will be set up in next launch
-     (println "populate done!")))
+  "run populate all" 
+  [& args]
+  (set-user {:username "admin"}
+            (populate-all)
+            (p/delete-user "admin"); will be set up in next launch
+            (println "populate done!")))
