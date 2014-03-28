@@ -80,8 +80,6 @@
    [query & {:keys [from size] :or {size 100 from 0}}]
   (doc/search index "system" :from from :size size :query query :fields ["owner" "env"]))
 
-;; (first (:hits (:hits (query {:bool {:minimum_should_match 1, :should [#_{:term {:env "prod"}} {:term {:env ":dev"}}], :must [{:term {:machine.cpus 4}}]}} :from 0 :size 100))))
-
 (defn- query-for [username q]
   (let [{:keys [envs username] :as user} (p/get-user! username)]
     (if (su? user)
