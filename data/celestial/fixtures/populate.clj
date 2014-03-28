@@ -8,10 +8,10 @@
     [simple-check.generators :as g]
     [celestial.redis :as red]  
     [celestial.persistency :as p]  
+    [celestial.persistency.core :as c]  
     [celestial.persistency.systems :as s]
     [celestial.persistency.actions :as a]
     [celestial.fixtures.data :refer (admin ronen) :as d]))
-
 
 (defn add-users 
   "populates admin and ronen users" 
@@ -59,15 +59,17 @@
   (doseq [s (g/sample systems-with-machines 100)] 
     (s/add-system s)))
 
-(defn cleanup  
+(defn re-initlize
+  "Re-init datastores"
    []
+  (c/initilize-puny)
   (es/clear)
   (red/clear-all))
 
 (defn populate-all 
    "populates all data types" 
    []
-   (cleanup)
+   (re-initlize)
    (add-users)
    (add-types)
    (add-actions)
@@ -76,7 +78,7 @@
 (defn populate-system 
    "Adds single type and system" 
    [t s]
-  (cleanup)
+  (re-initlize)
   (add-users)
   (p/add-type t)
   (s/add-system s))
