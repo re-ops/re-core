@@ -15,7 +15,6 @@
   (:use 
     [clojure.core.strint :only (<<)]
     [clojure.tools.nrepl.server :only (start-server stop-server)]
-    [celestial.persistency :as p]
     [gelfino.timbre :only (set-tid get-tid)]
     [clojure.java.io :only (resource)]
     [gelfino.timbre :only (gelf-appender)]
@@ -24,7 +23,7 @@
     [taoensso.timbre :only (set-config! set-level!)])
   (:require 
     [components.core :refer (start-all stop-all setup-all)]
-    [celestial.persistency.migrations :as mg]
+    [celestial.persistency.core :as p]
     [hypervisors.networking :refer [initialize-networking]]
     [es.core :as es]
     [celestial.jobs :as jobs]
@@ -44,7 +43,7 @@
     (set-level! (log* :level))))
 
 (defn build-components []
-  {:es (es/instance) :jobs (jobs/instance) :jetty (api/instance)})
+  {:es (es/instance) :jobs (jobs/instance) :jetty (api/instance) :persistency (p/instance)})
 
 (defn clean-up 
   "Clean/release resources, used also as a shutdown hook"
@@ -68,8 +67,6 @@
   (let [components (build-components)]
     (initialize-networking)
     (setup-logging)
-    (p/reset-admin)
-    (mg/setup-migrations)
     (add-shutdown components)
     (ssh-config {:key (get! :ssh :private-key-path) :user "root"} ) 
     (start-nrepl)
