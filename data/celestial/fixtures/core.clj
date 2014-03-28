@@ -1,9 +1,5 @@
 (ns celestial.fixtures.core
-  (:refer-clojure :exclude [type])
-  (:require 
-    [celestial.redis :as r]
-    [celestial.persistency.systems :as s]
-    ))
+  (:refer-clojure :exclude [type]))
 
 (defn is-type? [type]
   (fn [exception] 
@@ -37,8 +33,4 @@
   `(with-admin
     (with-conf ~@args)))
 
-;; (clojure.pprint/pprint (macroexpand '(with-conf local-conf)))
-
 (def host (.getHostName (java.net.InetAddress/getLocalHost)))
-
-
