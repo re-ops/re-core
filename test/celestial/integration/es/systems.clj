@@ -18,7 +18,6 @@
   (sys/put "2" redis-ec2-spec)        
   (sys/put "3" (assoc redis-ec2-spec :env :prod-1))        
   (sys/put "4" redis-prox-spec :flush? true)
-  (println "damn!")
   )
 
 (defn total [res] (get-in res [:hits :total]))
