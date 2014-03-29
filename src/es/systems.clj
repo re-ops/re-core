@@ -13,6 +13,8 @@
   "Systems indexing/searching"
   (:refer-clojure :exclude [get])
   (:require 
+    [clojure.core.strint :refer (<<)] 
+    [slingshot.slingshot :refer  [throw+]] 
     [es.node :as node]
     [celestial.persistency :as p]
     [celestial.common :refer (envs import-logging)]
@@ -80,11 +82,32 @@
    [query & {:keys [from size] :or {size 100 from 0}}]
   (doc/search index "system" :from from :size size :query query :fields ["owner" "env"]))
 
+(defn- env-term 
+   "map a single term env into a non analysed form" 
+   [{:keys [term] :as m}]
+    (if (:env term) 
+      (update-in m [:term :env] #(str ":" %)) m))
+
+(defn map-env-terms 
+   "maps should env terms to non-analysed forms" 
+   [query]
+  (update-in query [:bool :should] (fn [ts] (mapv env-term ts))))
+
+(defn envs-set 
+  "set should envs" 
+  [q {:keys [envs username]}]
+  (let [q-envs (into #{} (filter identity (map #(keyword (get-in % [:term :env])) (get-in q [:bool :should]))))] 
+    (if-not (empty? q-envs) 
+      (if (clojure.set/subset? q-envs (into #{} envs)) 
+         (map-env-terms q)
+        (throw+ {:type ::non-legal-env :message (<< "~{username} tried to query in ~{q-envs} he has access only to ~{envs}")}))
+      (update-in q [:bool :should] (fn [v] (into v (mapv #(hash-map :term {:env (str %)}) envs)))))))
+
 (defn- query-for [username q]
   (let [{:keys [envs username] :as user} (p/get-user! username)]
     (if (su? user)
-      (let [ts (mapv #(hash-map :term {:env (str %)}) envs)] 
-        (-> q (update-in [:bool :should] (fn [v] (into v ts))) (assoc-in [:bool :minimum_should_match] 1)))
+      (-> q (envs-set user) 
+          (assoc-in [:bool :minimum_should_match] 1))
       (update-in q [:bool :must] (fn [v] (into v {:term {"owner" username}}))))))
 
 (defn systems-for
