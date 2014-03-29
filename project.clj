@@ -49,7 +49,7 @@
   :exclusions [org.clojure/clojure]
 
   :plugins  [[jonase/eastwood "0.1.0"] 
-             [self-build "0.0.4"]
+             [self-build "0.0.5"]
              [lein-ancient "0.4.2"] [lein-tar "2.0.0" ]
              [lein-tag "0.1.0"] [lein-set-version "0.3.0"]
              [topping "0.0.2"] [self-build "0.0.3"]]
