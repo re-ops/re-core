@@ -3,14 +3,14 @@
   (:refer-clojure :exclude [type])
   (:import clojure.lang.ExceptionInfo)
   (:require 
-    [celestial.redis :refer (clear-all)]  
     [celestial.fixtures.core :refer (with-conf is-type?)]
+    [celestial.fixtures.populate :refer (re-initlize)]
     [celestial.persistency :as p])
   (:use midje.sweet))
 
 
 (with-conf
-  (with-state-changes [(before :facts (clear-all))]
+  (with-state-changes [(before :facts (re-initlize))]
     (fact "generated crud user ops" :integration :redis
           (let [user {:username "foo" :password "bla" :roles #{:celestial.roles/user} :envs []} id (p/add-user user)]
             (p/get-user id) => user
