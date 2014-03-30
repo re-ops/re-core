@@ -71,5 +71,10 @@
               })
 
 (defn update-dns [{:keys [event workflow] :as args}]
-  (send-off hosts (get-in actions [workflow event] (fn [hosts-file _] hosts-file)) args))
+  (try 
+     (send-off hosts (get-in actions [workflow event] (fn [hosts-file _] hosts-file)) args)
+    (catch Throwable t
+      (when (agent-error hosts)
+        (error "Agent has errors restarting during catch of:" t) 
+        (restart-agent hosts "/etc/hosts")))))
 

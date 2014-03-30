@@ -18,20 +18,39 @@
       (spit run s) 
       (assert (:exit (sh "bash" (str run))) 0))))
 
+(defn fail 
+   "failing on purpouse" 
+   [s & r]
+  (throw (RuntimeException. "somthing bad")) 
+  )
+
 (let [hosts-file (temp-file "hosts") machine {:domain "local" :ip "1.2.3.4" :hostname "iobar" }]
   (with-redefs [hosts (agent hosts-file) execute stubed-execute 
                 s/get-system (fn [_] {:machine machine}) sudo ""]
-    (fact "adding a host on create" filters
+    (fact "adding a host on create" 
           (update-dns {:event :success :workflow :create :system-id 1
                        :domain "local" :dnsmasq "192.168.1.1" :user "foo" }) => truthy
           (await-for 1000 hosts) => true
           (agent-error hosts) => nil
-          (slurp hosts-file) => "1.2.3.4 iobar iobar.local\n"
+          (slurp hosts-file) => "1.2.3.4 iobar iobar.local\n")
 
-    (fact "removing a host on stop" filters
+    (fact "removing a host on stop" 
           (update-dns {:event :success :workflow :stop :system-id 1 
                        :domain "local" :dnsmasq "192.168.1.1" :user "foo" :machine machine}) => truthy
           (await-for 1000 hosts) => true
           (agent-error hosts) => nil
-          (slurp hosts-file) => ""
-          ))))
+          (slurp hosts-file) => "") 
+
+    (fact "failing execution not in action" 
+          (send-off hosts fail)
+          (update-dns {:event :success :workflow :create :system-id 1
+                       :domain "local" :dnsmasq "192.168.1.1" :user "foo" }) => truthy
+          (await-for 2000 hosts) => true
+          (agent-error hosts) => nil)   
+
+    (with-redefs [execute fail]
+      (fact "failing execution in action" 
+          (update-dns {:event :success :workflow :create :system-id 1
+                       :domain "local" :dnsmasq "192.168.1.1" :user "foo" }) => truthy
+          (await-for 2000 hosts) => true
+          (agent-error hosts) => nil))))
