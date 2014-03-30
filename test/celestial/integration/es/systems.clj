@@ -23,7 +23,7 @@
 (defn total [res] (get-in res [:hits :total]))
 
 (with-conf
-  (against-background [(before :contents (do (re-initlize true) (add-systems) (add-users))) ]
+  (against-background [(before :facts (do (re-initlize true) (add-systems) (add-users))) ]
    (fact "basic system put and get" :integration :elasticsearch
      (get-in (sys/get "1") [:source :env]) => ":dev")
    
