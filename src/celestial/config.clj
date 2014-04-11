@@ -134,7 +134,7 @@
     (set-config! [:shared-appender-config :spit-filename] 
                  (get-in c [:celestial :log :path] "celestial.log")) 
     (set-config! [:appenders :spit :enabled?] true) 
-    (error "Following configuration errors found:\n" st))) 
+    (error "Following configuration errors found:\n" (.toString st)))) 
 
 (defn read-and-validate []
   (let [c (conf/read-config path) es (validate-conf c)]
