@@ -64,9 +64,8 @@
   ([] (re-initlize false))
   ([clear-es]
    (c/initilize-puny)
-   (when clear-es 
-     (es/clear)
-     (es/initialize))
+   (when clear-es (es/clear))
+   (es/initialize)
    (red/clear-all)))
 
 (defn populate-all 
