@@ -97,7 +97,7 @@
      (if (map? (first args)) 
       (let [id (apply f args) spec (first args)]  
         (es/put (str id) spec) id)
-       (apply f args)))
+      (apply f args)))
 
 (defn es-delete
    "reducing usage quotas for owning user on delete" 
