@@ -64,7 +64,9 @@
   ([] (re-initlize false))
   ([clear-es]
    (c/initilize-puny)
-   (when clear-es (es/clear))
+   (when clear-es 
+     (es/clear)
+     (es/initialize))
    (red/clear-all)))
 
 (defn populate-all 
@@ -88,6 +90,6 @@
   "run populate all" 
   [& args]
   (set-user {:username "admin"}
-            (populate-all)
-            (p/delete-user "admin"); will be set up in next launch
-            (println "populate done!")))
+     (populate-all)
+     (p/delete-user "admin"); will be set up in next launch
+     (println "populate done!")))
