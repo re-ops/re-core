@@ -24,7 +24,7 @@
                  [amazonica "0.1.29"]
                  [narkisr/trammel "0.8.0-freez"]
                  [org.flatland/useful "0.10.3"]
-                 [substantiation "0.1.2"]
+                 [substantiation "0.1.3"]
                  [fogus/minderbinder "0.2.0"]
                  [ch.qos.logback/logback-classic "1.0.13"]
                  [org.codehaus.groovy/groovy "2.1.6"]
@@ -43,7 +43,7 @@
                  [com.palletops/stevedore "0.8.0-beta.5"]
                  [camel-snake-kebab "0.1.2"]
                  ; elastic search 
-                 [clojurewerkz/elastisch "2.0.0-beta1"]
+                 [clojurewerkz/elastisch "2.0.0-beta3"]
                  ]
 
   :exclusions [org.clojure/clojure]
