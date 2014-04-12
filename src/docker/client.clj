@@ -20,7 +20,7 @@
 (defn camel-to-dash
   [s]
   (apply str 
-    (map #(if (Character/isUpperCase %) (str "-" (s/lower-case %)) %) s)))
+    (map #(if (Character/isUpperCase ^Character %) (str "-" (s/lower-case %)) %) s)))
 
 (def defaults
   {:hostname "" :user "" :attach-stdin false :attach-stdout true

@@ -17,13 +17,14 @@
 
 (defn- ++
   "Combines two byte arrays to one"
-  [^"[B" f ^"[B" s]
+  [^bytes f ^bytes s]
   (let [f-l (alength f) s-l (alength s)
         res (byte-array (+ f-l s-l))]
     (System/arraycopy f 0 res 0 f-l)
     (System/arraycopy s 0 res f-l s-l)
     res
     ))
+
 (defn mac-bytes 
   "convert mac into byte array" 
   [mac]
@@ -32,7 +33,7 @@
     (map #(unchecked-byte (Integer/parseInt % 16)) (split mac #"\:")))))
 
 (defn payload [mac]
-  (let [bs (mac-bytes mac) rep-bs (reduce ++ (byte-array 0) (repeat 16 bs))]
+  (let [^bytes bs (mac-bytes mac) rep-bs (reduce ++ (byte-array 0) (repeat 16 bs))]
    (byte-array (concat (repeat 6 (unchecked-byte 0xff)) rep-bs))))
 
 (defn wol [{:keys [mac broadcast]}]

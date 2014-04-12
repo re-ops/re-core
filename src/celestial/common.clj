@@ -73,7 +73,7 @@
   "basic string interpulation"
   [text m]
   (clojure.string/replace text #"~\{\w+\}" 
-    (fn [groups] ((keyword (subs groups 2 (dec (.length groups)))) m))))
+    (fn [^String groups] ((keyword (subs groups 2 (dec (.length groups)))) m))))
 
 (defn link 
   "Returns a link for a given query and args matching current central logging system"

@@ -26,8 +26,8 @@
 
 (defn ip-to-long 
   "Converts an ip address to long number" 
-  [ip]
-  (let [atoms (.split ip "\\.")]
+  [^String ip]
+  (let [atoms ^"[Ljava.lang.String;" (.split ip "\\.")]
     (loop [i 3 result 0]
       (if (>= i 0) 
         (recur (- i 1) (bit-or result (bit-shift-left (Long/parseLong (aget atoms (- 3 i))) (* i 8))))
@@ -35,7 +35,7 @@
 
 (defn add-segment 
   "Adds an ip segment" 
-  [sb ip* i]
+  [^StringBuilder sb ip* i]
   (.insert sb 0 (Long/toString (bit-and ip* 0xff)))
   (when (< i 3) (.insert sb 0 ".")) 
   sb)

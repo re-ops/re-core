@@ -11,6 +11,7 @@
 
 (ns vc.guest
   (:import 
+    com.vmware.vim25.mo.ServiceInstance
     com.vmware.vim25.NamePasswordAuthentication
     com.vmware.vim25.GuestProgramSpec
     com.vmware.vim25.GuestFileAttributes) 
@@ -38,7 +39,7 @@
 (defn- manager 
   "file manage of vm" 
   [hostname t]
-  (let [manager (.getGuestOperationsManager service)]
+  (let [manager (.getGuestOperationsManager ^ServiceInstance service)]
     (case t
       :file (.getFileManager manager (find-vm hostname))
       :proc  (.getProcessManager manager (find-vm hostname))

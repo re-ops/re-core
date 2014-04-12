@@ -34,7 +34,7 @@
   (assoc job :tid-link (link "query=tid:~{tid}&fields=@timestamp,message,tid," {:tid tid})))
 
 (defn schedule-job 
-  ([id action msg]
+  ([^String id action msg]
     (schedule-job id action msg [(assoc (s/get-system id) :system-id (Integer. id))])) 
   ([id action msg args]
     (if-not (s/system-exists? id)
@@ -87,7 +87,7 @@
              using the provisioner configured in system type"}
          (let [system (s/get-system id) type (p/get-type (:type system))]
            (schedule-job id "provision" "submitted provisioning" 
-              [type (assoc system :system-id (Integer. id))])))
+              [type (assoc system :system-id (Integer. ^String id))])))
 
   (POST- "/jobs/clone/:id" [^:int id & ^:hash clone-spec] 
      {:nickname "cloneSystem" :summary "Clones a system" 
@@ -101,7 +101,7 @@
        (let [{:keys [machine] :as system} (s/get-system id)]
          (if-let [action* (find-action-for action (:type system))]
            (schedule-job id "run-action" (<< "submitted ~{action} action") 
-             [action* (merge args {:action (keyword action) :hostname (machine :hostname) :target (machine :ip) :system-id (Integer. id)})])
+             [action* (merge args {:action (keyword action) :hostname (machine :hostname) :target (machine :ip) :system-id (Integer. ^String id)})])
            (bad-req {:message (<< "No action ~{action} found for id ~{id}")})
            )))
 
