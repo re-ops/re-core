@@ -13,6 +13,7 @@
   "Systems indexing/searching"
   (:refer-clojure :exclude [get])
   (:require 
+    [clojure.set :refer (subset?)]
     [clojure.core.strint :refer (<<)] 
     [slingshot.slingshot :refer  [throw+]] 
     [es.node :as node]
@@ -42,7 +43,7 @@
 (defn initialize 
   "Creates systems index and type" 
   []
-  (node/start-n-connect)
+  (node/start-n-connect [index])
   (when-not (idx/exists? index)
     (info "Creating index" index)
     (idx/create index :mappings system-types)))
@@ -50,7 +51,7 @@
 (defn clear 
   "Creates systems index and type" 
   []
-  (node/start-n-connect)
+  (node/start-n-connect [index])
   (when (idx/exists? index)
     (info "Clearing index" index)
     (idx/delete index)))
@@ -93,15 +94,19 @@
    [query]
   (update-in query [:bool :should] (fn [ts] (mapv env-term ts))))
 
+(defn query-envs [q]
+ (into #{} (filter identity (map #(keyword (get-in % [:term :env])) (get-in q [:bool :should])))))
+
 (defn envs-set 
   "set should envs" 
   [q {:keys [envs username]}]
-  (let [q-envs (into #{} (filter identity (map #(keyword (get-in % [:term :env])) (get-in q [:bool :should]))))] 
-    (if-not (empty? q-envs) 
-      (if (clojure.set/subset? q-envs (into #{} envs)) 
+  (let [es (query-envs q)] 
+    (if-not (empty? es) 
+      (if (subset? es (into #{} envs)) 
          (map-env-terms q)
-        (throw+ {:type ::non-legal-env :message (<< "~{username} tried to query in ~{q-envs} he has access only to ~{envs}")}))
-      (update-in q [:bool :should] (fn [v] (into v (mapv #(hash-map :term {:env (str %)}) envs)))))))
+        (throw+ {:type ::non-legal-env :message (<< "~{username} tried to query in ~{es} he has access only to ~{envs}")}))
+      (update-in q [:bool :should] 
+        (fn [v] (into v (mapv #(hash-map :term {:env (str %)}) envs)))))))
 
 (defn- query-for [username q]
   (let [{:keys [envs username] :as user} (p/get-user! username)]
@@ -113,4 +118,5 @@
 (defn systems-for
   "grabs all the systems ids that this user can manipulate from ES"
   [username q from size]
+  (info "query for" (query-for username q))
   (query (query-for username q) :from from :size size))
