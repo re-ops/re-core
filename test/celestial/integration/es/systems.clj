@@ -47,5 +47,9 @@
       (total (sys/systems-for "ronen" {:bool {:must {:term {:machine.cpus "4" }}}} 0 5)) => 1)
 
    (fact "find ec2 systems for su user" :integration :elasticsearch
-      (total (sys/systems-for "admin" {:bool {:must {:wildcard {:aws.endpoint "*"}}}} 0 5)) => 1)))
+      (total (sys/systems-for "admin" {:bool {:must {:wildcard {:aws.endpoint "*"}}}} 0 5)) => 1)
+
+   (fact "find dev systems" :integration :elasticsearch
+      (total (sys/systems-for "admin" 
+         {:bool {:should [{:term {:env "dev"}}]}} 0 5)) => 3)))
 
