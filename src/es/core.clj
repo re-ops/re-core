@@ -13,17 +13,17 @@
   "Core elasticsearch module"
   (:require 
     [components.core :refer (Lifecyle)] 
-    [es.systems :refer (initialize)]
+    [es.systems :refer (initialize index)]
     [es.node :refer (start-n-connect stop)]))
 
 (defrecord Elastic 
   [] 
   Lifecyle
   (setup [this]
-    (start-n-connect) 
+    (start-n-connect [index]) 
     (initialize))
   (start [this]
-    (start-n-connect))
+    (start-n-connect [index]))
   (stop [this]
     (stop)))
 
