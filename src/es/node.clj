@@ -24,6 +24,7 @@
 
 (defn build-local-node
   [settings]
+    (info "Building local ES node" settings)
     (.build 
       (doto (NodeBuilder/nodeBuilder)
       (.settings (cnv/->settings settings)) 
@@ -38,8 +39,21 @@
       :node.name "celestial" :cluser.name "celestial-cluster"
       :http.enabled false 
       :index.number_of_shards 1
-      :index.number_of_replicas 1
+      :index.number_of_replicas 0
     }))
+
+(defn wait-for-green-health 
+  "Wait that the local node is ready see bit.ly/1kRUPet" 
+  [indices]
+  (info "Waiting for cluster to be green on" indices)
+  (-> @ES
+      .client
+      .admin 
+      .cluster 
+      (.prepareHealth (into-array indices))
+      .setWaitForGreenStatus
+      .execute
+      .actionGet))
 
 (defn start
   "launch en embedded ES node" 
@@ -51,11 +65,13 @@
   (es/connect-to-local-node! @ES))
 
 (defn start-n-connect 
-   "Both starts the node and connects to it (only) if not ready" 
-   []
+  "Both starts the node and connects to it (only) if not ready" 
+  [indices]
   (when-not (and @ES (not (.isClosed @ES))) 
     (start)
-    (connect)))
+    (connect)
+    (wait-for-green-health indices) 
+    ))
 
 (defn stop
   "stops embedded ES node" 
