@@ -19,3 +19,4 @@ celestial-third-party.log
 tags
 public/bower_components
 jobs.edn
+.nrepl-port
