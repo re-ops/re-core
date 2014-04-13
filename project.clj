@@ -119,5 +119,8 @@
   :source-paths  ["src"]
   :target-path "target/"
 
+  :repl-options {
+     :timeout 120000
+  }
   :main celestial.launch
   )
