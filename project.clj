@@ -57,43 +57,49 @@
   :bin {:name "celestial"}
 
   :profiles {
-             :refresh {
-                :dependencies [[org.clojure/tools.namespace "0.2.4"] 
-                               [org.clojure/tools.trace "0.7.5"]
-                               [midje "1.5.1" :exclusions [org.clojure/core.unify]]
-                               [clojure-complete "0.2.3"] [redl "0.2.0"]]
-                :injections  [(require '[redl core complete])]
-                :resource-paths  ["src/main/resources/" "pkg/etc/celestial/"]
-                :source-paths  ["dev" "src"]
-                :test-paths  []
-                :jvm-opts ["-XX:MaxPermSize=256m"]
-             }
+     :refresh {
+        :repl-options {
+          :init-ns user               
+          :timeout 120000
+        }
 
-             :dev {
-               :aot [supernal.launch remote.capistrano proxmox.provider vc.provider
-                     aws.provider celestial.core celestial.puppet-standalone celestial.launch]
+        :dependencies [[org.clojure/tools.namespace "0.2.4"] 
+                       [org.clojure/tools.trace "0.7.5"]
+                       [midje "1.5.1" :exclusions [org.clojure/core.unify]]
+                       [clojure-complete "0.2.3"] [redl "0.2.0"]]
+        :injections  [(require '[redl core complete])]
+        :resource-paths  ["src/main/resources/" "pkg/etc/celestial/"]
+        :source-paths  ["dev" "src"]
+        :test-paths  []
+        :jvm-opts ["-XX:MaxPermSize=256m"]
+     }
+
+     :dev {
+        :repl-options {
+          :timeout 120000
+        }
+
+        :aot [supernal.launch remote.capistrano proxmox.provider vc.provider
+              aws.provider celestial.core celestial.puppet-standalone celestial.launch]
  
-               :test-paths ["test" "data"]
-               :source-paths  ["dev"]
-               :resource-paths  ["src/main/resources/" "pkg/etc/celestial/"]
-               :dependencies [[org.clojure/tools.trace "0.7.5"] [ring-mock "0.1.5"]
-                              [midje "1.5.1" :exclusions [org.clojure/core.unify]]
-                              [junit/junit "4.11"] [reiddraper/simple-check "0.5.0"]]
-               :plugins [[lein-midje "3.0.0"]]
-               :jvm-opts ~(into (vec (map (fn [[p v]] (str "-D" (name p) "=" v)) {:disable-conf "true" })) ["-XX:MaxPermSize=256m"])
-               :set-version {
-                  :updates [ 
-                    {:path "project.clj" :search-regex #"\"target\/celestial-\d+\.\d+\.\d+\.jar"}
-                    {:path "src/celestial/common.clj" :search-regex #"\"\d+\.\d+\.\d+\""}]}}
+        :test-paths ["test" "data"]
+        :source-paths  ["dev"]
+        :resource-paths  ["src/main/resources/" "pkg/etc/celestial/"]
+        :dependencies [[org.clojure/tools.trace "0.7.5"] [ring-mock "0.1.5"]
+                       [midje "1.5.1" :exclusions [org.clojure/core.unify]]
+                       [junit/junit "4.11"] [reiddraper/simple-check "0.5.0"]]
+        :plugins [[lein-midje "3.0.0"]]
+        :jvm-opts ~(into (vec (map (fn [[p v]] (str "-D" (name p) "=" v)) {:disable-conf "true" })) ["-XX:MaxPermSize=256m"])
+        :set-version {
+           :updates [ 
+             {:path "project.clj" :search-regex #"\"target\/celestial-\d+\.\d+\.\d+\.jar"}
+             {:path "src/celestial/common.clj" :search-regex #"\"\d+\.\d+\.\d+\""}]}}
 
-              :prod {
-                :resource-paths  ["src/main/resources/" "pkg/etc/celestial/"] 
-              } 
-             }
+       :prod {
+         :resource-paths  ["src/main/resources/" "pkg/etc/celestial/"] 
+        } 
+    }
 
-  :repl-options {
-    :init-ns user               
-  }
 
   :aliases {"celestial" [ "with-profile" "prod" "do" "compile," "trampoline" "run"]
             "remote-repl" ["repl" ":connect" "celestial:7888"]
@@ -120,7 +126,6 @@
   :target-path "target/"
 
   :repl-options {
-     :timeout 120000
   }
   :main celestial.launch
   )
