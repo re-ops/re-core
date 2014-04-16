@@ -71,8 +71,7 @@
     (ssh-config {:key (get! :ssh :private-key-path) :user "root"} ) 
     (start-nrepl)
     (setup-all components) 
-     components)
-  )
+     components))
 
 (defn start 
   "Main components startup (jetty, job workers etc..)"
