@@ -89,8 +89,8 @@
  } 
 
  :elasticsearch {
-   :path.data "/tmp/celestial-es-testing/data"
-   :path.work "/tmp/celestial-es-testing/work"
+   :path.data "target/es/data"
+   :path.work "target/es/work"
  }
 
  :ssh {
