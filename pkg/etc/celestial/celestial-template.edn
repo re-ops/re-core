@@ -71,6 +71,11 @@
    :host "localhost"
  } 
 
+ :elasticsearch {
+   :path.data "/var/lib/elastic/data"
+   :path.work "/var/lib/elastic/work"
+ }
+
  :ssh {
    :private-key-path "/home/user/.ssh/id_rsa"
  }
