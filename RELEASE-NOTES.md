@@ -1,3 +1,13 @@
+# Celestial 0.6.0 (19/04/14):
+
+## Fixes:
+* Fixing agent restart on dns hook handler (fixing cases where the agent fails on non hooks exceptions).
+* User add UI fix.
+* Swag conversions fix.
+
+## New Features:
+* Added support for searching machines using [Elasticsearch](http://www.elasticsearch.org/) on systems both in the backend and front end.
+
 # Celestial 0.5.1 (12/03/14):
 
 ## Fixes:
