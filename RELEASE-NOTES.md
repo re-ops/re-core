@@ -1,3 +1,15 @@
+# Celestial 0.6.1 (19/04/14):
+
+## Fixes:
+* Perm gen jvm parameter passing corrected.
+* Default configuration template includes ES settings.
+
+## New Features:
+* Systems UI supports selecting multiple systems and launching actions/operations on them.
+* Dynamic system count in view.
+* Select / Clear all selection of systems.
+
+
 # Celestial 0.6.0 (19/04/14):
 
 ## Fixes:
