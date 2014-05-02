@@ -15,7 +15,7 @@
    []
   (sys/initialize)
   (sys/put "1" (assoc redis-prox-spec :owner "admin"))        
-  (sys/put "2" redis-ec2-spec)        
+  (sys/put "2" (assoc-in redis-ec2-spec [:machine :hostname] "foo-1" ))        
   (sys/put "3" (assoc redis-ec2-spec :env :prod-1))        
   (sys/put "4" redis-prox-spec :flush? true)
   )
@@ -42,6 +42,12 @@
 
    (fact "find proxmox systems for su user" :integration :elasticsearch
        (total (sys/systems-for "admin" {:bool {:must {:term {:machine.cpus "4" }}}} 0 5)) => 2)
+
+   (fact "find by hostname" :integration :elasticsearch
+       (total (sys/systems-for "admin" {:bool {:must {:term {:machine.hostname "red1" }}}} 0 5)) => 2
+       (total (sys/systems-for "admin" {:bool {:must [{:term {:machine.hostname "foo-1" }}]}} 0 5)) => 1
+         
+         )
 
    (fact "find proxmox systems for non su user" :integration :elasticsearch
       (total (sys/systems-for "ronen" {:bool {:must {:term {:machine.cpus "4" }}}} 0 5)) => 1)
