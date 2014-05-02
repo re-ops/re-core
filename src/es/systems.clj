@@ -35,9 +35,9 @@
       :owner {:type "string" }
       :env {:type "string" :index "not_analyzed"}
       :machine {
-        :type "nested" 
         :properties {
           :hostname {:type "string" :index "not_analyzed"}
+          :cpus {:type "integer"}
         }
       }
       :type {:type "string"}
