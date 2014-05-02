@@ -34,6 +34,12 @@
     {:properties {
       :owner {:type "string" }
       :env {:type "string" :index "not_analyzed"}
+      :machine {
+        :type "nested" 
+        :properties {
+          :hostname {:type "string" :index "not_analyzed"}
+        }
+      }
       :type {:type "string"}
      }
     }
