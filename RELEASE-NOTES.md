@@ -1,3 +1,11 @@
+# Celestial 0.6.2 (04/05/14):
+## Fixes:
+* Supporting dashes in search terms.
+* Supporting wildcard queries.
+
+## New Features:
+
+
 # Celestial 0.6.1 (19/04/14):
 
 ## Fixes:
