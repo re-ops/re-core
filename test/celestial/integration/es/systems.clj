@@ -44,9 +44,10 @@
        (total (sys/systems-for "admin" {:bool {:must {:term {:machine.cpus "4" }}}} 0 5)) => 2)
 
    (fact "find by hostname" :integration :elasticsearch
-       (total (sys/systems-for "admin" {:bool {:must {:term {:machine.hostname "red1" }}}} 0 5)) => 2
-       (total (sys/systems-for "admin" {:bool {:must [{:term {:machine.hostname "foo-1" }}]}} 0 5)) => 1
-         
+      (total (sys/systems-for "admin" {:bool {:must {:term {:machine.hostname "red1" }}}} 0 5)) => 2
+      (total (sys/systems-for "admin" {:bool {:must [{:term {:machine.hostname "foo-1" }}]}} 0 5)) => 1
+
+      (total (sys/systems-for "admin" {:bool {:must {:wildcard {:machine.hostname "r*" }}}} 0 5)) => 2
          )
 
    (fact "find proxmox systems for non su user" :integration :elasticsearch
