@@ -1,0 +1,14 @@
+{
+ :jobs [
+    {:name "celestial"
+     :repo "git@github.com:celestial-ops/celestial-core.git" 
+     :target "/tmp/celestial" 
+     :steps [
+        {:cmd "lein" :args ["runtest"] :timeout 180}
+        {:cmd "lein" :args ["midje" ":filter" "redis"] :timeout 180}
+        {:cmd "lein" :args ["midje" ":filter" "elasticsearch"] :timeout 180}
+     ]
+     :poll 3000
+    }
+  ]
+} 
