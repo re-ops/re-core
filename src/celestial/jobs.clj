@@ -23,7 +23,7 @@
     [puny.core :refer (entity)]
     [celestial.workflows :as wf]  
     [celestial.security :refer (set-user)]
-    [celestial.model :refer (set-env)]
+    [celestial.model :refer (set-env operations)]
     [taoensso.carmine :as car]
     [taoensso.carmine.message-queue :as mq]
     [components.core :refer (Lifecyle)] 
@@ -61,31 +61,27 @@
                 (do (apply f args) (save-status spec' :success))) 
               (catch Throwable e (error e) (save-status spec' :error)))))))))
 
-(def jobs 
-  (atom 
-    {:reload [wf/reload 2] :destroy [wf/destroy 2] :provision [wf/puppetize 2]
-     :stage [wf/stage 2] :run-action [wf/run-action 2] :create [wf/create 2]
-     :start [wf/start 2] :stop [wf/stop 2] :clear [wf/clear 1] :clone [wf/clone 1]
-     }))
-
-(def operations (-> jobs deref keys))
+(defn jobs []
+  {:post [(= (into #{} (keys %)) operations)]} 
+  {:reload [wf/reload 2] :destroy [wf/destroy 2] :provision [wf/puppetize 2]
+   :stage [wf/stage 2] :run-action [wf/run-action 2] :create [wf/create 2]
+   :start [wf/start 2] :stop [wf/stop 2] :clear [wf/clear 1] :clone [wf/clone 1]})
 
 (defn create-wks [queue f total]
   "create a count of workers for queue"
   (mapv (fn [v] (create-worker (name queue) (partial job-exec (with-meta f {:queue queue})))) (range total)))
 
 (defn initialize-workers []
-  (dosync 
-    (doseq [[q [f c]] @jobs]
-      (swap! workers assoc q (create-wks q f c)))))
+  (doseq [[q [f c]] (jobs)]
+    (swap! workers assoc q (create-wks q f c))))
 
 (defn clear-all []
-  (apply mq/clear-queues (server-conn) (mapv name (keys @jobs))))
+  (apply mq/clear-queues (server-conn) (mapv name (keys (jobs)))))
 
 (defn enqueue 
   "Placing job in redis queue"
   [queue payload] 
-  {:pre [(contains? @jobs (keyword queue))]}
+  {:pre [(contains? (jobs) (keyword queue))]}
   (trace "submitting" payload "to" queue) 
   (wcar (mq/enqueue queue payload)))
 
@@ -112,7 +108,7 @@
 (defn running-jobs-status
   "Get all jobs status" 
   []
-  (reduce (fn [r t] (into r (queue-status (name t)))) [] (keys @jobs)))
+  (reduce (fn [r t] (into r (queue-status (name t)))) [] (keys (jobs))))
 
 (defn clear-and-get 
   "clears on a missing job-status" 
