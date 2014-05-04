@@ -11,13 +11,13 @@
 
 (ns celestial.persistency.users
   (:require 
+    [celestial.model :refer (operations)]
     [cemerick.friend.credentials :as creds]
     [celestial.roles :refer (roles admin)]
     [celestial.common :refer (import-logging)]
     [cemerick.friend :as friend]
     [subs.core :as subs :refer (validate! combine when-not-nil validation every-v every-kv)]
     [puny.core :refer (entity)]
-    [celestial.jobs :refer (operations)]
     [clojure.core.strint :refer (<<)]
     ))
 
@@ -46,7 +46,7 @@
  
 (def user-v
   {:username #{:required :String!} :password #{:required :String!} 
-   :roles #{:required :role*} :envs #{:required :env*} :operations #{:required :operation*}})
+   :roles #{:required :role*} :envs #{:required :env*} :operations #{:operation*}})
 
 (validation :role (when-not-nil roles (<< "role must be either ~{roles}")))
 
