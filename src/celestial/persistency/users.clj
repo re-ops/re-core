@@ -9,20 +9,16 @@
    See the License for the specific language governing permissions and
    limitations under the License.)
 
-(ns celestial.persistency
-  (:refer-clojure :exclude [type])
+(ns celestial.persistency.users
   (:require 
-    [celestial.common :refer (import-logging)]
-    [subs.core :as subs :refer (validate! combine when-not-nil validation every-v every-kv)]
     [cemerick.friend.credentials :as creds]
+    [celestial.roles :refer (roles admin)]
+    [celestial.common :refer (import-logging)]
     [cemerick.friend :as friend]
-     proxmox.model aws.model)
-  (:use 
-    [puny.core :only (entity)]
-    [celestial.roles :only (roles admin)]
-    [slingshot.slingshot :only  [throw+]]
-    [celestial.model :only (clone hypervizors figure-virt)] 
-    [clojure.core.strint :only (<<)]))
+    [subs.core :as subs :refer (validate! combine when-not-nil validation every-v every-kv)]
+    [puny.core :refer (entity)]
+    [clojure.core.strint :refer (<<)]
+    ))
 
 (import-logging)
 
@@ -59,21 +55,7 @@
 
 (defn validate-user [user]
   (validate! user user-v :error ::non-valid-user))
-
-(entity type :id type)
-
-(def puppet-std-v 
-  {:classes #{:required :Map}
-   :puppet-std {
-      :args #{:Vector} 
-      :module {
-         :name #{:required :String}
-         :src  #{:required :String}      
-    }}})
-
-(defn validate-type [{:keys [puppet-std] :as t}]
-  (validate! t (combine (if puppet-std puppet-std-v {}) {:type #{:required :String}}) :error ::non-valid-type ))
-
+ 
 (defn reset-admin
   "Resets admin password if non is defined"
   []
@@ -83,5 +65,3 @@
 
 (defn curr-user []
   (:username (friend/current-authentication)))
-
-

@@ -1,9 +1,9 @@
 (ns user
   (:use midje.repl)
   (:require 
-     [celestial.persistency :as p]  
+     [celestial.persistency [users :as u] [types :as t]]  
      [celestial.redis :refer (clear-all)]  
-     [clojure.tools.trace :refer (deftrace trace trace-ns trace-vars) :as t]
+     [clojure.tools.trace :refer (deftrace trace trace-ns trace-vars)]
      [celestial.persistency.systems :as s]
      [clojure.java.io :as io]
      [celestial.common :refer (slurp-edn)]
@@ -42,11 +42,11 @@
   "basic population for dev env" 
   []
   (clear-all)
-  (p/add-user 
+  (u/add-user 
       {:envs [:dev] :roles #{:celestial.roles/user} :username "ronen" :password "bar"})
-  (p/reset-admin)
+  (u/reset-admin)
   (with-redefs [celestial.security/current-user (fn [] {:username "admin"})]
-    (p/add-type (slurp-edn "fixtures/redis-type.edn"))
+    (t/add-type (slurp-edn "fixtures/redis-type.edn"))
     (s/add-system (slurp-edn "fixtures/redis-system.edn"))))
 
 (defn reset []

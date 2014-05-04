@@ -6,7 +6,7 @@
     [celestial.fixtures.core :refer  (is-type?)]
     [celestial.fixtures.data :refer (redis-prox-spec)]
     [celestial.persistency.systems :as s :refer (perm)]
-    [celestial.persistency :as p]
+    [celestial.persistency.users :as u]
     [celestial.persistency.systems :as s])
   (:use midje.sweet))
 
@@ -28,7 +28,7 @@
    (provided 
     (s/get-system ?id :skip-assert) => redis-prox-spec
     (current-user) =>  ?curr
-    (p/get-user! anything) => ?user))
+    (u/get-user! anything) => ?user))
    ?id  ?curr      ?user ?res
    "1" curr-admin  admin "1"
     1  curr-admin  admin  1 
@@ -42,8 +42,7 @@
    (provided 
     (s/get-system ?id :skip-assert) => (assoc redis-prox-spec :env "prod")
     (current-user) =>  ?curr
-    (p/get-user! anything) => ?user)
-  )
+    (u/get-user! anything) => ?user))
    ?id  ?curr  ?user ?res
    "1" curr-admin  admin (throws ExceptionInfo  (is-type? :celestial.persistency.systems/persmission-env-violation))
     1  curr-ronen (assoc-in ronen [:envs 0] "prod") 1)

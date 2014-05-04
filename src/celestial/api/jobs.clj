@@ -19,9 +19,9 @@
     [clojure.core.strint :refer (<<)]
     [celestial.common :refer (bad-req success import-logging get* link)]
     [gelfino.timbre :refer (get-tid)]
-    [celestial.persistency :as p]
+    [celestial.persistency [types :as t] [users :as u]]
     [celestial.persistency.actions :refer (find-action-for)]
-    [celestial.jobs :as jobs]
+    [celestial.jobs :as jobs :refer (enqueue)]
     [swag.core :refer (GET- POST- PUT- DELETE- defroutes- errors)]
     [celestial.security :refer (current-user)]
     [celestial.persistency.systems :as s]))
@@ -39,16 +39,16 @@
   ([id action msg args]
     (if-not (s/system-exists? id)
      (bad-req {:errors (<< "No system found with given id ~{id}")})
-     (success 
-       {:message msg :id id :job (jobs/enqueue action {:identity id :args args 
-        :tid (get-tid) :env (s/get-system id :env) :user (current-user)})}))))
+     (let [m {:identity id :args args :tid (get-tid) 
+                 :env (s/get-system id :env) :user (current-user)}]
+       (success {:message msg :id id :job (enqueue action m)})))))
 
 (defroutes- jobs {:path "/jobs" :description "Async job scheduling"}
 
   (POST- "/jobs/stage/:id" [^:int id] 
     {:nickname "stageSystem" :summary "Complete end to end staging job"
      :notes "Combined system creation and provisioning, separate actions are available also."}
-      (let [system (s/get-system id) type (p/get-type (:type system))]
+      (let [system (s/get-system id) type (t/get-type (:type system))]
            (schedule-job id "stage" "submitted system staging" [type (assoc system :system-id (Integer. id))])))
 
   (POST- "/jobs/create/:id" [^:int id] 
@@ -85,7 +85,7 @@
     {:nickname "provisionSystem" :summary "Provisioning job"
      :notes "Starts a provisioning workflow on a remote system
              using the provisioner configured in system type"}
-         (let [system (s/get-system id) type (p/get-type (:type system))]
+         (let [system (s/get-system id) type (t/get-type (:type system))]
            (schedule-job id "provision" "submitted provisioning" 
               [type (assoc system :system-id (Integer. ^String id))])))
 
@@ -114,7 +114,7 @@
         {:nickname "jobsStatus" :summary "Global job status tracking" 
          :notes "job status can be either pending, processing, done or nil"}
         (let [{:keys [username]} (friend/current-authentication)
-              {:keys [envs] :as user} (p/get-user username)]
+              {:keys [envs] :as user} (u/get-user username)]
           (success (map-vals (jobs/jobs-status envs) (partial map add-tid-link)))))
 
   )

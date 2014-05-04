@@ -23,7 +23,6 @@
     remote.capistrano remote.ruby
     ;cloning
     docker.model aws.model proxmox.model
-    [celestial.persistency :as p]
     [celestial.persistency.systems :as s]
     [clojure.tools.macro :as tm]
    )

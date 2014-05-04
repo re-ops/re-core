@@ -2,7 +2,7 @@
   "Requires both proxmox redis and a celetial instance to reply to puppet ext queries"
   (:require 
     [celestial.persistency.systems :as s]
-    [celestial.persistency :as p]
+    [celestial.persistency.types :as t]
     [celestial.fixtures.core :refer (with-defaults) :as f]  
     [celestial.fixtures.populate :refer (add-users)]  
     [celestial.fixtures.data :as d]  
@@ -15,7 +15,7 @@
 (defn run-cycle [spec type]
   (clear-all) 
   (add-users)
-  (p/add-type type) 
+  (t/add-type type) 
   (let [id (s/add-system spec)] 
     (try 
       (reload (assoc spec :system-id id))

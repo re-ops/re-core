@@ -1,7 +1,7 @@
 (ns celestial.api.users
   (:require
     [cemerick.friend.credentials :as creds]
-    [celestial.persistency :as p]
+    [celestial.persistency.users :as u]
     [celestial.persistency.quotas :as q]
     ) 
   (:use 
@@ -36,25 +36,25 @@
         (success {:roles roles-m}))
 
   (GET- "/users/:name" [^:string name] {:nickname "getUser" :summary "Get User"}
-        (success (p/get-user name)))
+        (success (u/get-user name)))
 
   (POST- "/users" [& ^:user user] {:nickname "addUser" :summary "Adds a new user"}
-         (wrap-errors (p/add-user (into-persisted user))
+         (wrap-errors (u/add-user (into-persisted user))
            (success {:message "added user"})))
 
   (PUT- "/users" [& ^:user user] {:nickname "updateUser" :summary "Updates an existing user"}
         (wrap-errors 
-            (p/partial-user (into-persisted user))
+            (u/partial-user (into-persisted user))
             (success {:message "user updated"})))
 
   (DELETE- "/users/:name" [^:string name] {:nickname "deleteUser" :summary "Deleted a user"}
-           (p/delete-user name) 
+           (u/delete-user name) 
            (success {:message "user deleted" :name name})))
 
 (defroutes- users-ro {:path "/user" :description "Read only User data"}
 
   (GET- "/users" [] {:nickname "getUsers" :summary "Get all users"}
-        (success (map #(dissoc (p/get-user %) :password) (p/all-users)))))
+        (success (map #(dissoc (u/get-user %) :password) (u/all-users)))))
 
 (defmodel quota :username :string :quotas {:type :Quotas})
 

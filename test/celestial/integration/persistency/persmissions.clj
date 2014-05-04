@@ -8,17 +8,17 @@
     [celestial.fixtures.data :refer (redis-prox-spec redis-type)]
     [celestial.fixtures.core :refer (is-type? with-conf)]
     [celestial.fixtures.populate :refer (add-users re-initlize)]
-    [celestial.persistency :as p]
+    [celestial.persistency.types :as t]
     [celestial.persistency.systems :as s])
   (:use midje.sweet))
 
 (with-conf
   (against-background 
     [(current-user) => {:identity "admin", :roles #{:celestial.roles/admin}, :username "admin"}]
-    (with-state-changes [(before :facts (do (re-initlize) (add-users) (p/add-type redis-type)))]
+    (with-state-changes [(before :facts (do (re-initlize) (add-users) (t/add-type redis-type)))]
       (fact "type and host sanity" :integration :redis :systems
             (let [id (s/add-system redis-prox-spec)] 
-              (p/get-type "redis") => redis-type 
+              (t/get-type "redis") => redis-type 
               (s/get-system id) => redis-prox-spec
               (provided
                 (current-user) => {:identity "admin", :roles #{:celestial.roles/admin} :username "admin"})))

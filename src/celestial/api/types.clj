@@ -13,7 +13,7 @@
   "Celestial types api"
   (:refer-clojure :exclude [type])
   (:require 
-    [celestial.persistency :as p]
+    [celestial.persistency.types :as t]
     [celestial.model :refer (sanitized-envs)]
     [clojure.core.strint :refer (<<)]
     [swag.model :refer (defmodel)]
@@ -30,28 +30,28 @@
 
 (defroutes- types-ro {:path "/type" :description "Read only type api"}
   (GET- "/types" [] {:nickname "getTypes" :summary "Get all types"}
-        (success {:types (map p/get-type (p/all-types))}))
+        (success {:types (map t/get-type (t/all-types))}))
 
   (GET- "/types/:type" [^:string type] {:nickname "getType" :summary "Get type"}
-        (success (p/get-type type))))
+        (success (t/get-type type))))
 
 (defroutes- types {:path "/type" :description "Operations on types"}
   (POST- "/types" [& ^:type props] {:nickname "addType" :summary "Add type"}
          (wrap-errors 
-           (p/add-type props)
+           (t/add-type props)
            (success {:message "new type saved"})))
 
   (PUT- "/types" [& ^:type props] {:nickname "updateType" :summary "Update type"}
         (wrap-errors
-          (if-not (p/type-exists? (props :type))
+          (if-not (t/type-exists? (props :type))
             (conflict {:message "Type does not exists, use POST /type first"}) 
-            (do (p/update-type props) 
+            (do (t/update-type props) 
                 (success {:message "type updated"})))))
 
   (DELETE- "/types/:type" [^:string type] {:nickname "deleteType" :summary "Delete type" 
                                            :errorResponses (errors {:bad-req "Type does not exist"})}
-           (if (p/type-exists? type)
-             (do (p/delete-type type) 
+           (if (t/type-exists? type)
+             (do (t/delete-type type) 
                  (success {:message "Type deleted"}))
              (bad-req {:message "Type does not exist"}))))
  

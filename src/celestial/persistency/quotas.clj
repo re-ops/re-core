@@ -2,7 +2,7 @@
  (:require  
     [subs.core :refer (validate! when-not-nil validation every-kv)]
     [puny.core :refer (entity)]
-    [celestial.persistency :refer [user-exists?]]
+    [celestial.persistency.users :refer [user-exists?]]
     [celestial.model :refer (figure-virt)] 
     [slingshot.slingshot :refer  [throw+]]
     [clojure.core.strint :refer (<<)]))

@@ -17,7 +17,7 @@
     [clojure.core.strint :refer (<<)] 
     [slingshot.slingshot :refer  [throw+]] 
     [es.node :as node]
-    [celestial.persistency :as p]
+    [celestial.persistency.users :as u]
     [celestial.common :refer (envs import-logging)]
     [celestial.roles :refer (su?)]
     [clojurewerkz.elastisch.native :as es]
@@ -115,7 +115,7 @@
         (fn [v] (into v (mapv #(hash-map :term {:env (str %)}) envs)))))))
 
 (defn- query-for [username q]
-  (let [{:keys [envs username] :as user} (p/get-user! username)]
+  (let [{:keys [envs username] :as user} (u/get-user! username)]
     (if (su? user)
       (-> q (envs-set user) 
           (assoc-in [:bool :minimum_should_match] 1))

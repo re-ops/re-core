@@ -17,7 +17,6 @@
       (update-ip set-hostname pub-dns assoc-pub-ip describe-eip)]
     [aws.volumes :refer (delete-volumes handle-volumes)]
     [aws.validations :refer (provider-validation)]
-    [celestial.persistency :as p]
     [clojure.core.strint :refer (<<)] 
     [supernal.sshj :refer (ssh-up?)] 
     [flatland.useful.utils :refer (defm)] 

@@ -9,7 +9,7 @@
     [celestial.persistency.actions :as a]
     [celestial.roles :refer (system)]
     [es.migrations :as e]
-    [celestial.persistency :as p]))
+    [celestial.persistency.users :as u]))
 
 (defn register-all 
   "registers all global migrations"
@@ -32,14 +32,14 @@
    []
   (let [pass (.toString (BigInteger. 130 (SecureRandom.)) 32) 
         user {:username "migrations" :password (creds/hash-bcrypt pass) :roles system :envs []}]
-    (when-not (p/user-exists? "migrations")
-      (p/add-user user))))
+    (when-not (u/user-exists? "migrations")
+      (u/add-user user))))
 
 
 (defn setup-migrations 
   "registers and runs migrations" 
   []
   (migration-user)
-  (set-user (p/get-user "migrations")
+  (set-user (u/get-user "migrations")
     (register-all)
     (migrate-all)))

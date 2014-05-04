@@ -13,10 +13,10 @@
   "Celestial systems api"
   (:refer-clojure :exclude [type])
   (:require 
+    [celestial.persistency [types :as t] [users :as u]]
     [celestial.security :refer (current-user)]
     [ring.util.codec :refer (base64-decode)]
     [clojure.data.json :as json]
-    [celestial.persistency :as p]
     [cemerick.friend :as friend]
     [celestial.persistency.systems :as s]
     [es.systems :as es]
@@ -130,9 +130,9 @@
                (bad-req {:message "System does not exist"}))))
 
   (GET- "/systems/:id/type" [^:int id] {:nickname "getSystemType" :summary "Fetch type of provided system id"}
-        (success (p/get-type (:type (s/get-system id))))))
+        (success (t/get-type (:type (s/get-system id))))))
 
 (defroutes- environments {:path "/environments" :description "Operations on environments"}
   (GET- "/environments" [] {:nickname "getEnvironments" :summary "Get all environments"}
-     (let [{:keys [envs] :as user} (p/get-user (working-username))]
+     (let [{:keys [envs] :as user} (u/get-user (working-username))]
         (success {:environments (sanitized-envs (into #{} envs))}))))

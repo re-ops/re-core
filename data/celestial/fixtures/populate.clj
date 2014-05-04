@@ -2,12 +2,12 @@
   "data population"
   (:gen-class true)
   (:require
+    [celestial.persistency [users :as u] [types :as t]]  
     [es.systems :as es]
     [celestial.security :refer (set-user)]
     [celestial.fixtures.core :refer (with-conf)]
     [simple-check.generators :as g]
     [celestial.redis :as red]  
-    [celestial.persistency :as p]  
     [celestial.persistency.core :as c]  
     [celestial.persistency.systems :as s]
     [celestial.persistency.actions :as a]
@@ -16,14 +16,14 @@
 (defn add-users 
   "populates admin and ronen users" 
   []
-  (p/add-user admin)
-  (p/add-user ronen))
+  (u/add-user admin)
+  (u/add-user ronen))
 
 (defn add-types 
    "populates types" 
    []
-  (p/add-type d/smokeping-type)
-  (p/add-type d/redis-type))
+  (t/add-type d/smokeping-type)
+  (t/add-type d/redis-type))
 
 (defn add-actions 
    "populates actions" 
@@ -82,7 +82,7 @@
   [t s]
   (re-initlize)
   (add-users)
-  (p/add-type t)
+  (t/add-type t)
   (s/add-system s))
 
 (defn -main 
@@ -90,5 +90,5 @@
   [& args]
   (set-user {:username "admin"}
      (populate-all)
-     (p/delete-user "admin"); will be set up in next launch
+     (u/delete-user "admin"); will be set up in next launch
      (println "populate done!")))

@@ -11,7 +11,7 @@
 
 (ns celestial.persistency.core
   (:require
-    [celestial.persistency :as p]
+    [celestial.persistency.users :as u]
     [celestial.common :refer (import-logging)]
     [celestial.redis :refer (server-conn)]
     [celestial.persistency.migrations :as mg]
@@ -30,7 +30,7 @@
   []
   Lifecyle
   (setup [this]
-    (p/reset-admin)
+    (u/reset-admin)
     (mg/setup-migrations)) 
   (start [this] 
     (initilize-puny)

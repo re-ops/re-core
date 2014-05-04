@@ -23,7 +23,6 @@
     [slingshot.slingshot :only  [throw+ try+]]
     [celestial.model :only (translate vconstruct)])
   (:require 
-    [celestial.persistency :as p] 
     [celestial.provider :refer (mappings transform os->template wait-for selections)]
     [hypervisors.networking :refer (gen-ip release-ip mark)]
     )

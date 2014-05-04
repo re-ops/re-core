@@ -3,7 +3,7 @@
  (:require 
   [celestial.fixtures.data :refer (redis-prox-spec redis-type user-quota redis-deploy)]
   [celestial.fixtures.core :refer (is-type? with-conf)]
-  [celestial.persistency :as p]
+  [celestial.persistency.types :as t]
   [celestial.fixtures.populate :refer (re-initlize)]
   [celestial.persistency.actions :as a])
  (:use midje.sweet))
@@ -13,14 +13,14 @@
 (with-conf
   (with-state-changes [(before :facts (re-initlize))]
    (fact "basic actions usage" :integration :redis :actions
-     (p/add-type redis-type) 
+     (t/add-type redis-type) 
      (let [id (a/add-action redis-deploy)]
        (a/get-action id) => redis-deploy-provided
        (a/get-action-index :operates-on "redis") => [(str id)]
        (a/find-action-for "deploy" "redis") =>  redis-deploy-provided))
  
    (fact "duplicated actions" :integration :redis :actions
-     (p/add-type redis-type) 
+     (t/add-type redis-type) 
      (let [id (a/add-action redis-deploy)]
        (a/get-action id) => redis-deploy-provided
        (a/add-action redis-deploy) => 

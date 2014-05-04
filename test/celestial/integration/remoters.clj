@@ -1,7 +1,7 @@
 (ns celestial.integration.remoters
   "Capistrano remoter provider see https://github.com/narkisr/cap-demo and fixtures/cap-deploy.edn"
   (:require 
-    [celestial.persistency :as p] 
+    [celestial.persistency.types :as t] 
     [celestial.persistency.systems :as s]
     [celestial.fixtures.data :refer (redis-deploy redis-runall redis-prox-spec redis-type)]
     [celestial.fixtures.populate :refer (add-users)]
@@ -14,7 +14,7 @@
   (:use midje.sweet))
 
 (with-defaults
-  (with-state-changes [(before :facts (do (clear-all) (p/add-type redis-type) (add-users)))] 
+  (with-state-changes [(before :facts (do (clear-all) (t/add-type redis-type) (add-users)))] 
     (fact "basic deploy" :integration :capistrano
       (let [id (s/add-system redis-prox-spec) 
             spec (assoc redis-prox-spec :system-id id)

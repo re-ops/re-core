@@ -16,8 +16,7 @@
   (:require 
      pallet.stevedore.bash
     [celestial.persistency.systems :as s] 
-    [celestial.common :refer (import-logging bash-)]
-    [celestial.persistency :as p])
+    [celestial.common :refer (import-logging bash-)])
   (:use 
     [clojure.core.strint :only (<<)]
     [supernal.sshj :only (execute)]))

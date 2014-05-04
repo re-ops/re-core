@@ -17,7 +17,8 @@
     [celestial.roles :refer (su? system?)]
     [celestial.security :refer (current-user)]
     [robert.hooke :as h]
-    [celestial.persistency :as p]
+    [celestial.persistency 
+      [users :as u] [types :as t]]
     [celestial.persistency.quotas :as q]
     [celestial.common :refer (import-logging)]
     [physical.validations :as ph]
@@ -49,7 +50,7 @@
    All users are limited to certain environments."
   [{:keys [env owner] :as system}]
   {:pre [(current-user)]}
-  (let [{:keys [envs username] :as curr-user} (p/get-user! ((current-user) :username))]
+  (let [{:keys [envs username] :as curr-user} (u/get-user! ((current-user) :username))]
     (when-not (empty? system)
       (when (and (not (su? curr-user)) (not= username owner))
         (throw+ {:type ::persmission-owner-violation} (<< "non super user ~{username} attempted to access a system owned by ~{owner}!"))
@@ -117,9 +118,9 @@
                :aws av/validate-entity 
                :vcenter vc/validate-entity})
 
-(validation :type-exists (when-not-nil p/type-exists? "type not found, create it first"))
+(validation :type-exists (when-not-nil t/type-exists? "type not found, create it first"))
 
-(validation :user-exists (when-not-nil p/user-exists? "user not found"))
+(validation :user-exists (when-not-nil u/user-exists? "user not found"))
 
 (def system-base {
    :owner #{:required :user-exists}
@@ -144,7 +145,7 @@
 (defn systems-for
   "grabs all the systems ids that this user can see"
   [username]
-  (let [{:keys [envs username] :as user} (p/get-user username)]
+  (let [{:keys [envs username] :as user} (u/get-user username)]
     (if (su? user)
       (flatten (map #(get-system-index :env (keyword %)) envs))
       (get-system-index :owner username))))

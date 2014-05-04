@@ -17,7 +17,7 @@
   (:require 
     [slingshot.slingshot :refer  [throw+ try+]]
     [celestial.roles :as roles]
-    [celestial.persistency :as p]
+    [celestial.persistency.users :as u]
     [clojure.core.strint :refer (<<)]
     [cemerick.friend :as friend]
     (cemerick.friend [workflows :as workflows]
@@ -50,12 +50,12 @@
 
 (defn user-with-pass [id]
   {:post [(not-empty (% :password ))]}
-  (p/get-user! id))
+  (u/get-user! id))
 
 (defn check-creds 
    "Runs bcrypt password check if user exists" 
   [creds]
-  (if (p/user-exists? (:username creds))
+  (if (u/user-exists? (:username creds))
     (try 
       (creds/bcrypt-credential-fn user-with-pass creds)
       (catch IllegalArgumentException e 

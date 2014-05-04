@@ -22,7 +22,6 @@
     [celestial.common :refer (import-logging)]
     [celestial.core :refer (Vm)] 
     [docker.validations :refer (validate-provider)]
-    [celestial.persistency :as p]
     [celestial.persistency.systems :as s]))
 
 (import-logging)

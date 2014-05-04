@@ -3,7 +3,7 @@
     [celestial.model :refer (rconstruct)]
     [celestial.persistency.actions :refer (validate-action)]
     [celestial.persistency.common :refer (args-of)]
-    [celestial.persistency :refer (type-exists?)]
+    [celestial.persistency.types :refer (type-exists?)]
     [celestial.fixtures.data :refer (redis-deploy)] 
     [celestial.fixtures.core :refer (with-m?)] 
     remote.capistrano)

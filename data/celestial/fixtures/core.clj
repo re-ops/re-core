@@ -12,7 +12,7 @@
 
 (defmacro with-admin [& body]
   `(with-redefs [celestial.security/current-user (fn [] {:username "admin"})
-                celestial.persistency/get-user! (fn [a#] celestial.fixtures.data/admin)]
+                celestial.persistency.users/get-user! (fn [a#] celestial.fixtures.data/admin)]
        ~@body 
        ))
 

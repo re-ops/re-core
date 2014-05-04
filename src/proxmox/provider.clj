@@ -30,8 +30,7 @@
     [me.raynes.fs :refer (delete-dir temp-dir)]
     [supernal.sshj :refer (copy ssh-up? execute)]
     [hypervisors.networking :refer (debian-interfaces gen-ip release-ip mark redhat-network-cfg redhat-ifcfg-eth0)]
-    [celestial.persistency.systems :as s]
-    [celestial.persistency :as p])
+    [celestial.persistency.systems :as s])
   (:import clojure.lang.ExceptionInfo))
 
 (import-logging)

@@ -9,7 +9,7 @@
     [celestial.redis :refer (wcar)]  
     [celestial.persistency.migrations :as m]
     [celestial.persistency.systems :as s]
-    [celestial.persistency :as p])
+    [celestial.persistency.users :as u])
   (:import clojure.lang.ExceptionInfo)
   (:use midje.sweet))
 
@@ -17,15 +17,15 @@
 #_(with-conf
   (with-state-changes [(before :facts (re-initlize))]
    (fact "user envs migration" :integration :migration :redis
-      (p/add-user {:username "foo" :password "bla" :roles #{:celestial.roles/user} :envs []}) => "foo"
-      (p/get-user "foo") => {:username "foo" :password "bla" :roles #{:celestial.roles/user} :envs []}
-      (wcar (car/hset (p/user-id "foo") :meta {:version nil}))
-      (p/get-user "foo") => {:username "foo" :password "bla" :roles #{:celestial.roles/user} :envs [:dev]}))
+      (u/add-user {:username "foo" :password "bla" :roles #{:celestial.roles/user} :envs []}) => "foo"
+      (u/get-user "foo") => {:username "foo" :password "bla" :roles #{:celestial.roles/user} :envs []}
+      (wcar (car/hset (u/user-id "foo") :meta {:version nil}))
+      (u/get-user "foo") => {:username "foo" :password "bla" :roles #{:celestial.roles/user} :envs [:dev]}))
 
   (against-background 
    [(friend/current-authentication) => {:identity "admin" :username "admin"} ]
     (with-state-changes 
-      [(before :facts (do (re-initlize) (p/add-type redis-type) (add-users) (m/register-all)))]
+      [(before :facts (do (re-initlize) (u/add-type redis-type) (add-users) (m/register-all)))]
       (fact "system env index migration" :integration :migration :redis
         (let [id (s/add-system redis-prox-spec)]
               (wcar (car/hset (s/system-id id) :meta {:version nil}))

@@ -7,7 +7,7 @@
     [celestial.common :refer (import-logging)]
     [celestial.persistency.systems :as s] 
     [supernal.sshj :refer (execute)] 
-    [celestial.persistency :as p])
+    )
   (:use midje.sweet))
 
 (import-logging)

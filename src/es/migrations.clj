@@ -3,9 +3,7 @@
   [celestial.common :refer (envs)]
   [puny.migrations :refer (Migration register)]
   [celestial.persistency.systems :as s]
-  [es.systems :as es]
-   )  
- )
+  [es.systems :as es]))
 
 ; indexing all systems
 (defrecord ElasticSystems [identifier]
