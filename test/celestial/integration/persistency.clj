@@ -23,7 +23,7 @@
     (fact "non valid user" :integration :redis
           (let [user {:username "foo" :password "bla" :roles #{:celestial.roles/user} :envs []} id (u/add-user user)]
             (u/add-user (dissoc user :username)) => 
-            (throws ExceptionInfo (is-type? :celestial.persistency/non-valid-user))
+            (throws ExceptionInfo (is-type? :celestial.persistency.users/non-valid-user))
             (u/update-user (dissoc user :username)) =>
-            (throws ExceptionInfo (is-type? :celestial.persistency/non-valid-user))))))
+            (throws ExceptionInfo (is-type? :celestial.persistency.users/non-valid-user))))))
 
