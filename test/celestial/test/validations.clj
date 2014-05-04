@@ -57,8 +57,7 @@
        (throws ExceptionInfo (with-m? {:envs '({0 "must be a keyword"})} ))
 
      (validate-user {:username "foo" :password "bar" :roles admin :envs [] :operations [:bla]})  => 
-       (throws ExceptionInfo (with-m? {:operations '({0 "operation must be either #{:physical :vagrant :vcenter :proxmox :docker :aws}"})}))
-
+       (throws ExceptionInfo (with-m? {:operations '({0 "operation must be either #{:destroy :clone :start :stop :provision :run-action :clear :create :stage :reload}"})}))
 
      (validate-user {:username "foo" :password "bar" :roles ["foo"] :envs []})  =>
        (throws ExceptionInfo 
