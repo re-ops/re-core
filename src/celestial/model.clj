@@ -28,6 +28,9 @@
 
 (def hypervizors #{:proxmox :aws :vcenter :vagrant :physical :docker})
 
+(def operations
+ #{:reload :destroy :provision :stage :run-action :create :start :stop :clear :clone})
+
 (defn figure-virt [spec] (first (filter hypervizors (keys spec))))
 
 (defn hypervisor 
