@@ -56,6 +56,10 @@
      (validate-user {:username "foo" :password "bar" :roles admin :envs [""]})  => 
        (throws ExceptionInfo (with-m? {:envs '({0 "must be a keyword"})} ))
 
+     (validate-user {:username "foo" :password "bar" :roles admin :envs [] :operations [:bla]})  => 
+       (throws ExceptionInfo (with-m? {:operations '({0 "operation must be either #{:physical :vagrant :vcenter :proxmox :docker :aws}"})}))
+
+
      (validate-user {:username "foo" :password "bar" :roles ["foo"] :envs []})  =>
        (throws ExceptionInfo 
                (with-m? {:roles '({0 "role must be either #{:celestial.roles/super-user :celestial.roles/anonymous :celestial.roles/user :celestial.roles/admin :celestial.roles/system}"})} ))
