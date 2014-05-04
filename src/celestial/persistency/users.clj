@@ -17,6 +17,7 @@
     [cemerick.friend :as friend]
     [subs.core :as subs :refer (validate! combine when-not-nil validation every-v every-kv)]
     [puny.core :refer (entity)]
+    [celestial.jobs :refer (operations)]
     [clojure.core.strint :refer (<<)]
     ))
 
@@ -45,13 +46,17 @@
  
 (def user-v
   {:username #{:required :String!} :password #{:required :String!} 
-   :roles #{:required :role*} :envs #{:required :env*}})
+   :roles #{:required :role*} :envs #{:required :env*} :operations #{:required :operation*}})
 
 (validation :role (when-not-nil roles (<< "role must be either ~{roles}")))
 
 (validation :role* (every-v #{:role}))
 
 (validation :env* (every-v #{:Keyword}))
+
+(validation :operation (when-not-nil operations (<< "operation must be either ~{operations}")))
+
+(validation :operation* (every-v #{:operation}))
 
 (defn validate-user [user]
   (validate! user user-v :error ::non-valid-user))

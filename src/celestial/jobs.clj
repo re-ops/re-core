@@ -68,6 +68,8 @@
      :start [wf/start 2] :stop [wf/stop 2] :clear [wf/clear 1] :clone [wf/clone 1]
      }))
 
+(def operations (-> jobs deref keys))
+
 (defn create-wks [queue f total]
   "create a count of workers for queue"
   (mapv (fn [v] (create-worker (name queue) (partial job-exec (with-meta f {:queue queue})))) (range total)))
