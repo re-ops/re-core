@@ -2,6 +2,7 @@
   "These scenarios describe how the API works and mainly validates routing"
   (:refer-clojure :exclude [type])
   (:require 
+    [celestial.model :as m]
     [celestial.fixtures.data :as d]
     [celestial.api.users :refer (into-persisted)]
     [celestial.jobs :as jobs]
@@ -61,6 +62,6 @@
 (let [user (merge d/admin {:roles ["admin"] :envs ["dev" "qa"]})]
   (fact "user conversion"
      (dissoc (into-persisted user) :password) => 
-       {:envs [:dev :qa], :roles #{:celestial.roles/admin}, :username "admin"}
+       {:envs [:dev :qa] :roles #{:celestial.roles/admin} :username "admin" :operations m/operations}
      (into-persisted (dissoc user :password)) => 
-       {:envs [:dev :qa], :roles #{:celestial.roles/admin}, :username "admin"})) 
+       {:envs [:dev :qa] :roles #{:celestial.roles/admin} :username "admin" :operations m/operations})) 
