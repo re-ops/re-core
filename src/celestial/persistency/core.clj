@@ -30,11 +30,10 @@
   []
   Lifecyle
   (setup [this]
+    (initilize-puny)
     (u/reset-admin)
     (mg/setup-migrations)) 
-  (start [this] 
-    (initilize-puny)
-    )
+  (start [this])
   (stop [this])
   )
 
