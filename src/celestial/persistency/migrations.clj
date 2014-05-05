@@ -31,7 +31,8 @@
     A random password is generated for him making its login disabled in effect (unless admin will change it)."
    []
   (let [pass (.toString (BigInteger. 130 (SecureRandom.)) 32) 
-        user {:username "migrations" :password (creds/hash-bcrypt pass) :roles system :envs []}]
+        user {:username "migrations" :password (creds/hash-bcrypt pass) 
+              :roles system :envs [] :operations []}]
     (when-not (u/user-exists? "migrations")
       (u/add-user user))))
 

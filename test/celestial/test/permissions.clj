@@ -16,11 +16,11 @@
 
 (def curr-foo {:username "foo"})
 
-(def admin {:username "admin" :roles [:celestial.roles/admin] :envs [:dev]})
+(def admin {:username "admin" :roles [:celestial.roles/admin] :envs [:dev] :operations []})
 
-(def ronen {:username "ronen" :roles [:celestial.roles/user] :envs [:dev]})
+(def ronen {:username "ronen" :roles [:celestial.roles/user] :envs [:dev] :operations []})
 
-(def foo {:username "foo" :roles [:celestial.roles/user] :envs [:dev]})
+(def foo {:username "foo" :roles [:celestial.roles/user] :envs [:dev] :operations []})
 
 (tabular "id based access owner interception"
   (fact 

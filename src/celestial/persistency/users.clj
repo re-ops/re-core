@@ -11,7 +11,7 @@
 
 (ns celestial.persistency.users
   (:require 
-    [celestial.model :refer (operations)]
+    [celestial.model :as m]
     [cemerick.friend.credentials :as creds]
     [celestial.roles :refer (roles admin)]
     [celestial.common :refer (import-logging)]
@@ -23,7 +23,7 @@
 
 (import-logging)
 
-(def user-version 1)
+(def user-version 2)
 
 (declare migrate-user)
 
@@ -34,6 +34,11 @@
     (trace "migrating" user "to version 1")
     (update-user upgraded) upgraded))
 
+(defn into-v2-user [user]
+  (let [upgraded (assoc user :operations m/operations)]
+    (trace "migrating" user "to version 2")
+    (update-user upgraded) upgraded))
+
 (defn migrate-user
   "user migration"
   [f & args] 
@@ -41,12 +46,13 @@
     (if (and (map? res) (not (empty? res)))
       (cond
         (nil? version) (into-v1-user res)
+        (= version 1) (into-v2-user res)
         :else res)
        res)))
  
 (def user-v
   {:username #{:required :String!} :password #{:required :String!} 
-   :roles #{:required :role*} :envs #{:required :env*} :operations #{:operation*}})
+   :roles #{:required :role*} :envs #{:required :env*} :operations #{:required :operation*}})
 
 (validation :role (when-not-nil roles (<< "role must be either ~{roles}")))
 
@@ -54,7 +60,7 @@
 
 (validation :env* (every-v #{:Keyword}))
 
-(validation :operation (when-not-nil operations (<< "operation must be either ~{operations}")))
+(validation :operation (when-not-nil m/operations (<< "operation must be either ~{m/operations}")))
 
 (validation :operation* (every-v #{:operation}))
 
@@ -66,7 +72,15 @@
   []
   (when (empty? (get-user "admin"))
     (info "Reseting admin password")
-    (add-user {:username "admin" :password (creds/hash-bcrypt "changeme") :roles admin :envs [:dev]})))
+    (add-user {
+      :username "admin" :password (creds/hash-bcrypt "changeme")
+      :roles admin :envs [:dev] :operations m/operations
+     })))
 
 (defn curr-user []
   (:username (friend/current-authentication)))
+
+(defn op-allowed?
+   "Checks if user can perform an operation" 
+   [op {:keys [operations] :as user}]
+    (operations (keyword op)))

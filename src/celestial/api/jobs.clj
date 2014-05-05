@@ -37,11 +37,15 @@
   ([^String id action msg]
     (schedule-job id action msg [(assoc (s/get-system id) :system-id (Integer. id))])) 
   ([id action msg args]
-    (if-not (s/system-exists? id)
-     (bad-req {:errors (<< "No system found with given id ~{id}")})
-     (let [m {:identity id :args args :tid (get-tid) 
-                 :env (s/get-system id :env) :user (current-user)}]
-       (success {:message msg :id id :job (enqueue action m)})))))
+    (cond 
+      (not (s/system-exists? id)) 
+        (bad-req {:errors (<< "No system found with given id ~{id}")})
+      (not (u/op-allowed? action (current-user)))
+        (bad-req {:errors (<< "Operation ~{action} not allowed for user ~(current-user)")})
+      :else
+       (let [m {:identity id :args args :tid (get-tid) 
+               :env (s/get-system id :env) :user (current-user)}]
+        (success {:message msg :id id :job (enqueue action m)})))))
 
 (defroutes- jobs {:path "/jobs" :description "Async job scheduling"}
 

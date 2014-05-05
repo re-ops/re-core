@@ -43,23 +43,23 @@
    (provided (user-exists? "foo") => true :times 1))
 
 (fact "user validation"
-     (validate-user {:username "foo" :password "bar" :roles admin :envs []})  => truthy
-     (validate-user {:password "bar" :roles admin :envs []})  => 
-       (throws ExceptionInfo (with-m? {:username "must be present"}))
+   (validate-user {:username "foo" :password "bar" :roles admin :envs [] :operations []})  => truthy
+   (validate-user {:password "bar" :roles admin :envs [] :operations []})  => 
+     (throws ExceptionInfo (with-m? {:username "must be present"}))
 
-     (validate-user {:username "foo" :password "bar" :roles admin})  => 
-       (throws ExceptionInfo (with-m? {:envs "must be present"}))
+   (validate-user {:username "foo" :password "bar" :roles admin :operations []})  => 
+     (throws ExceptionInfo (with-m? {:envs "must be present"}))
 
-     (validate-user {:username "foo" :password "" :roles admin :envs []})  => 
-      (throws ExceptionInfo (with-m? {:password "must be a non empty string"}))
+   (validate-user {:username "foo" :password "" :roles admin :envs [] :operations []})  => 
+     (throws ExceptionInfo (with-m? {:password "must be a non empty string"}))
 
-     (validate-user {:username "foo" :password "bar" :roles admin :envs [""]})  => 
-       (throws ExceptionInfo (with-m? {:envs '({0 "must be a keyword"})} ))
+   (validate-user {:username "foo" :password "bar" :roles admin :envs [""] :operations []})  => 
+     (throws ExceptionInfo (with-m? {:envs '({0 "must be a keyword"})} ))
 
-     (validate-user {:username "foo" :password "bar" :roles admin :envs [] :operations [:bla]})  => 
-       (throws ExceptionInfo (with-m? {:operations '({0 "operation must be either #{:destroy :clone :start :stop :provision :run-action :clear :create :stage :reload}"})}))
+   (validate-user {:username "foo" :password "bar" :roles admin :envs [] :operations [:bla]})  => 
+     (throws ExceptionInfo (with-m? {:operations '({0 "operation must be either #{:destroy :clone :start :stop :provision :run-action :clear :create :stage :reload}"})}))
 
-     (validate-user {:username "foo" :password "bar" :roles ["foo"] :envs []})  =>
+     (validate-user {:username "foo" :password "bar" :roles ["foo"] :envs [] :operations []})  =>
        (throws ExceptionInfo 
                (with-m? {:roles '({0 "role must be either #{:celestial.roles/super-user :celestial.roles/anonymous :celestial.roles/user :celestial.roles/admin :celestial.roles/system}"})} ))
       )

@@ -1,14 +1,29 @@
 (ns celestial.fixtures.data
   "loading fixtures data"
   (:require 
+    [celestial.model :refer (operations)]
     [clojure.core.strint :refer  (<<)]
     [celestial.common :refer (slurp-edn)]
     [celestial.fixtures.core :refer (host)]))
 
-(def admin {:envs [:dev :qa :prod] :roles #{:celestial.roles/admin} :username "admin" :password "foo"})
+(def admin {
+  :username "admin" :password "foo"
+  :envs [:dev :qa :prod] 
+  :roles #{:celestial.roles/admin} 
+  :operations operations
+})
 
-(def ronen {:envs [:dev] :roles #{:celestial.roles/user} :username "ronen" :password "bar"})
+(def ronen {
+  :username "ronen" :password "bar"
+  :envs [:dev] :roles #{:celestial.roles/user} 
+  :operations operations
+})
 
+(def foo {
+  :username "foo" :password "bla"
+  :envs [] :roles #{:celestial.roles/user} 
+  :operations operations
+})
 (defn read-fixture [fixture]
   (slurp-edn (<< "data/resources/~{fixture}.edn")))
  

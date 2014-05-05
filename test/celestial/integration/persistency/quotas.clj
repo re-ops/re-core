@@ -3,7 +3,7 @@
  (:use midje.sweet)
  (:require 
     [celestial.fixtures.core :refer (is-type? with-admin with-conf)]
-    [celestial.fixtures.data :refer (redis-prox-spec user-quota)]
+    [celestial.fixtures.data :refer (redis-prox-spec user-quota foo)]
     [celestial.fixtures.populate :refer (add-types add-users re-initlize)]
     [celestial.persistency.users :as u]
     [celestial.persistency.systems :as s]
@@ -13,7 +13,7 @@
   (re-initlize)
   (add-types)
   (add-users)
-  (u/add-user {:username "foo" :password "bla" :roles {} :envs []})
+  (u/add-user foo)
   (q/add-quota (assoc-in user-quota [:quotas :dev :proxmox :used :count] 0)) )
 
 (with-conf
