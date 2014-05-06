@@ -21,9 +21,10 @@
 
 (defn into-persisted
    "converting user to persisted version" 
-   [{:keys [password envs] :as user}]
+   [{:keys [password envs operations] :as user}]
   (cond-> (-> user convert-roles) 
      (not (empty? envs)) (update-in [:envs] (partial mapv keyword))
+     (not (empty? operations)) (update-in [:operations] (partial mapv keyword))
      (not (empty? password)) hash-pass
      ))
 
