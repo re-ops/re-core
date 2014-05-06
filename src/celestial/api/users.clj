@@ -1,5 +1,6 @@
 (ns celestial.api.users
   (:require
+    [celestial.model :as m]
     [cemerick.friend.credentials :as creds]
     [celestial.persistency.users :as u]
     [celestial.persistency.quotas :as q]
@@ -54,7 +55,12 @@
 (defroutes- users-ro {:path "/user" :description "Read only User data"}
 
   (GET- "/users" [] {:nickname "getUsers" :summary "Get all users"}
-        (success (map #(dissoc (u/get-user %) :password) (u/all-users)))))
+        (success (map #(dissoc (u/get-user %) :password) (u/all-users))))
+  
+  (GET- "/users/operations" [] {:nickname "getUsersOperations" :summary "Get all available operations (not of a specific user)."}
+        (success {:operations (map name m/operations)}))
+
+  )
 
 (defmodel quota :username :string :quotas {:type :Quotas})
 
