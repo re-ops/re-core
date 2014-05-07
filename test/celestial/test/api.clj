@@ -59,9 +59,10 @@
      (s/get-system "1" :env)  => :dev
      (jobs/enqueue "create" {:identity "1" :args [{:system-id 1}] :tid nil :env :dev :user nil}) => nil))
 
-(let [user (merge d/admin {:roles ["admin"] :envs ["dev" "qa"]})]
+(let [user (merge d/admin {:roles ["admin"] :envs ["dev" "qa"]}) 
+      ops-vec (into []  m/operations)]
   (fact "user conversion"
-     (dissoc (into-persisted user) :password) => 
-       {:envs [:dev :qa] :roles #{:celestial.roles/admin} :username "admin" :operations m/operations}
-     (into-persisted (dissoc user :password)) => 
-       {:envs [:dev :qa] :roles #{:celestial.roles/admin} :username "admin" :operations m/operations})) 
+    (dissoc (into-persisted user) :password) => 
+      {:envs [:dev :qa] :roles #{:celestial.roles/admin} :username "admin" :operations ops-vec}
+    (into-persisted (dissoc user :password)) => 
+      {:envs [:dev :qa] :roles #{:celestial.roles/admin} :username "admin" :operations ops-vec}))
