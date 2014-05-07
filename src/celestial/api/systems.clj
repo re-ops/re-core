@@ -13,6 +13,7 @@
   "Celestial systems api"
   (:refer-clojure :exclude [type])
   (:require 
+    [celestial.common :refer (get*)]
     [celestial.persistency [types :as t] [users :as u]]
     [celestial.security :refer (current-user)]
     [ring.util.codec :refer (base64-decode)]
@@ -133,6 +134,11 @@
         (success (t/get-type (:type (s/get-system id))))))
 
 (defroutes- environments {:path "/environments" :description "Operations on environments"}
-  (GET- "/environments" [] {:nickname "getEnvironments" :summary "Get all environments"}
+  (GET- "/environments" [] {:nickname "getEnvironments" :summary "Get sanitized environments for current user"}
      (let [{:keys [envs] :as user} (u/get-user (working-username))]
-        (success {:environments (sanitized-envs (into #{} envs))}))))
+        (success {:environments (sanitized-envs (into #{} envs))})))
+
+  (GET- "/environments/keys" [] {:nickname "getEnvironments" :summary "Get all environments"}
+     (let [{:keys [envs] :as user} (u/get-user (working-username))]
+        (success {:environments (keys (get* :hypervisor))})))
+  )
