@@ -39,9 +39,9 @@
   ([id action msg args]
     (cond 
       (not (s/system-exists? id)) 
-        (bad-req {:errors (<< "No system found with given id ~{id}")})
+        (bad-req {:message (<< "No system found with given id ~{id}")})
       (not (u/op-allowed? action (current-user)))
-        (bad-req {:errors (<< "Operation ~{action} not allowed for user ~(current-user)")})
+        (bad-req {:message (<< "Operation ~{action} not allowed for user ~(current-user)")})
       :else
        (let [m {:identity id :args args :tid (get-tid) 
                :env (s/get-system id :env) :user (current-user)}]
