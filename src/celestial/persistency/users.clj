@@ -82,5 +82,5 @@
 
 (defn op-allowed?
    "Checks if user can perform an operation" 
-   [op {:keys [operations] :as user}]
-    ((into #{} operations) (keyword op)))
+   [op {:keys [username] :as user}]
+    ((into #{} (:operations (get-user! username))) (keyword op)))
