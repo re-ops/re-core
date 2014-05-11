@@ -1,10 +1,17 @@
+# Celestial 0.6.3 (11/05/14):
+## Fixes:
+
+## New Features:
+
+* Adding allowed operations per user, operations are filtered in the UI as well.
+* Seperated action list in the UI clearly listing when no systems are selected.
+
 # Celestial 0.6.2 (04/05/14):
 ## Fixes:
 * Supporting dashes in search terms.
 * Supporting wildcard queries.
 
 ## New Features:
-
 
 # Celestial 0.6.1 (19/04/14):
 
