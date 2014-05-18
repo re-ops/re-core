@@ -17,13 +17,3 @@
 
 (import-logging)
 
-(def ^:const job-status
-  {:job-status
-    {:properties {
-      :status {:type "string" }
-      :start {:type "long"}
-      :end {:type "long"}
-     }
-    }
-   }
-  )

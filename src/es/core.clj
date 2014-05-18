@@ -13,7 +13,7 @@
   "Core elasticsearch module"
   (:require 
     [components.core :refer (Lifecyle)] 
-    [es.systems :refer (initialize index)]
+    [es.common :refer (initialize index)]
     [es.node :refer (start-n-connect stop)]))
 
 (defrecord Elastic 

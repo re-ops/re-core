@@ -13,60 +13,17 @@
   "Systems indexing/searching"
   (:refer-clojure :exclude [get])
   (:require 
+    [es.common :refer (flush- index)]
     [clojure.set :refer (subset?)]
     [clojure.core.strint :refer (<<)] 
     [slingshot.slingshot :refer  [throw+]] 
-    [es.node :as node]
     [celestial.persistency.users :as u]
     [celestial.common :refer (envs import-logging)]
     [celestial.roles :refer (su?)]
-    [clojurewerkz.elastisch.native :as es]
     [clojurewerkz.elastisch.query :as q]
-    [clojurewerkz.elastisch.native.index :as idx]
     [clojurewerkz.elastisch.native.document :as doc]))
 
 (import-logging)
-
-(def ^:const index "celestial-systems")
-
-(def ^:const system-types
-  {:system 
-    {:properties {
-      :owner {:type "string" }
-      :env {:type "string" :index "not_analyzed"}
-      :machine {
-        :properties {
-          :hostname {:type "string" :index "not_analyzed"}
-          :cpus {:type "integer"}
-        }
-      }
-      :type {:type "string"}
-     }
-    }
-   }
-  )
-
-(defn initialize 
-  "Creates systems index and type" 
-  []
-  (node/start-n-connect [index])
-  (when-not (idx/exists? index)
-    (info "Creating index" index)
-    (idx/create index :mappings system-types)))
-
-(defn clear 
-  "Creates systems index and type" 
-  []
-  (node/start-n-connect [index])
-  (when (idx/exists? index)
-    (info "Clearing index" index)
-    (idx/delete index)))
-
-(defn flush- 
-  []
-  (when (idx/exists? index)
-    (info "Flushing index" index)
-    (idx/flush index)))
 
 (defn put
    "Add/Update a system into ES"

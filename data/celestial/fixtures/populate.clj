@@ -3,7 +3,7 @@
   (:gen-class true)
   (:require
     [celestial.persistency [users :as u] [types :as t]]  
-    [es.systems :as es]
+    [es.common :as es]
     [celestial.security :refer (set-user)]
     [celestial.fixtures.core :refer (with-conf)]
     [simple-check.generators :as g]

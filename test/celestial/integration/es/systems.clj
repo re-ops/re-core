@@ -1,7 +1,7 @@
 (ns celestial.integration.es.systems
   "Testing system searching"
   (:require 
-    [es.node :as es]
+    [es.common :as es]
     [es.systems :as sys]
     [clojurewerkz.elastisch.query :as q]
     [celestial.security :refer (set-user)]
@@ -13,7 +13,7 @@
 (defn add-systems 
    "adds a list of systems into ES" 
    []
-  (sys/initialize)
+  (es/initialize)
   (sys/put "1" (assoc redis-prox-spec :owner "admin"))        
   (sys/put "2" (assoc-in redis-ec2-spec [:machine :hostname] "foo-1" ))        
   (sys/put "3" (assoc redis-ec2-spec :env :prod-1))        
