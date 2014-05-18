@@ -115,8 +115,8 @@
          :notes "job status can be pending, processing, done or nil"}
         (success {:job (jobs/status queue uuid)}))
     
-  (GET- "/jobs/runnning" []
-        {:nickname "jobsStatus" :summary "Global job status tracking" 
+  (GET- "/jobs/running" []
+        {:nickname "getRunningJobs" :summary "Get currently running jobs" 
          :notes "job status can be either pending, processing, done or nil"}
         (let [{:keys [username]} (friend/current-authentication)
               {:keys [envs] :as user} (u/get-user username)]
