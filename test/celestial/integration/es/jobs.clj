@@ -25,17 +25,19 @@
   (jobs/put (-> job (merge {:tid "1" :status :success}) stamp) 2000)        
   (jobs/put (-> job (merge {:tid "2" :status :error :env :prod}) stamp) 2000)        
   (jobs/put (-> job (merge {:tid "3" :status :success :identity 2}) stamp) 2000)        
-  (jobs/put (-> job (merge {:tid "4" :status :error}) stamp) 2000))
+  (jobs/put (-> job (merge {:tid "4" :status :error}) stamp) 2000 :flush? true))
+
+(defn total [m]
+  (-> m :hits :hits count))
 
 (with-conf
-  (against-background [(before :facts (do (re-initlize true) (add-jobs) (add-users)))]
+  (against-background [(before :facts (do (re-initlize true) (add-jobs)))]
    (fact "basic job get" :integration :elasticsearch
      (get-in (jobs/get "1") [:source :status]) => ":success"
      (get-in (jobs/get "2") [:source :env]) => ":prod"
      (get-in (jobs/get "3") [:source :identity]) => 2)
 
-   
    (fact "jobs pagination" :integration :elasticsearch
-     (let [{:keys [hits] :as res} (jobs/paginate 0 5 ["prod" "dev"])]
-        (println res)
-        (-> hits :hits count) => 5))))
+     (total (jobs/paginate 0 5 ["dev"])) => 3
+     (total (jobs/paginate 0 5 ["prod"]))=> 1
+     (total (jobs/paginate 0 5 ["prod" "dev"])) => 4)))
