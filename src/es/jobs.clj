@@ -11,9 +11,39 @@
 
 (ns es.jobs
   "Jobs ES persistency"
+  (:refer-clojure :exclude [get])
   (:require
-    [celestial.common :refer (envs import-logging)]
-    ))
+    [es.common :refer (flush- index map-env-terms)]
+    [clojurewerkz.elastisch.native.document :as doc]
+    [celestial.common :refer (envs import-logging)]))
 
 (import-logging)
+
+(defn put
+   "Add/Update a jobs into ES"
+   [{:keys [tid] :as job} ttl & {:keys [flush?]}]
+  (doc/put index "jobs" tid job :ttl ttl)
+  (when flush? (flush-)))
+
+(defn delete
+   "delete a system from ES"
+   [id]
+  (doc/delete index "jobs" id))
+
+(defn get 
+   "Grabs a system by an id"
+   [id]
+  (doc/get index "jobs" id))
+
+(defn query-envs 
+   "maps envs to query form terms" 
+   [envs]
+   (map (fn [e] {:term {:env e}}) envs))
+
+(defn paginate
+   "basic query string" 
+   [from size envs]
+  (doc/search index "jobs" :from from :size size 
+    :query (map-env-terms {:bool {:minimum_should_match 1 :should (query-envs envs)}}))) 
+
 

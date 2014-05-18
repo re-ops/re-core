@@ -17,8 +17,7 @@
   (sys/put "1" (assoc redis-prox-spec :owner "admin"))        
   (sys/put "2" (assoc-in redis-ec2-spec [:machine :hostname] "foo-1" ))        
   (sys/put "3" (assoc redis-ec2-spec :env :prod-1))        
-  (sys/put "4" redis-prox-spec :flush? true)
-  )
+  (sys/put "4" redis-prox-spec :flush? true))
 
 (defn total [res] (get-in res [:hits :total]))
 

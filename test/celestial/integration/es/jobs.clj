@@ -35,8 +35,7 @@
      (get-in (jobs/get "3") [:source :identity]) => 2)
 
    
-   #_(fact "pagination" :integration :elasticsearch
-     (let [query {:bool {:must {:term {"machine.cpus" "4" }}}}
-          {:keys [hits]} (sys/query query :size 2 :from 1)]
-        (-> hits :hits count) => 1)) 
-   ))
+   (fact "jobs pagination" :integration :elasticsearch
+     (let [{:keys [hits] :as res} (jobs/paginate 0 5 ["prod" "dev"])]
+        (println res)
+        (-> hits :hits count) => 5))))

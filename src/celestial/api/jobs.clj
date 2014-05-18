@@ -22,6 +22,7 @@
     [celestial.persistency [types :as t] [users :as u]]
     [celestial.persistency.actions :refer (find-action-for)]
     [celestial.jobs :as jobs :refer (enqueue)]
+    [es.jobs :as es]
     [swag.core :refer (GET- POST- PUT- DELETE- defroutes- errors)]
     [celestial.security :refer (current-user)]
     [celestial.persistency.systems :as s]))
@@ -114,11 +115,17 @@
          :notes "job status can be pending, processing, done or nil"}
         (success {:job (jobs/status queue uuid)}))
     
-  (GET- "/jobs" []
+  (GET- "/jobs/runnning" []
         {:nickname "jobsStatus" :summary "Global job status tracking" 
          :notes "job status can be either pending, processing, done or nil"}
         (let [{:keys [username]} (friend/current-authentication)
               {:keys [envs] :as user} (u/get-user username)]
           (success (map-vals (jobs/jobs-status envs) (partial map add-tid-link)))))
-
+  
+  (GET- "/jobs/done" [^:int page ^:int offset]
+      {:nickname "getDoneJobs" :summary "Get done jobs"}
+     (let [page* (Integer/valueOf page) offset* (Integer/valueOf offset)
+        {:keys [username]} (friend/current-authentication)
+        {:keys [envs] :as user} (u/get-user username)]
+       (success (es/paginate (* (- page* 1) offset*) (* page*  offset*) envs))))
   )

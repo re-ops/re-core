@@ -17,6 +17,7 @@
     [celestial.common :only (minute import-logging)]
     [taoensso.carmine.locks :as with-lock])
   (:require  
+    [es.jobs :as es]
     [flatland.useful.map :refer (map-vals filter-vals)]
     [minderbinder.time :refer (parse-time-unit)]
     [puny.core :refer (entity)]
@@ -42,9 +43,9 @@
 (defn save-status
    "marks jobs as succesful" 
    [spec status]
-  (let [id (add-job-status (merge spec {:status status :end (System/currentTimeMillis)})) 
-        status-exp (* 60 (or (get* :celestial :job :status-expiry) 5))]
-    (wcar (car/expire (job-status-id id) status-exp)) {:status status}))
+  (let [status-exp (* 60 (or (get* :celestial :job :status-expiry) (* 24 5)))]
+    (es/put (merge spec {:status status :end (System/currentTimeMillis)}) status-exp) 
+    {:status status}))
 
 (defn job-exec [f  {:keys [message attempt]}]
   "Executes a job function tries to lock identity first (if used)"
@@ -56,9 +57,12 @@
            (let [{:keys [wait-time expiry]} (map-vals (or (get* :celestial :job :lock) defaults) #(* minute %) )]
             (try 
               (if identity
-                (do (with-lock (server-conn) identity expiry wait-time (apply f args)) (save-status spec' :success)) 
-                (do (apply f args) (save-status spec' :success))) 
-              (catch Throwable e (error e) (save-status spec' :error)))))))))
+                (do (with-lock (server-conn) identity expiry wait-time (apply f args))
+                    (save-status spec' :success)) 
+                (do (apply f args) 
+                    (save-status spec' :success))) 
+              (catch Throwable e (error e) 
+                (save-status spec' :error)))))))))
 
 (defn jobs []
   {:post [(= (into #{} (keys %)) operations)]} 
