@@ -38,12 +38,13 @@
 (defn query-envs 
    "maps envs to query form terms" 
    [envs]
-   (map (fn [e] {:term {:env e}}) envs))
+   (map (fn [e] {:term {:env (name e)}}) envs))
 
 (defn paginate
    "basic query string" 
    [from size envs]
-  (doc/search index "jobs" :from from :size size 
-    :query (map-env-terms {:bool {:minimum_should_match 1 :should (query-envs envs)}}))) 
-
-
+  (let [q {:bool {:minimum_should_match 1 :should (query-envs envs)}}]
+  (-> 
+    (doc/search index "jobs" :from from :size size :query q)
+    :hits :hits    
+    ))) 
