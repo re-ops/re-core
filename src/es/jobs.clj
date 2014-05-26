@@ -38,7 +38,7 @@
 (defn query-envs 
    "maps envs to query form terms" 
    [envs]
-   (map (fn [e] {:term {:env (name e)}}) envs))
+   (map (fn [e] {:term {:env (str e)}}) envs))
 
 (defn paginate
    "basic query string" 
