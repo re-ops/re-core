@@ -14,7 +14,8 @@
   :jobs {
     :properties {
       :env {:type "string" :index "not_analyzed"}
-      :status {:type "string" :index "not_analyzed"}
+      :status {:type "string"}
+      :queue {:type "string"}
       :start {:type "long"}
       :end {:type "long"}
      }

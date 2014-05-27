@@ -21,8 +21,8 @@
 
 (defn put
    "Add/Update a jobs into ES"
-   [{:keys [tid] :as job} ttl & {:keys [flush?]}]
-  (doc/put index "jobs" tid job :ttl ttl)
+   [{:keys [tid queue status] :as job} ttl & {:keys [flush?]}]
+  (doc/put index "jobs" tid (merge job {:queue (name queue) :status (name status)}) :ttl ttl)
   (when flush? (flush-)))
 
 (defn delete

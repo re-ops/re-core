@@ -129,6 +129,5 @@
         {:keys [envs] :as user} (u/get-user username)]
        (success 
          {:jobs 
-          (map #(update-in % [:_source] add-tid-link) 
-            (es/paginate (* (- page* 1) offset*) (* page*  offset*) envs))})))
-  )
+          (map #(-> % :_source add-tid-link) 
+            (es/paginate (* (- page* 1) offset*) (* page*  offset*) envs))}))))
