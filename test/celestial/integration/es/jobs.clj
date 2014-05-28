@@ -11,7 +11,7 @@
   (:use midje.sweet))
  
 
-(def job {:tid "" :status :success :identity 1 :args [] :env :dev })
+(def job {:tid "" :status :success :identity 1 :args [] :env :dev :queue :stop})
 
 (defn stamp 
    "add time start end timestamps" 
@@ -30,11 +30,11 @@
 (with-conf
   (against-background [(before :facts (do (re-initlize true) (add-jobs)))]
    (fact "basic job get" :integration :elasticsearch
-     (get-in (jobs/get "1") [:source :status]) => ":success"
+     (get-in (jobs/get "1") [:source :status]) => "success"
      (get-in (jobs/get "2") [:source :env]) => ":prod"
      (get-in (jobs/get "3") [:source :identity]) => 2)
 
    (fact "jobs pagination" :integration :elasticsearch
-     (count (jobs/paginate 0 5 [:dev])) => 3
-     (count (jobs/paginate 0 5 [:prod]))=> 1
-     (count (jobs/paginate 0 5 [:prod :dev])) => 4)))
+     (:total (jobs/paginate 0 5 [:dev])) => 3
+     (:total (jobs/paginate 0 5 [:prod]))=> 1
+     (:total (jobs/paginate 0 5 [:prod :dev])) => 4)))
