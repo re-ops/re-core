@@ -126,8 +126,6 @@
       {:nickname "getDoneJobs" :summary "Get done jobs"}
      (let [page* (Integer/valueOf page) offset* (Integer/valueOf offset)
         {:keys [username]} (friend/current-authentication)
-        {:keys [envs] :as user} (u/get-user username)]
-       (success 
-         {:jobs 
-          (map #(-> % :_source add-tid-link) 
-            (es/paginate (* (- page* 1) offset*) (* page*  offset*) envs))}))))
+        {:keys [envs] :as user} (u/get-user username)
+        {:keys [total hits]} (es/paginate (* (- page* 1) offset*) (* page*  offset*) envs)]
+       (success {:jobs (map #(-> % :_source add-tid-link) hits) :total total}))))
