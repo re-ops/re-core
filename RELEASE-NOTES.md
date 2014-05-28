@@ -1,3 +1,9 @@
+# Celestial 0.6.4 (28/05/14):
+## Fixes:
+
+## New Features:
+* Done jobs are persisted into Elasticsearch, pagination through history of jobs is now possible (old jobs are kept up to a configurable ttl).
+
 # Celestial 0.6.3 (11/05/14):
 ## Fixes:
 
