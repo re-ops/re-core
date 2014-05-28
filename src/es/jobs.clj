@@ -44,4 +44,4 @@
    "basic query string" 
    [from size envs]
   (let [q {:bool {:minimum_should_match 1 :should (query-envs envs)}}]
-    (-> (doc/search index "jobs" :from from :size size :query q :sort {:start "desc"}) :hits))) 
+    (-> (doc/search index "jobs" :from from :size size :query q :sort {:end "desc"}) :hits))) 

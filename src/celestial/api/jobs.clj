@@ -127,5 +127,5 @@
      (let [page* (Integer/valueOf page) offset* (Integer/valueOf offset)
         {:keys [username]} (friend/current-authentication)
         {:keys [envs] :as user} (u/get-user username)
-        {:keys [total hits]} (es/paginate (* (- page* 1) offset*) (* page*  offset*) envs)]
+        {:keys [total hits]} (es/paginate (* (- page* 1) offset*) offset* envs)]
        (success {:jobs (map #(-> % :_source add-tid-link) hits) :total total}))))
