@@ -25,9 +25,6 @@
 
 
 (fact "jobs by envs"
-   (jobs/jobs-status [:dev]) => 
-      {:jobs [{:env :dev}] :succesful [{:env :dev}] :erroneous [{:env :dev}]}
+   (jobs/jobs-status [:dev]) => {:jobs [{:env :dev}]}
    (provided
-     (jobs/running-jobs-status) => [{:env :dev} {:env :qa}]
-     (jobs/done-jobs-status) => {:succesful [{:env :dev} {:env :qa}] 
-                                 :erroneous [{:env :dev} {:env :qa}]}))
+     (jobs/running-jobs-status) => [{:env :dev} {:env :qa}]))

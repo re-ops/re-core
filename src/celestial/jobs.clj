@@ -36,10 +36,6 @@
 
 (def defaults {:wait-time 5 :expiry 30})
 
-(entity job-status :indices [status])
-
-(defn validate-job-status [{:keys [status] :as js}] (assert status))
-
 (defn save-status
    "marks jobs as succesful" 
    [spec status]
@@ -113,21 +109,6 @@
   []
   (reduce (fn [r t] (into r (queue-status (name t)))) [] (keys (jobs))))
 
-(defn clear-and-get 
-  "clears on a missing job-status" 
-  [id]
-  (let [s (get-job-status id)]
-    (if-not (empty? s) s
-      (do (wcar (clear-job-status-indices id :status)) nil)  ))) 
-
-(defn done-jobs-status 
-  "Grab done jobs statuses (changes every time due to expiry of keys)" 
-  []
-  (let [succesful (get-job-status-index :status :success)
-        erroneous (get-job-status-index :status :error)]
-    {:erroneous (filter clojure.core/identity (map clear-and-get erroneous)) 
-     :succesful (filter clojure.core/identity (map clear-and-get succesful))}))
-
 (defn by-env 
    "filter jobs status by envs" 
    [envs js]
@@ -135,7 +116,7 @@
 
 (defn jobs-status [envs]
   (map-vals  
-    (merge {:jobs (running-jobs-status)} (done-jobs-status)) 
+    {:jobs (running-jobs-status)}
     (partial by-env (into #{} envs))))
 
 (defn shutdown-workers []
