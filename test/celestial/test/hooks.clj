@@ -45,7 +45,7 @@
           (send-off hosts fail)
           (update-dns {:event :success :workflow :create :system-id 1
                        :domain "local" :dnsmasq "192.168.1.1" :user "foo" }) => truthy
-          (await-for 2000 hosts) => true
+          (await-for 4000 hosts) => true
           (agent-error hosts) => nil)   
 
     (with-redefs [execute fail]
