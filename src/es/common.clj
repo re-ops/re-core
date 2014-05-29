@@ -12,6 +12,7 @@
 
 (def ^:const types {
   :jobs {
+    :_ttl { :enabled true}
     :properties {
       :env {:type "string" :index "not_analyzed"}
       :status {:type "string"}
@@ -38,8 +39,8 @@
 
 (defn initialize 
   "Creates systems index and types" 
-  []
-  (node/start-n-connect [index])
+  [& [m & _]]
+  (node/start-n-connect [index] m)
   (when-not (idx/exists? index)
     (info "Creating index" index)
     (idx/create index :mappings types)))

@@ -34,12 +34,14 @@
 
 (defn settings 
    "embedded ES settings" 
-   []
-   (merge (get! :elasticsearch) {
+   [m]
+   (merge m (get! :elasticsearch) 
+    {
       :node.name "celestial" :cluser.name "celestial-cluster"
       :http.enabled false 
       :index.number_of_shards 1
       :index.number_of_replicas 0
+      :indices.ttl.interval 60
     }))
 
 (defn wait-for-green-health 
@@ -57,18 +59,18 @@
 
 (defn start
   "launch en embedded ES node" 
-  []
+  [m]
   (info "Starting local elasticsearch node")
-  (reset! ES (es/start-local-node (build-local-node (settings)))))
+  (reset! ES (es/start-local-node (build-local-node (settings m)))))
 
 (defn connect []
   (es/connect-to-local-node! @ES))
 
 (defn start-n-connect 
   "Both starts the node and connects to it (only) if not ready" 
-  [indices]
+  [indices & [m & _]]
   (when-not (and @ES (not (.isClosed @ES))) 
-    (start)
+    (start m)
     (connect)
     (wait-for-green-health indices) 
     ))

@@ -21,7 +21,7 @@
 (defn add-jobs
    "adds a list of systems into ES" 
    []
-  (es/initialize)
+  (es/initialize {:indices.ttl.interval 2})
   (jobs/put (-> job (merge {:tid "1" :status :success}) stamp) 2000)        
   (jobs/put (-> job (merge {:tid "2" :status :error :env :prod}) stamp) 2000)        
   (jobs/put (-> job (merge {:tid "3" :status :success :identity 2}) stamp) 2000)        
@@ -37,4 +37,10 @@
    (fact "jobs pagination" :integration :elasticsearch
      (:total (jobs/paginate 0 5 [:dev])) => 3
      (:total (jobs/paginate 0 5 [:prod]))=> 1
-     (:total (jobs/paginate 0 5 [:prod :dev])) => 4)))
+     (:total (jobs/paginate 0 5 [:prod :dev])) => 4)
+
+   (fact "expiry (ttl)" :integration :elasticsearch
+      (jobs/put (-> job (merge {:tid "foo" :status :success}) stamp) 100 :flush? true)
+      (Thread/sleep 1000)
+      (jobs/get "foo") => nil
+     )))
