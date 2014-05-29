@@ -41,6 +41,6 @@
 
    (fact "expiry (ttl)" :integration :elasticsearch
       (jobs/put (-> job (merge {:tid "foo" :status :success}) stamp) 100 :flush? true)
-      (Thread/sleep 1000)
+      (Thread/sleep 2000)
       (jobs/get "foo") => nil
      )))
