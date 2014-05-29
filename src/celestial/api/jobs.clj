@@ -128,4 +128,8 @@
         {:keys [username]} (friend/current-authentication)
         {:keys [envs] :as user} (u/get-user username)
         {:keys [total hits]} (es/paginate (* (- page* 1) offset*) offset* envs)]
-       (success {:jobs (map #(-> % :_source add-tid-link) hits) :total total}))))
+       (success {:jobs (map #(-> % :_source add-tid-link) hits) :total total})))
+  
+  (GET- "/jobs/done/:tid" [^:string tid ]
+      {:nickname "getDoneJobByTid" :summary "Get a done job using its tid"}
+     (success (es/get tid))))
