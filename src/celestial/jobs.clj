@@ -39,7 +39,7 @@
 (defn save-status
    "marks jobs as succesful" 
    [spec status]
-  (let [status-exp (* 1000 60 (or (get* :celestial :job :status-expiry) (24 60)))]
+  (let [status-exp (* 1000 60 (or (get* :celestial :job :status-expiry) (* 24 60)))]
     (es/put (merge spec {:status status :end (System/currentTimeMillis)}) status-exp) 
     {:status status}))
 
