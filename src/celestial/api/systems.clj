@@ -118,14 +118,14 @@
         (if-not (s/system-exists? id)
           (conflict {:message "System does not exists, use POST /host/system first"}) 
           (wrap-errors
-            (s/update-system id system) 
+            (s/update-system (Integer/valueOf id) system) 
             (success {:message "system updated" :id id}))))
 
   (DELETE- "/systems/:id" [^:int id] {:nickname "deleteSystem" :summary "Delete System" 
                                           :errorResponses (errors {:bad-req "System does not exist"})}
          (try+ 
              (let [spec (s/get-system! id) int-id (Integer/valueOf id)]               
-               (s/delete-system! id) 
+               (s/delete-system! int-id) 
                (success {:message "System deleted"})) 
              (catch [:type :celestial.persistency/missing-system] e 
                (bad-req {:message "System does not exist"}))))
