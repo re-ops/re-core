@@ -33,8 +33,9 @@
 
 (defn delete
    "delete a system from ES"
-   [id]
-  (doc/delete index "system" id))
+   [id & {:keys [flush?]}]
+  (doc/delete index "system" id)
+  (when flush? (flush-)))
 
 (defn get 
    "Grabs a system by an id"
