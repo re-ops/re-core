@@ -97,14 +97,15 @@
    [f & args]
      (if (map? (first args)) 
       (let [id (apply f args) spec (first args)]  
-        (es/put (str id) spec) id)
+        (es/put (str id) spec :flush? true) id)
       (apply f args)))
 
 (defn es-delete
    "reducing usage quotas for owning user on delete" 
    [f & args]
   (let [system (first (filter map? args)) id (first (filter number? args))]
-   (when-not (is-system? system) (es/delete (str id))))
+   (when-not (is-system? system) 
+     (es/delete (str id) :flush? true)))
    (apply f args))
 
 
@@ -112,11 +113,11 @@
   (get-in (get-system id) [:machine :ip]))
 
 (def hyp-to-v {
-               :physical ph/validate-entity 
-               :proxmox pv/validate-entity 
-               :docker dv/validate-entity 
-               :aws av/validate-entity 
-               :vcenter vc/validate-entity})
+   :physical ph/validate-entity 
+   :proxmox pv/validate-entity 
+   :docker dv/validate-entity 
+   :aws av/validate-entity 
+   :vcenter vc/validate-entity})
 
 (validation :type-exists (when-not-nil t/type-exists? "type not found, create it first"))
 
