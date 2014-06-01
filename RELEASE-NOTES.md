@@ -1,3 +1,11 @@
+# Celestial 0.6.5 (01/06/14):
+## Fixes:
+* Passing integer to system deletion fixing deletion in Elasticsearch aspect.
+* Flushing to Elasticsearch on each put/delete, making system API calls consistent.
+
+## New Features:
+
+
 # Celestial 0.6.4 (28/05/14):
 ## Fixes:
 
