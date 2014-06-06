@@ -1,3 +1,7 @@
+# Celestial 0.6.6 (06/06/14):
+## Fixes:
+* Fixing add in the UI.
+
 # Celestial 0.6.5 (01/06/14):
 ## Fixes:
 * Passing integer to system deletion fixing deletion in Elasticsearch aspect.
