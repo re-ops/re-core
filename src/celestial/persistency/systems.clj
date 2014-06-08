@@ -151,6 +151,11 @@
       (flatten (map #(get-system-index :env (keyword %)) envs))
       (get-system-index :owner username))))
 
+(defn re-index 
+   "Re-indexes all systems available to the current user under elasticsearch."
+   [username]
+   (es/re-index (map #(vector % (get-system %)) (systems-for username))))
+
 ; triggering env indexing and converting to keyword
 (defrecord EnvIndices [identifier]
   Migration

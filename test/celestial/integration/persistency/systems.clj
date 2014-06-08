@@ -2,6 +2,7 @@
   "systems persistency tests"
   (:import clojure.lang.ExceptionInfo)
   (:require 
+    [es.systems :as es]
     [celestial.security :refer (set-user current-user)]
     [celestial.persistency.systems :as s]
     [celestial.fixtures.core :refer (is-type? with-defaults with-conf)]
@@ -22,6 +23,9 @@
           => (throws ExceptionInfo (is-type? :celestial.persistency.systems/persmission-owner-violation)))
      (set-user {:username "admin"} 
         (mapv #(-> (Integer/valueOf %) s/get-system :env) (s/systems-for "admin")) 
-          => (has every? #{:dev :qa :prod}))
-     )))
+          => (has every? #{:dev :qa :prod})))
+     (fact "re-indexing" :integration :redis :systems
+       (get-in (es/systems-for "admin" {} 0 10) [:hits :total]) => 100
+       (set-user {:username "admin"} (s/re-index "admin"))
+       (get-in (es/systems-for "admin" {} 0 10) [:hits :total] ) => 100)))
 

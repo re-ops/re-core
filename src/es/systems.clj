@@ -13,7 +13,7 @@
   "Systems indexing/searching"
   (:refer-clojure :exclude [get])
   (:require 
-    [es.common :refer (flush- index map-env-terms)]
+    [es.common :refer (flush- index map-env-terms clear initialize)]
     [clojure.set :refer (subset?)]
     [clojure.core.strint :refer (<<)] 
     [slingshot.slingshot :refer  [throw+]] 
@@ -75,3 +75,12 @@
   [username q from size]
   (info "query for" (query-for username q))
   (query (query-for username q) :from from :size size))
+
+(defn re-index  
+   "Re-indexes a bulk of systems"
+   [systems]
+  (clear)
+  (initialize)
+  (doseq [[id s] systems] (put id s))
+  (let [[id s] (first systems)] 
+     (put id s :flush? true)))
