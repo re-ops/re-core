@@ -25,7 +25,7 @@
       [actions :refer (actions actions-ro)]
       [types :refer (types types-ro)]
       [audits :refer (audits-ro audits)]
-      [systems :refer (systems environments)] 
+      [systems :refer (systems environments systems-admin)] 
       [users :refer (users quotas users-ro)]
       [ui :refer (public sessions)]]
     [celestial.security :as sec]
@@ -42,6 +42,7 @@
   systems types-ro audits-ro actions-ro environments jobs sessions 
   (friend/wrap-authorize users-ro su)
   (friend/wrap-authorize users admin)
+  (friend/wrap-authorize systems-admin admin)
   (friend/wrap-authorize actions admin)
   (friend/wrap-authorize types admin)
   (friend/wrap-authorize audits admin)
