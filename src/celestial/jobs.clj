@@ -40,7 +40,8 @@
    "marks jobs as succesful" 
    [spec status]
   (let [status-exp (* 1000 60 (or (get* :celestial :job :status-expiry) (* 24 60)))]
-    (es/put (merge spec {:status status :end (System/currentTimeMillis)}) status-exp) 
+    (es/put (merge spec {:status status :end (System/currentTimeMillis)}) status-exp :flush? true) 
+    (trace "saved status" (merge spec {:status status :end (System/currentTimeMillis)}))
     {:status status}))
 
 (defn job-exec [f  {:keys [message attempt]}]
