@@ -186,7 +186,7 @@
   [res]
   (reduce (fn [res [k v]] (if (res k) res (update-in res [k] v ))) res {:vmid (ct-id (:node res))}))
 
-(def ct-ks [:vmid :ostemplate :cpus :disk :memory :password :hostname :nameserver :searchdomain])
+(def ct-ks [:vmid :ostemplate :cpus :disk :memory :password :hostname :nameserver :searchdomain :onboot])
 
 (def net-ks [:gateway :netmask :ip_address :netif])
 
