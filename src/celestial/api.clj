@@ -26,7 +26,7 @@
       [types :refer (types types-ro)]
       [audits :refer (audits-ro audits)]
       [systems :refer (systems environments systems-admin)] 
-      [users :refer (users quotas users-ro)]
+      [users :refer (users quotas users-ro users-current)]
       [ui :refer (public sessions)]]
     [celestial.security :as sec]
     [ring.middleware.session.cookie :refer (cookie-store)]
@@ -39,7 +39,8 @@
 (import-logging)
 
 (defroutes app-routes
-  systems types-ro audits-ro actions-ro environments jobs sessions 
+  systems types-ro audits-ro actions-ro 
+  environments jobs sessions users-current
   (friend/wrap-authorize users-ro su)
   (friend/wrap-authorize users admin)
   (friend/wrap-authorize systems-admin admin)

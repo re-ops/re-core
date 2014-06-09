@@ -4,14 +4,17 @@
     [cemerick.friend.credentials :as creds]
     [celestial.persistency.users :as u]
     [celestial.persistency.quotas :as q]
+    [cemerick.friend :as friend]
+    [celestial.roles :refer (roles roles-m)]
+    [clojure.core.strint :refer (<<)]
+    [slingshot.slingshot :refer  [throw+ try+]]
+    [swag.model :refer (defmodel wrap-swag defc)]
+    [celestial.common :refer
+     (import-logging resp bad-req conflict success wrap-errors)]
+    [swag.core :refer 
+     (swagger-routes GET- POST- PUT- DELETE- defroutes- errors)]
     ) 
-  (:use 
-    [celestial.roles :only (roles roles-m)]
-    [clojure.core.strint :only (<<)]
-    [slingshot.slingshot :only  [throw+ try+]]
-    [swag.model :only (defmodel wrap-swag defc)]
-    [celestial.common :only (import-logging resp bad-req conflict success wrap-errors)]
-    [swag.core :only (swagger-routes GET- POST- PUT- DELETE- defroutes- errors)]))
+  )
 
 (defn convert-roles [user]
   (update-in user [:roles] (fn [v] (into #{} (map #(roles-m %) v)))))
@@ -59,9 +62,15 @@
         (success (map #(dissoc (u/get-user %) :password) (u/all-users))))
   
   (GET- "/users/operations" [] {:nickname "getUsersOperations" :summary "Get all available operations (not of a specific user)."}
-        (success {:operations (map name m/operations)}))
+        (success {:operations (map name m/operations)})))
 
-  )
+(defroutes- users-current {:path "/users" :description "Logged in user info"}
+  (GET- "/users/current/operations" [] 
+      {:nickname "currentOperations" 
+       :summary "Get current logged in user operations"}
+ (success 
+   (select-keys 
+     (u/get-user (:username (friend/current-authentication))) [:operations]))))
 
 (defmodel quota :username :string :quotas {:type :Quotas})
 
