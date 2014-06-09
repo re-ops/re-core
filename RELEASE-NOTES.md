@@ -1,3 +1,9 @@
+# Celestial 0.6.7 (10/06/14):
+## Fixes:
+* Fixed basic user operation listing by introducing /users/
+## New Features:
+* Re-indexing API call the enables an admin to relload all systems back into Elasticsearch.
+
 # Celestial 0.6.6 (06/06/14):
 ## Fixes:
 * Fixing add in the UI.
