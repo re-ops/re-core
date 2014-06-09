@@ -37,7 +37,9 @@
 (def proxmox-entity
   {:proxmox {
     :type #{:required :prox-type} :vmid #{:greater-then-100}
-    :password #{:required :String} :nameserver #{:String}}})
+    :password #{:required :String} :nameserver #{:String}
+    :onboot #{:Boolean}          
+   }})
 
 (def machine-entity
   {:machine {
@@ -65,9 +67,7 @@
   {:ct {
     :vmid #{:required :number} :password #{:required :String}
     :nameserver #{:String} :hostname #{:String :fqdn :required}
-    :ostemplate #{:required :String}}})
-
-(def common-network )
+    :ostemplate #{:required :String} :onboot #{:Boolean}}})
 
 (defn provider-validation [{:keys [bridge] :as network}]
   (combine (if bridge {:network common-bridging} {})
