@@ -67,7 +67,7 @@
   {:ct {
     :vmid #{:required :number} :password #{:required :String}
     :nameserver #{:String} :hostname #{:String :fqdn :required}
-    :ostemplate #{:required :String} :onboot #{:Boolean}}})
+    :ostemplate #{:required :String} :onboot #{:Integer}}})
 
 (defn provider-validation [{:keys [bridge] :as network}]
   (combine (if bridge {:network common-bridging} {})

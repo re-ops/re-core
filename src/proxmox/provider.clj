@@ -194,15 +194,25 @@
 
 (defn template-k [k] (fn [os]  (k ((os->template :proxmox) os))))
 
-(defn transformations [{:keys [bridge interface domain ostemplate]}]
+(defn machine-ts 
+  "Construcuting machine transformations"
+  [{:keys [bridge interface domain ]}]
   (let [base {:ostemplate (template-k :template) :flavor (template-k :flavor) :hostname (fn [host] (<< "~{host}.~{domain}"))}]
-    (if (and bridge interface) (assoc base :netif (fn [_] (<< "ifname=~{interface},bridge=~{bridge}"))) base)))
+    (if (and bridge interface) 
+      (assoc base :netif (fn [_] (<< "ifname=~{interface},bridge=~{bridge}"))) base)))
+
+(defn proxmox-ts 
+   "Construcuting Proxmox transformations" 
+   [{:keys [onboot]}]
+   {:onboot {true 1 false 0 nil 0}}
+  )
 
 (defmethod translate :proxmox [{:keys [machine proxmox system-id] :as spec}]
   "Convert the general model into a proxmox vz specific one"
   (-> (merge machine proxmox {:system-id system-id})
       (mappings {:ip :ip_address :os #{:ostemplate :flavor} :domain :searchdomain})
-      (transform (transformations machine))
+      (transform (machine-ts machine))
+      (transform (proxmox-ts machine))
       generate (selections [ct-ks ex-ks net-ks])))
 
 (defmethod vconstruct :proxmox [{:keys [proxmox] :as spec}]
