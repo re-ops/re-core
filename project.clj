@@ -29,13 +29,6 @@
                  [ch.qos.logback/logback-classic "1.0.13"]
                  [org.codehaus.groovy/groovy "2.1.6"]
                  [supernal "0.4.0"]
-                 [ring-middleware-format "0.3.0"]
-                 [ring/ring-jetty-adapter "1.2.0"]
-                 [ring "1.2.0"]
-                 [metrics-clojure "1.0.1"]
-                 [metrics-clojure-ring "1.0.1"]
-                 [compojure "1.1.5" :exclusions  [ring/ring-core]]
-                 [com.cemerick/friend "0.2.0"]
                  [org.clojure/tools.macro "0.1.2"]
                  [org.clojure/java.data "0.1.1"]
                  [org.nmap4j/org.nmap4j "1.0.4"]
@@ -44,6 +37,12 @@
                  [camel-snake-kebab "0.1.2"]
                  ; elastic search 
                  [clojurewerkz/elastisch "2.0.0-beta3"]
+                 ; ring
+                 [ring-middleware-format "0.3.0"]
+                 [ring/ring-jetty-adapter "1.2.0"]
+                 [ring "1.3.0"]
+                 [compojure "1.1.8" :exclusions  [ring/ring-core]]
+                 [com.cemerick/friend "0.2.0"] 
                  ]
 
   :exclusions [org.clojure/clojure]

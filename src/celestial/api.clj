@@ -15,7 +15,6 @@
     [celestial.roles :refer (admin su)]
     [ring.middleware.format :refer [wrap-restful-format]]
     [ring.middleware.params :refer (wrap-params)]
-    [metrics.ring.instrument :refer  (instrument)]
     [swag.model :refer (wrap-swag)]
     [celestial.common :refer (import-logging get! version)]
     [compojure.core :refer (defroutes routes)] 
@@ -78,5 +77,4 @@
       (wrap-session {:cookie-name "celestial" :store (cookie-store)})
       (wrap-restful-format :formats [:json-kw :edn :yaml-kw :yaml-in-html])
       (handler/api)
-      (instrument)
       (error-wrap)))
