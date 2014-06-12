@@ -15,6 +15,7 @@
     [celestial.roles :refer (admin su)]
     [ring.middleware.format :refer (wrap-restful-format)]
     [ring.middleware.session-timeout :refer (wrap-idle-session-timeout)]
+    [ring.middleware.x-headers :refer (wrap-frame-options)]
     [swag.model :refer (wrap-swag)]
     [celestial.common :refer (import-logging get! version)]
     [compojure.core :refer (defroutes routes)] 
@@ -78,4 +79,5 @@
       (wrap-session {:cookie-name "celestial" :store (cookie-store) :cookie-attrs {:secure true :max-age 3600}})
       (wrap-restful-format :formats [:json-kw :edn :yaml-kw :yaml-in-html])
       (handler/api)
+      (wrap-frame-options :deny)
       (error-wrap)))

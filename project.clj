@@ -45,6 +45,7 @@
                  ; ring security
                  [com.cemerick/friend "0.2.0"] 
                  [ring/ring-session-timeout "0.1.0"]
+                 [ring/ring-headers "0.1.0"] 
                  ]
 
   :exclusions [org.clojure/clojure]
