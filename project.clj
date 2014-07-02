@@ -99,6 +99,8 @@
 
        :prod {
          :resource-paths  ["src/main/resources/" "pkg/etc/celestial/"] 
+         :jvm-opts ["-XX:MaxPermSize=512m"]
+
         } 
     }
 
