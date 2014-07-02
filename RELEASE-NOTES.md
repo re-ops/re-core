@@ -1,3 +1,11 @@
+# Celestial 0.6.8 (02/07/14):
+
+## Fixes:
+* Enabling secure http headers and session timeout.
+## New Features:
+* Adding m3/c3/r3 AWS instance type to the UI.
+* Adding on boot startup option for Proxmox.
+
 # Celestial 0.6.7 (10/06/14):
 ## Fixes:
 * Fixed basic user operation listing by introducing /users/
