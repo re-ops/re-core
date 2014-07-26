@@ -49,7 +49,6 @@
         (success {:message msg :id id :job (enqueue action m)})))))
 
 (defroutes- jobs {:path "/jobs" :description "Async job scheduling"}
-
   (POST- "/jobs/stage/:id" [^:int id] 
     {:nickname "stageSystem" :summary "Complete end to end staging job"
      :notes "Combined system creation and provisioning, separate actions are available also."}
@@ -94,10 +93,11 @@
            (schedule-job id "provision" "submitted provisioning" 
               [type (assoc system :system-id (Integer. ^String id))])))
 
-  (POST- "/jobs/clone/:id" [^:int id & ^:hash clone-spec] 
+  (POST- "/jobs/clone/:id" [^:int id & ^:hash spec] 
      {:nickname "cloneSystem" :summary "Clones a system" 
       :notes "Clones a system by copying its model and replacing unique identifiers."}
-      (schedule-job id "clone" (<< "submitted cloning") [id clone-spec]))
+      (schedule-job id "clone" "submitted cloning" 
+        [(assoc spec :system-id (Integer. ^String id))]))
 
   (POST- "/jobs/:action/:id" [^:string action ^:int id & ^:hash args] 
      {:nickname "runAction" :summary "Run remote action" 
