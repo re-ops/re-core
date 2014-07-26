@@ -36,6 +36,7 @@
      :instance-type #{:required :String} :key-name #{:required :String}
      :endpoint #{:required :String} :volumes #{:volume*}
      :security-groups #{:Vector :group*} :availability-zone #{:String}
+     :ebs-optimized #{:required :Boolean}
     }})
 
 
@@ -49,6 +50,7 @@
   {:instance-type #{:required :String} :key-name #{:required :String}
    :placement {:availability-zone #{:String}} :security-groups #{:Vector :group*}
    :min-count #{:required :Integer} :max-count #{:required :Integer} 
+   :ebs-optimized #{:required :Boolean}
    })
 
 (defn provider-validation [{:keys [aws] :as spec}]

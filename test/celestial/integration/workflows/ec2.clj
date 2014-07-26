@@ -74,6 +74,12 @@
         (wf/clone 1 {:hostname "bar" :owner "ronen"}) => nil
         (wf/destroy (assoc (s/get-system 2) :system-id 2)) => nil
         (wf/destroy (spec)) => nil)
+
+      (fact "aws ebs-optimized" :integration :ec2 :workflow
+        (wf/create (-> (spec) 
+          (assoc-in [:aws :instance-type] "m1.large")            
+          (assoc-in [:aws :ebs-optimized] true))) => nil
+        (wf/destroy (spec)) => nil)
       ) 
 
   (with-state-changes [(before :facts (populate-system redis-type redis-ec2-centos))]

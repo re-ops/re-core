@@ -49,7 +49,7 @@
 
 (defn creation-keys [aws]
   (clojure.set/subset? (into #{} (keys aws))
-    #{:volumes :min-count :max-count :instance-type 
+    #{:volumes :min-count :max-count :instance-type :ebs-optimized
       :key-name :placement :security-groups}))
 
 (defn create-instance 
