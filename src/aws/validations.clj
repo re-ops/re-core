@@ -13,7 +13,7 @@
   "AWS based validations"
   (:require 
     [clojure.core.strint :refer (<<)]
-    [subs.core :as subs :refer (validate! combine every-v every-kv validation)]))
+    [subs.core :as subs :refer (validate! combine every-v every-kv validation when-not-nil)]))
 
 (def machine-entity
   {:machine {
@@ -21,10 +21,14 @@
      :user #{:required :String} :os #{:required :Keyword} 
   }})
 
+(def ebs-type #{"io1" "standard" "gp2"})
+
+(validation :ebs-type
+  (when-not-nil (<< "EBS type must be either ~{ebs-type}")))
 
 (validation :volume {
     :device #{:required :String} :size #{:required :Integer}
-    :clear #{:require :Boolean}
+    :clear #{:require :Boolean} :volume-type #{:required :ebs-type}
    })
 
 (validation :volume* (every-v #{:volume}))

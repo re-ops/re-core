@@ -36,15 +36,16 @@
    (with-ctx ec2/describe-volumes {:volume-ids [volume-id]})
     :volumes first (get-in ks)))
 
+; TODO add : standard, io1, gp2 volume-type
 (defn handle-volumes 
    "attaches and waits for ebs volumes" 
    [{:keys [aws machine] :as spec} endpoint instance-id]
   (when (= (image-desc endpoint (image-id machine) :root-device-type) "ebs")
     (wait-for-attach endpoint instance-id [10 :minute]))
   (let [zone (instance-desc endpoint instance-id :placement :availability-zone)]
-    (doseq [{:keys [device size]} (aws :volumes)
-            :let [{:keys [volume]} 
-                  (with-ctx ec2/create-volume {:size size :availability-zone zone}) 
+    (doseq [{:keys [device size volume-type]} (aws :volumes)
+            :let [v {:size size :availability-zone zone :volume-type volume-type}
+                  {:keys [volume]} (with-ctx ec2/create-volume v) 
                   {:keys [volume-id]} volume]]
         (wait-for {:timeout [10 :minute]} 
            #(= "available" (volume-desc endpoint volume-id :state))

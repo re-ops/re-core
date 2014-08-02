@@ -41,7 +41,7 @@
           ))
 
       (fact "aws with volumes" :integration :ec2 :workflow
-        (let [with-vol {:aws {:volumes [{:device "/dev/sdn" :size 10 :clear true}]}}]
+        (let [with-vol {:aws {:volumes [{:device "/dev/sdn" :size 10 :clear true :volume-type "standard" }]}}]
           (wf/create (spec with-vol)) => nil
           (wf/reload (spec with-vol)) => nil 
           (wf/destroy (spec with-vol)) => nil))
