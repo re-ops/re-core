@@ -64,12 +64,24 @@
                (with-m? {:roles '({0 "role must be either #{:celestial.roles/super-user :celestial.roles/anonymous :celestial.roles/user :celestial.roles/admin :celestial.roles/system}"})} ))
       )
 
+(fact "aws volume validations"
+  (awsv/validate-entity  
+    (merge-with merge redis-ec2-spec 
+      {:aws {:volumes [{:device "do" :volume-type "gp2"}]}})) => {}
+
+  (awsv/validate-entity  
+    (merge-with merge redis-ec2-spec 
+      {:aws {:volumes [{:device "do" :volume-type "io1" :iops 100}]}})) => {}
+
+  (awsv/validate-entity  
+    (merge-with merge redis-ec2-spec 
+      {:aws {:volumes [{:device "do" :volume-type "io1"}]}})) => 
+      (throws ExceptionInfo 
+        (with-m?  {:aws {:volumes '({0 "iops required if io1 type is used"})}})))
+
 (fact "aws entity validations" 
   (awsv/validate-entity redis-ec2-spec) => {}
-  ; TODO looks like a subs issue
-  #_(awsv/validate-entity  
-    (merge-with merge redis-ec2-spec {:aws {:volumes [{:device "do"}]}} )) => {}
-
+  
   (awsv/validate-entity 
     (merge-with merge redis-ec2-spec {:aws {:security-groups [1]}})) =>
     (throws ExceptionInfo (with-m? {:aws {:security-groups '({0 "must be a string"})}}))
@@ -89,9 +101,7 @@
    (awsv/provider-validation 
      (merge-with merge base {:aws {:placement {:availability-zone 1}}})) => 
     (throws ExceptionInfo 
-      (with-m? {:placement {:availability-zone "must be a string"}})))
-      
-      )
+      (with-m? {:placement {:availability-zone "must be a string"}}))))
 
 
 (fact "physical systmes validation" 

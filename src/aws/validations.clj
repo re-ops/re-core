@@ -29,9 +29,14 @@
 (validation :volume {
     :device #{:required :String} :size #{:required :Integer}
     :clear #{:require :Boolean} :volume-type #{:required :ebs-type}
+    :iops #{:Integer}
    })
 
-(validation :volume* (every-v #{:volume}))
+(validation :iops 
+  (fn [{:keys [volume-type iops]}] 
+    (when (and (= volume-type "io1") (nil? iops)) "iops required if io1 type is used"))) 
+
+(validation :volume* (every-v #{:volume :iops}))
 
 (validation :group* (every-v #{:String}))
 
@@ -47,7 +52,7 @@
 (defn validate-entity 
   "aws based systems entity validation " 
   [aws]
-  (validate! aws (combine machine-entity aws-entity) :error ::invalid-system ))
+  (validate! aws (combine machine-entity aws-entity) :error ::invalid-system))
 
 
 (def aws-provider
