@@ -11,6 +11,7 @@
 
 ## Fixes:
 * Enabling secure http headers and session timeout.
+
 ## New Features:
 * Adding m3/c3/r3 AWS instance type to the UI.
 * Adding on boot startup option for Proxmox.
@@ -18,6 +19,7 @@
 # Celestial 0.6.7 (10/06/14):
 ## Fixes:
 * Fixed basic user operation listing by introducing /users/
+
 ## New Features:
 * Re-indexing API call the enables an admin to relload all systems back into Elasticsearch.
 
