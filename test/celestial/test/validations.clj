@@ -65,6 +65,11 @@
       )
 
 (fact "aws volume validations"
+  ; TODO this should fail! seems to be a subs issue
+  (awsv/validate-entity  
+    (merge-with merge redis-ec2-spec 
+      {:aws {:volumes [{:device "do"}]}})) => {}
+
   (awsv/validate-entity  
     (merge-with merge redis-ec2-spec 
       {:aws {:volumes [{:device "do" :volume-type "gp2"}]}})) => {}
