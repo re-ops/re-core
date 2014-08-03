@@ -1,10 +1,11 @@
-# Celestial 0.6.9 (31/07/14):
+# Celestial 0.6.9 (4/08/14):
 
 ## Fixes:
 * Fixing Cloning (both UI and backend).
 
 ## New Features:
 * Supporting EBS optimized instances.
+* Supporting EBS types.
 
 # Celestial 0.6.8 (02/07/14):
 
