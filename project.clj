@@ -24,7 +24,7 @@
                  [amazonica "0.2.24"]
                  [narkisr/trammel "0.8.0-freez"]
                  [org.flatland/useful "0.10.3"]
-                 [substantiation "0.1.3"]
+                 [substantiation "0.2.0"]
                  [fogus/minderbinder "0.2.0"]
                  [ch.qos.logback/logback-classic "1.0.13"]
                  [org.codehaus.groovy/groovy "2.1.6"]
