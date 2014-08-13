@@ -24,11 +24,11 @@
 (def ebs-type #{"io1" "standard" "gp2"})
 
 (validation :ebs-type
-  (when-not-nil (<< "EBS type must be either ~{ebs-type}")))
+  (when-not-nil ebs-type (<< "EBS type must be either ~{ebs-type}")))
 
 (validation :volume {
     :device #{:required :String} :size #{:required :Integer}
-    :clear #{:require :Boolean} :volume-type #{:required :ebs-type}
+    :clear #{:required :Boolean} :volume-type #{:required :ebs-type}
     :iops #{:Integer}
    })
 
@@ -36,14 +36,16 @@
   (fn [{:keys [volume-type iops]}] 
     (when (and (= volume-type "io1") (nil? iops)) "iops required if io1 type is used"))) 
 
-(validation :volume* (every-v #{:volume :iops}))
+(validation :volume* (every-v #{:volume}))
+
+(validation :io-volume*  (every-v #{:iops}))
 
 (validation :group* (every-v #{:String}))
 
 (def aws-entity
   {:aws {
      :instance-type #{:required :String} :key-name #{:required :String}
-     :endpoint #{:required :String} :volumes #{:volume*}
+     :endpoint #{:required :String} :volumes #{:volume* :io-volume*}
      :security-groups #{:Vector :group*} :availability-zone #{:String}
      :ebs-optimized #{:Boolean}
     }})

@@ -68,19 +68,22 @@
   ; TODO this should fail! seems to be a subs issue
   (awsv/validate-entity  
     (merge-with merge redis-ec2-spec 
-      {:aws {:volumes [{:device "do"}]}})) => {}
+      {:aws {:volumes [{:device "do"}]}})) => 
+      (throws ExceptionInfo 
+        (with-m? 
+          '{:aws {:volumes ({0 {:clear "must be present", :size "must be present", :volume-type "must be present"}})}}))
 
   (awsv/validate-entity  
     (merge-with merge redis-ec2-spec 
-      {:aws {:volumes [{:device "do" :volume-type "gp2"}]}})) => {}
+      {:aws {:volumes [{:device "do" :volume-type "gp2" :size 100 :clear true}]}})) => {}
 
   (awsv/validate-entity  
     (merge-with merge redis-ec2-spec 
-      {:aws {:volumes [{:device "do" :volume-type "io1" :iops 100}]}})) => {}
+      {:aws {:volumes [{:device "do" :volume-type "io1" :iops 100 :size 10 :clear false}]}})) => {}
 
   (awsv/validate-entity  
     (merge-with merge redis-ec2-spec 
-      {:aws {:volumes [{:device "do" :volume-type "io1"}]}})) => 
+      {:aws {:volumes [{:device "do" :volume-type "io1" :size 10 :clear false}]}})) => 
       (throws ExceptionInfo 
         (with-m?  {:aws {:volumes '({0 "iops required if io1 type is used"})}})))
 
