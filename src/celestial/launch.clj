@@ -79,7 +79,7 @@
   (start-all components)
   (info (slurp (resource "main/resources/celestial.txt")))
   (info (<<  "version ~{version} see http://celestial-ops.com"))
-  components
+   components
   )
 
 (defn stop 
