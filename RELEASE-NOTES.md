@@ -1,3 +1,12 @@
+# Celestial 0.6.10 (14/08/14):
+
+## Fixes:
+* Fixing EBS volume validations (using composite validations with latest substantiation library).
+* Moving to GELF 1.1 fixing Elastic facility parse error in the process (using latest gelfino-client library).
+
+## New Features:
+
+
 # Celestial 0.6.9 (4/08/14):
 
 ## Fixes:
