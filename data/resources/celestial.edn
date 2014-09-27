@@ -99,10 +99,13 @@
 
  :hooks {
    ;; hooks.hubot/notify-hubot {
-   ;;      :hubot-host "http://192.168.5.14:8083" 
+   ;;   :hubot-host "http://192.168.5.14:8083" 
    ;; }
    ;; hooks.dnsmasq/update-dns {
-   ;;      :dnsmasq "192.168.20.180" :user "ronen" :domain "local"
+   ;;   :dnsmasq "192.168.20.180" :user "ronen" :domain "local"
    ;; }
+   ;; hooks.tinymasq/update-dns {
+   ;;   :tinymasq "https://192.168.1.10:8444" :user "ronen" :password "changeme" :domain "local"
+   ;; }     ;;
  }
 }
