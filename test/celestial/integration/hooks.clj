@@ -27,4 +27,5 @@
       (set-user {:username "admin"}
         (s/update-system 1 (merge-with merge (s/get-system 1) machine))
         (update-dns create) => "host added"
+        (update-dns reload) => "host updated"
         (remove-host delete) => "host removed"))))
