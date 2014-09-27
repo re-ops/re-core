@@ -21,7 +21,7 @@
                  [org.clojure/data.json "0.2.2" ]
                  [com.taoensso/carmine "2.0.0"]
                  [org.clojure/core.memoize "0.5.2" :exclusions [org.clojure/core.cache]]
-                 [amazonica "0.2.24"]
+                 [amazonica "0.2.24" :exclusions [org.clojure/clojure joda-time]]
                  [narkisr/trammel "0.8.0-freez"]
                  [org.flatland/useful "0.10.3"]
                  [substantiation "0.2.1"]
@@ -52,7 +52,8 @@
 
   :plugins  [[jonase/eastwood "0.1.3"] 
              [self-build "0.0.6"]
-             [lein-ancient "0.4.2"] [lein-tar "2.0.0" ]
+             [lein-ancient "0.4.2" :exclusions [org.clojure/clojure]] 
+             [lein-tar "2.0.0" ]
              [lein-tag "0.1.0"] [lein-set-version "0.3.0"]
              [topping "0.0.2"] [self-build "0.0.3"]]
 
