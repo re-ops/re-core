@@ -23,7 +23,7 @@
 
 (with-conf
   (with-state-changes [(before :facts (set-user {:username "admin"} (populate-all)))]
-    (fact "adding a new host" :hooks :tinymasq :integration
+    (fact "adding a new host" :integration :hooks :tinymasq 
       (set-user {:username "admin"}
         (s/update-system 1 (merge-with merge (s/get-system 1) machine))
         (update-dns create) => "host added"
