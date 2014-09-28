@@ -12,6 +12,7 @@
 (ns hooks.tinymasq
   "Tinymasq registration hook for static addresses using hosts file: "
   (:require 
+    [slingshot.slingshot :refer  [throw+ try+]]
     [clojure.data.json :refer (write-str)]
     [clj-http.client :as client]
     [celestial.persistency.systems :as s] 
@@ -25,12 +26,16 @@
 
 (defn call 
   "calls remote tinymasq" 
-  [verb machine {:keys [user password domain tinymasq]}]
-    (:body 
-      (verb (<< "~{tinymasq}/hosts")
-        {:body (into-json domain machine) :basic-auth  [user password]
-         :content-type :json :socket-timeout 1000 
-         :conn-timeout 1000 :accept :json :insecure? true})))
+  [verb machine {:keys [user password domain tinymasq] :as args}]
+    (debug verb (dissoc args :password))
+    (try+
+      (:body 
+        (verb (<< "~{tinymasq}/hosts")
+          {:body (into-json domain machine) :basic-auth  [user password]
+           :content-type :json :socket-timeout 1000 
+           :conn-timeout 1000 :accept :json :insecure? true}))
+      (catch [:status 401] e 
+        (error "Auth fail check tinymasq user/password") (throw+ e))))
 
 (defn update-host 
   [{:keys [system-id] :as args}]
