@@ -87,5 +87,9 @@
    ;; hooks.dnsmasq/update-dns {
    ;;      :dnsmasq "1.2.3.4" :user "" :domain ""
    ;; }
+   ;; hooks.tinymasq/update-dns {
+   ;;   :tinymasq "https://192.168.1.10:8444" :user "admin" :password "changeme" :domain "local"
+   ;; }
+
  }
 }

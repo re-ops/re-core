@@ -105,7 +105,7 @@
    ;;   :dnsmasq "192.168.20.180" :user "ronen" :domain "local"
    ;; }
    ;; hooks.tinymasq/update-dns {
-   ;;   :tinymasq "https://192.168.1.10:8444" :user "ronen" :password "changeme" :domain "local"
-   ;; }     ;;
+   ;;   :tinymasq "https://192.168.1.10:8444" :user "admin" :password "changeme" :domain "local"
+   ;; }
  }
 }
