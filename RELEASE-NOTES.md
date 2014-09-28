@@ -1,3 +1,10 @@
+# Celestial 0.7.0 (29/09/14):
+
+## Fixes:
+
+## New Features:
+* Supporting [tinymasq](https://github.com/narkisr/tinymasq) tinymasq as a dns server using a new hook.
+
 # Celestial 0.6.10 (14/08/14):
 
 ## Fixes:
