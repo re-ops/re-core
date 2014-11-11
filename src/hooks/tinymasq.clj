@@ -57,5 +57,5 @@
  })
 
 (defn update-dns [{:keys [event workflow] :as args}]
-  ((get-in actions [workflow event] (fn [_ _] nil)) args))
+  ((get-in actions [workflow event] (fn [_] nil)) args))
 
