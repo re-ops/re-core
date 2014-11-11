@@ -1,3 +1,9 @@
+# Celestial 0.7.1 (29/09/14):
+
+## Fixes:
+
+* Fixing default fn in tinymasq update-dns hook fn.
+
 # Celestial 0.7.0 (29/09/14):
 
 ## Fixes:
