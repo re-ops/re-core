@@ -1,3 +1,9 @@
+# Celestial 0.7.2 (20/11/14):
+
+## New Features:
+
+* Adding jobs reset api call.
+
 # Celestial 0.7.1 (29/09/14):
 
 ## Fixes:
