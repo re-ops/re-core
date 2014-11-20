@@ -22,6 +22,7 @@
     [celestial.persistency [types :as t] [users :as u]]
     [celestial.persistency.actions :refer (find-action-for)]
     [celestial.jobs :as jobs :refer (enqueue)]
+    [celestial.redis :refer (clear-locks)]
     [es.jobs :as es]
     [swag.core :refer (GET- POST- PUT- DELETE- defroutes- errors)]
     [celestial.security :refer (current-user)]
@@ -129,7 +130,13 @@
         {:keys [envs] :as user} (u/get-user username)
         {:keys [total hits]} (es/paginate (* (- page* 1) offset*) offset* envs)]
        (success {:jobs (map #(-> % :_source add-tid-link) hits) :total total})))
-  
+
+  (POST- "/jobs/reset" []
+      {:nickname "reset" :summary "Reset all jobs and locks"}
+       (jobs/clear-all)
+       (clear-locks)
+       (success "jobs cleared"))
+
   (GET- "/jobs/done/:tid" [^:string tid ]
       {:nickname "getDoneJobByTid" :summary "Get a done job using its tid"}
     (let [job (es/get tid)]
