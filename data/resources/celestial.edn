@@ -11,13 +11,14 @@
       }
    }
 
-   ;; :job {
+   :job {
+      :reset-on :shutdown
    ;;   :status-expiry 5
    ;;   :lock {
    ;;    :expiry 30
    ;;    :wait-time 5
    ;;   }
-   ;; }
+   }
 
    :cert {
      :password "foobar" 

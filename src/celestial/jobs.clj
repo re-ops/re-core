@@ -36,10 +36,15 @@
 
 (def defaults {:wait-time 5 :expiry 30})
 
+(defn job* 
+  "Get job conf value"
+   [& ks]
+   (get-in (partial get* :celestial :job) ks))
+
 (defn save-status
    "marks jobs as succesful" 
    [spec status]
-  (let [status-exp (* 1000 60 (or (get* :celestial :job :status-expiry) (* 24 60)))]
+  (let [status-exp (* 1000 60 (or (job* :status-expiry) (* 24 60)))]
     (es/put (merge spec {:status status :end (System/currentTimeMillis)}) status-exp :flush? true) 
     (trace "saved status" (merge spec {:status status :end (System/currentTimeMillis)}))
     {:status status}))
@@ -51,7 +56,7 @@
     (set-user user
       (set-env env
         (set-tid tid 
-           (let [{:keys [wait-time expiry]} (map-vals (or (get* :celestial :job :lock) defaults) #(* minute %) )]
+           (let [{:keys [wait-time expiry]} (map-vals (or (job* :lock) defaults) #(* minute %) )]
             (try 
               (if identity
                 (do (with-lock (server-conn) identity expiry wait-time (apply f args))
@@ -75,7 +80,7 @@
   (doseq [[q [f c]] (jobs)]
     (swap! workers assoc q (create-wks q f c))))
 
-(defn clear-all []
+(defn clear-queues []
   (apply mq/clear-queues (server-conn) (mapv name (keys (jobs)))))
 
 (defn enqueue 
@@ -126,24 +131,22 @@
       (trace "Shutting down" k w) 
       (mq/stop w))))
 
-(defn clean-shutdown
-  "Clear jobs and shutdown workers"
-  []
-  (shutdown-workers)
-  (clear-all))
-
 (defrecord Jobs
   []
   Lifecyle
   (setup [this]) 
   (start [this] 
     (info "Starting job workers")
+    #_(when (= (job* :reset-on) :start)
+     (clear-queues) 
+     (clear-locks))
     (initialize-workers))
   (stop [this]
-   (info "Stopping job workers")
-   (clean-shutdown) 
-   (clear-locks))
-  )
+    (info "Stopping job workers")
+    (shutdown-workers)
+    (when (= (job* :reset-on) :shutdown)
+      (clear-queues) 
+      (clear-locks))))
 
 (defn instance 
    "creats a jobs instance" 

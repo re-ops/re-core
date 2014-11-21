@@ -43,12 +43,18 @@
        :host #{:required :String} :type #{:required :central-logging}
       }}}})
 
+(def reset-options #{:shutdown :start})
+
+(validation :reset-options
+  (when-not-nil reset-options (<< "type must be either ~{reset-options}")))
+
 (def ^{:doc "job settings"} job-v
   {:celestial {
     :job {
-      :status-expiry #{:required :number}
+      :reset-on #{:required :reset-options}
+      :status-expiry #{:number}
       :lock {
-        :expiry #{:required :number} :wait-time #{:required :number}
+        :expiry #{:number} :wait-time #{:number}
       }
     }}}
   )

@@ -133,7 +133,7 @@
 
   (POST- "/jobs/reset" []
       {:nickname "reset" :summary "Reset all jobs and locks"}
-       (jobs/clear-all)
+       (jobs/clear-queues)
        (clear-locks)
        (success "jobs cleared"))
 
