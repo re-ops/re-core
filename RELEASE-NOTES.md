@@ -1,3 +1,8 @@
+# Celestial 0.7.3 (22/11/14):
+## New Features:
+
+* Adding jobs reset on start/stop option.
+
 # Celestial 0.7.2 (20/11/14):
 
 ## New Features:
