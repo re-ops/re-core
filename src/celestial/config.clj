@@ -43,7 +43,7 @@
        :host #{:required :String} :type #{:required :central-logging}
       }}}})
 
-(def reset-options #{:shutdown :start})
+(def reset-options #{:stop :start})
 
 (validation :reset-options
   (when-not-nil reset-options (<< "type must be either ~{reset-options}")))

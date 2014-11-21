@@ -39,7 +39,7 @@
 (defn job* 
   "Get job conf value"
    [& ks]
-   (get-in (partial get* :celestial :job) ks))
+   (get-in (get* :celestial :job) ks))
 
 (defn save-status
    "marks jobs as succesful" 
@@ -81,6 +81,7 @@
     (swap! workers assoc q (create-wks q f c))))
 
 (defn clear-queues []
+  (info "Clearing job queues")
   (apply mq/clear-queues (server-conn) (mapv name (keys (jobs)))))
 
 (defn enqueue 
@@ -136,15 +137,15 @@
   Lifecyle
   (setup [this]) 
   (start [this] 
-    (info "Starting job workers")
-    #_(when (= (job* :reset-on) :start)
-     (clear-queues) 
-     (clear-locks))
-    (initialize-workers))
+     (info "Starting job workers" (job* :reset-on))
+     (when (= (job* :reset-on) :start)
+       (clear-queues) 
+       (clear-locks))
+       (initialize-workers))
   (stop [this]
     (info "Stopping job workers")
     (shutdown-workers)
-    (when (= (job* :reset-on) :shutdown)
+    (when (= (job* :reset-on) :stop)
       (clear-queues) 
       (clear-locks))))
 

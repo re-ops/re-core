@@ -41,7 +41,7 @@
 (def ^:private lkey (partial car/kname "carmine" "lock"))
 
 (defn clear-locks []
-  (trace "Clearing locks")
+  (info "Clearing locks")
   (when-let [lkeys (seq (wcar (car/keys (lkey "*"))))]
     (wcar (apply car/del lkeys))))
 
