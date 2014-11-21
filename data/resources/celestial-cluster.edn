@@ -8,10 +8,11 @@
      :gelf-host "192.168.5.9"
    }
 
-   ;; :job {
-   ;;    :expiry 30
-   ;;    :wait-time 5
-   ;; }
+   :job {
+     :reset-on :stop
+    ;; :expiry 30
+    ;; :wait-time 5
+   }
 
    :cert {
      :password "foobar" 

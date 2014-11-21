@@ -12,7 +12,7 @@
    }
 
    :job {
-      :reset-on :shutdown
+      :reset-on :stop
    ;;   :status-expiry 5
    ;;   :lock {
    ;;    :expiry 30
