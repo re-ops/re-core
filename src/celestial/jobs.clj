@@ -137,11 +137,11 @@
   Lifecyle
   (setup [this]) 
   (start [this] 
-     (info "Starting job workers" (job* :reset-on))
-     (when (= (job* :reset-on) :start)
-       (clear-queues) 
-       (clear-locks))
-       (initialize-workers))
+    (info "Starting job workers")
+    (when (= (job* :reset-on) :start)
+      (clear-queues) 
+      (clear-locks))
+      (initialize-workers))
   (stop [this]
     (info "Stopping job workers")
     (shutdown-workers)
