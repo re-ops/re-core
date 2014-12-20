@@ -1,5 +1,11 @@
-# Celestial 0.7.4 (22/11/14):
+# Celestial 0.7.5 (21/12/14):
+## Fixes:
+
+* Fixing missing hostname in done jobs
+
+# Celestial 0.7.4 (20/12/14):
 ## New Features:
+
 
 * Adding proxmox task-timeout configuration option, this enables to set the timeout of all proxmox tasks (such as create, destroy etc..).
 * Listing hostname under jobs view and shortening date format.
