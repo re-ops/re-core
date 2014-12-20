@@ -131,6 +131,7 @@
 
   (GET- "/systems/:id/type" [^:int id] {:nickname "getSystemType" :summary "Fetch type of provided system id"}
         (success (t/get-type (:type (s/get-system id))))))
+
 (defroutes- systems-admin {:path "/systems" :description "Operations on Systems"}
 
   (POST- "/systems/reindex" [] 
@@ -138,6 +139,7 @@
       (wrap-errors (success (s/re-index (working-username)))))
 
   )
+
 (defroutes- environments {:path "/environments" :description "Operations on environments"}
   (GET- "/environments" [] {:nickname "getEnvironments" :summary "Get sanitized environments for current user"}
      (let [{:keys [envs] :as user} (u/get-user (working-username))]
