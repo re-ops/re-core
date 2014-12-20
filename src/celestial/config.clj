@@ -94,7 +94,7 @@
 (def ^{:doc "proxmox section validation"} proxmox-v 
   {:proxmox { 
      :master #{:required :Keyword} :nodes #{:required :node*} 
-     :ostemplates #{:template*}}})
+     :ostemplates #{:template*} :task-timeout #{:number}}})
 
 (def ^{:doc "aws section validation"} aws-v 
   {:aws {:access-key #{:required :String} :secret-key #{:required :String}}})

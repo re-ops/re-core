@@ -20,11 +20,11 @@
     [slingshot.slingshot :only  [throw+ try+]]
     [clojure.set :only (difference)]
     [proxmox.generators :only (ct-id)]
-    [celestial.model :only (translate vconstruct)])
+    [celestial.model :only (translate vconstruct hypervisor)])
   (:require 
     [celestial.provider :refer 
        (selections mappings transform os->template wait-for wait-for-ssh)]
-    [celestial.common :refer (import-logging)]
+    [celestial.common :refer (import-logging get*)]
     [proxmox.model :refer (get-node)]
     [proxmox.validations :refer (validate-provider)]
     [me.raynes.fs :refer (delete-dir temp-dir)]
@@ -50,7 +50,7 @@
 (defn check-task
   "Checking that a proxmox task has succeeded"
   [node upid]
-  (wait-for {:timeout [5 :minute]} 
+  (wait-for {:timeout [(or (hypervisor :proxmox :task-timeout) 5) :minute]} 
     (fn [] 
        (debug "Waiting for task" upid "to end")
        (not= "running" (:status (task-status node upid))))      
