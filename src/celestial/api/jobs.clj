@@ -35,12 +35,6 @@
 (defn add-tid-link [{:keys [tid] :as job}]
   (assoc job :tid-link (link "query=tid:~{tid}&fields=@timestamp,message,tid," {:tid tid})))
 
-(defn add-host [{:keys [identity] :as job}]
-  (assoc job :hostname (get-in (s/get-system identity) [:machine :hostname])))
-
-(defn enrich-job [job]
-  (-> job add-tid-link add-host))
-
 (defn schedule-job 
   ([^String id action msg]
     (schedule-job id action msg [(assoc (s/get-system id) :system-id (Integer. id))])) 
@@ -135,7 +129,7 @@
         {:keys [username]} (friend/current-authentication)
         {:keys [envs] :as user} (u/get-user username)
         {:keys [total hits]} (es/paginate (* (- page* 1) offset*) offset* envs)]
-       (success {:jobs (doall (map #(-> % :_source enrich-job) hits)) :total total})))
+       (success {:jobs (doall (map #(-> % :_source add-tid-link) hits)) :total total})))
 
   (POST- "/jobs/reset" []
       {:nickname "reset" :summary "Reset all jobs and locks"}

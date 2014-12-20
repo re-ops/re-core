@@ -17,6 +17,7 @@
     [celestial.common :only (minute import-logging)]
     [taoensso.carmine.locks :as with-lock])
   (:require  
+    [celestial.persistency.systems :as s]
     [es.jobs :as es]
     [flatland.useful.map :refer (map-vals filter-vals)]
     [minderbinder.time :refer (parse-time-unit)]
@@ -43,9 +44,10 @@
 
 (defn save-status
    "marks jobs as succesful" 
-   [spec status]
-  (let [status-exp (* 1000 60 (or (job* :status-expiry) (* 24 60)))]
-    (es/put (merge spec {:status status :end (System/currentTimeMillis)}) status-exp :flush? true) 
+   [identity spec status]
+  (let [status-exp (* 1000 60 (or (job* :status-expiry) (* 24 60)))
+        hostname (get-in (s/get-system identity) [:machine :hostname])]
+    (es/put (merge spec {:hostname hostname :status status :end (System/currentTimeMillis)}) status-exp :flush? true) 
     (trace "saved status" (merge spec {:status status :end (System/currentTimeMillis)}))
     {:status status}))
 
@@ -60,11 +62,11 @@
             (try 
               (if identity
                 (do (with-lock (server-conn) identity expiry wait-time (apply f args))
-                    (save-status spec' :success)) 
+                    (save-status identity spec' :success)) 
                 (do (apply f args) 
-                    (save-status spec' :success))) 
+                    (save-status identity spec' :success))) 
               (catch Throwable e (error e) 
-                (save-status spec' :error)))))))))
+                (save-status identity spec' :error)))))))))
 
 (defn jobs []
   {:post [(= (into #{} (keys %)) operations)]} 
