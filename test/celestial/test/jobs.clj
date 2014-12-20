@@ -16,7 +16,7 @@
    (provided 
      (server-conn) => {}
      (acquire-lock {} "red1" 1800000 300000) => nil :times 1
-     (jobs/save-status anything :success)  => {:status :success}  :times 1
+     (jobs/save-status "red1" anything :success)  => {:status :success}  :times 1
      ))
 
 
