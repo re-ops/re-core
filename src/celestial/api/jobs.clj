@@ -127,7 +127,7 @@
          :notes "job status can be either pending, processing, done or nil"}
         (let [{:keys [username]} (friend/current-authentication)
               {:keys [envs] :as user} (u/get-user username)]
-          (success (doall (map-vals (jobs/jobs-status envs) (partial map enrich-job))))))
+          (success (map-vals (jobs/jobs-status envs) (partial map add-tid-link)))))
   
   (GET- "/jobs/done" [^:int page ^:int offset]
       {:nickname "getDoneJobs" :summary "Get done jobs"}
