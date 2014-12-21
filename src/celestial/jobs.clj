@@ -44,29 +44,29 @@
 
 (defn save-status
    "marks jobs as succesful" 
-   [identity spec status]
-  (let [status-exp (* 1000 60 (or (job* :status-expiry) (* 24 60)))
-        hostname (get-in (s/get-system identity) [:machine :hostname])]
-    (es/put (merge spec {:hostname hostname :status status :end (System/currentTimeMillis)}) status-exp :flush? true) 
+   [spec status]
+  (let [status-exp (* 1000 60 (or (job* :status-expiry) (* 24 60)))]
+    (es/put (merge spec {:status status :end (System/currentTimeMillis)}) status-exp :flush? true) 
     (trace "saved status" (merge spec {:status status :end (System/currentTimeMillis)}))
     {:status status}))
 
 (defn job-exec [f  {:keys [message attempt]}]
   "Executes a job function tries to lock identity first (if used)"
-  (let [{:keys [identity args tid env user] :as spec} message 
-        spec' (merge spec (meta f) {:start (System/currentTimeMillis)})]
+  (let [{:keys [identity args tid env user] :as spec} message]
     (set-user user
       (set-env env
         (set-tid tid 
-           (let [{:keys [wait-time expiry]} (map-vals (or (job* :lock) defaults) #(* minute %) )]
+           (let [{:keys [wait-time expiry]} (map-vals (or (job* :lock) defaults) #(* minute %))
+                 hostname (when identity (get-in (s/get-system identity) [:machine :hostname]))
+                 spec' (merge spec (meta f) {:start (System/currentTimeMillis) :hostname hostname})]
             (try 
               (if identity
                 (do (with-lock (server-conn) identity expiry wait-time (apply f args))
-                    (save-status identity spec' :success)) 
+                    (save-status spec' :success)) 
                 (do (apply f args) 
-                    (save-status identity spec' :success))) 
+                    (save-status spec' :success))) 
               (catch Throwable e (error e) 
-                (save-status identity spec' :error)))))))))
+                (save-status spec' :error)))))))))
 
 (defn jobs []
   {:post [(= (into #{} (keys %)) operations)]} 
