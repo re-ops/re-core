@@ -1,7 +1,8 @@
-# Celestial 0.7.5 (21/12/14):
+# Celestial 0.7.6 (21/12/14):
 ## Fixes:
 
 * Fixing missing hostname in done jobs
+* Fixing deleted systems hostname in jobs
 
 # Celestial 0.7.4 (20/12/14):
 ## New Features:
