@@ -38,6 +38,11 @@
    [& ks] {:pre [env]}
   (apply get! :hypervisor env ks))
 
+(defn hypervisor*
+  "obtains current environment hypervisor using get*" 
+   [& ks] {:pre [env]}
+  (apply get* :hypervisor env ks))
+
 (defn- select-sub
    "select sub map" 
    [m ks]
