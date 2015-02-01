@@ -28,15 +28,15 @@
      :proxmox {
        :master :proxmox-3
        :nodes {
-         :proxmox-3 {:username "root" :password "foobar" :host "192.168.5.200" :ssh-port 22}
+         :proxmox-3 {:username "root" :password "foobar" :host "192.168.3.226" :ssh-port 22}
         }
        :ostemplates {
           :ubuntu-12.04 {:template "local:vztmpl/ubuntu-12.04-puppet_3-x86_64.tar.gz" :flavor :debian}
           :centos-6 {:template "local:vztmpl/centos-6-standard_6.3-1_i386.tar.gz" :flavor :redhat}
         }
        :generators {
-         :ip-range ["192.168.5.100" "192.168.5.255"]
-         :used-ips ["192.168.5.170" "192.168.5.171" "192.168.5.173"]
+         :ip-range ["192.168.3.240" "192.168.3.250"]
+         :used-ips []
        }
      }
     }
