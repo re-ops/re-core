@@ -13,7 +13,7 @@
   (:require 
     [cheshire.core :refer :all]
     [proxmox.model :refer (proxmox-master)]
-    [clj-http.client :as client])
+    [org.httpkit.client :as client])
   (:use 
     [proxmox.http-common :only (root http-opts)]
     [clojure.core.strint :only (<<)]
@@ -26,7 +26,7 @@
 (defn call- 
   "Calling without auth headers"
   [verb api args]
-  (:data (parse-string (:body (verb (<< "~(root)~{api}") (merge args http-opts))) true)))
+  (:data (parse-string (:body @(verb (<< "~(root)~{api}") (merge args http-opts))) true)))
 
 (defn login-creds []
   (select-keys 

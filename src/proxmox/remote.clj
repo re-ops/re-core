@@ -16,13 +16,14 @@
     [clojure.core.strint :refer (<<)]
     [proxmox.http-common :refer (root http-opts)]
     [celestial.common :refer (curr-time minute import-logging)]
-    [clj-http.client :as client]))
+    [org.httpkit.client :as client]))
 
 (import-logging)
 
 (defn call [verb api args]
-  (:data (parse-string 
-           (:body (verb (<< "~(root)~{api}") (merge args http-opts {:headers (auth-headers)}))) true)))
+  (:data 
+    (parse-string 
+      (:body @(verb (<< "~(root)~{api}") (merge args http-opts {:headers (auth-headers)}))) true)))
 
 
 (defn prox-post 
