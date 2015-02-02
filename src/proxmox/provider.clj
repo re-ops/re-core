@@ -66,7 +66,10 @@
      (use 'proxmox.provider)
      (when-not (node-available? ~'node)
        (throw+ {:type ::missing-node :node ~'node} "No matching proxmox hypervisor node found"))
-     (check-task ~'node ~f) 
+     (if-let [upid# ~f] 
+       (check-task ~'node upid#)
+       (debug "skipping task upid is null") 
+       ) 
      (catch [:status 500] e# (warn  "container does not exist"))))
 
 (declare vzctl unmount)
