@@ -29,7 +29,7 @@
      :proxmox {
        :master :proxmox-a
        :nodes {
-          :proxmox-a {:username "root" :password "foobar" :host "localhost" :ssh-port 22222}
+          :proxmox-a {:username "root" :password "foobar" :host "192.168.3.205" :ssh-port 22}
           :proxmox-b {:username "root" :password "foobar" :host "192.168.3.206" :ssh-port 22}
         }
        :ostemplates {
