@@ -50,7 +50,7 @@
 (defn creation-keys [aws]
   (clojure.set/subset? (into #{} (keys aws))
     #{:volumes :min-count :max-count :instance-type :ebs-optimized
-      :key-name :placement :security-groups}))
+      :key-name :placement :security-groups :block-device-mappings}))
 
 (defn create-instance 
    "creates instance from aws" 
@@ -127,7 +127,10 @@
   [{:keys [aws machine] :as spec}]
   (cond-> (merge-with merge (dissoc-in* spec [:aws :endpoint]) defaults)
     :availability-zone 
-      (map-key [:aws :availability-zone] [:aws :placement :availability-zone])))
+      (map-key [:aws :availability-zone] [:aws :placement :availability-zone])
+     :block-devices
+      (map-key [:aws :block-devices] [:aws :block-device-mappings])
+    ))
 
 (defmethod translate :aws [{:keys [aws machine] :as spec}] 
   [(aws :endpoint) (aws-spec spec) (or (machine :user) "root")])
