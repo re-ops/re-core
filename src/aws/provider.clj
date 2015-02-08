@@ -125,12 +125,12 @@
 (defn aws-spec 
   "creates an ec2 spec" 
   [{:keys [aws machine] :as spec}]
-  (cond-> (merge-with merge (dissoc-in* spec [:aws :endpoint]) defaults)
-    :availability-zone 
-      (map-key [:aws :availability-zone] [:aws :placement :availability-zone])
-     :block-devices
-      (map-key [:aws :block-devices] [:aws :block-device-mappings])
-    ))
+  (let [spec' (merge-with merge (dissoc-in* spec [:aws :endpoint]) defaults)]
+    (cond-> spec'
+      (get-in spec' [:aws :availability-zone]) 
+        (map-key [:aws :availability-zone] [:aws :placement :availability-zone])
+      (get-in spec' [:aws :block-devices])
+        (map-key [:aws :block-devices] [:aws :block-device-mappings]))))
 
 (defmethod translate :aws [{:keys [aws machine] :as spec}] 
   [(aws :endpoint) (aws-spec spec) (or (machine :user) "root")])
