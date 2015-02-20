@@ -13,12 +13,12 @@
 
 (defn ct-exists [id node]
   (try+ 
-    (prox-get (<< "/nodes/~{node}/openvz/~{id}/status/current")) true
+    (prox-get (<< "/nodes/~{node}/openvz/~{id}/status/current"))
     (catch [:status 500] e false)))
 
 (defn qm-exists [id node]
   (try+ 
-    (prox-get (<< "/nodes/~{node}/qemu/~{id}/status/current")) true
+    (prox-get (<< "/nodes/~{node}/qemu/~{id}/status/current"))
     (catch [:status 500] e false)))
 
 (defn try-gen
