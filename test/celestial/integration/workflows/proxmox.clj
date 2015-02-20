@@ -24,10 +24,10 @@
         (wf/reload (spec)) => nil 
         (wf/destroy (spec)) => nil)
 
-    (fact "proxmox clone workflows" :integration :docker :workflow
+    (fact "proxmox clone workflows" :integration :proxmox :workflow
         (wf/create (spec)) => nil
-        (wf/clone 1 
-          {:hostname "bar" :owner "ronen" :machine {:ip "192.168.21.253"}}) => nil
+        (wf/clone  
+          {:system-id 1 :hostname "bar" :owner "ronen" :machine {:ip "192.168.21.253"}}) => nil
         (wf/destroy (assoc (s/get-system 2) :system-id 2)) => nil
         (wf/destroy (spec)) => nil)
     ))
