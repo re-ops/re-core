@@ -6,7 +6,6 @@
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [org.clojure/tools.cli "0.2.2"]
                  [clj-config "0.2.0" ]
-                 [com.vmware/vijava "5.1" :exclusions [xml-apis]]
                  [me.raynes/fs "1.4.5"]
                  [org.clojure/tools.nrepl "0.2.3"]
                  [com.taoensso/timbre "2.6.3"]
@@ -22,7 +21,6 @@
                  [org.clojure/data.json "0.2.2" ]
                  [com.taoensso/carmine "2.0.0"]
                  [org.clojure/core.memoize "0.5.2" :exclusions [org.clojure/core.cache]]
-                 [amazonica "0.3.13" ]
                  [narkisr/trammel "0.8.0-freez"]
                  [org.flatland/useful "0.10.3"]
                  [substantiation "0.2.1"]
@@ -47,7 +45,11 @@
                  [com.cemerick/friend "0.2.0"] 
                  [ring/ring-session-timeout "0.1.0"]
                  [ring/ring-headers "0.1.0"] 
-                 ]
+                 ; hypervisors
+                 [com.vmware/vijava "5.1" :exclusions [xml-apis]]
+                 [org.pacesys/openstack4j "2.0.1"]
+                 [amazonica "0.3.13" ]
+               ]
 
   :exclusions [org.clojure/clojure]
 
