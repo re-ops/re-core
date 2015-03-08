@@ -123,7 +123,7 @@
   (dissoc-in* (assoc-in m to (get-in m from)) from))
 
 (defn aws-spec 
-  "creates an ec2 spec" 
+  "Creates an ec2 spec" 
   [{:keys [aws machine] :as spec}]
   (let [spec' (merge-with merge (dissoc-in* spec [:aws :endpoint]) defaults)]
     (cond-> spec'
