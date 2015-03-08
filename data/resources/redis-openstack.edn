@@ -1,0 +1,20 @@
+{
+ :env :dev 
+
+ :owner "admin"
+
+ :machine {
+  :hostname "red1" :user "ubuntu" 
+  :domain "local" :os :ubuntu-14.10
+ }
+
+ :openstack {
+  :flavor "m1.small" 
+  :tenant "skywind"
+  :key-pair "foo"
+  :security-groups ["default"]
+  :networks ["net-2"]
+ }
+
+ :type "redis"
+}

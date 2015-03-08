@@ -10,5 +10,36 @@
   limitations under the License.)
 
 (ns openstack.validations
-
+  "Openstack validations"
+  (:require 
+    [clojure.core.strint :refer (<<)]
+    [subs.core :as subs :refer (validate! combine every-v every-kv validation when-not-nil)])
  )
+
+(def machine-entity
+  {:machine {
+     :hostname #{:required :String} :domain #{:required :String} 
+     :user #{:required :String} :os #{:required :Keyword} 
+  }})
+
+(validation :group* (every-v #{:String}))
+(validation :network* (every-v #{:String}))
+
+(def openstack-entity
+  {:openstack {
+     :instance-type #{:required :String} :key-name #{:required :String}
+     :endpoint #{:required :String} :security-groups #{:Vector :group*} 
+    }})
+
+(defn validate-entity 
+  "openstack based systems entity validation " 
+  [openstack]
+  (validate! openstack (combine machine-entity openstack-entity) :error ::invalid-system))
+
+(def openstack-provider
+  {:flavor #{:required :String} :tenant #{:required :String} 
+   :key-pair #{:required :String} :security-groups #{:Vector :group*} 
+   :networks #{:Vector :network*}})
+
+(defn provider-validation [{:keys [openstack] :as spec}]
+  (validate! openstack openstack-provider :error ::invalid-openstack))

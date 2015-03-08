@@ -79,7 +79,23 @@
        :guest-timeout 120 ; at least boot time
        :session-count 2
      }
-   
+
+     :openstack {
+      :endpoint "http://1.2.3.4:5000/v2.0" 
+      :username ""
+      :password ""
+      :ostemplates {
+         :ubuntu-14.10  {:image "Ubuntu 14.10" :flavor :debian}
+      }
+      :flavors {
+        "m1.small" "2"
+      }
+      :networks {
+       "net-2" "22b797f2-f8de-4c40-9b53-3e8101150f9a"            
+      }
+
+     }  
+
     :physical { }
    }
  }
