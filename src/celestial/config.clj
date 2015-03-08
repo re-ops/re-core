@@ -99,6 +99,13 @@
 (def ^{:doc "aws section validation"} aws-v 
   {:aws {:access-key #{:required :String} :secret-key #{:required :String}}})
 
+(def ^{:doc "openstack section validation"} openstack-v 
+  {:openstack {
+    :username #{:required :String} :password #{:required :String} 
+    :endpoint #{:required :String}
+  }})
+
+
 (def ^{:doc "vcenter section validation"} vcenter-v 
   {:vcenter {
       :url #{:required :String} :username #{:required :String}
@@ -108,7 +115,7 @@
 (defn hypervisor-validations 
   "find relevant hypervisor validations per env"
   [hypervisor]
-  (let [hvs [proxmox-v aws-v vcenter-v docker-v] ks (map (comp first keys) hvs) 
+  (let [hvs [proxmox-v aws-v openstack-v vcenter-v docker-v] ks (map (comp first keys) hvs) 
         envs (map (fn [v] (fn [env] {:hypervisor {env v}})) hvs)]
     (first 
       (map (fn [[e hs]] (map #(((zipmap ks envs) %) e) (filter (into #{} ks) (keys hs)))) hypervisor))))
