@@ -35,6 +35,9 @@
 
 (def smokeping-type (read-fixture "smokeping-type"))
 
+(def redis-openstack
+  (assoc-in (read-fixture "redis-openstack") [:openstack :key-name] host))
+
 (def redis-ec2-spec 
   (assoc-in (read-fixture "redis-ec2-system") [:aws :key-name] host))
 

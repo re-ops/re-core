@@ -26,7 +26,7 @@
 
 (defn get-env! [] {:pre [env]} env)
 
-(def hypervizors #{:proxmox :aws :vcenter :vagrant :physical :docker})
+(def hypervizors #{:proxmox :aws :vcenter :vagrant :physical :docker :openstack})
 
 (def operations
  #{:reload :destroy :provision :stage :run-action :create :start :stop :clear :clone})
@@ -47,7 +47,7 @@
 (def whitelist
   [[:proxmox :nodes] [:proxmox :ostemplates]
    [:docker :nodes]
-   [:vcenter :ostemplates] [:aws] [:physical]])
+   [:vcenter :ostemplates] [:aws] [:physical] [:openstack]])
 
 (defn sanitized-envs
   "sanitized (from sensative data) environments " 

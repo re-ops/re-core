@@ -10,24 +10,55 @@
    limitations under the License.)
 
 (ns openstack.provider
+  (:require 
+    [openstack.validations :refer (provider-validation)]
+    [celestial.core :refer (Vm)] 
+    [trammel.core :refer (defconstrainedrecord)]
+    [celestial.model :refer (translate vconstruct)]
+    [celestial.model :refer (hypervisor)])
   (:import 
     org.openstack4j.api.Builders
     org.openstack4j.openstack.OSFactory))
 
-(defn servers [endpoint username password tenant]
-  (-> (OSFactory/builder) 
-     (.endpoint endpoint)
-     (.credentials username  password)
-     (.tenantName tenant)
-     (.authenticate)
-     (.compute)
-     (.servers)))
+(defn image-id [machine]
+  (hypervisor :openstack :ostemplates (machine :os) :id))
 
-(defconstrainedrecord Instance [endpoint spec user]
+(defn flavor-id 
+   [f]
+  (hypervisor :openstack :flavors f))
+
+(defn network-ids
+   [nets]
+  (mapv #(hypervisor :openstack :networks %) nets))
+
+(defn servers [tenant]
+  (let [{:keys [username password endpoint]} (hypervisor :openstack)]
+    (-> (OSFactory/builder) 
+        (.endpoint endpoint)
+        (.credentials username password)
+        (.tenantName tenant)
+        (.authenticate)
+        (.compute)
+        (.servers))))
+
+(defn server [{:keys [machine openstack] :as spec}]
+  (println (openstack :flavor))
+  (-> (Builders/server) 
+    (.name (machine :hostname)) 
+    (.flavor (openstack :flavor)) 
+    (.image (image-id machine))
+    (.keypairName (openstack :keypair))
+    (.networks (openstack :networks))
+    (.build))
+  )
+
+(defconstrainedrecord Instance [tenant spec user]
   "An Openstack compute instance"
-  [#_(provider-validation spec) (-> endpoint nil? not)]
+  [(provider-validation spec)]
   Vm
-  (create [this])
+  (create [this] 
+    (let [compute (servers tenant) model (server spec)]
+      (.boot compute model)))
 
   (start [this])
 
@@ -36,4 +67,25 @@
   (stop [this])
 
   (status [this] ))
+
+(defn openstack-spec 
+   [spec]
+   (-> spec 
+     (update-in [:openstack :networks] network-ids)
+     (update-in [:openstack :flavor] flavor-id)))
+
+(defmethod translate :openstack [{:keys [openstack machine] :as spec}] 
+  [(openstack :tenant) (openstack-spec spec) (or (machine :user) "root")])
+
+(defmethod vconstruct :openstack [spec]
+  (apply ->Instance (translate spec)))
+
+(comment 
+  (use 'celestial.fixtures.data 'celestial.fixtures.core )
+  (def m (vconstruct redis-openstack)) 
+  (clojure.pprint/pprint m)
+  (with-conf local-conf (with-admin (.create m)))
+  (with-admin (with-conf local-conf (.status m)))
+  (.start m)
+  )
 
