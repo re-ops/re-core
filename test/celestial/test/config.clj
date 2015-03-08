@@ -32,6 +32,10 @@
     (validate-conf (assoc-in local-prox [:hypervisor :dev :aws] {})) => 
       {:hypervisor {:dev {:aws {:access-key "must be present" :secret-key "must be present"}}}})
 
+(fact "missing openstack  options"
+    (validate-conf (assoc-in local-prox [:hypervisor :dev :openstack] {})) => 
+      {:hypervisor {:dev {:openstack {:username "must be present" :password "must be present" :endpoint "must be present"}}}})
+
 (fact "vcenter validations" 
    (validate-missing :hypervisor :dev :vcenter :password) => {:hypervisor {:dev {:vcenter {:password "must be present"}}}}
    (validate-missing :hypervisor :dev :vcenter :url) => {:hypervisor {:dev {:vcenter {:url "must be present"}}}}
