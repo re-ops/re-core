@@ -72,20 +72,25 @@
 
 (defn instance-id [spec] (system-val spec [:openstack :instance-id]))
 
+(defn update-id [spec id]
+  "update instance id"
+  (when (s/system-exists? (spec :system-id))
+     (s/partial-system (spec :system-id) {:openstack {:instance-id id}})))
+
 (defconstrainedrecord Instance [tenant spec user]
   "An Openstack compute instance"
   [(provider-validation spec)]
   Vm
   (create [this] 
     (let [compute (servers tenant)  id (:id (from-java (.boot compute (model spec)))) 
-          network (first (get-in spec [:openstack :networks])) 
-          spec' (assoc-in spec [:openstack :instance-id] id)]
+          network (first (get-in spec [:openstack :networks]))]
+       (update-id spec id)
        (debug "waiting for" id "to get an ip on" network)
        (wait-for-ip compute id network [5 :minute])
        (let [ip (first-ip (.get compute id) network)]
-         (update-ip spec' ip)
+         (update-ip spec ip)
          (debug "waiting for ssh to be available at" ip)
-         (wait-for-ssh ip (get-in spec' [:machine :user]) [5 :minute])))
+         (wait-for-ssh ip (get-in spec [:machine :user]) [5 :minute])))
        this)
 
   (start [this]
@@ -95,16 +100,18 @@
        (system-val spec [:machine :ip]) (get-in spec [:machine :user]) [5 :minute]))
 
   (delete [this]
+     (debug "deleting" (instance-id spec))
      (.delete (servers tenant) (instance-id spec)))
 
   (stop [this]
+     (debug "stopping" (instance-id spec))
      (.action (servers tenant) (instance-id spec) Action/STOP))
 
   (status [this] 
      (if-let [instance-id (instance-id spec)]
        (let [server (.get (servers tenant) instance-id)
-             value (first (.values (.getStatus server)))]
-         (if (= value "ACTIVE") "running" value))
+             value (.toLowerCase (str (.getStatus server)))]
+         (if (= value "active") "running" value))
        (do (debug "no instance id found, instance not created") false) 
        )))
 
