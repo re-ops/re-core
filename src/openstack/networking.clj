@@ -24,6 +24,6 @@
        (get-in (from-java server) [:addresses :addresses network]))))
 
 (defn update-ip [spec ip]
-  "update "
+  "update instance ip"
   (when (s/system-exists? (spec :system-id))
      (s/partial-system (spec :system-id) {:machine {:ip ip}})))
