@@ -11,9 +11,9 @@
  :openstack {
   :flavor "m1.small" 
   :tenant "skywind"
-  :key-pair "foo"
+  :key-name "foo"
   :security-groups ["default"]
-  :networks ["net-2"]
+  :networks ["playtech-int-2"]
  }
 
  :type "redis"
