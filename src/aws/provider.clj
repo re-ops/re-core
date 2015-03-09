@@ -86,8 +86,7 @@
         (debug (<<  "Associating existing ip ~{ip} to ~{instance-id}"))
         (assoc-pub-ip endpoint instance-id ip))
       (update-ip spec endpoint instance-id)
-      (wait-for-ssh (pub-dns endpoint instance-id) user [5 :minute])
-      ))
+      (wait-for-ssh (pub-dns endpoint instance-id) user [5 :minute])))
 
   (delete [this]
     (with-instance-id
