@@ -25,21 +25,16 @@
 (validation :group* (every-v #{:String}))
 (validation :network* (every-v #{:String}))
 
-(def openstack-entity
-  {:openstack {
-     :instance-type #{:required :String} :key-name #{:required :String}
-     :endpoint #{:required :String} :security-groups #{:Vector :group*} 
-    }})
+(def openstack-common
+  {:openstack
+   {:flavor #{:required :String} :tenant #{:required :String} 
+    :security-groups #{:Vector :group*} :networks #{:Vector :network*}}}
+  )
 
 (defn validate-entity 
   "openstack based systems entity validation " 
   [openstack]
-  (validate! openstack (combine machine-entity openstack-entity) :error ::invalid-system))
+  (validate! openstack (combine machine-entity openstack-common) :error ::invalid-system))
 
-(def openstack-provider
-  {:flavor #{:required :String} :tenant #{:required :String} 
-   :key-pair #{:required :String} :security-groups #{:Vector :group*} 
-   :networks #{:Vector :network*}})
-
-(defn provider-validation [{:keys [openstack] :as spec}]
-  (validate! openstack openstack-provider :error ::invalid-openstack))
+(defn provider-validation [spec]
+  (validate! spec (combine machine-entity openstack-common) :error ::invalid-openstack))
