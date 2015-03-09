@@ -23,6 +23,7 @@
     [celestial.common :refer (import-logging)]
     [physical.validations :as ph]
     [proxmox.validations :as pv]
+    [openstack.validations :as ov]
     [docker.validations :as dv]
     [aws.validations :as av]
     [vc.validations :as vc]
@@ -113,6 +114,7 @@
   (get-in (get-system id) [:machine :ip]))
 
 (def hyp-to-v {
+   :openstack ov/validate-entity
    :physical ph/validate-entity 
    :proxmox pv/validate-entity 
    :docker dv/validate-entity 
