@@ -27,3 +27,14 @@
   "update instance ip"
   (when (s/system-exists? (spec :system-id))
      (s/partial-system (spec :system-id) {:machine {:ip ip}})))
+
+(defn assoc-floating 
+   "assoc floating ip with instance"
+   [compute server ip]
+   (-> compute (.floatingIps) (.addFloatingIP server ip)))
+
+(defn dissoc-ip 
+   "dissoc ip for instance" 
+   [compute server ip]
+    (-> compute (.floatingIps) (.removeFloatingIP server ip))
+  )

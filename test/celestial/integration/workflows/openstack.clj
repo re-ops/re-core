@@ -38,16 +38,15 @@
           (wf/puppetize redis-type (spec)) => nil 
           (wf/destroy (spec)) => nil)
 
-      #_(fact "openstack floating ip":integration :openstack :workflow
-        ; will be run only if EIP env var is defined
-        (when-let [eip (System/getenv "EIP")]
-           (wf/create (spec {:machine {:ip eip}})) => nil
-           (:machine (spec)) => (contains {:ip eip})
+      (fact "openstack floating ip":integration :openstack :workflow
+        ; will be run only if FIP env var is defined
+        (when-let [fip (System/getenv "FIP")]
+           (wf/create (spec {:machine {:ip fip}})) => nil
+           (:openstack (spec)) => (contains {:floating-ip fip})
            (wf/stop (spec)) => nil 
            (wf/reload (spec)) => nil 
-           (instance-desc (get-spec :aws :endpoint) (get-spec :aws :instance-id))
-             => (contains {:public-ip-address eip}) 
-           (:machine (spec)) => (contains {:ip eip})
+           #_(instance-desc (get-spec :aws :endpoint) (get-spec :aws :instance-id)) => (contains {:public-ip-address fip}) 
+           (:openstack (spec)) => (contains {:floating-ip fip})
            (wf/destroy (spec)) => nil
           ))
 
