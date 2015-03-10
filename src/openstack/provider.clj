@@ -11,9 +11,10 @@
 
 (ns openstack.provider
   (:require 
+    [slingshot.slingshot :refer  [throw+]]
     [celestial.persistency.systems :as s]
     [celestial.common :refer (import-logging)]
-    [openstack.networking :refer (first-ip update-ip)]
+    [openstack.networking :refer (first-ip update-ip assoc-floating dissoc-ip)]
     [clojure.java.data :refer [from-java]]
     [celestial.provider :refer (wait-for wait-for-ssh)]
     [openstack.validations :refer (provider-validation)]
@@ -70,7 +71,13 @@
    [spec ks]
   (get-in (s/get-system (spec :system-id)) ks))
 
-(defn instance-id [spec] (system-val spec [:openstack :instance-id]))
+(defn instance-id* [spec] (system-val spec [:openstack :instance-id]))
+
+(defmacro with-instance-id [& body]
+ `(if-let [~'instance-id (instance-id* ~'spec)]
+    (do ~@body) 
+    (throw+ {:type ::openstack:missing-id} "Instance id not found"))) 
+
 
 (defn update-id [spec id]
   "update instance id"
@@ -82,7 +89,9 @@
   [(provider-validation spec)]
   Vm
   (create [this] 
-    (let [compute (servers tenant)  id (:id (from-java (.boot compute (model spec)))) 
+    (let [compute (servers tenant) 
+          server (.boot compute (model spec)) 
+          id (:id (from-java server)) 
           network (first (get-in spec [:openstack :networks]))]
        (update-id spec id)
        (debug "waiting for" id "to get an ip on" network)
@@ -90,30 +99,37 @@
        (let [ip (first-ip (.get compute id) network)]
          (update-ip spec ip)
          (debug "waiting for ssh to be available at" ip)
-         (wait-for-ssh ip (get-in spec [:machine :user]) [5 :minute])))
-       this)
+         (wait-for-ssh ip (get-in spec [:machine :user]) [5 :minute]))
+       (when-let [floating (get-in spec [:openstack :floating-ip])]
+         (assoc-floating compute server floating))
+       this))
 
   (start [this]
-     (debug "starting" (instance-id spec))
-     (.action (servers tenant) (instance-id spec) Action/START)
-     (wait-for-ssh 
-       (system-val spec [:machine :ip]) (get-in spec [:machine :user]) [5 :minute]))
+     (with-instance-id
+       (debug "starting" instance-id )
+       (.action (servers tenant) instance-id Action/START)
+       (wait-for-ssh 
+         (system-val spec [:machine :ip]) (get-in spec [:machine :user]) [5 :minute])))
 
   (delete [this]
-     (debug "deleting" (instance-id spec))
-     (.delete (servers tenant) (instance-id spec)))
+     (with-instance-id 
+       (debug "deleting" instance-id)
+       (let [compute (servers tenant)]
+         (when-let [floating (get-in spec [:openstack :floating-ip])]
+           (dissoc-ip compute (.get compute instance-id) floating))
+         (.delete compute instance-id))))
 
   (stop [this]
-     (debug "stopping" (instance-id spec))
-     (.action (servers tenant) (instance-id spec) Action/STOP))
+     (with-instance-id 
+       (debug "stopping" instance-id )
+       (.action (servers tenant) instance-id Action/STOP)))
 
   (status [this] 
-     (if-let [instance-id (instance-id spec)]
+     (if-let [instance-id (instance-id* spec)]
        (let [server (.get (servers tenant) instance-id)
              value (.toLowerCase (str (.getStatus server)))]
           (if (= value "active") "running" value))
-       (do (debug "no instance id found, instance not created") false) 
-       )))
+       (do (debug "no instance id found, instance not created") false))))
 
 (defn openstack-spec 
    [spec]
