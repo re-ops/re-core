@@ -22,6 +22,11 @@
           (wf/create (spec)) => (throws ExceptionInfo  (is-type? :celestial.workflows/machine-exists)) 
           (wf/destroy (spec)) => nil)
 
+      (fact "openstack clone workflows" :integration :openstack :workflow
+        (wf/create (spec)) => nil
+        (wf/clone 1 {:hostname "bar" :owner "ronen"}) => nil
+        (wf/destroy (assoc (s/get-system 2) :system-id 2)) => nil
+        (wf/destroy (spec)) => nil)
       #_(fact "openstack provisioning workflows" :integration :openstack :workflow
           (wf/create (spec)) => nil
           (wf/reload (spec)) => nil 
@@ -45,8 +50,4 @@
           (wf/puppetize redis-type (spec)) => nil 
           (wf/destroy (spec)) => nil)
       
-      #_(fact "openstack clone workflows" :integration :openstack :workflow
-        (wf/create (spec)) => nil
-        (wf/clone 1 {:hostname "bar" :owner "ronen"}) => nil
-        (wf/destroy (assoc (s/get-system 2) :system-id 2)) => nil
-        (wf/destroy (spec)) => nil))))
+      )))
