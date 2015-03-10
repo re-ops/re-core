@@ -26,7 +26,10 @@
     celestial.puppet_standalone 
     remote.capistrano remote.ruby
     ;cloning
-    docker.model aws.model proxmox.model
+    docker.model 
+    aws.model 
+    proxmox.model
+    openstack.model
     [celestial.persistency.systems :as s]
     [clojure.tools.macro :as tm]
    )
