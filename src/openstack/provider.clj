@@ -111,7 +111,7 @@
      (if-let [instance-id (instance-id spec)]
        (let [server (.get (servers tenant) instance-id)
              value (.toLowerCase (str (.getStatus server)))]
-         (if (= value "active") "running" value))
+          (if (= value "active") "running" value))
        (do (debug "no instance id found, instance not created") false) 
        )))
 

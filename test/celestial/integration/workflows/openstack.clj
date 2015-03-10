@@ -17,18 +17,17 @@
     (with-state-changes [(before :facts (populate-system redis-type redis-openstack))]
       (fact "openstack creation workflows" :integration :openstack :workflow
           (wf/create (spec)) => nil 
-          ;; (wf/create (spec)) => (throws ExceptionInfo  (is-type? :celestial.workflows/machine-exists)) 
-          ;; (wf/stop (spec)) => nil 
-          ;; (wf/create (spec)) => (throws ExceptionInfo  (is-type? :celestial.workflows/machine-exists)) 
-          ;; (wf/destroy (spec)) => nil
-          )
+          (wf/create (spec)) => (throws ExceptionInfo  (is-type? :celestial.workflows/machine-exists)) 
+          (wf/stop (spec)) => nil 
+          (wf/create (spec)) => (throws ExceptionInfo  (is-type? :celestial.workflows/machine-exists)) 
+          (wf/destroy (spec)) => nil)
 
-      #_(fact "aws provisioning workflows" :integration :ec2 :workflow
+      #_(fact "openstack provisioning workflows" :integration :openstack :workflow
           (wf/create (spec)) => nil
           (wf/reload (spec)) => nil 
           (wf/destroy (spec)) => nil)
 
-      #_(fact "aws eip workflows" :integration :ec2 :workflow
+      #_(fact "openstack floating ip":integration :openstack :workflow
         ; will be run only if EIP env var is defined
         (when-let [eip (System/getenv "EIP")]
            (wf/create (spec {:machine {:ip eip}})) => nil
@@ -41,15 +40,13 @@
            (wf/destroy (spec)) => nil
           ))
 
-      (fact "aws puppetization" :integration :ec2 :workflow
+      #_(fact "openstack puppetization" :integration :openstack :workflow
           (wf/create (spec)) => nil
           (wf/puppetize redis-type (spec)) => nil 
           (wf/destroy (spec)) => nil)
       
-      (fact "aws clone workflows" :integration :ec2 :workflow
+      #_(fact "openstack clone workflows" :integration :openstack :workflow
         (wf/create (spec)) => nil
         (wf/clone 1 {:hostname "bar" :owner "ronen"}) => nil
         (wf/destroy (assoc (s/get-system 2) :system-id 2)) => nil
-        (wf/destroy (spec)) => nil)
-
-      )))
+        (wf/destroy (spec)) => nil))))
