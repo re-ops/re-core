@@ -33,6 +33,11 @@
           (wf/reload (spec)) => nil 
           (wf/destroy (spec)) => nil)
 
+      (fact "openstack puppetization" :integration :openstack :workflow
+          (wf/create (spec)) => nil
+          (wf/puppetize redis-type (spec)) => nil 
+          (wf/destroy (spec)) => nil)
+
       #_(fact "openstack floating ip":integration :openstack :workflow
         ; will be run only if EIP env var is defined
         (when-let [eip (System/getenv "EIP")]
@@ -46,9 +51,6 @@
            (wf/destroy (spec)) => nil
           ))
 
-      #_(fact "openstack puppetization" :integration :openstack :workflow
-          (wf/create (spec)) => nil
-          (wf/puppetize redis-type (spec)) => nil 
-          (wf/destroy (spec)) => nil)
+      
       
       )))
