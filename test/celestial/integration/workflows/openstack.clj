@@ -24,11 +24,11 @@
 
       (fact "openstack clone workflows" :integration :openstack :workflow
         (wf/create (spec)) => nil
-        (wf/clone 1 {:hostname "bar" :owner "ronen"}) => nil
+        (wf/clone {:system-id 1 :hostname "bar" :owner "ronen"}) => nil
         (wf/destroy (assoc (s/get-system 2) :system-id 2)) => nil
         (wf/destroy (spec)) => nil)
 
-      #_(fact "openstack provisioning workflows" :integration :openstack :workflow
+      (fact "openstack provisioning workflows" :integration :openstack :workflow
           (wf/create (spec)) => nil
           (wf/reload (spec)) => nil 
           (wf/destroy (spec)) => nil)
