@@ -28,8 +28,9 @@
 (def openstack-common
   {:openstack
    {:flavor #{:required :String} :tenant #{:required :String} 
-    :security-groups #{:Vector :group*} :networks #{:Vector :network*}}}
-  )
+    :security-groups #{:Vector :group*} :networks #{:Vector :network*}
+    :key-name #{:required :String} :floating-ip #{:ip :String}
+    }})
 
 (defn validate-entity 
   "openstack based systems entity validation " 
