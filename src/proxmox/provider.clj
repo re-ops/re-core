@@ -50,6 +50,7 @@
 (defn check-task
   "Checking that a proxmox task has succeeded"
   [node upid]
+  {:pre [upid]}
   (wait-for {:timeout [(or (hypervisor* :proxmox :task-timeout) 5) :minute]} 
     (fn [] 
        (debug "Waiting for task" upid "to end")
@@ -143,7 +144,7 @@
                 (update-interfaces node (extended :flavor) ip network* vmid))
               (->Container node ct* extended network*)
               (catch [:status 500] e 
-                (warn "Container already exists" e) (throw e))
+                (warn "Failed to create container" e) (throw+ e))
               (catch Throwable e (release-ip ip :proxmox)  (throw+ e)))))
 
   (delete [this]
@@ -211,8 +212,8 @@
   )
 
 (defmethod translate :proxmox [{:keys [machine proxmox system-id] :as spec}]
-  "Convert the general model into a proxmox vz specific one"
-  (-> (merge machine proxmox {:system-id system-id})
+    "Convert the general model into a proxmox vz specific one"
+    (-> (merge machine proxmox {:system-id system-id})
       (mappings {:ip :ip_address :os #{:ostemplate :flavor} :domain :searchdomain})
       (transform (machine-ts machine))
       (transform (proxmox-ts machine))
