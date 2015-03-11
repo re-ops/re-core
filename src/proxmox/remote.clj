@@ -12,6 +12,7 @@
 (ns proxmox.remote
   (:require 
     [cheshire.core :refer :all]
+    [slingshot.slingshot :refer  [throw+ try+]]
     [proxmox.auth :refer (auth-headers)]
     [clojure.core.strint :refer (<<)]
     [proxmox.http-common :refer (root http-opts)]
@@ -21,9 +22,10 @@
 (import-logging)
 
 (defn call [verb api args]
-  (:data 
-    (parse-string 
-      (:body @(verb (<< "~(root)~{api}") (merge args http-opts {:headers (auth-headers)}))) true)))
+  (let [{:keys [body error status] :as res} @(verb (<< "~(root)~{api}") (merge args http-opts {:headers (auth-headers)}))]
+  (when (= status 500) 
+    (throw+ (assoc res :type ::call-failed)))
+  (:data (parse-string body true))))
 
 
 (defn prox-post 
