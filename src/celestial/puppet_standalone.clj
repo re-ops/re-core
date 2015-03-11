@@ -29,8 +29,8 @@
 
 (env {})
 
-(defn as-root [remote cmd]
-  (if (remote :user)
+(defn as-root [{:keys [user] :as remote} cmd]
+  (if (and user (not= user "root"))
     (<< "sudo ~{cmd}") cmd))
 
 (defn args-of [type]
