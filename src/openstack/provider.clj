@@ -14,7 +14,7 @@
     [slingshot.slingshot :refer  [throw+]]
     [celestial.persistency.systems :as s]
     [celestial.common :refer (import-logging)]
-    [openstack.networking :refer (first-ip update-ip assoc-floating dissoc-ip)]
+    [openstack.networking :refer (first-ip update-ip assoc-floating dissoc-floating)]
     [clojure.java.data :refer [from-java]]
     [celestial.provider :refer (wait-for wait-for-ssh)]
     [openstack.validations :refer (provider-validation)]
@@ -41,15 +41,18 @@
    [nets]
   (mapv #(hypervisor :openstack :networks %) nets))
 
-(defn servers [tenant]
+(defn compute [tenant]
   (let [{:keys [username password endpoint]} (hypervisor :openstack)]
     (-> (OSFactory/builder) 
         (.endpoint endpoint)
         (.credentials username password)
         (.tenantName tenant)
         (.authenticate)
-        (.compute)
-        (.servers))))
+        (.compute))))
+
+(defn servers [tenant] (-> (compute tenant) (.servers)))
+
+(defn floating-ips [tenant] (-> (compute tenant) (.floatingIps)))
 
 (defn model [{:keys [machine openstack] :as spec}]
   (-> (Builders/server) 
@@ -60,9 +63,9 @@
     (.networks (openstack :network-ids))
     (.build)))
 
-(defn wait-for-ip  [compute id network timeout]
+(defn wait-for-ip  [servers' id network timeout]
   "Wait for an ip to be avilable"
-  (wait-for {:timeout timeout} #(not (nil? (first-ip (.get compute id) network)))
+  (wait-for {:timeout timeout} #(not (nil? (first-ip (.get servers' id) network)))
     {:type ::openstack:status-failed :timeout timeout} 
       "Timed out on waiting for ip to be available"))
 
@@ -71,8 +74,15 @@
 (defn wait-for-start [this timeout]
   "Wait for an ip to be avilable"
   (wait-for {:timeout timeout} #(running? this)
-    {:type ::openstack:status-failed :timeout timeout} 
+    {:type ::openstack:start-failed :timeout timeout} 
       "Timed out on waiting for ip to be available"))
+
+(defn wait-for-stop [this timeout]
+  "Wait for an ip to be avilable"
+  (wait-for {:timeout timeout} #(not (running? this))
+    {:type ::openstack:stop-failed :timeout timeout} 
+      "Timed out on waiting for ip to be available"))
+
 
 (defn system-val
   "grabbing instance id of spec"
@@ -98,19 +108,17 @@
   [(provider-validation spec)]
   Vm
   (create [this] 
-    (let [compute (servers tenant) 
-          server (.boot compute (model spec)) 
-          id (:id (from-java server)) 
-          network (first (get-in spec [:openstack :networks]))]
+    (let [servers' (servers tenant) server (.boot servers' (model spec)) 
+          id (:id (from-java server)) network (first (get-in spec [:openstack :networks]))]
        (update-id spec id)
        (debug "waiting for" id "to get an ip on" network)
-       (wait-for-ip compute id network [5 :minute])
-       (let [ip (first-ip (.get compute id) network)]
+       (wait-for-ip servers' id network [5 :minute])
+       (let [ip (first-ip (.get servers' id) network)]
          (update-ip spec ip)
          (debug "waiting for ssh to be available at" ip)
          (wait-for-ssh ip (get-in spec [:machine :user]) [5 :minute]))
-       (when-let [floating (get-in spec [:openstack :floating-ip])]
-         (assoc-floating compute server floating))
+       (when-let [ip (get-in spec [:openstack :floating-ip])]
+         (assoc-floating (floating-ips tenant) server ip))
        this))
 
   (start [this]
@@ -125,15 +133,16 @@
   (delete [this]
      (with-instance-id 
        (debug "deleting" instance-id)
-       (let [compute (servers tenant)]
-         (when-let [floating (get-in spec [:openstack :floating-ip])]
-           (dissoc-ip compute (.get compute instance-id) floating))
-         (.delete compute instance-id))))
+       (let [servers' (servers tenant)]
+         (when-let [ip (get-in spec [:openstack :floating-ip])]
+           (dissoc-floating (floating-ips tenant) (.get servers' instance-id) ip))
+         (.delete servers' instance-id))))
 
   (stop [this]
      (with-instance-id 
        (debug "stopping" instance-id )
-       (.action (servers tenant) instance-id Action/STOP)))
+       (.action (servers tenant) instance-id Action/STOP)
+       (wait-for-stop this [5 :minute])))
 
   (status [this] 
      (if-let [instance-id (instance-id* spec)]
@@ -155,13 +164,5 @@
 (defmethod vconstruct :openstack [spec]
   (apply ->Instance (translate spec)))
 
-(comment 
-  (use 'celestial.fixtures.data 'celestial.fixtures.core )
-  (def m (vconstruct redis-openstack)) 
-  (with-conf local-conf (with-admin (.create m)))
-  (with-admin (with-conf local-conf (.status m)))
-  (clojure.pprint/pprint 
-    (ip (from-java (.get (servers "skywind") "9a7e1ceb-cccd-44b9-b1bc-148a39e913c4")) "playtech-int-2"))
-  (.start m)
-  )
+
 
