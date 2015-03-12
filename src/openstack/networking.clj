@@ -12,16 +12,18 @@
 (ns openstack.networking
   "openstack networking management"
   (:require
+    [celestial.common :refer (import-logging)]
     [clojure.java.data :refer [from-java]]
-    [celestial.persistency.systems :as s]
-    )
+    [celestial.persistency.systems :as s]))
 
- )
+(import-logging)
 
-(defn first-ip [server network]
-  (first 
-    (map (comp :addr from-java) 
-       (get-in (from-java server) [:addresses :addresses network]))))
+(defn addresses-ip
+   "grab addresses from server" 
+   [server network]
+   (map (comp :addr from-java) (get-in (from-java server) [:addresses :addresses network])))
+
+(defn first-ip [server network] (first (addresses-ip server network)))
 
 (defn update-ip [spec ip]
   "update instance ip"
@@ -30,11 +32,13 @@
 
 (defn assoc-floating 
    "assoc floating ip with instance"
-   [compute server ip]
-   (-> compute (.floatingIps) (.addFloatingIP server ip)))
+   [floating-ips server ip]
+     (debug "assoc" ip "to" (:id (from-java server)))
+     (.addFloatingIP floating-ips server ip))
 
-(defn dissoc-ip 
+(defn dissoc-floating
    "dissoc ip for instance" 
-   [compute server ip]
-    (-> compute (.floatingIps) (.removeFloatingIP server ip))
-  )
+   [floating-ips server ip]
+     (debug "dissoc" ip "from" (:id (from-java server)))
+     (.removeFloatingIP floating-ips server ip))
+  
