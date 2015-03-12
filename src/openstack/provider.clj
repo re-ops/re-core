@@ -66,6 +66,14 @@
     {:type ::openstack:status-failed :timeout timeout} 
       "Timed out on waiting for ip to be available"))
 
+(defn running? [this] (= (.status this) "running"))
+
+(defn wait-for-start [this timeout]
+  "Wait for an ip to be avilable"
+  (wait-for {:timeout timeout} #(running? this)
+    {:type ::openstack:status-failed :timeout timeout} 
+      "Timed out on waiting for ip to be available"))
+
 (defn system-val
   "grabbing instance id of spec"
    [spec ks]
@@ -83,6 +91,7 @@
   "update instance id"
   (when (s/system-exists? (spec :system-id))
      (s/partial-system (spec :system-id) {:openstack {:instance-id id}})))
+
 
 (defconstrainedrecord Instance [tenant spec user]
   "An Openstack compute instance"
@@ -106,10 +115,12 @@
 
   (start [this]
      (with-instance-id
-       (debug "starting" instance-id )
-       (.action (servers tenant) instance-id Action/START)
-       (wait-for-ssh 
-         (system-val spec [:machine :ip]) (get-in spec [:machine :user]) [5 :minute])))
+       (when-not (running? this)
+         (debug "starting" instance-id )
+         (.action (servers tenant) instance-id Action/START)
+         (wait-for-start this [5 :minute])
+         (wait-for-ssh 
+           (system-val spec [:machine :ip]) (get-in spec [:machine :user]) [5 :minute]))))
 
   (delete [this]
      (with-instance-id 
