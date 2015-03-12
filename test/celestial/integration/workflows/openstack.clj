@@ -4,11 +4,13 @@
   (:require 
     [celestial.fixtures.core :refer (with-defaults is-type? with-admin with-conf)]  
     [celestial.persistency.systems :as s]
-    [celestial.fixtures.data :refer 
-     (redis-type local-conf redis-openstack)]  
+    [celestial.fixtures.data :refer (redis-type local-conf redis-openstack)]  
     [celestial.fixtures.populate :refer (populate-system)]  
     [celestial.integration.workflows.common :refer (spec get-spec)]
-    [celestial.workflows :as wf])
+    [celestial.workflows :as wf]
+    [openstack.networking :refer (addresses-ip)]
+    [clojure.java.data :refer [from-java]]
+    [openstack.provider :refer (servers)])
   (:use midje.sweet)
  )
 
@@ -38,14 +40,16 @@
           (wf/puppetize redis-type (spec)) => nil 
           (wf/destroy (spec)) => nil)
 
-      (fact "openstack floating ip":integration :openstack :workflow
+      (fact "openstack floating ip" :integration :openstack :workflow :floating
         ; will be run only if FIP env var is defined
         (when-let [fip (System/getenv "FIP")]
-           (wf/create (spec {:machine {:ip fip}})) => nil
+           (s/partial-system ((spec) :system-id) {:openstack {:floating-ip fip}})
            (:openstack (spec)) => (contains {:floating-ip fip})
+           (wf/create (spec)) => nil
+           (let [{:keys [tenant instance-id networks]} (:openstack (spec))]
+             (second (addresses-ip (.get (servers tenant) instance-id) (first networks))) => fip)
            (wf/stop (spec)) => nil 
            (wf/reload (spec)) => nil 
-           #_(instance-desc (get-spec :aws :endpoint) (get-spec :aws :instance-id)) => (contains {:public-ip-address fip}) 
            (:openstack (spec)) => (contains {:floating-ip fip})
            (wf/destroy (spec)) => nil
           ))
