@@ -22,15 +22,27 @@
      :user #{:required :String} :os #{:required :Keyword} 
   }})
 
-(validation :group* (every-v #{:String}))
-(validation :network* (every-v #{:String}))
+(validation ::volume {
+    :device #{:required :device} 
+    :size #{:required :Integer}
+    :clear #{:required :Boolean}})
+
+(validation :device 
+  #(when-not (re-find (re-matcher #"\/dev\/\w+" %)) "device should match /dev/{id} format"))
+
+(validation ::group* (every-v #{:String}))
+
+(validation ::network* (every-v #{:String}))
+
+(validation ::volume* (every-v #{::volume}))
 
 (def openstack-common
   {:openstack
    {:flavor #{:required :String} :tenant #{:required :String} 
-    :security-groups #{:Vector :group*} :networks #{:Vector :network*}
+    :security-groups #{:Vector ::group*} :networks #{:Vector ::network*}
     :key-name #{:required :String} :floating-ip #{:ip :String}
-    }})
+    :volumes #{::volume*}}
+   })
 
 (defn validate-entity 
   "openstack based systems entity validation " 

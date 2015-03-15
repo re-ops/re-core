@@ -7,8 +7,10 @@
    [aws.validations :as awsv]
    [physical.validations :as phv]
    [docker.validations :as dv]
+   [openstack.validations :as ov]
    [celestial.fixtures.data :refer 
-    (redis-type user-quota redis-ec2-spec redis-physical redis-docker-spec)]
+    (redis-type user-quota redis-ec2-spec 
+     redis-openstack redis-physical redis-docker-spec)]
    [celestial.fixtures.core :refer (is-type? with-m?)])
  (:use midje.sweet)
  (:import clojure.lang.ExceptionInfo))
@@ -119,10 +121,16 @@
      (throws ExceptionInfo (with-m? {:physical {:mac "must be a legal mac address"}}))
 
    (phv/validate-entity (assoc-in redis-physical [:physical :broadcast] "a.1.2")) =>
-      (throws ExceptionInfo (with-m? {:physical {:broadcast "must be a legal ip address"}}))
-
-)
+      (throws ExceptionInfo (with-m? {:physical {:broadcast "must be a legal ip address"}})))
 
 (fact "docker systems validation" 
    (dv/validate-entity redis-docker-spec) => {})
 
+(fact "openstack volume validations"
+  (let [spec (merge-with merge redis-openstack {:openstack {:volumes [{:device "do" :size 10}]}})]
+    (ov/validate-entity spec) => 
+      (throws ExceptionInfo 
+        (with-m? 
+          '{:openstack 
+            {:volumes 
+              ({0 {:clear "must be present" :device "device should match /dev/{id} format"}})}}))))
