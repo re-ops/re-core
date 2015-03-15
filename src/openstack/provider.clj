@@ -20,13 +20,13 @@
     [openstack.validations :refer (provider-validation)]
     [celestial.core :refer (Vm)] 
     [trammel.core :refer (defconstrainedrecord)]
-    [celestial.model :refer (translate vconstruct)]
-    [celestial.model :refer (hypervisor)])
+    [openstack.volumes :as v]
+    [openstack.common :refer (openstack servers compute)]
+    [celestial.model :refer (hypervisor translate vconstruct)])
   (:import 
     org.openstack4j.model.compute.Server$Status
     org.openstack4j.model.compute.Action
-    org.openstack4j.api.Builders
-    org.openstack4j.openstack.OSFactory))
+    org.openstack4j.api.Builders))
 
 (import-logging)
 
@@ -40,17 +40,6 @@
 (defn network-ids
    [nets]
   (mapv #(hypervisor :openstack :networks %) nets))
-
-(defn compute [tenant]
-  (let [{:keys [username password endpoint]} (hypervisor :openstack)]
-    (-> (OSFactory/builder) 
-        (.endpoint endpoint)
-        (.credentials username password)
-        (.tenantName tenant)
-        (.authenticate)
-        (.compute))))
-
-(defn servers [tenant] (-> (compute tenant) (.servers)))
 
 (defn floating-ips [tenant] (-> (compute tenant) (.floatingIps)))
 
@@ -83,7 +72,6 @@
     {:type ::openstack:stop-failed :timeout timeout} 
       "Timed out on waiting for ip to be available"))
 
-
 (defn system-val
   "grabbing instance id of spec"
    [spec ks]
@@ -96,12 +84,10 @@
     (do ~@body) 
     (throw+ {:type ::openstack:missing-id} "Instance id not found"))) 
 
-
 (defn update-id [spec id]
   "update instance id"
   (when (s/system-exists? (spec :system-id))
      (s/partial-system (spec :system-id) {:openstack {:instance-id id}})))
-
 
 (defconstrainedrecord Instance [tenant spec user]
   "An Openstack compute instance"
@@ -109,16 +95,19 @@
   Vm
   (create [this] 
     (let [servers' (servers tenant) server (.boot servers' (model spec)) 
-          id (:id (from-java server)) network (first (get-in spec [:openstack :networks]))]
-       (update-id spec id)
-       (debug "waiting for" id "to get an ip on" network)
-       (wait-for-ip servers' id network [5 :minute])
-       (let [ip (first-ip (.get servers' id) network)]
+          instance-id (:id (from-java server)) network (first (get-in spec [:openstack :networks]))]
+       (update-id spec instance-id)
+       (debug "waiting for" instance-id "to get an ip on" network)
+       (wait-for-ip servers' instance-id network [5 :minute])
+       (let [ip (first-ip (.get servers' instance-id) network)]
          (update-ip spec ip)
          (debug "waiting for ssh to be available at" ip)
          (wait-for-ssh ip (get-in spec [:machine :user]) [5 :minute]))
        (when-let [ip (get-in spec [:openstack :floating-ip])]
          (assoc-floating (floating-ips tenant) server ip))
+       (when-let [volumes (get-in spec [:openstack :volumes])]
+         (doseq [{:keys [device] :as v} volumes :let [vid (v/create spec v tenant)]]
+           (v/attach instance-id vid device tenant)))  
        this))
 
   (start [this]
@@ -140,7 +129,7 @@
 
   (stop [this]
      (with-instance-id 
-       (debug "stopping" instance-id )
+       (debug "stopping" instance-id)
        (.action (servers tenant) instance-id Action/STOP)
        (wait-for-stop this [5 :minute])))
 

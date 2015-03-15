@@ -10,7 +10,7 @@
     [celestial.workflows :as wf]
     [openstack.networking :refer (addresses-ip)]
     [clojure.java.data :refer [from-java]]
-    [openstack.provider :refer (servers)])
+    [openstack.common :refer (servers)])
   (:use midje.sweet)
  )
 
@@ -51,9 +51,12 @@
            (wf/stop (spec)) => nil 
            (wf/reload (spec)) => nil 
            (:openstack (spec)) => (contains {:floating-ip fip})
-           (wf/destroy (spec)) => nil
-          ))
+           (wf/destroy (spec)) => nil))
 
-      
+       (fact "openstack with volumes" :integration :openstack :workflow
+           (s/partial-system 
+             (:system-id (spec)) {:openstack {:volumes [{:device "/dev/sdx" :size 20 :clear false}]}})     
+           (wf/create (spec)) => nil
+         )
       
       )))
