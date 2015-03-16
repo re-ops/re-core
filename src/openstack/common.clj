@@ -22,3 +22,5 @@
 
 (defn servers [tenant] (-> (compute tenant) (.servers)))
  
+(defn block-storage [tenant]
+  (-> (openstack tenant) (.blockStorage)))
