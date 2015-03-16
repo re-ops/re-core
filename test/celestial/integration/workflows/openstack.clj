@@ -10,7 +10,8 @@
     [celestial.workflows :as wf]
     [openstack.networking :refer (addresses-ip)]
     [clojure.java.data :refer [from-java]]
-    [openstack.common :refer (servers)])
+    [openstack.common :refer (servers openstack block-storage)]
+    [openstack.volumes :refer (status delete)])
   (:use midje.sweet)
  )
 
@@ -55,8 +56,12 @@
 
        (fact "openstack with volumes" :integration :openstack :workflow
            (s/partial-system 
-             (:system-id (spec)) {:openstack {:volumes [{:device "/dev/sdx" :size 20 :clear false}]}})     
+             (:system-id (spec)) {:openstack {:volumes [{:device "/dev/sdc" :size 20 :clear false}]}})     
            (wf/create (spec)) => nil
-         )
-      
-      )))
+           (let [tenant (get-in (spec) [:openstack :tenant])
+                 {:keys [id] :as v} (get-in (spec) [:openstack :volumes 0])]
+              (status tenant id) => :in-use
+              (wf/destroy (spec)) => nil
+              (status tenant id) => :available
+              (delete id tenant))
+         ))))

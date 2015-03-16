@@ -122,6 +122,9 @@
   (delete [this]
      (with-instance-id 
        (debug "deleting" instance-id)
+       (when-let [volumes (get-in spec [:openstack :volumes])]
+         (doseq [v volumes]
+           (v/destroy instance-id v tenant)))
        (let [servers' (servers tenant)]
          (when-let [ip (get-in spec [:openstack :floating-ip])]
            (dissoc-floating (floating-ips tenant) (.get servers' instance-id) ip))
