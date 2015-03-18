@@ -63,5 +63,5 @@
               (status tenant id) => :in-use
               (wf/destroy (spec)) => nil
               (status tenant id) => :available
-              (delete id tenant))
+              (delete id tenant) => nil)
          ))))
