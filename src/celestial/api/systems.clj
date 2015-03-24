@@ -37,6 +37,7 @@
   :machine {:type "Machine"} 
   :aws {:type "Aws" :description "An EC2 based system"}
   :physical {:type "Physical" :description "A physical machine"}
+  :openstack {:type "Openstack" :description "An openstack based instance"}
   :proxmox {:type "Proxmox" :description "A Proxmox based system"}
   :vcenter {:type "Vcenter" :description "A vCenter based system"})
 
@@ -54,6 +55,10 @@
 (defmodel physical :mac :string)
 
 (defmodel aws :instance-type :string :key-name :string :endpoint :string)
+
+(defmodel openstack 
+  :flavor :string :key-name :string :tenant :string 
+  :security-groups {:type "List"} :networks {:type "List"})
 
 (defmodel vcenter :pool :string :datacenter :string :hostsystem :string :disk-format :string)
 
