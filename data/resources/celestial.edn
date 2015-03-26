@@ -6,7 +6,7 @@
      :level :trace
      :path "celestial.log"
      :gelf {
-        :host "192.168.5.9"
+        :host "192.168.1.10"
         :type :kibana ; :graylog2 or :logstash
       }
    }
