@@ -48,7 +48,7 @@
     (.name (machine :hostname)) 
     (.flavor (openstack :flavor)) 
     (.image (image-id machine))
-    (.keypairName "ronen")
+    (.keypairName (openstack :key-name))
     (.networks (openstack :network-ids))
     (.build)))
 
