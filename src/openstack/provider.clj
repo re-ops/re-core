@@ -43,6 +43,10 @@
 
 (defn floating-ips [tenant] (-> (compute tenant) (.floatingIps)))
 
+(defn add-security-groups  
+   [b groups]
+  (doseq [g groups] (.addSecurityGroup b g)) b)
+
 (defn model [{:keys [machine openstack] :as spec}]
   (-> (Builders/server) 
     (.name (machine :hostname)) 
@@ -50,6 +54,7 @@
     (.image (image-id machine))
     (.keypairName (openstack :key-name))
     (.networks (openstack :network-ids))
+    (add-security-groups (openstack :security-groups))
     (.build)))
 
 (defn wait-for-ip  [servers' id network timeout]
