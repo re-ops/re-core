@@ -36,7 +36,7 @@
            (sh- "cap" "-T" {:dir dst})
            (catch Throwable e
              (error e)
-             (throw+ {:type ::cap-not-found :message "Capistrano binary not found in path"})))
+             (throw+ {:type ::cap-sanity-failed :message "Failed to run Capistrano sanity"})))
          (copy src dst))
   (run [this]
        (info (dest-path src dst))
