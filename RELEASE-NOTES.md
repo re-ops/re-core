@@ -1,3 +1,19 @@
+# Celestial 0.8.1 (31/03/15):
+## Fixes:
+
+* Fixing openstack security-groups 
+* Fixing Openstack hardcoded key-name
+
+## New Features
+
+
+# Celestial 0.8.0 (29/03/15):
+## Fixes:
+
+## New Features
+
+* Openstack initial support.
+
 # Celestial 0.7.6 (21/12/14):
 ## Fixes:
 
