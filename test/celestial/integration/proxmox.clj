@@ -31,7 +31,7 @@
     (.delete ct*)))
 
 (with-defaults
- (with-state-changes [(before :facts (do (clear-range :proxmox) (initialize-networking)))] 
+   (with-state-changes [(before :facts (do (clear-range :proxmox) (initialize-networking)))] 
     (fact "non generated ip" :integration :proxmox :generators
        (running-seq (vconstruct d/redis-prox-spec))) 
 
@@ -42,13 +42,9 @@
      (fact "bridged address" :integration :proxmox :bridge
        (running-seq (vconstruct d/redis-bridged-prox))) 
 
-     (fact "cluster" :integration :proxmox :bridge :cluster
+     (fact "clustered proxmox" :integration :proxmox :bridge :cluster
        (with-conf d/clustered-prox
          (running-seq (vconstruct (assoc-in d/redis-bridged-prox [:proxmox :node] "proxmox-b"))))) 
-
-     (fact "proxmox 3" :integration :proxmox-3 
-       (with-conf d/proxmox-3 
-         (running-seq (vconstruct (assoc-in d/redis-bridged-prox [:proxmox :node] "proxmox-3")))))
 
      (fact "centos bridge" :integration :proxmox :bridge :centos
        (with-conf d/clustered-prox
