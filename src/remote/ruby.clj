@@ -36,7 +36,7 @@
          (try 
            (sh- "ruby" "-v" {:dir dst})
            (catch Throwable e
-             (throw+ {:type ::cap-not-found} "Ruby binary not found in path")))
+             (throw+ {:type ::ruby-sanity-fail} "Failed to run ruby sanity step")))
          (copy src dst))
   (run [this]
        (info (dest-path src dst))
