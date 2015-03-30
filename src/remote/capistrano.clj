@@ -24,20 +24,19 @@
 
 (import-logging)
 
-(defconstrainedrecord Capistrano [src args dst timeout]
-  "A capistrano remote agent"
-  []
+;; A capistrano remote agent
+(defrecord Capistrano [src args dst timeout]
   Remoter
   (setup [this] 
          (when (exists? (dest-path src dst)) 
            (throw+ {:type ::old-code :message "Old code found in place, cleanup first"})) 
          (mkdirs dst) 
+         (copy src dst)
          (try 
-           (sh- "cap" "-T" {:dir dst})
+           (sh- "cap" "-T" {:dir (dest-path src dst)})
            (catch Throwable e
              (error e)
-             (throw+ {:type ::cap-sanity-failed :message "Failed to run Capistrano sanity"})))
-         (copy src dst))
+             (throw+ {:type ::cap-sanity-failed :message "Failed to run Capistrano sanity"}))))
   (run [this]
        (info (dest-path src dst))
        (apply sh- "cap" (conj args {:dir (dest-path src dst) :timeout timeout})))
