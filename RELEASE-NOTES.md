@@ -1,4 +1,11 @@
 # Celestial 0.8.1 (31/03/15):
+
+## Fixes:
+
+* Fixing Openstack add UI (flavors listing not updating)
+* Fixing Openstack instance view
+
+# Celestial 0.8.1 (31/03/15):
 ## Fixes:
 
 * Fixing openstack security-groups 
