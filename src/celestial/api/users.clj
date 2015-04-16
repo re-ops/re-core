@@ -31,8 +31,10 @@
      (not (empty? password)) hash-pass
      ))
 
-(defmodel user :username :string :password :string 
+(defmodel user 
+  :username :string :password :string 
   :roles {:type :string :allowableValues {:valueType "LIST" :values (into [] (keys roles-m))}}
+  :operations {:type "List"}
   :envs  {:type "List"})
 
 (defroutes- users {:path "/user" :description "User managment"}
