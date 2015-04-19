@@ -67,7 +67,7 @@
 (def conflict (partial resp :conflict))
 (def success (partial resp :success))
  
-(defn gen-uuid [] (str (java.util.UUID/randomUUID)))
+(defn gen-uuid [] (.replace (str (java.util.UUID/randomUUID)) "-" ""))
 
 (defn interpulate
   "basic string interpulation"
