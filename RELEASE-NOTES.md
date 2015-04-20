@@ -2,8 +2,9 @@
 
 ## Fixes:
 
-* Fixing Openstack add UI (flavors listing not updating)
-* Fixing Openstack instance view
+* Fixing Openstack add UI (flavors listing not updating).
+* Fixing Openstack instance view.
+* Removing dashes from tid uuid making it more ES search friendly.
 
 # Celestial 0.8.1 (31/03/15):
 ## Fixes:
