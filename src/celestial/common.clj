@@ -98,4 +98,4 @@
    )
   )
 
-(def version "0.8.1")
+(def version "0.8.2")
