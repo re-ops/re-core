@@ -31,7 +31,7 @@
 (validation :levels
   (when-not-nil levels (<< "level must be either ~{levels}")))
 
-(def central-logging #{:graylog2 :kibana :logstash})
+(def central-logging #{:graylog2 :kibana3 :kibana4 :logstash})
 
 (validation :central-logging
   (when-not-nil central-logging (<< "type must be either ~{central-logging}")))
@@ -39,8 +39,7 @@
 (def ^{:doc "gelf logging settings"} gelf-v
   {:celestial
    {:log {
-     :gelf {
-       :host #{:required :String} :type #{:required :central-logging}
+     :gelf { :host #{:required :String} :port #{:required :Integer} :type #{:required :central-logging}
       }}}})
 
 (def reset-options #{:stop :start})

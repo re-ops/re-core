@@ -32,7 +32,7 @@
 
 (def with-args (partial c/with-transform add-args))
  
-(def audit-types #{:kibana})
+(def audit-types #{:kibana3 :kibana4})
 
 (validation :audit-type
   (when-not-nil audit-types (<< "Audit type must be either ~{audit-types}")))

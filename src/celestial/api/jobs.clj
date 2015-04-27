@@ -33,7 +33,7 @@
 (defmodel hash)
 
 (defn add-tid-link [{:keys [tid] :as job}]
-  (assoc job :tid-link (link "query=tid:~{tid}&fields=@timestamp,message,tid," {:tid tid})))
+  (assoc job :tid-link (link {:tid tid})))
 
 (defn schedule-job 
   ([^String id action msg]

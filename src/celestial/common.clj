@@ -75,12 +75,23 @@
   (clojure.string/replace text #"~\{\w+\}" 
     (fn [^String groups] ((keyword (subs groups 2 (dec (.length groups)))) m))))
 
+(def query {
+   :kibana3 
+      "query=tid:~{tid}&fields=@timestamp,message,tid,"
+   :kibana4 
+      "query:(query_string:(analyze_wildcard:!t,query:'tid:~{tid}')),columns:!('@timestamp',message,tid)" 
+   }
+  )
+
 (defn link 
   "Returns a link for a given query and args matching current central logging system"
-  [query args]
-  (when-let [{:keys [host type]} (get* :celestial :log :gelf)]
+  [args]
+  (when-let [{:keys [host type port]} (get* :celestial :log :gelf)]
     (case type
-     :kibana (<< "http://~{host}/index.html#/dashboard/script/logstash.js?~(interpulate query args)")
+     :kibana3 
+       (<< "http://~{host}:~{port}/index.html#/dashboard/script/logstash.js?~(interpulate (query type) args)")
+     :kibana4 
+       (<< "http://~{host}:~{port}/#/discover?_g=(time:(from:now-24h,mode:quick,to:now))&_a=(~(interpulate (query type) args),index:'logstash-*',sort:!('@timestamp',desc))")
      :gralog2 "TBD"
      :logstash "NaN"
      (warn (<< "no matching link found for ~{type}")))))
