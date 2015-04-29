@@ -12,9 +12,8 @@
   (:refer-clojure :exclude [identity])
   (:use   
     [gelfino.timbre :only (set-tid)]
-    [celestial.common :only (get*)]
     [clojure.core.strint :only (<<)]
-    [celestial.common :only (minute import-logging)]
+    [celestial.common :only (get* minute import-logging)]
     [taoensso.carmine.locks :as with-lock])
   (:require  
     [celestial.persistency.systems :as s]
@@ -69,17 +68,20 @@
                 (save-status spec' :error)))))))))
 
 (defn jobs []
-  {:post [(= (into #{} (keys %)) operations)]} 
   {:reload [wf/reload 2] :destroy [wf/destroy 2] :provision [wf/puppetize 2]
    :stage [wf/stage 2] :run-action [wf/run-action 2] :create [wf/create 2]
    :start [wf/start 2] :stop [wf/stop 2] :clear [wf/clear 1] :clone [wf/clone 1]})
+
+(defn apply-config [js]
+  {:post [(= (into #{} (keys %)) operations)]} 
+  (reduce (fn [m [k [f c]]] (assoc m k [f (or (job* :workers k) c)])) {} js))
 
 (defn create-wks [queue f total]
   "create a count of workers for queue"
   (mapv (fn [v] (create-worker (name queue) (partial job-exec (with-meta f {:queue queue})))) (range total)))
 
 (defn initialize-workers []
-  (doseq [[q [f c]] (jobs)]
+  (doseq [[q [f c]] (apply-config (jobs))]
     (swap! workers assoc q (create-wks q f c))))
 
 (defn clear-queues []
