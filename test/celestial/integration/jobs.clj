@@ -2,7 +2,7 @@
   (:require 
     [celestial.model :refer (operations)]
     [celestial.fixtures.core :refer (with-conf)]  
-    [celestial.jobs :refer (jobs initialize-workers workers)])
+    [celestial.jobs :refer (jobs apply-config initialize-workers workers)])
   (:use midje.sweet))
 
 (with-conf 
@@ -10,5 +10,6 @@
     (fact "workers creation" :integration :redis
       (initialize-workers) => nil
       (provided 
-        (jobs) => {:machine [identity 2]})
-      (keys @workers) => (just :machine))))
+        (jobs) => {:stage [identity 2]}
+        (apply-config {:stage [identity 2]}) => {:stage [identity 2]}))
+      (keys @workers) => (just :stage)))
