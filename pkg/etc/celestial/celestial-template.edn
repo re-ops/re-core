@@ -8,7 +8,7 @@
      :path "/var/log/celestial.log"
      :gelf{
        :host "1.2.3.4"
-       :type :kibana ; :gralog2/:logstash
+       :type :kibana3 ; :kibana4/:gralog2/:logstash
      }
    }
 

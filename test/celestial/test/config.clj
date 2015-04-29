@@ -46,7 +46,7 @@
 (fact "wrong central logging"
   (validate-conf (assoc-in local-prox [:celestial :log :gelf :type] :foo)) =>
     {:celestial {:log {:gelf 
-      {:type "type must be either #{:kibana :logstash :graylog2}"}}}})
+      {:type "type must be either #{:logstash :graylog2 :kibana3 :kibana4}"}}}})
 
 (fact "docker sanity"
    (validate-conf (assoc-in local-prox [:hypervisor :dev :docker :nodes] nil)) =>
