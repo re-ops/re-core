@@ -55,3 +55,6 @@
       {:hypervisor {:dev {:docker {:nodes '({:local {:host "must be present"}})}}}}
   )
 
+(fact "workers configuration"
+  (validate-conf (assoc-in local-prox [:celestial :job :workers :stage] "bar")) =>
+     {:celestial {:job {:workers  {:stage "must be a integer"}}}})

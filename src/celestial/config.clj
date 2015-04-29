@@ -55,6 +55,7 @@
       :lock {
         :expiry #{:number} :wait-time #{:number}
       }
+      :workers {:subs/ANY #{:Integer}}
     }}}
   )
 

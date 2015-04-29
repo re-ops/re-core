@@ -12,6 +12,9 @@
      :reset-on :stop
     ;; :expiry 30
     ;; :wait-time 5
+     :workers {
+       :stage 2
+     }
    }
 
    :cert {

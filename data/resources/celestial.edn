@@ -19,6 +19,9 @@
    ;;    :expiry 30
    ;;    :wait-time 5
    ;;   }
+      :workers {
+       :stage 4 :reload 2  
+      }
    }
 
    :cert {
