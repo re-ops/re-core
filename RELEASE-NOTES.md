@@ -1,3 +1,11 @@
+# Celestial 0.8.3 ():
+
+## Fixes:
+
+## New Features
+* Supporting Kibana 4 in job links.
+* Making worker count per job configurable.
+
 # Celestial 0.8.2 ():
 
 ## Fixes:
