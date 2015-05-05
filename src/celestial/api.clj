@@ -17,7 +17,7 @@
     [ring.middleware.session-timeout :refer (wrap-idle-session-timeout)]
     [ring.middleware.x-headers :refer (wrap-frame-options)]
     [swag.model :refer (wrap-swag)]
-    [celestial.common :refer (import-logging get! version)]
+    [celestial.common :refer (import-logging get! get* version)]
     [compojure.core :refer (defroutes routes)] 
     [clojure.core.strint :refer (<<)]
     [celestial.api  
@@ -75,7 +75,7 @@
   "The api routes, secured? will enabled authentication"
   (-> (compose-routes secured?) 
       (wrap-swag) 
-      (wrap-idle-session-timeout {:timeout 600 :timeout-response (ring.util.response/redirect (<< "/login"))})
+      (wrap-idle-session-timeout {:timeout (or (get* :celestial :session-timeout) 600) :timeout-response (ring.util.response/redirect (<< "/login"))})
       (wrap-session {:cookie-name "celestial" :store (cookie-store) :cookie-attrs {:secure true :max-age 3600}})
       (wrap-restful-format :formats [:json-kw :edn :yaml-kw :yaml-in-html])
       (handler/api)

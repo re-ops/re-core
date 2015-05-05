@@ -67,7 +67,7 @@
 
 (def ^{:doc "Base config validation"} celestial-v
   {:celestial
-   {:port #{:required :number} :https-port #{:required :number}
+   {:port #{:required :number} :https-port #{:required :number} :session-timeout #{:number} 
     :log {
        :level #{:required :levels} 
        :path #{:required :String}
