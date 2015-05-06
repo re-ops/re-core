@@ -6,37 +6,37 @@
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [org.clojure/tools.cli "0.2.2"]
                  [clj-config "0.2.0" ]
+                 [com.narkisr/gelfino-client "0.7.0" 
+                   :exclusions [com.fasterxml.jackson.core/jackson-core]]
+                 ; utils
                  [me.raynes/fs "1.4.5"]
                  [org.clojure/tools.nrepl "0.2.3"]
-                 [com.taoensso/timbre "2.6.3"]
                  [robert/hooke "1.3.0"]
-                 [com.narkisr/gelfino-client "0.7.0" :exclusions [com.fasterxml.jackson.core/jackson-core ]]
                  [org.clojure/core.incubator "0.1.3"]
                  [slingshot "0.10.3" ]
-                 [clj-http "0.7.6"]
-                 [http-kit "2.1.16"]
-                 [swag "0.2.7"]
-                 [puny "0.2.5"]
-                 [clj-yaml "0.4.0"]
-                 [org.clojure/data.json "0.2.2" ]
-                 [com.taoensso/carmine "2.0.0"]
                  [org.clojure/core.memoize "0.5.2" :exclusions [org.clojure/core.cache]]
                  [narkisr/trammel "0.8.0-freez"]
                  [org.flatland/useful "0.10.3"]
-                 [substantiation "0.2.1"]
                  [fogus/minderbinder "0.2.0"]
-                 [ch.qos.logback/logback-classic "1.0.13"]
-                 [org.codehaus.groovy/groovy "2.1.6"]
                  [org.clojure/tools.macro "0.1.2"]
                  [org.clojure/java.data "0.1.1"]
-                 [selmer "0.3.4"]; for templating
+                 ; templating
+                 [selmer "0.3.4"]
                  [com.palletops/stevedore "0.8.0-beta.5"]
                  [camel-snake-kebab "0.1.2"]
+                 ; logging 
+                 [com.taoensso/timbre "2.6.3"]
+                 [ch.qos.logback/logback-classic "1.0.13"]
+                 [org.codehaus.groovy/groovy "2.1.6"]
                  ; hooks/remoting
+                 [clj-http "0.7.6"]
+                 [http-kit "2.1.16"]
                  [supernal "0.4.0"]
                  [conjul "0.0.2"]
-                 ; elastic search 
-                 [clojurewerkz/elastisch "2.0.0-beta3"]
+                 ;api
+                 [swag "0.2.7"]
+                 [clj-yaml "0.4.0"]
+                 [org.clojure/data.json "0.2.2" ]
                  ; ring
                  [ring-middleware-format "0.3.0"]
                  [ring/ring-jetty-adapter "1.2.0"]
@@ -50,6 +50,11 @@
                  [com.vmware/vijava "5.1" :exclusions [xml-apis]]
                  [org.pacesys/openstack4j "2.0.1"]
                  [amazonica "0.3.13" ]
+                 ; persistency and model
+                 [clojurewerkz/elastisch "2.0.0-beta3"]
+                 [puny "0.2.5"]
+                 [com.taoensso/carmine "2.0.0"] 
+                 [substantiation "0.2.1"]
                ]
 
   :exclusions [org.clojure/clojure]
