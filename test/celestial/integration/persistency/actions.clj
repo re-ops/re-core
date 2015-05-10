@@ -8,7 +8,7 @@
   [celestial.persistency.actions :as a])
  (:use midje.sweet))
 
-(def redis-deploy-provided (assoc redis-deploy :provided nil))
+(def redis-deploy-provided (assoc redis-deploy :provided '()))
 
 (with-conf
   (with-state-changes [(before :facts (re-initlize))]
