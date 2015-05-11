@@ -138,14 +138,9 @@
   (apply ->Instance (translate spec)))
 
 (comment 
-  (use 'celestial.fixtures.data 'celestial.fixtures.core )
-  (def m (vconstruct redis-ec2-spec)) 
-  (with-admin (with-conf local-conf (.status m)))
-  (with-conf local-conf (with-admin (.create m)))
-  (.start m)
   (clojure.pprint/pprint 
     (celestial.model/set-env :dev 
-     (first (:addresses (describe-eip "ec2.ap-southeast-2.amazonaws.com" "i-9fc092de"))))) 
+     (first (:addresses (describe-eip "ec2.eu-west-1.amazonaws.com" "i-ba1b0111"))))) 
   ) 
 
 
