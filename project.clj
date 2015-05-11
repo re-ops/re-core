@@ -27,13 +27,14 @@
                  [fogus/minderbinder "0.2.0"]
                  [ch.qos.logback/logback-classic "1.0.13"]
                  [org.codehaus.groovy/groovy "2.1.6"]
-                 [supernal "0.4.0"]
                  [org.clojure/tools.macro "0.1.2"]
                  [org.clojure/java.data "0.1.1"]
-                 [org.nmap4j/org.nmap4j "1.0.4"]
                  [selmer "0.3.4"]; for templating
                  [com.palletops/stevedore "0.8.0-beta.5"]
                  [camel-snake-kebab "0.1.2"]
+                 ; hooks/remoting
+                 [supernal "0.4.0"]
+                 [conjul "0.0.2"]
                  ; elastic search 
                  [clojurewerkz/elastisch "2.0.0-beta3"]
                  ; ring

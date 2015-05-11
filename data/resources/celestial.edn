@@ -128,5 +128,9 @@
    ;; hooks.tinymasq/update-dns {
    ;;   :tinymasq "https://192.168.1.10:8444" :user "admin" :password "changeme" :domain "local"
    ;; }
+   ;; hooks.consul/update-node {
+   ;;   :consul "http://192.168.1.10:8500" :dc "local"
+   ;; }
+   
  }
 }
