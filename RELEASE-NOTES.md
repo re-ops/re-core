@@ -1,4 +1,12 @@
-# Celestial 0.8.3 ():
+# Celestial 0.8.4 (14/05/15):
+
+## Fixes:
+
+## New Features
+
+* Consul hook support.
+
+# Celestial 0.8.3 (10/05/15):
 
 ## Fixes:
 
@@ -6,7 +14,7 @@
 * Supporting Kibana 4 in job links.
 * Making worker count per job configurable.
 
-# Celestial 0.8.2 ():
+# Celestial 0.8.2 (30/04/15):
 
 ## Fixes:
 
