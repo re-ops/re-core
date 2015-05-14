@@ -18,13 +18,17 @@
 (import-logging)
 
 (defn add-node
-  [{:keys [system-id consul dc] :as args}]
-  (let [{:keys [machine]} (s/get-system system-id)]
-    (debug "registered node" (register consul (machine :hostname) (machine :ip) dc))))
+  [{:keys [system-id consul]:as args}]
+  (let [{:keys [machine env]} (s/get-system system-id)
+        {:keys [dc host]} (consul env)
+        res (register host (machine :hostname) (machine :ip) dc)]
+    (debug "registered node" res)))
 
 (defn remove-node
-  [{:keys [machine consul dc] :as args}]
-  (debug "removed node" (de-register consul (machine :hostname) dc)))
+  [{:keys [env machine consul]:as args}]
+  (let [{:keys [dc host]} (consul env)
+        res (de-register host (machine :hostname) dc)]
+    (debug "removed node" res)))
 
 
 (def actions {:reload {:success add-node} :create {:success add-node} 
