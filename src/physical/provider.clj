@@ -23,7 +23,6 @@
     [celestial.common :refer (import-logging bash-)] 
     [clojure.core.strint :refer (<<)] 
     [supernal.sshj :refer (ssh-up? execute)] 
-    [trammel.core :refer (defconstrainedrecord)] 
     [celestial.core :refer (Vm)] 
     [slingshot.slingshot :refer  [throw+ try+]] 
     [physical.wol :refer (wol)] 
@@ -32,9 +31,7 @@
 
 (import-logging)
 
-(defconstrainedrecord Machine [remote interface]
-  " "
-  [(validate-provider remote interface)]
+(defrecord Machine [remote interface]
   Vm
   (create [this] 
      (throw+ {:type ::not-supported} "cannot create a phaysical machine"))
@@ -64,5 +61,8 @@
   [(mappings  (select-keys machine [:hostname :ip :user]) {:hostname :host})
    (select-keys physical [:mac :broadcast])])
 
+(defn validate [[remote interface :as args]]
+  (validate-provider remote interface) args)
+
 (defmethod vconstruct :physical [spec]
-   (apply ->Machine  (translate spec)))
+   (apply ->Machine  (validate (translate spec))))

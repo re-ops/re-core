@@ -15,7 +15,7 @@
                  [org.clojure/core.incubator "0.1.3"]
                  [slingshot "0.10.3" ]
                  [org.clojure/core.memoize "0.5.2" :exclusions [org.clojure/core.cache]]
-                 [narkisr/trammel "0.8.0-freez"]
+                 ;; [narkisr/trammel "0.8.0-freez"]
                  [org.flatland/useful "0.10.3"]
                  [fogus/minderbinder "0.2.0"]
                  [org.clojure/tools.macro "0.1.2"]
@@ -77,7 +77,7 @@
 
         :dependencies [[org.clojure/tools.namespace "0.2.4"] 
                        [org.clojure/tools.trace "0.7.5"]
-                       [midje "1.5.1" :exclusions [org.clojure/core.unify]]
+                       [midje "1.5.1"]
                        [clojure-complete "0.2.3"] [redl "0.2.0"]]
         :injections  [(require '[redl core complete])]
         :resource-paths  ["src/main/resources/" "pkg/etc/celestial/"]
@@ -98,7 +98,7 @@
         :source-paths  ["dev"]
         :resource-paths  ["src/main/resources/" "pkg/etc/celestial/"]
         :dependencies [[org.clojure/tools.trace "0.7.5"] [ring-mock "0.1.5"]
-                       [midje "1.5.1" :exclusions [org.clojure/core.unify]]
+                       [midje "1.5.1"]
                        [junit/junit "4.11"] [reiddraper/simple-check "0.5.0"]]
         :plugins [[lein-midje "3.0.0"]]
         :jvm-opts ~(into (vec (map (fn [[p v]] (str "-D" (name p) "=" v)) {:disable-conf "true" })) ["-XX:MaxPermSize=256m"])

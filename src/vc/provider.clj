@@ -13,7 +13,6 @@
   (:use 
     [celestial.persistency.systems :as s]
     [celestial.provider :only (mappings)]
-    [trammel.core :only  (defconstrainedrecord)]
     [clojure.core.strint :only (<<)]
     [vc.vijava :only (clone power-on power-off status destroy guest-status)]
     [vc.guest :only (set-ip)]
@@ -43,9 +42,7 @@
      (do (mark ip :vcenter) machine)
      (gen-ip machine :vcenter :ip)))
 
-(defconstrainedrecord VirtualMachine [hostname allocation machine id]
-  "A vCenter Virtual machine instance"
-  [(not (nil? hostname)) (provider-validation allocation machine)]
+(defrecord VirtualMachine [hostname allocation machine id]
   Vm
   (create [this] 
     (let [machine* (assign-networking machine)]
@@ -93,7 +90,12 @@
       (selections [[:hostname] allocation-ks machine-ks [:system-id]])
       ))
 
+(defn validate [[hostname allocation machine id :as args]]
+  (provider-validation allocation machine)
+  (assert (not (nil? hostname)))
+  args)
+
 (defmethod vconstruct :vcenter [spec]
   (let [[{:keys [hostname]} allocation machine {:keys [system-id]}] (translate spec)]
-    (->VirtualMachine hostname allocation machine system-id)))
+    (apply ->VirtualMachine (validate [hostname allocation machine system-id]))))
 

@@ -18,16 +18,13 @@
     [supernal.sshj :refer (copy sh- dest-path)]
     [celestial.common :refer (import-logging gen-uuid interpulate)]
     [me.raynes.fs :refer (delete-dir exists? mkdirs tmpdir)]
-    [trammel.core :refer  (defconstrainedrecord)]
     [celestial.core :refer (Remoter)]
     [celestial.model :refer (rconstruct)])
   )
 
 (import-logging)
 
-(defconstrainedrecord Ruby [src args dst timeout]
-  "A Ruby remote agent"
-  []
+(defrecord Ruby [src args dst timeout]
   Remoter
   (setup [this] 
          (when (exists? (dest-path src dst)) 

@@ -19,7 +19,6 @@
     [celestial.provider :refer (wait-for wait-for-ssh)]
     [openstack.validations :refer (provider-validation)]
     [celestial.core :refer (Vm)] 
-    [trammel.core :refer (defconstrainedrecord)]
     [openstack.volumes :as v]
     [openstack.common :refer (openstack servers compute)]
     [celestial.model :refer (hypervisor translate vconstruct)])
@@ -94,9 +93,7 @@
   (when (s/system-exists? (spec :system-id))
      (s/partial-system (spec :system-id) {:openstack {:instance-id id}})))
 
-(defconstrainedrecord Instance [tenant spec user]
-  "An Openstack compute instance"
-  [(provider-validation spec)]
+(defrecord Instance [tenant spec user]
   Vm
   (create [this] 
     (let [servers' (servers tenant) server (.boot servers' (model spec)) 
@@ -155,11 +152,14 @@
         (network-ids (get-in spec [:openstack :networks])))
      (update-in [:openstack :flavor] flavor-id)))
 
+(defn validate [[tenant spec user :as args]]
+  (provider-validation spec) args)
+
 (defmethod translate :openstack [{:keys [openstack machine] :as spec}] 
   [(openstack :tenant) (openstack-spec spec) (or (machine :user) "root")])
 
 (defmethod vconstruct :openstack [spec]
-  (apply ->Instance (translate spec)))
+  (apply ->Instance (validate (translate spec))))
 
 
 
