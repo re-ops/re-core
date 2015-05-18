@@ -4,6 +4,7 @@
   (:require
     [celestial.persistency [users :as u] [types :as t]]  
     [es.common :as es]
+    [celestial.model :refer (figure-virt)]
     [celestial.security :refer (set-user)]
     [celestial.fixtures.core :refer (with-conf)]
     [clojure.test.check.generators :as g]
@@ -45,12 +46,21 @@
          (g/elements [:dev :qa :prod]) 
          (g/elements ["redis" "smokeping"]))))
 
+(defn with-ids [m]
+  (let [virt (figure-virt m) ids {:proxmox :vmid :openstack :instance-id :aws :instance-id}]
+    (g/fmap #(merge-with merge m %) 
+      (g/hash-map virt 
+        (g/hash-map (ids virt) (g/such-that #(> (.length %) 10) g/string-alphanumeric 100))))))
+
 (def systems-gen 
   (g/bind host-env-gen
     (fn [v] 
-      (g/fmap #(merge % v) (g/elements [d/redis-prox-spec d/redis-ec2-spec d/redis-openstack-spec])))))
+      (g/fmap #(merge % v) 
+        (g/one-of 
+          (into [(g/return d/redis-prox-spec)] (mapv with-ids [d/redis-ec2-spec d/redis-openstack-spec])))))))
 
 (def instance-keys {:openstack [:openstack :instance-id] [:aws :instance-id] [:proxmox :id]})
+
 
 (def systems-with-machines
   (g/bind machines
