@@ -48,7 +48,7 @@
 (def systems-gen 
   (g/bind host-env-gen
     (fn [v] 
-      (g/fmap #(merge % v) (g/elements [d/redis-prox-spec d/redis-ec2-spec])))))
+      (g/fmap #(merge % v) (g/elements [d/redis-prox-spec d/redis-ec2-spec d/redis-openstack-spec])))))
 
 (def systems-with-machines
   (g/bind machines

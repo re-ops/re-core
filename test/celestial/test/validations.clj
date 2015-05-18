@@ -10,7 +10,7 @@
    [openstack.validations :as ov]
    [celestial.fixtures.data :refer 
     (redis-type user-quota redis-ec2-spec 
-     redis-openstack redis-physical redis-docker-spec)]
+     redis-openstack-spec redis-physical redis-docker-spec)]
    [celestial.fixtures.core :refer (is-type? with-m?)])
  (:use midje.sweet)
  (:import clojure.lang.ExceptionInfo))
@@ -127,7 +127,7 @@
    (dv/validate-entity redis-docker-spec) => {})
 
 (fact "openstack volume validations"
-  (let [spec (merge-with merge redis-openstack {:openstack {:volumes [{:device "do" :size 10}]}})]
+  (let [spec (merge-with merge redis-openstack-spec {:openstack {:volumes [{:device "do" :size 10}]}})]
     (ov/validate-entity spec) => 
       (throws ExceptionInfo 
         (with-m? 
