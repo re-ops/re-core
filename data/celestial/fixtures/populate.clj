@@ -6,7 +6,7 @@
     [es.common :as es]
     [celestial.security :refer (set-user)]
     [celestial.fixtures.core :refer (with-conf)]
-    [simple-check.generators :as g]
+    [clojure.test.check.generators :as g]
     [celestial.redis :as red]  
     [celestial.persistency.core :as c]  
     [celestial.persistency.systems :as s]
@@ -49,6 +49,8 @@
   (g/bind host-env-gen
     (fn [v] 
       (g/fmap #(merge % v) (g/elements [d/redis-prox-spec d/redis-ec2-spec d/redis-openstack-spec])))))
+
+(def instance-keys {:openstack [:openstack :instance-id] [:aws :instance-id] [:proxmox :id]})
 
 (def systems-with-machines
   (g/bind machines
