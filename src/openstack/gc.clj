@@ -28,16 +28,19 @@
   (map #(.getId %) (list-servers tenant)))
 
 (defn data [env hypervisor]
-  (filter hypervisor (map #(assoc :system-id (s/get-system %) %) s/get-system (s/get-system-index :env env))))
+  (filter hypervisor 
+    (map #(assoc :system-id (s/get-system %) %) s/get-system (s/get-system-index :env env))))
 
 (defn find-candidates 
-   "Searching for candidates VMs" 
-   [ms ids]
-  (run* [q]
+  "Searching for candidates VMs" 
+  ([ms ids] (find-candidates ms ids [])) 
+  ([ms ids excludes]
+   (run* [q]
      (fresh [?m ?openstack ?instance-id ?system-id]
        (nafc membero ?instance-id ids)
+       (nafc membero ?instance-id excludes)
        (featurec ?m  {:openstack ?openstack :system-id ?system-id})
        (featurec ?openstack  {:instance-id ?instance-id} )
        (membero ?m ms)
-       (== q [?system-id ?instance-id]))))
+       (== q [?system-id ?instance-id])))))
 

@@ -14,3 +14,7 @@
 (fact "find openstack candidates" :gc :openstack 
    (find-candidates machines ["1a" "2b" "3c"]) => '(["2" "4d" ])
    (find-candidates machines []) =>  '(["1" "1a"] ["2" "4d"]) )
+
+(fact "find openstack candidates" :gc :openstack 
+   (find-candidates machines [] ["1a"]) =>  '(["2" "4d"]) )
+
