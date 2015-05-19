@@ -32,12 +32,12 @@
 
 (defn find-candidates 
    "Searching for candidates VMs" 
-   [m ids]
+   [ms ids]
   (run* [q]
-     (fresh [?type ?owner ?m ?openstack ?flavor ?instance-id ?openstack-id]
+     (fresh [?m ?openstack ?instance-id ?system-id]
        (nafc membero ?instance-id ids)
-       (featurec ?m  {:openstack ?openstack})
+       (featurec ?m  {:openstack ?openstack :system-id ?system-id})
        (featurec ?openstack  {:instance-id ?instance-id} )
-       (membero ?m m)
-       (== q ?instance-id))))
+       (membero ?m ms)
+       (== q [?system-id ?instance-id]))))
 
