@@ -7,17 +7,18 @@
 
 (defn root 
    []
-  "https://192.168.3.117/api/v1.0/"
+  "https://freenas/api/v1.0/"
   )
 
 (defn auth  
    []
-  ["root" "foobar"]
+  ["root" ""]
   )
 
 (defn call [verb api args]
  @(verb (<< "~(root)~{api}") (merge args {:basic-auth (auth) :insecure? true})))
 
 
-(call client/get  "jails/jails/?format=json" {})
+;; (clojure.pprint/pprint (parse-string (:body (call client/get  "jails/jails/?format=json" {})) true))
+;; (clojure.pprint/pprint (parse-string (:body (call client/get  "jails/templates/?format=json" {})) true))
 

@@ -33,6 +33,10 @@
  :hypervisor {
    :dev {
 
+     :freenas {
+       :host "freenas" :username "root" :password "bla"
+     }
+
      :docker {
        :nodes {
           :local {
