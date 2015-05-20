@@ -12,9 +12,7 @@
   {:system-id "2" :machine {} :openstack {:instance-id "4d"}}])
 
 (fact "find openstack candidates" :gc :openstack 
-   (find-candidates machines ["1a" "2b" "3c"]) => '(["2" "4d" ])
-   (find-candidates machines []) =>  '(["1" "1a"] ["2" "4d"]) )
-
-(fact "find openstack candidates" :gc :openstack 
-   (find-candidates machines [] ["1a"]) =>  '(["2" "4d"]) )
+   (find-candidates machines ["1a" "2b" "3c"]) => '("2b" "3c")
+   (find-candidates machines []) =>  '()
+   (find-candidates machines [] ["1a"]) =>  '())
 
