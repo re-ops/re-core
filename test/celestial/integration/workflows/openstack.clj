@@ -54,6 +54,12 @@
            (:openstack (spec)) => (contains {:floating-ip fip})
            (wf/destroy (spec)) => nil))
 
+      (fact "openstack scheduler hint" :integration :openstack :workflow :hint
+           (s/partial-system ((spec) :system-id) {:openstack {:hints [["foo" "bar"]]}})
+           (:openstack (spec)) => (contains {:hints [["foo" "bar"]]})
+           (wf/create (spec)) => nil
+           (wf/destroy (spec)) => nil)
+
        (fact "openstack with volumes" :integration :openstack :workflow
            (s/partial-system 
              (:system-id (spec)) {:openstack {:volumes [{:device "/dev/sdc" :size 20 :clear false}]}})     

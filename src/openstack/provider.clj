@@ -46,15 +46,25 @@
    [b groups]
   (doseq [g groups] (.addSecurityGroup b g)) b)
 
+(defn base-model 
+   "Creating base model" 
+   [{:keys [machine openstack] :as spec}]
+   (-> (Builders/server) 
+     (.name (machine :hostname)) 
+     (.flavor (openstack :flavor)) 
+     (.image (image-id machine))
+     (.keypairName (openstack :key-name))
+     (.networks (openstack :network-ids))
+     (add-security-groups (openstack :security-groups))
+     ))
+
+(defn add-hints 
+   "add hints if available" 
+   [base openstack]
+  (reduce (fn [acc [k v]] (debug k v acc) (.addSchedulerHint acc k v)) base (:hints openstack)))
+
 (defn model [{:keys [machine openstack] :as spec}]
-  (-> (Builders/server) 
-    (.name (machine :hostname)) 
-    (.flavor (openstack :flavor)) 
-    (.image (image-id machine))
-    (.keypairName (openstack :key-name))
-    (.networks (openstack :network-ids))
-    (add-security-groups (openstack :security-groups))
-    (.build)))
+   (.build (add-hints (base-model spec) openstack)))
 
 (defn wait-for-ip  [servers' id network timeout]
   "Wait for an ip to be avilable"

@@ -36,12 +36,14 @@
 
 (validation ::volume* (every-v #{::volume}))
 
+(validation ::hint* (every-v #{:Vector}))
+
 (def openstack-common
   {:openstack
    {:flavor #{:required :String} :tenant #{:required :String} 
     :security-groups #{:Vector ::group*} :networks #{:Vector ::network*}
     :key-name #{:required :String} :floating-ip #{:ip :String}
-    :volumes #{::volume*}}
+    :hints #{::hint*} :volumes #{::volume*}}
    })
 
 (defn validate-entity 
