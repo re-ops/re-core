@@ -1,3 +1,12 @@
+# Celestial 0.8.5 (20/05/15):
+
+## Fixes:
+* Missing networks listing in Openstack view.
+
+## New Features
+* Adding Openstack scheduler hint.
+* Initial Openstack GC implementation.
+
 # Celestial 0.8.4 (14/05/15):
 
 ## Fixes:
