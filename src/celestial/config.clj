@@ -97,6 +97,9 @@
      :ostemplates #{:template*} :task-timeout #{:number}}})
 
 (def ^{:doc "aws section validation"} aws-v 
+  {:freenas {:host #{:required :String} :user #{:required :String} :password #{:required :String}}})
+
+(def ^{:doc "aws section validation"} aws-v 
   {:aws {:access-key #{:required :String} :secret-key #{:required :String}}})
 
 (def ^{:doc "openstack section validation"} openstack-v 
