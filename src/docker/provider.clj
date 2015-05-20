@@ -16,7 +16,6 @@
     [celestial.provider :refer [selections mappings transform wait-for]]
     [slingshot.slingshot :refer  [throw+ try+]]
     [docker.client :as c]
-    [trammel.core :refer (defconstrainedrecord)]
     [clojure.core.strint :refer (<<)]
     [celestial.model :refer (translate vconstruct)]
     [celestial.common :refer (import-logging)]
@@ -31,9 +30,7 @@
    [system-id]
   (get-in (s/get-system system-id) [:docker :container-id]))
 
-(defconstrainedrecord Container [node system-id create-spec start-spec]
-  "A docker container instance"
-  [(validate-provider create-spec start-spec) (not (nil? node))]
+(defrecord Container [node system-id create-spec start-spec]
   Vm
   (create [this] 
     (let [{:keys [id]} (c/create node create-spec)]
@@ -93,5 +90,10 @@
               (selections [create-ks starts-ks])
               ))))
 
+(defn validate [[node system-id create-spec start-spec :as args]]
+  (validate-provider create-spec start-spec) 
+  (assert (not (nil? node)))
+  args)
+
 (defmethod vconstruct :docker [{:keys [docker] :as spec}]
-  (apply ->Container (translate spec)))
+  (apply ->Container (validate (translate spec))))

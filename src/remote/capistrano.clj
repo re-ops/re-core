@@ -18,7 +18,6 @@
     [celestial.common :refer (import-logging gen-uuid interpulate)]
     [clojure.java.shell :refer [sh]]
     [me.raynes.fs :refer (delete-dir exists? mkdirs tmpdir)]
-    [trammel.core :refer  (defconstrainedrecord)]
     [celestial.core :refer (Remoter)]
     [celestial.model :refer (rconstruct)]))
 
@@ -44,6 +43,7 @@
            (delete-dir dst)))
 
 (defmethod rconstruct :capistrano [{:keys [src capistrano name timeout] :as spec} run-info]
-    (->Capistrano src (mapv #(interpulate % run-info) (capistrano :args)) (<< "~(tmpdir)/~(gen-uuid)/~{name}") timeout))
+  (let [interuplated (mapv #(interpulate % run-info) (capistrano :args))]
+    (->Capistrano src interuplated (<< "~(tmpdir)/~(gen-uuid)/~{name}") timeout)))
 
 

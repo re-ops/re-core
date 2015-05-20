@@ -15,9 +15,7 @@
                  [org.clojure/core.incubator "0.1.3"]
                  [slingshot "0.10.3" ]
                  [org.clojure/core.memoize "0.5.2" :exclusions [org.clojure/core.cache]]
-                 [narkisr/trammel "0.8.0-freez"]
                  [org.flatland/useful "0.10.3"]
-                 [fogus/minderbinder "0.2.0"]
                  [org.clojure/tools.macro "0.1.2"]
                  [org.clojure/java.data "0.1.1"]
                  ; templating
@@ -55,6 +53,8 @@
                  [puny "0.2.5"]
                  [com.taoensso/carmine "2.0.0"] 
                  [substantiation "0.2.1"]
+                 [fogus/minderbinder "0.2.0"]
+                 [org.clojure/core.logic "0.8.10"]
                ]
 
   :exclusions [org.clojure/clojure]
@@ -75,10 +75,8 @@
           :timeout 120000
         }
 
-        :dependencies [[org.clojure/tools.namespace "0.2.4"] 
-                       [org.clojure/tools.trace "0.7.5"]
-                       [midje "1.5.1" :exclusions [org.clojure/core.unify]]
-                       [clojure-complete "0.2.3"] [redl "0.2.0"]]
+        :dependencies [[org.clojure/tools.namespace "0.2.4"] [midje "1.6.3"]
+                       [clojure-complete "0.2.3"] [redl "0.2.0"] [org.clojure/tools.trace "0.7.5"]]
         :injections  [(require '[redl core complete])]
         :resource-paths  ["src/main/resources/" "pkg/etc/celestial/"]
         :source-paths  ["dev" "src"]
@@ -97,21 +95,20 @@
         :test-paths ["test" "data"]
         :source-paths  ["dev"]
         :resource-paths  ["src/main/resources/" "pkg/etc/celestial/"]
-        :dependencies [[org.clojure/tools.trace "0.7.5"] [ring-mock "0.1.5"]
-                       [midje "1.5.1" :exclusions [org.clojure/core.unify]]
-                       [junit/junit "4.11"] [reiddraper/simple-check "0.5.0"]]
-        :plugins [[lein-midje "3.0.0"]]
+        :dependencies [[ring-mock "0.1.5"] [midje "1.6.3"][org.clojure/tools.trace "0.7.5"]
+                       [junit/junit "4.11"] [org.clojure/test.check "0.7.0"]]
+        :plugins [[lein-midje "3.1.3"]]
         :jvm-opts ~(into (vec (map (fn [[p v]] (str "-D" (name p) "=" v)) {:disable-conf "true" })) ["-XX:MaxPermSize=256m"])
         :set-version {
            :updates [ 
              {:path "project.clj" :search-regex #"\"target\/celestial-\d+\.\d+\.\d+\.jar"}
-             {:path "src/celestial/common.clj" :search-regex #"\"\d+\.\d+\.\d+\""}]}}
+             {:path "src/celestial/common.clj" :search-regex #"\"\d+\.\d+\.\d+\""}]}
+      }
 
-       :prod {
-         :resource-paths  ["src/main/resources/" "pkg/etc/celestial/"] 
-         :jvm-opts ["-XX:MaxPermSize=512m"]
-
-        } 
+     :prod {
+        :resource-paths  ["src/main/resources/" "pkg/etc/celestial/"] 
+        :jvm-opts ["-XX:MaxPermSize=512m"]
+      } 
     }
 
 
@@ -125,7 +122,7 @@
             }
 
   
-  :repositories  {"bintray"  "http://dl.bintray.com/content/narkisr/narkisr-jars"
+  :repositories  {"bintray"  "http://dl.bintray.com/content/garkisr/narkisr-jars"
                   "sonatype" "http://oss.sonatype.org/content/repositories/releases"}
 
   :test-paths []
@@ -139,7 +136,7 @@
   :source-paths  ["src"]
   :target-path "target/"
 
-  :repl-options {
-  }
+  :repl-options { }
+
   :main celestial.launch
   )

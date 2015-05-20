@@ -4,7 +4,7 @@
   (:require 
     [celestial.fixtures.core :refer (with-defaults is-type? with-admin with-conf)]  
     [celestial.persistency.systems :as s]
-    [celestial.fixtures.data :refer (redis-type local-conf redis-openstack)]  
+    [celestial.fixtures.data :refer (redis-type local-conf redis-openstack-spec)]  
     [celestial.fixtures.populate :refer (populate-system)]  
     [celestial.integration.workflows.common :refer (spec get-spec)]
     [celestial.workflows :as wf]
@@ -17,7 +17,7 @@
 
 (with-admin
   (with-conf local-conf
-    (with-state-changes [(before :facts (populate-system redis-type redis-openstack))]
+    (with-state-changes [(before :facts (populate-system redis-type redis-openstack-spec))]
       (fact "openstack creation workflows" :integration :openstack :workflow
           (wf/create (spec)) => nil 
           (wf/create (spec)) => (throws ExceptionInfo  (is-type? :celestial.workflows/machine-exists)) 

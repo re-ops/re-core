@@ -11,7 +11,6 @@
 
 (ns proxmox.provider
   (:use 
-    [trammel.core :only  (defconstrainedrecord)]
     [clojure.core.memoize :only (memo-ttl)]
     [clojure.core.strint :only (<<)]
     [celestial.core :only (Vm)]
@@ -125,10 +124,11 @@
     )
   )
 
-(defconstrainedrecord Container [node ct extended network]
-  "ct should match proxmox expected input (see http://pve.proxmox.com/pve2-api-doc/)
-   network contains bridged settings (when applicaple)."
-  [(validate-provider ct extended network) (not (nil? node))]
+
+(comment 
+"ct should match proxmox expected input (see http://pve.proxmox.com/pve2-api-doc/)
+ network contains bridged settings (when applicaple).")
+(defrecord Container [node ct extended network]
   Vm
   (create [this] 
           (debug "creating" (:vmid ct))
@@ -219,9 +219,15 @@
       (transform (proxmox-ts machine))
       generate (selections [ct-ks ex-ks net-ks])))
 
+(defn validate [node [ct extended network :as args]]
+  (validate-provider ct extended network) 
+  (assert (not (nil? node)))
+  (into [node] args)
+  )
+
 (defmethod vconstruct :proxmox [{:keys [proxmox] :as spec}]
   (let [{:keys [type node]} proxmox]
     (case type
-      :ct  (apply ->Container node (translate spec))
+      :ct  (apply ->Container (validate node (translate spec)))
       :vm nil 
       )))

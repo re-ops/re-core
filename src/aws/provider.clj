@@ -22,7 +22,6 @@
     [flatland.useful.utils :refer (defm)] 
     [flatland.useful.map :refer (dissoc-in*)] 
     [slingshot.slingshot :refer  [throw+ try+]] 
-    [trammel.core :refer (defconstrainedrecord)] 
     [celestial.provider :refer (wait-for wait-for-ssh)] 
     [celestial.core :refer (Vm)] 
     [celestial.common :refer (import-logging)] 
@@ -60,9 +59,7 @@
          {:keys [reservation]} (with-ctx ec2/run-instances inst)]
      (get-in reservation [:instances 0 :instance-id])))
 
-(defconstrainedrecord Instance [endpoint spec user]
-  "An Ec2 instance"
-  [(provider-validation spec) (-> endpoint nil? not)]
+(defrecord Instance [endpoint spec user]
   Vm
   (create [this] 
     (let [instance-id (create-instance spec endpoint)]
@@ -134,8 +131,13 @@
 (defmethod translate :aws [{:keys [aws machine] :as spec}] 
   [(aws :endpoint) (aws-spec spec) (or (machine :user) "root")])
 
+(defn validate [[endpoint spec user :as args]]
+   (provider-validation spec) 
+   (assert (not (nil? endpoint)))
+   args)
+
 (defmethod vconstruct :aws [spec]
-  (apply ->Instance (translate spec)))
+  (apply ->Instance (validate (translate spec))))
 
 (comment 
   (clojure.pprint/pprint 
