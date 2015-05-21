@@ -26,7 +26,7 @@
 
 (defn get-env! [] {:pre [env]} env)
 
-(def hypervizors #{:proxmox :aws :vcenter :vagrant :physical :docker :openstack})
+(def hypervizors #{:proxmox :aws :vcenter :vagrant :physical :docker :openstack :freenas})
 
 (def operations
  #{:reload :destroy :provision :stage :run-action :create :start :stop :clear :clone})
