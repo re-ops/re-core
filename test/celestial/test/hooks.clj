@@ -27,21 +27,21 @@
 (let [hosts-file (temp-file "hosts") machine {:domain "local" :ip "1.2.3.4" :hostname "iobar" }]
   (with-redefs [hosts (agent hosts-file) execute stubed-execute 
                 s/get-system (fn [_] {:machine machine}) sudo ""]
-    (fact "adding a host on create" 
+    (fact "adding a host on create" :integration
           (update-dns {:event :success :workflow :create :system-id 1
                        :domain "local" :dnsmasq "192.168.1.1" :user "foo" }) => truthy
           (await-for 1000 hosts) => true
           (agent-error hosts) => nil
           (slurp hosts-file) => "1.2.3.4 iobar iobar.local\n")
 
-    (fact "removing a host on stop" 
+    (fact "removing a host on stop" :integration
           (update-dns {:event :success :workflow :stop :system-id 1 
                        :domain "local" :dnsmasq "192.168.1.1" :user "foo" :machine machine}) => truthy
           (await-for 1000 hosts) => true
           (agent-error hosts) => nil
           (slurp hosts-file) => "") 
 
-    (fact "failing execution not in action" 
+    (fact "failing execution not in action" :integration
           (send-off hosts fail)
           (update-dns {:event :success :workflow :create :system-id 1
                        :domain "local" :dnsmasq "192.168.1.1" :user "foo" }) => truthy
@@ -49,7 +49,7 @@
           (agent-error hosts) => nil)   
 
     (with-redefs [execute fail]
-      (fact "failing execution in action" 
+      (fact "failing execution in action" :integration
           (update-dns {:event :success :workflow :create :system-id 1
                        :domain "local" :dnsmasq "192.168.1.1" :user "foo" }) => truthy
           (await-for 8000 hosts) => true
