@@ -1,6 +1,5 @@
 (ns celestial.test.proxmox
   (:require 
-    [clojure.core.strint :refer (<<)]
     [celestial.common :refer (curr-time)]
     [celestial.model :refer (vconstruct)]
     [proxmox.generators :refer (ct-id)]
@@ -30,9 +29,7 @@
         (fact "vzctl usage"
               (enable-features ct) => '()
               (provided 
-                (vzctl ct "set 101 --features \"nfs:on\" --save") => nil :times 1))
-
-        )))) 
+                (vzctl ct "set 101 --features \"nfs:on\" --save") => nil :times 1)))))) 
 
 (with-conf
   (let [headers {"Cookie" "PVEAuthCookie=" "CSRFPreventionToken" "foobar"}]

@@ -82,5 +82,9 @@
 
 ; common validations
 (validation :ip 
-            (when-not-nil (partial re-find #"\d+\.\d+\.\d+\.\d+") "must be a legal ip address"))
+    (when-not-nil (partial re-find #"\d+\.\d+\.\d+\.\d+") "must be a legal ip address"))
+
+(validation :mac 
+  (when-not-nil (partial re-find #"^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$") "must be a legal mac address"))
+
 (test #'mappings)
