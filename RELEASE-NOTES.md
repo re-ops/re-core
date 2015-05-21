@@ -4,7 +4,7 @@
 * Missing networks listing in Openstack view.
 
 ## New Features
-* Adding Openstack scheduler hint.
+* Adding Openstack scheduler hint support.
 * Initial Openstack GC implementation.
 
 # Celestial 0.8.4 (14/05/15):
