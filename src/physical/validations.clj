@@ -15,9 +15,6 @@
     [subs.core :refer (validate! combine validation when-not-nil)]
     ))
 
-(validation :mac 
-  (when-not-nil (partial re-find #"^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$") "must be a legal mac address"))
-
 (def machine-entity
   {:machine {
     :domain #{:required :String} :ip #{:ip :required} 
