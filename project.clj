@@ -89,7 +89,7 @@
           :timeout 120000
         }
 
-        :aot [supernal.launch remote.capistrano proxmox.provider vc.provider
+        :aot [remote.capistrano proxmox.provider vc.provider
               aws.provider celestial.core celestial.puppet-standalone celestial.launch]
  
         :test-paths ["test" "data"]
