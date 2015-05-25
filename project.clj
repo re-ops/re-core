@@ -61,7 +61,7 @@
 
   :plugins  [[jonase/eastwood "0.1.3"] 
              [self-build "0.0.6"]
-             [lein-ancient "0.4.2" :exclusions [org.clojure/clojure]] 
+             [lein-ancient "0.6.7" :exclusions [org.clojure/clojure]] 
              [lein-tar "2.0.0" ]
              [lein-tag "0.1.0"] [lein-set-version "0.3.0"]
              [topping "0.0.2"] [self-build "0.0.3"]]
