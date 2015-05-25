@@ -96,7 +96,7 @@
   (wcar (mq/enqueue queue payload)))
 
 (defn status [queue uuid]
-  (mq/message-status (server-conn) queue uuid))
+  (wcar (mq/message-status queue uuid)))
 
 (def readable-status
   {:queued :queued :locked :processing :recently-done :done :backoff :backing-off nil :unkown})

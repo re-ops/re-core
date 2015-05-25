@@ -41,7 +41,7 @@
                  [ring "1.3.0"]
                  [compojure "1.1.8" :exclusions  [ring/ring-core]]
                  ; ring security
-                 [com.cemerick/friend "0.2.0"] 
+                 [com.cemerick/friend "0.2.1"] 
                  [ring/ring-session-timeout "0.1.0"]
                  [ring/ring-headers "0.1.0"] 
                  ; hypervisors
@@ -50,14 +50,15 @@
                  [amazonica "0.3.13" ]
                  ; persistency and model
                  [clojurewerkz/elastisch "2.0.0-beta3"]
-                 [puny "0.2.5"]
-                 [com.taoensso/carmine "2.0.0"] 
+                 [puny "0.3.0"]
+                 [com.taoensso/carmine "2.10.0"] 
+                 [commons-codec "1.10"]
                  [substantiation "0.2.1"]
                  [fogus/minderbinder "0.2.0"]
                  [org.clojure/core.logic "0.8.10"]
                ]
 
-  :exclusions [org.clojure/clojure]
+  :exclusions [org.clojure/clojure commons-codec]
 
   :plugins  [[jonase/eastwood "0.1.3"] 
              [self-build "0.0.6"]
