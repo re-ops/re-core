@@ -1,3 +1,7 @@
+# Celestial 0.8.6 (25/05/15):
+
+Moving to Clojure 1.6 with puny/carmine/friend update
+
 # Celestial 0.8.5 (20/05/15):
 
 ## Fixes:
