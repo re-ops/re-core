@@ -59,11 +59,11 @@
      (throws ExceptionInfo (with-m? {:envs '({0 "must be a keyword"})} ))
 
    (validate-user {:username "foo" :password "bar" :roles admin :envs [] :operations [:bla]})  => 
-     (throws ExceptionInfo (with-m? {:operations '({0 "operation must be either #{:destroy :clone :start :stop :provision :run-action :clear :create :stage :reload}"})}))
+     (throws ExceptionInfo (with-m?  {:operations  '({0 "operation must be either #{:provision :stage :create :start :destroy :stop :clone :reload :run-action :clear}"})}))
 
      (validate-user {:username "foo" :password "bar" :roles ["foo"] :envs [] :operations []})  =>
        (throws ExceptionInfo 
-               (with-m? {:roles '({0 "role must be either #{:celestial.roles/super-user :celestial.roles/anonymous :celestial.roles/user :celestial.roles/admin :celestial.roles/system}"})} ))
+          (with-m? {:roles '({0 "role must be either #{:celestial.roles/user :celestial.roles/admin :celestial.roles/anonymous :celestial.roles/super-user :celestial.roles/system}"})}))
       )
 
 (fact "aws volume validations"
