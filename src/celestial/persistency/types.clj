@@ -13,20 +13,23 @@
   (:refer-clojure :exclude [type])
   (:require 
     [puny.core :refer (entity)]
-    [subs.core :as subs :refer (validate! combine)]))
+    [subs.core :as subs :refer (validate! combine every-kv validation)]))
 
 (entity type :id type)
 
-(def puppet-std-v 
-  {:classes #{:required :Map}
-   :puppet-std {
-     :args #{:Vector} 
+(validation :puppet* 
+  (every-kv { 
      :module {
-       :name #{:required :String}
-       :src  #{:required :String}}}})
+        :name #{:required :String}
+        :src  #{:required :String}
+      }
+      :classes #{:required :Map} 
+      :args #{:Vector} 
+   }))
+
+(def puppet-std-v {:puppet-std #{:required :puppet*}})
 
 (defn validate-type [{:keys [puppet-std] :as t}]
   (validate! t 
-    (combine (if puppet-std puppet-std-v {})
-      {:type #{:required :String}}) :error ::non-valid-type ))
+     (combine (if puppet-std puppet-std-v {}) {:type #{:required :String}}) :error ::non-valid-type ))
 

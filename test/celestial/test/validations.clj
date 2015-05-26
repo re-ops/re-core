@@ -1,5 +1,6 @@
 (ns celestial.test.validations
  (:require
+   [flatland.useful.map :refer (dissoc-in*)]
    [celestial.roles :refer (admin)]
    [celestial.persistency 
     [types :refer (validate-type)] [users :refer (user-exists? validate-user)]]
@@ -19,17 +20,17 @@
     
     (validate-type redis-type) => truthy
 
-    (validate-type (assoc-in redis-type [:puppet-std :module :src] nil)) => 
+    (validate-type (assoc-in redis-type [:puppet-std :dev :module :src] nil)) => 
        (throws ExceptionInfo (is-type? :celestial.persistency.types/non-valid-type))
 
-    (validate-type (assoc-in redis-type [:puppet-std :args] nil)) => truthy 
+    (validate-type (assoc-in redis-type [:puppet-std :dev :args] nil)) => truthy 
 
-    (validate-type (assoc-in redis-type [:puppet-std :args] [])) => truthy 
+    (validate-type (assoc-in redis-type [:puppet-std :dev :args] [])) => truthy 
     
-    (validate-type (assoc-in redis-type [:puppet-std :args] {})) => 
+    (validate-type (assoc-in redis-type [:puppet-std :dev :args] {})) => 
        (throws ExceptionInfo (is-type? :celestial.persistency.types/non-valid-type))
       
-    (validate-type (dissoc redis-type :classes)) => 
+    (validate-type (dissoc-in* redis-type [:puppet-std :dev :classes])) => 
        (throws ExceptionInfo (is-type? :celestial.persistency.types/non-valid-type)))
 
 (fact "non puppet type"

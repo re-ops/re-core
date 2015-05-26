@@ -70,10 +70,10 @@
    puppet/run-puppet #{puppet/cleanup-tmp}
    })
 
-(defrecord Standalone [remote type]
+(defrecord Standalone [remote type env]
   Provision
   (apply- [this]
-    (let [puppet-std (type :puppet-std) module (puppet-std :module)
+    (let [puppet-std (get-in type [:puppet-std env]) module (puppet-std :module)
           roles {:roles {:web #{remote}}}
           res (execute puppet-provision {:module module :type type} :web :env roles)]
         (when-let [fail (-> res first :fail)] 
@@ -81,6 +81,6 @@
       ))) 
 
 
-(defmethod pconstruct :puppet-std [type {:keys [machine] :as spec}]
+(defmethod pconstruct :puppet-std [type {:keys [machine env] :as spec}]
   (let [remote {:host (machine :ip) :user (or (machine :user) "root")}]
-    (Standalone. remote (assoc type :hostname (machine :hostname)))))
+    (Standalone. remote (assoc type :hostname (machine :hostname)) env)))

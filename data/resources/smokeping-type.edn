@@ -1,13 +1,15 @@
 {
  :puppet-std {
-    :module {
-       :name "smokeping-sandbox-0.0.1" 
-       :src "http://dl.bintray.com/content/narkisr/boxes/smokeping-sandbox-0.0.1.tar.gz"
-     }
-    :args []
+   :dev {
+       :module {
+         :name "smokeping-sandbox-0.0.1" 
+         :src "http://dl.bintray.com/content/narkisr/boxes/smokeping-sandbox-0.0.1.tar.gz"
+        }
+        :args []
+        :classes {:smokeping {}}
+    }
   }
 
  :type "smokeping"
 
- :classes {:smokeping {}}
 }

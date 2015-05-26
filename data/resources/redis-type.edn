@@ -1,13 +1,14 @@
 {
  :puppet-std {
-    :module {
-       :name "redis-sandbox-0.3.5" 
-       :src "http://dl.bintray.com/content/narkisr/boxes/redis-sandbox-0.4.0.tar.gz"
-     }
-    :args []
+   :dev {
+       :module {
+         :name "redis-sandbox-0.4.0" 
+         :src "http://dl.bintray.com/content/narkisr/boxes/redis-sandbox-0.4.0.tar.gz"
+       }
+       :args []
+       :classes {:redis {:append true}}
+   }
   }
 
  :type "redis"
-
- :classes {:redis {:append true}}
 }

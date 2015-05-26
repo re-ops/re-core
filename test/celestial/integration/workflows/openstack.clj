@@ -36,7 +36,7 @@
           (wf/reload (spec)) => nil 
           (wf/destroy (spec)) => nil)
 
-      (fact "openstack puppetization" :integration :openstack :workflow
+      (fact "openstack puppetization" :integration :openstack :workflow :puppet
           (wf/create (spec)) => nil
           (wf/puppetize redis-type (spec)) => nil 
           (wf/destroy (spec)) => nil)
