@@ -96,8 +96,9 @@
         :test-paths ["test" "data"]
         :source-paths  ["dev"]
         :resource-paths  ["src/main/resources/" "pkg/etc/celestial/"]
-        :dependencies [[ring-mock "0.1.5"] [midje "1.6.3"][org.clojure/tools.trace "0.7.5"]
-                       [junit/junit "4.11"] [org.clojure/test.check "0.7.0"]]
+        :dependencies [[ring-mock "0.1.5"] [midje "1.6.3"]
+                       [org.clojure/tools.trace "0.7.5"]
+                       [org.clojure/test.check "0.7.0"]]
         :plugins [[lein-midje "3.1.3"]]
         :jvm-opts ~(into (vec (map (fn [[p v]] (str "-D" (name p) "=" v)) {:disable-conf "true" })) ["-XX:MaxPermSize=256m"])
         :set-version {
@@ -126,7 +127,6 @@
   :repositories  {"bintray"  "http://dl.bintray.com/content/garkisr/narkisr-jars"
                   "sonatype" "http://oss.sonatype.org/content/repositories/releases"}
 
-  :test-paths []
   :topping {
       :service "celestial"
       :app {:app-name "celestial" :src "target/celestial-0.8.6.jar"}
@@ -140,4 +140,4 @@
   :repl-options { }
 
   :main celestial.launch
-  )
+)
