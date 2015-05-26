@@ -1,3 +1,10 @@
+# Celestial 0.9.0 ():
+
+## Fixes:
+
+## New Features
+* Enabling environment in types (mainly puppet-std), this removes a lot of duplication when defining types for multiple envs.
+
 # Celestial 0.8.6 (25/05/15):
 
 Moving to Clojure 1.6 with puny/carmine/friend update
