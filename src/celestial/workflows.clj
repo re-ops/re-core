@@ -18,6 +18,7 @@
     [celestial.model :only (vconstruct pconstruct rconstruct)]) 
   (:require ; loading defmethods
     proxmox.provider 
+    freenas.provider 
     aws.provider 
     vc.provider 
     physical.provider 

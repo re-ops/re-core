@@ -43,5 +43,5 @@
    :mac :jail_mac :type :jail_type :flags :jail_flags })
 
 (defn validate-provider [spec]
-  (validate! spec (combine (mappings machine-entity ))  :error ::invalid-jail))
+  (validate! spec (combine (mappings machine-entity jail-mappings))  :error ::invalid-jail))
 

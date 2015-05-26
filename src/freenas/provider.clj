@@ -47,9 +47,10 @@
 
 (defmethod translate :freenas [{:keys [machine freenas system-id] :as spec}]
     "Convert the general model into a freenas jail"
-    (-> (merge machine freenas {:system-id system-id}) (mappings jail-mappings)))
+    (mappings (merge machine freenas {:system-id system-id}) jail-mappings))
 
-(defn validate [spec] (validate-provider spec))
+(defn validate [spec] 
+  (validate-provider spec) spec)
 
-(defmethod vconstruct :freenas [{:keys [proxmox] :as spec}]
-  (apply ->Jail (validate (translate spec))))
+(defmethod vconstruct :freenas [spec]
+  (Jail. (validate (translate spec))))
