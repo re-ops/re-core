@@ -22,6 +22,7 @@
     [celestial.persistency.quotas :as q]
     [celestial.common :refer (import-logging)]
     [physical.validations :as ph]
+    [freenas.validations :as fv]
     [proxmox.validations :as pv]
     [openstack.validations :as ov]
     [docker.validations :as dv]
@@ -115,6 +116,7 @@
 
 (def hyp-to-v {
    :openstack ov/validate-entity
+   :freenas fv/validate-entity
    :physical ph/validate-entity 
    :proxmox pv/validate-entity 
    :docker dv/validate-entity 
