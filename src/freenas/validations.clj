@@ -21,11 +21,15 @@
   (when-not-nil (partial re-find #"\d+\.\d+\.\d+\.\d+\/\d\d") "must be a legal netmask"))
 
 
-(def machine-entity
+(def machine-common
   {:hostname #{:required :String} :ip #{:required :String :ip} 
-   :netmask #{:required :String :netmask} :mac #{:required :mac}
+   :netmask #{:required :String} :mac #{:required :mac}
   })
 
+(def jail-type #{:standard :pluginjail :portjail})
+
+(validation :jail-type
+  (when-not-nil jail-type (<< "Jail type must be either ~{jail-type}")))
 
 (def freenas
   {:freenas {
@@ -35,13 +39,13 @@
 
 (defn validate-entity
   "freenas based system entity validation for persistence layer" 
-  [{:keys [machine freenas] :as spec}]
-  (validate! spec (combine machine-entity freenas) :error ::invalid-system))
+  [spec]
+  (validate! spec (combine {:machine machine-common} freenas) :error ::invalid-system))
 
 (def jail-mappings {
   :ip :jail_ipv4 :hostname :jail_host :netmask :jail_ipv4_netmask 
    :mac :jail_mac :type :jail_type :flags :jail_flags })
 
 (defn validate-provider [spec]
-  (validate! spec (combine (mappings machine-entity jail-mappings))  :error ::invalid-jail))
+  (validate! spec (combine (mappings machine-common jail-mappings))  :error ::invalid-jail))
 
