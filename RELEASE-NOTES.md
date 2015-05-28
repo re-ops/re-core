@@ -1,9 +1,9 @@
-# Celestial 0.9.0 ():
+# Celestial 0.9.0 (28/05/15):
 
 ## Fixes:
 
 ## New Features
-* Enabling environment in types (mainly puppet-std), this removes a lot of duplication when defining types for multiple envs.
+* Enabling environment in types, this removes a lot of duplication when defining types for multiple envs.
 
 # Celestial 0.8.6 (25/05/15):
 
