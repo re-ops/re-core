@@ -1,4 +1,4 @@
-(ns celestial.integration.gc.openstack
+(ns celestial.test.gc.openstack
   (:require 
     [celestial.security :refer (set-user current-user)]
     [openstack.gc :refer (find-candidates)]
