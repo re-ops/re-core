@@ -47,7 +47,7 @@
     
    (task copy-yaml
      (let [{:keys [type module]} args path (<< "/tmp/~(type :hostname).yml") f (file path) ]
-       (spit f (yaml/generate-string (select-keys type [:classes])))
+       (spit f (yaml/generate-string (module :classes)))
        (debug "copy from " path remote)
        (copy path (<< "/tmp/~(module :name)/"))
        (.delete f))) 
