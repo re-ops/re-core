@@ -33,8 +33,8 @@
   (if (and user (not= user "root"))
     (<< "sudo ~{cmd}") cmd))
 
-(defn args-of [type]
-   (or (some->> (get-in type [:puppet-std :args]) (join " ")) ""))
+(defn args-from [{:keys [args]}]
+   (or (some->> args (join " ")) ""))
 
 (ns- puppet
    (task copy-module
@@ -43,22 +43,24 @@
 
    (task extract-module 
       (let [{:keys [module]} args]
-       (run (<< " cd /tmp && tar -xzf ~(:name module).tar.gz"))))
+       (run (<< " cd /tmp && tar -xzf ~(module :name).tar.gz"))))
     
    (task copy-yaml
-     (let [{:keys [type module]} args path (<< "/tmp/~(type :hostname).yml") f (file path) ]
-       (spit f (yaml/generate-string (module :classes)))
+     (let [{:keys [hostname module classes]} args path (<< "/tmp/~{hostname}.yml") f (file path) ]
+       (info args)
+       (spit f (yaml/generate-string classes))
        (debug "copy from " path remote)
        (copy path (<< "/tmp/~(module :name)/"))
        (.delete f))) 
    
    (task run-puppet
-      (let [{:keys [module type]} args]
-        (run (str (<< "cd /tmp/~(:name module)") " && " (as-root remote (<< "./scripts/run.sh ~(args-of type) --detailed-exitcodes || [ $? -eq 2 ]"))))))
+      (let [{:keys [module]} args]
+        (run (str (<< "cd /tmp/~(module :name)") " && " 
+          (as-root remote (<< "./scripts/run.sh ~(args-from args) --detailed-exitcodes || [ $? -eq 2 ]"))))))
 
    (task cleanup-tmp
       (let [{:keys [module]} args]
-        (run (<< "rm -rf /tmp/~(:name module)*"))))) 
+        (run (<< "rm -rf /tmp/~(module :name)*"))))) 
 
 (lifecycle cleanup {:doc "puppet standalone cleanup"}
    {puppet/cleanup-tmp #{}})
@@ -70,17 +72,17 @@
    puppet/run-puppet #{puppet/cleanup-tmp}
    })
 
-(defrecord Standalone [remote type env]
+(defrecord Standalone [remote m]
   Provision
   (apply- [this]
-    (let [puppet-std (get-in type [:puppet-std env]) module (puppet-std :module)
-          roles {:roles {:web #{remote}}}
-          res (execute puppet-provision {:module module :type type} :web :env roles)]
+    (let [roles {:roles {:web #{remote}}}
+          res (execute puppet-provision m :web :env roles)]
         (when-let [fail (-> res first :fail)] 
           (throw fail))
       ))) 
 
 
 (defmethod pconstruct :puppet-std [type {:keys [machine env] :as spec}]
-  (let [remote {:host (machine :ip) :user (or (machine :user) "root")}]
-    (Standalone. remote (assoc type :hostname (machine :hostname)) env)))
+  (let [remote {:host (machine :ip) :user (or (machine :user) "root")}
+        by-env (get-in type [:puppet-std env])]
+    (Standalone. remote (assoc by-env :hostname (machine :hostname)))))
