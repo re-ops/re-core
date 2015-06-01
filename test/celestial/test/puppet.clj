@@ -8,4 +8,6 @@
 
 (fact "puppet provision type construction"
   (pconstruct redis-type redis-prox-spec) =>
-     (contains {:type (assoc redis-type :hostname "red1")}))
+     (contains (get-in redis-prox-spec [:puppet-std :dev] )))
+
+
