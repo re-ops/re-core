@@ -16,3 +16,6 @@
    (find-candidates machines []) =>  '()
    (find-candidates machines [] ["1a"]) =>  '())
 
+(fact "openstack candidates exclude" :gc :openstack 
+   (find-candidates machines ["1a" "2b" "3c"] ["3c"]) => '("2b")
+   )
