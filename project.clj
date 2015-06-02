@@ -14,7 +14,7 @@
                  [robert/hooke "1.3.0"]
                  [org.clojure/core.incubator "0.1.3"]
                  [slingshot "0.10.3" ]
-                 [org.clojure/core.memoize "0.5.2" :exclusions [org.clojure/core.cache]]
+                 [org.clojure/core.memoize "0.5.6"]
                  [org.flatland/useful "0.10.3"]
                  [org.clojure/tools.macro "0.1.2"]
                  [org.clojure/java.data "0.1.1"]
@@ -29,7 +29,7 @@
                  ; hooks/remoting
                  [clj-http "0.7.6"]
                  [http-kit "2.1.16"]
-                 [supernal "0.4.0"]
+                 [supernal "0.5.0"]
                  [conjul "0.0.2"]
                  ;api
                  [swag "0.2.7"]
@@ -56,11 +56,14 @@
                  [substantiation "0.2.1"]
                  [fogus/minderbinder "0.2.0"]
                  [org.clojure/core.logic "0.8.10"]
+                 ; scheduling
+                 [jarohen/chime "0.1.6" :exclusions [org.clojure/core.async]]
+                 [org.clojure/core.async "0.1.346.0-17112a-alpha"]
                ]
 
   :exclusions [org.clojure/clojure commons-codec]
 
-  :plugins  [[jonase/eastwood "0.1.3"] 
+  :plugins  [[jonase/eastwood "0.2.1"] 
              [self-build "0.0.6"]
              [lein-ancient "0.6.7" :exclusions [org.clojure/clojure]] 
              [lein-tar "2.0.0" ]

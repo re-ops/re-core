@@ -139,4 +139,10 @@
    ;; }
    
  }
+
+ :tasks {
+   openstack.gc/run {
+     :schedule '(-> 2 t/secs t/from-now)
+   }
+ }
 }
