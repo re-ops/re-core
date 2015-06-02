@@ -14,4 +14,4 @@
          (prn "Chiming at:" msg)
          (recur))))))
 
-(schedule (periodic-seq (t/now) (-> 5 t/minutes)))
+#_(schedule (periodic-seq (t/now) (-> 5 t/minutes)))
