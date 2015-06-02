@@ -3,6 +3,7 @@
 ## Fixes:
 
 * Fixing puppet provisioner empty yaml issue.
+* Fixing types edit.
 
 # Celestial 0.9.1 (31/05/15):
 
