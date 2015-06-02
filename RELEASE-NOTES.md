@@ -1,3 +1,9 @@
+# Celestial 0.9.2 ():
+
+## Fixes:
+
+* Fixing puppet provisioner empty yaml issue.
+
 # Celestial 0.9.1 (31/05/15):
 
 Fixing out of date UI
