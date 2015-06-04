@@ -53,7 +53,7 @@
        (nafc membero ?instance-id (managedo ms))
        (== q ?instance-id)))))
 
-(defn run
+(defn cleanup
    "clears up instances" 
    [tenant env es]
    (let [ds (ids tenant) ms (data env :openstack) cs (find-candidates ms ds es)]

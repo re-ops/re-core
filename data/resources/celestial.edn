@@ -141,7 +141,7 @@
  }
 
  :tasks {
-   openstack.gc/run {
+   openstack.gc/cleanup {
      :schedule '(-> 2 t/secs t/from-now)
    }
  }
