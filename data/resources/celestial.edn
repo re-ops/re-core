@@ -140,9 +140,14 @@
    
  }
 
- :tasks {
+ :scheduled {
    openstack.gc/cleanup {
-     :schedule '(-> 2 t/secs t/from-now)
+     :every [5 :secs]
+     :args {
+       :tenant "foo" :env :dev :user "admin"
+       :exclude ["1234"] 
+     }
    }
  }
+
 }
