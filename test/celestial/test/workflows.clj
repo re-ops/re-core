@@ -1,7 +1,8 @@
 (ns celestial.test.workflows
   (:require 
+    [celestial.common :refer (resolve-)]
     [celestial.config :refer (config)]
-    [celestial.workflows :refer (resolve- run-hooks)])
+    [celestial.workflows :refer (run-hooks)])
   (:use midje.sweet)
   (:import clojure.lang.ExceptionInfo))
 
