@@ -13,8 +13,10 @@
   "GCing Vm's in openstack"
   (:refer-clojure :exclude [==])
   (:require 
+    [celestial.security :refer (set-user)]
     [clojure.java.data :refer [from-java]]
     [openstack.common :refer (servers)]
+    [celestial.model :refer (set-env)]
     [celestial.common :refer (import-logging)]
     [cheshire.core :refer (generate-string)]
     [clojure.core.logic :refer (!= == run* membero fresh featurec run nafc)]
@@ -54,10 +56,12 @@
        (== q ?instance-id)))))
 
 (defn cleanup
-   "clears up instances" 
-   [tenant env es]
-   (let [ds (ids tenant) ms (data env :openstack) cs (find-candidates ms ds es)]
-     (debug "following" cs "ids will be cleared")
-     (doseq [c cs]
-       #_(.delete servers c)
-       (debug "cleared" c))))
+  "Clears up instances not managed in Celestial" 
+  [{:keys [tenant env es user]}]
+  (set-user {:username user}
+    (set-env env
+     (let [ds (ids tenant) ms (data env) cs (find-candidates ms ds es)]
+       (debug "following" cs "ids will be cleared")
+       (doseq [c cs]
+         #_(.delete servers c)
+         (info "cleared" c  "on gc task"))))))
