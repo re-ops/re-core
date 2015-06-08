@@ -3,15 +3,17 @@
  (:require 
    [chime :refer [chime-ch]]
    [clj-time.core :as t]
-   [clojure.core.async :as a :refer [<! go-loop]])
-  )  
+   [clj-time.periodic :refer  [periodic-seq]]
+   [clojure.core.async :as a :refer [<! <!! go-loop]]))  
 
-(defn schedule [times]
-  (let [chimes (chime-ch times)]
-    (a/<!! 
+(import-logging)
+
+(defn schedule [f t args]
+  (let [chimes (chime-ch t)]
+    (<!! 
       (go-loop []
-       (when-let [msg (<! chimes)]
-         (prn "Chiming at:" msg)
+        (when-let [msg (<! chimes)]
+         (f args)
          (recur))))))
 
 #_(schedule (periodic-seq (t/now) (-> 5 t/minutes)))
