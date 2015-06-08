@@ -12,7 +12,7 @@
 (ns celestial.workflows
   "Main workflows"
   (:use 
-    [celestial.common :only (get! import-logging)]
+    [celestial.common :only (get! import-logging resolve-)]
     [clojure.core.strint :only (<<)]
     [slingshot.slingshot :only  [throw+ try+]]
     [celestial.model :only (vconstruct pconstruct rconstruct)]) 
@@ -40,14 +40,7 @@
 
 (import-logging)
 
-(defn resolve- [fqn-fn]
-  ;(resolve- (first (keys (get-in config [:hooks :post-create]))))
-  (let [[n f] (.split (str fqn-fn) "/")] 
-    (try+
-      (require (symbol n))
-      (ns-resolve (find-ns (symbol n)) (symbol f)) 
-     (catch java.io.FileNotFoundException e
-       (throw+ {:type ::hook-missing} (<< "Could not locate hook ~{fqn-fn}")))))) 
+ 
 
 (defn run-hooks 
   "Runs hooks"

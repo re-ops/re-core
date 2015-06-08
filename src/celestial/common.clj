@@ -110,3 +110,13 @@
   )
 
 (def version "0.9.1")
+
+(defn resolve- 
+  "resolve function provided as a symbol with the form of ns/fn"
+  [fqn-fn]
+  (let [[n f] (.split (str fqn-fn) "/")] 
+    (try+
+      (require (symbol n))
+      (ns-resolve (find-ns (symbol n)) (symbol f)) 
+     (catch java.io.FileNotFoundException e
+       (throw+ {:type ::hook-missing} (<< "Could not locate hook ~{fqn-fn}"))))))
