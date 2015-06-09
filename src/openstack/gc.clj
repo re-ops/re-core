@@ -27,14 +27,14 @@
 (defn list-servers 
    "list all current vms" 
    [tenant]
-   (-> (servers tenant) (.listAll true)))
+     (into {} (mapv (juxt #(.getId %) identity) (.listAll (servers tenant) true))))
 
 (defn ids [tenant]
-  (map #(.getId %) (list-servers tenant)))
+  (map #((info (.getName %)) (.getId %)) ))
 
 (defn data [env]
   (filter :openstack
-    (map #(assoc :system-id (s/get-system %) %) s/get-system (s/get-system-index :env env))))
+    (map #(assoc (s/get-system %) :system-id  %) (s/get-system-index :env env))))
 
 (defn managedo [ms]
    (run* [q]
@@ -60,8 +60,8 @@
   [{:keys [tenant env es user]}]
   (set-user {:username user}
     (set-env env
-     (let [ds (ids tenant) ms (data env) cs (find-candidates ms ds es)]
-       (debug "following" cs "ids will be cleared")
+     (let [s (list-servers tenant) ds (keys s)
+           ms (data env) cs (find-candidates ms ds es)]
        (doseq [c cs]
          #_(.delete servers c)
-         (info "cleared" c  "on gc task"))))))
+         (info "cleared" c (.getName (s c))))))))

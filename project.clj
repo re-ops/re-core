@@ -75,17 +75,18 @@
   :profiles {
      :refresh {
         :repl-options {
-          :init-ns user               
+          :init-ns user
           :timeout 120000
         }
 
-        :dependencies [[org.clojure/tools.namespace "0.2.4"] [midje "1.6.3"]
+        :dependencies [[org.clojure/tools.namespace "0.2.10"] [midje "1.6.3"]
                        [clojure-complete "0.2.3"] [redl "0.2.0"] [org.clojure/tools.trace "0.7.5"]]
         :injections  [(require '[redl core complete])]
         :resource-paths  ["src/main/resources/" "pkg/etc/celestial/"]
-        :source-paths  ["dev" "src"]
+        :source-paths  ["dev"]
         :test-paths  []
         :jvm-opts ["-XX:MaxPermSize=256m"]
+ 
      }
 
      :dev {
@@ -93,8 +94,9 @@
           :timeout 120000
         }
 
-        :aot [remote.capistrano proxmox.provider vc.provider freenas.provider
-              aws.provider celestial.core celestial.puppet-standalone celestial.launch]
+        :aot [remote.capistrano remote.ruby proxmox.provider vc.provider freenas.provider
+              aws.provider docker.provider physical.provider openstack.provider
+              celestial.core celestial.puppet-standalone celestial.launch]
  
         :test-paths ["test" "data"]
         :source-paths  ["dev"]
@@ -139,6 +141,7 @@
   :resource-paths  ["src/main/resources/"]
   :source-paths  ["src"]
   :target-path "target/"
+  :test-paths  []
 
   :repl-options { }
 
