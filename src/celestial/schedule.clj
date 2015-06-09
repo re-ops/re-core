@@ -12,9 +12,10 @@
 
 (defn schedule [f chimes args]
  (go-loop []
-   (when-let [msg (<! chimes)]
-     (f args)
-     (recur))))
+   (if-let [msg (<! chimes)]
+     (do (f args) (recur))
+     (info f "scheduled task stopped")
+     )))
 
 (defn time-fn [unit]
   (resolve-  (symbol (str "clj-time.core/" (name unit)))))
@@ -32,6 +33,12 @@
       (let [[t unit] every]
         [(resolve- f) (chime-ch (periodic-seq (t/now) ((time-fn unit) t))) args])) (get* :scheduled)))
 
+(defn close-and-flush 
+  "See https://groups.google.com/forum/#!topic/clojure-dev/HLWrb57JIjs"
+  [c]
+  (close! c)
+  (clojure.core.async/reduce (fn [_ _] nil) [] c))
+
 (defrecord Schedule
   [scs] 
   Lifecyle
@@ -40,7 +47,7 @@
     (info "Starting scheduled tasks")
     (doseq [s scs] (apply schedule s)))
   (stop [this]
-    (doseq [[_ c _] scs] (close! c))))
+    (doseq [[_ c _] scs] (close-and-flush c))))
 
 (defn instance []
   (Schedule. (schedules)))
