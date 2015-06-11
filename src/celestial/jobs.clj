@@ -64,8 +64,10 @@
                     (save-status spec' :success)) 
                 (do (apply f args) 
                     (save-status spec' :success))) 
-              (catch Throwable e (error e) 
-                (save-status spec' :error)))))))))
+              (catch Throwable e 
+                (error e) 
+                (save-status spec' :error)
+                ))))))))
 
 (defn jobs []
   {:reload [wf/reload 2] :destroy [wf/destroy 2] :provision [wf/puppetize 2]
