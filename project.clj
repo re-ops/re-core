@@ -110,11 +110,16 @@
            :updates [ 
              {:path "project.clj" :search-regex #"\"target\/celestial-\d+\.\d+\.\d+\.jar"}
              {:path "src/celestial/common.clj" :search-regex #"\"\d+\.\d+\.\d+\""}]}
+
+        :main celestial.launch
       }
 
      :prod {
         :resource-paths  ["src/main/resources/" "pkg/etc/celestial/"] 
+
         :jvm-opts ["-XX:MaxPermSize=512m"]
+
+        :main celestial.launch
       } 
     }
 
@@ -143,7 +148,7 @@
   :target-path "target/"
   :test-paths  []
 
+  :test-paths  []
   :repl-options { }
 
-  :main celestial.launch
 )
