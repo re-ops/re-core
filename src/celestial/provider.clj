@@ -52,7 +52,7 @@
         (apply hypervisor ks)
         (catch [:type :celestial.common/missing-conf] e
           (throw+ {:type :missing-template} 
-                  (<< "no matching vmware template found for ~{os} add one to configuration under ~{ks}")))))))
+                  (<< "no matching template found for ~{os} add one to configuration under ~{ks}")))))))
 
 (defn transform 
   "specific model transformations"
