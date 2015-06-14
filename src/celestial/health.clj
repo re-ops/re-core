@@ -12,7 +12,7 @@
         (health/healthy "%d is less than 30!" now)
         (health/unhealthy "%d is more than 30!" now)))))
 
-(clojure.pprint/pprint (.getMetrics default-registry))
-(clojure.pprint/pprint (health/check second-check))
-
-; (instrument-jvm)
+(let [m (.getMetrics default-registry)]
+  (when (or (nil? m) (not (get m "jvm.thread.deadlock.count")))
+    (instrument-jvm)
+    ))
