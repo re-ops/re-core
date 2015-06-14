@@ -44,12 +44,12 @@
                  [ring/ring-headers "0.1.0"] 
                  ; hypervisors
                  [com.vmware/vijava "5.1" :exclusions [xml-apis]]
-                 [org.pacesys/openstack4j "2.0.1"]
+                 [org.pacesys/openstack4j "2.0.3"]
                  [amazonica "0.3.13" ]
                  ; persistency and model
                  [clojurewerkz/elastisch "2.0.0-beta3"]
                  [puny "0.3.0"]
-                 [com.taoensso/carmine "2.10.0"] 
+                 [com.taoensso/carmine "2.11.1"] 
                  [commons-codec "1.10"]
                  [substantiation "0.2.1"]
                  [fogus/minderbinder "0.2.0"]
