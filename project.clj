@@ -147,8 +147,6 @@
   :source-paths  ["src"]
   :target-path "target/"
   :test-paths  []
-
-  :test-paths  []
   :repl-options { }
 
 )
