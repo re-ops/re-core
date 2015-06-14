@@ -59,6 +59,11 @@
                  [org.clojure/core.async "0.1.346.0-17112a-alpha"]
                  ; remote managment
                  [org.clojure/tools.nrepl "0.2.10"]
+                 ; metrics
+                 [metrics-clojure "2.5.1"]
+                 [metrics-clojure-health "2.5.1"]
+                 [metrics-clojure-jvm "2.5.1"]
+                 [metrics-clojure-ring "2.5.1"]
                ]
 
   :exclusions [org.clojure/clojure commons-codec]
