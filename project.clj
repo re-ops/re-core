@@ -4,19 +4,17 @@
   :license  {:name "Apache License, Version 2.0" :url "http://www.apache.org/licenses/LICENSE-2.0.html"}
 
   :dependencies [[org.clojure/clojure "1.6.0"]
-                 [org.clojure/tools.cli "0.2.2"]
                  [clj-config "0.2.0" ]
                  [com.narkisr/gelfino-client "0.7.0" 
                    :exclusions [com.fasterxml.jackson.core/jackson-core]]
                  ; utils
-                 [me.raynes/fs "1.4.5"]
-                 [org.clojure/tools.nrepl "0.2.3"]
+                 [me.raynes/fs "1.4.6"]
                  [robert/hooke "1.3.0"]
                  [org.clojure/core.incubator "0.1.3"]
                  [slingshot "0.10.3" ]
-                 [org.clojure/core.memoize "0.5.6"]
+                 [org.clojure/core.memoize "0.5.7"]
                  [org.flatland/useful "0.10.3"]
-                 [org.clojure/tools.macro "0.1.2"]
+                 [org.clojure/tools.macro "0.1.5"]
                  [org.clojure/java.data "0.1.1"]
                  ; templating
                  [selmer "0.3.4"]
@@ -38,8 +36,8 @@
                  ; ring
                  [ring-middleware-format "0.3.0"]
                  [ring/ring-jetty-adapter "1.2.0"]
-                 [ring "1.3.0"]
-                 [compojure "1.1.8" :exclusions  [ring/ring-core]]
+                 [ring "1.3.2"]
+                 [compojure "1.3.4" :exclusions  [ring/ring-core]]
                  ; ring security
                  [com.cemerick/friend "0.2.1"] 
                  [ring/ring-session-timeout "0.1.0"]
@@ -59,6 +57,8 @@
                  ; scheduling
                  [jarohen/chime "0.1.6" :exclusions [org.clojure/core.async]]
                  [org.clojure/core.async "0.1.346.0-17112a-alpha"]
+                 ; remote managment
+                 [org.clojure/tools.nrepl "0.2.10"]
                ]
 
   :exclusions [org.clojure/clojure commons-codec]
@@ -80,7 +80,7 @@
         }
 
         :dependencies [[org.clojure/tools.namespace "0.2.10"] [midje "1.6.3"]
-                       [clojure-complete "0.2.3"] [redl "0.2.0"] [org.clojure/tools.trace "0.7.5"]]
+                       [redl "0.2.4"] [org.clojure/tools.trace "0.7.8"]]
         :injections  [(require '[redl core complete])]
         :resource-paths  ["src/main/resources/" "pkg/etc/celestial/"]
         :source-paths  ["dev"]
@@ -102,7 +102,7 @@
         :source-paths  ["dev"]
         :resource-paths  ["src/main/resources/" "pkg/etc/celestial/"]
         :dependencies [[ring-mock "0.1.5"] [midje "1.6.3"]
-                       [org.clojure/tools.trace "0.7.5"]
+                       [org.clojure/tools.trace "0.7.8"]
                        [org.clojure/test.check "0.7.0"]]
         :plugins [[lein-midje "3.1.3"]]
         :jvm-opts ~(into (vec (map (fn [[p v]] (str "-D" (name p) "=" v)) {:disable-conf "true" })) ["-XX:MaxPermSize=256m"])
