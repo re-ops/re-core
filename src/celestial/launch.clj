@@ -26,6 +26,7 @@
     [celestial.persistency.core :as p]
     [hypervisors.networking :refer [initialize-networking]]
     [es.core :as es]
+    [celestial.metrics :as met]
     [celestial.jobs :as jobs]
     [celestial.api.core :as api]
     [celestial.schedule :as sch] 
@@ -45,8 +46,9 @@
     (set-level! (log* :level))))
 
 (defn build-components []
-  {:es (es/instance) :jobs (jobs/instance) :jetty (api/instance) 
-   :persistency (p/instance) :schedule (sch/instance) })
+  {:es (es/instance) :jobs (jobs/instance) 
+   :jetty (api/instance) :metrics (met/instance)
+   :persistency (p/instance) :schedule (sch/instance)})
 
 (defn clean-up 
   "Clean/release resources, used also as a shutdown hook"

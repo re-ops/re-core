@@ -156,6 +156,6 @@
       (clear-locks))))
 
 (defn instance 
-   "creats a jobs instance" 
+   "Creates a jobs instance" 
    []
   (Jobs.))

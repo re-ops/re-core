@@ -1,18 +1,45 @@
-(ns celestial.health
+(ns celestial.metrics
   "health checks"
   (:require 
+    [es.node :as es]
+    [es.common :refer (index)]
+    [celestial.redis :refer (wcar)]
+    [taoensso.carmine :as car]
+    [components.core :refer (Lifecyle)] 
     [metrics.core :refer (default-registry)]
     [metrics.jvm.core :refer (instrument-jvm)]
+    [metrics.health.core :refer [default-healthcheck-registry]]
     [metrics.health.core :as health :refer (defhealthcheck)])
  )
 
-(defhealthcheck "second-check" 
-  (fn [] (let [now (.getSeconds (java.util.Date.))]
-     (if (< now 30)
-        (health/healthy "%d is less than 30!" now)
-        (health/unhealthy "%d is more than 30!" now)))))
+(defhealthcheck "redis" 
+  (fn [] 
+     (let [now (.getSeconds (java.util.Date.))]
+       (if (= (wcar (car/ping)) "PONG")
+        (health/healthy "Managed to ping redis" now)
+        (health/unhealthy "Failed to ping redis" now)))))
 
-(let [m (.getMetrics default-registry)]
-  (when (or (nil? m) (not (get m "jvm.thread.deadlock.count")))
-    (instrument-jvm)
+(defhealthcheck "elasticsearch" 
+  (fn [] 
+     (let [now (.getSeconds (java.util.Date.)) h (es/health (into-array [index]))]
+       (if (= h "GREEN")
+        (health/healthy "ES index health is GREEN" now)
+        (health/unhealthy (str "ES index health is" h)  now)))))
+
+(defrecord Metrics
+  []
+  Lifecyle
+  (setup [this]
+    (let [m (.getMetrics default-registry)]
+      (when (or (nil? m) (not (get m "jvm.thread.deadlock.count")))
+        (instrument-jvm)))) 
+  (start [this])
+  (stop [this]
+    (.unregister default-healthcheck-registry "elasticsearch")   
     ))
+
+(defn instance 
+  "Creating metrics instance "
+   []
+   (Metrics.)
+  )

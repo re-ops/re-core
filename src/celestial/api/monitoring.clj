@@ -1,4 +1,4 @@
-(ns celestial.api.metrics
+(ns celestial.api.monitoring
   (:require 
     [compojure.core :refer [defroutes GET]]
     [metrics.ring.expose :refer [serve-metrics]]
@@ -10,8 +10,13 @@
     )
  )
 
+(defn health-checks
+   []
+   (into {} (map (fn [[k v]] [k (from-java v)]) (.runHealthChecks default-healthcheck-registry)))
+  )
+
 (defroutes metrics 
   (GET "/metrics" [:as request] (serve-metrics request))
   (GET "/health" [:as request] 
-    (let [res (map (fn [[k v]] [k (from-java v)]) (.runHealthChecks default-healthcheck-registry))]
-      (-> res (into {}) first generate-string response (header "Content-Type" "application/json")))))
+      (-> (health-checks) generate-string response (header "Content-Type" "application/json"))))
+

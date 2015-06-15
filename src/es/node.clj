@@ -47,15 +47,18 @@
 (defn wait-for-green-health 
   "Wait that the local node is ready see bit.ly/1kRUPet" 
   [indices]
-  (info "Waiting for cluster to be green on" indices)
-  (-> @ES
+  (try
+    (-> @ES
       .client
       .admin 
       .cluster 
       (.prepareHealth (into-array indices))
       .setWaitForGreenStatus
       .execute
-      .actionGet))
+      .actionGet)
+     (catch Throwable e 
+       (error e) 
+       (throw e))))
 
 (defn start
   "launch en embedded ES node" 
@@ -72,6 +75,7 @@
   (when-not (and @ES (not (.isClosed @ES))) 
     (start m)
     (connect)
+    (info "Waiting for cluster to be green on" indices)
     (wait-for-green-health indices) 
     ))
 
@@ -81,3 +85,7 @@
   (info "Stoping local elasticsearch node")
   (.close @ES) 
   (reset! ES nil))
+
+(defn health [indices]
+  (.name (.getStatus (wait-for-green-health indices))))
+

@@ -21,7 +21,7 @@
     [compojure.core :refer (defroutes routes)] 
     [clojure.core.strint :refer (<<)]
     [celestial.api  
-      [metrics :refer (metrics)]
+      [monitoring :refer (metrics)]
       [jobs :refer (jobs)]
       [actions :refer (actions actions-ro)]
       [types :refer (types types-ro)]
