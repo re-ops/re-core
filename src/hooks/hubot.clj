@@ -9,7 +9,7 @@
   (get-in 
     {:reload {:success "Managed to create system" :error "Failed to create system" }
      :destroy {:success "Destroyed system" :error "Failed to destroy system"} 
-     :puppetize {:success "Provisioned system" :error "Failed to provision system"}
+     :provision {:success "Provisioned system" :error "Failed to provision system"}
      :run-action {:success "Managed to run action on system " :error "Failed to run action on system"}}
      [workflow event]))
 

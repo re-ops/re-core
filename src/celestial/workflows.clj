@@ -41,8 +41,6 @@
 
 (import-logging)
 
- 
-
 (defn run-hooks 
   "Runs hooks"
   [args workflow event]
@@ -159,7 +157,7 @@
     (info "system deleted"))
 
 
-(deflow puppetize 
+(deflow provision
   "Provisions an instance"
   [type {:keys [machine] :as spec}]
     
@@ -175,7 +173,7 @@
   (create spec) 
   (when-not (= (.status (vconstruct (updated-system system-id))) "running"); some providers already start the vm (AWS, vCenter)
     (start (updated-system system-id))) 
-  (puppetize type (updated-system system-id)))
+  (provision type (updated-system system-id)))
 
 (deflow ^{:hook-args :run-info} run-action
   "Runs an action"
