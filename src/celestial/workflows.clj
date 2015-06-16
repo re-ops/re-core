@@ -160,12 +160,11 @@
 (deflow provision
   "Provisions an instance"
   [type {:keys [machine] :as spec}]
-    
-      (info "starting to provision") 
-      (trace type spec) 
-      (running! (vconstruct spec))
-      (.apply- (pconstruct type spec)) 
-      (info "done provisioning"))
+     (info "starting to provision") 
+     (trace type spec) 
+     (running! (vconstruct spec))
+     (.apply- (pconstruct type spec)) 
+     (info "done provisioning"))
 
 (defn stage
   "create and provision"

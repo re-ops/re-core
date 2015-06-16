@@ -18,7 +18,7 @@
     [celestial.persistency.common :as c]
     [celestial.model :refer (figure-rem)]
     [slingshot.slingshot :refer  [throw+]]
-    [subs.core :as subs :refer (validate!)]
+    [subs.core :as subs :refer (validate! validation every-kv combine)]
     [clojure.core.strint :refer (<<)]
     [puny.core :refer (entity)]))
 
@@ -45,18 +45,19 @@
     (throw+ {:type ::duplicated-action } (<< "action for ~{operates-on} named ~{name} already exists")))
   (apply f args))
 
-(def has-args {:args #{:required :Vector}})
+(validation :git-based*
+  (every-kv {
+    :args #{:required :Vector}
+    :src #{:required :String}
+   }))
 
-(def action-base-validation
-  {:src #{:required :String} :operates-on #{:required :String :type-exists}
+(def action-validation
+  {:operates-on #{:required :String :type-exists}
    :name #{:required :String} :timeout #{:Integer :required}})
 
-(defn validate-action [{:keys [name type] :as action}]
-  (if-let [r (remoter action)] 
-    (validate! r has-args :error ::invalid-remoter)
-    (throw+ {:type ::no-matching-remoter } (<< "no matching remoter found for ~{action}"))
-    )
-  (validate! action action-base-validation :error ::invalid-action))
+(defn validate-action [action]
+   (let [remoter-validation {(figure-rem action) #{:required :git-based*}}]
+     (validate! action (combine action-validation remoter-validation) :error ::invalid-action)))
 
 (defrecord Timeout [identifier]
   Migration

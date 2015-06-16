@@ -11,15 +11,15 @@
   (:import clojure.lang.ExceptionInfo))
 
 (fact "actions to remoter construction"
-  (rconstruct redis-deploy {:target "192.168.5.31"}) =>
+  (rconstruct redis-deploy {:target "192.168.5.31" :env :dev}) =>
     (contains {:args ["deploy" "-s" "hostname=192.168.5.31"]
                :src  "git://github.com/narkisr/cap-demo.git"}))
 
 (fact "action validations"
   (with-redefs [type-exists? (fn [_] true)]
     (validate-action redis-deploy)  => truthy
-    (validate-action (assoc-in redis-deploy [:capistrano :args] nil)) =>
-    (throws ExceptionInfo (with-m? {:args "must be present"})) 
+    (validate-action (assoc-in redis-deploy [:capistrano :dev :args] nil)) =>
+    (throws ExceptionInfo (with-m? '{:capistrano ({:dev {:args "must be present"}})})) 
     (validate-action (assoc-in redis-deploy [:actions :stop :supernal :args] nil)) => truthy)
 
    (fact "missing type" 

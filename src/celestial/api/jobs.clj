@@ -107,7 +107,7 @@
        (let [{:keys [machine] :as system} (s/get-system id)]
          (if-let [action* (find-action-for action (:type system))]
            (schedule-job id "run-action" (<< "submitted ~{action} action") 
-             [action* (merge args {:action (keyword action) :hostname (machine :hostname) :target (machine :ip) :system-id (Integer. ^String id)})])
+             [action* (merge args {:action (keyword action) :hostname (machine :hostname) :target (machine :ip) :system-id (Integer. ^String id) :env (system :env)})])
            (bad-req {:message (<< "No action ~{action} found for id ~{id}")})
            )))
 
