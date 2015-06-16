@@ -35,4 +35,4 @@
          (.cleanup cap)
          (destroy (spec)) => nil
          (exists? (:dst cap))  => falsey 
-         (s/system-exists? id)  => falsey))) 
+         )))
