@@ -33,6 +33,7 @@
     openstack.model
     [celestial.persistency.systems :as s]
     [clojure.tools.macro :as tm]
+    [metrics.timers :refer  [deftimer time!]]
    )
   (:import 
     [celestial.puppet_standalone Standalone]
@@ -56,14 +57,18 @@
   "Defines a basic flow functions with post-success and post-error hooks"
   [fname & args]
   (let [[name* attrs] (tm/name-with-attributes fname args)
+        timer (symbol (str name* "-time"))
         meta-map (meta name*) 
         hook-args (or (some-> (meta-map :hook-args) name symbol) 'spec)]
-    `(defn ~name* ~@(when (seq meta-map) [meta-map]) ~(first attrs)
-       (try ~@(next attrs)
-         (run-hooks ~hook-args ~(keyword name*) :success)
-         (catch Throwable t#
-           (run-hooks ~hook-args ~(keyword name*) :error) 
-           (throw t#))))))
+    `(do
+       (deftimer ~timer)
+       (defn ~name* ~@(when (seq meta-map) [meta-map]) ~(first attrs)
+         (time! ~timer
+          (try ~@(next attrs)
+           (run-hooks ~hook-args ~(keyword name*) :success)
+           (catch Throwable t#
+             (run-hooks ~hook-args ~(keyword name*) :error) 
+             (throw t#))))))))
 
 (defn updated-system 
    "grabs system and associates system id" 
@@ -153,14 +158,16 @@
     (s/delete-system system-id)
     (info "system deleted"))
 
+
 (deflow puppetize 
   "Provisions an instance"
   [type {:keys [machine] :as spec}]
-    (info "starting to provision") 
-    (trace type spec) 
-    (running! (vconstruct spec))
-    (.apply- (pconstruct type spec)) 
-    (info "done provisioning"))
+    
+      (info "starting to provision") 
+      (trace type spec) 
+      (running! (vconstruct spec))
+      (.apply- (pconstruct type spec)) 
+      (info "done provisioning"))
 
 (defn stage
   "create and provision"
