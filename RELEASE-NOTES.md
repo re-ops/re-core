@@ -4,6 +4,13 @@
 
 * Fixing puppet provisioner empty yaml issue.
 * Fixing types edit.
+* Fixing actions model to include env as well.
+* Fixing empty openstack hint in UI.
+
+## New Features
+
+* Adding health checks support.
+* Adding time mertics for all operations.
 
 # Celestial 0.9.1 (31/05/15):
 
