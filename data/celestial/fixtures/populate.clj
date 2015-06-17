@@ -34,11 +34,14 @@
   (a/add-action (assoc d/redis-deploy :name "restart-tomcat"))
   (a/add-action (assoc d/redis-deploy :name "flush-cache")))
 
+(def host 
+  (g/fmap (partial apply str) 
+    (g/tuple (g/elements ["zeus-" "atlas-" "romulus-" "remus-"]) g/nat)))
+
+(def ip (g/fmap #(str "192.168.1." %) (g/such-that #(<= (.length %) 3) (g/fmap str g/nat))))
+
 (def machines 
-  (g/fmap (partial zipmap [:hostname]) 
-     (g/tuple 
-       (g/fmap (partial apply str) 
-          (g/tuple (g/elements ["zeus-" "atlas-" "romulus-" "remus-"]) g/nat)))))
+  (g/fmap (partial zipmap [:hostname :ip]) (g/tuple host ip)))
 
 (def host-env-gen
   (g/fmap (partial zipmap [:env :type])
