@@ -44,7 +44,8 @@
 
 (defmethod rconstruct :capistrano [{:keys [capistrano name timeout] :as action} 
                                    {:keys [env] :as run-info}]
-  (let [{:keys [args src]} (capistrano env) interuplated (mapv #(interpulate % run-info) args)]
-    (->Capistrano src interuplated (<< "~(tmpdir)/~(gen-uuid)/~{name}") timeout)))
+  (let [{:keys [args src]} (capistrano env)]
+    (assert (and (:target run-info) (:hostname run-info)))
+    (->Capistrano src (mapv #(interpulate % run-info) args) (<< "~(tmpdir)/~(gen-uuid)/~{name}") timeout)))
 
 
