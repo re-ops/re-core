@@ -2,9 +2,10 @@
  :operates-on "redis"
  :capistrano {
    :dev {
-     :src "git://github.com/narkisr/cap-demo.git"
      :args ["restart" "-s" "hostname=~{target}"]
     }
   } 
  :name "restart"
+ :src "git://github.com/narkisr/cap-demo.git"
+
 }

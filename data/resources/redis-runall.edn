@@ -3,9 +3,10 @@
  :ruby {
    :dev {
      :args ["config/runall.rb" "tasks=deploy,deploy:restart" "-s" "hostname=~{target}"]
-     :src "git://github.com/narkisr/cap-demo.git"
+    :timeout 300000
     }
  } 
+
  :name "runall"
- :timeout 300000
+ :src "git://github.com/narkisr/cap-demo.git"
 }

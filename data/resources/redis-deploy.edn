@@ -3,9 +3,10 @@
  :capistrano {
     :dev {
       :args ["deploy" "-s" "hostname=~{target}"]
-      :src "git://github.com/narkisr/cap-demo.git"
+      :timeout 300000
     }
  } 
- :timeout 300000
+ 
  :name "deploy"
+ :src "git://github.com/narkisr/cap-demo.git"
 }

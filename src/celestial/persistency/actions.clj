@@ -54,12 +54,12 @@
 (validation :git-based*
   (every-kv {
     :args #{:required :Vector}
-    :src #{:required :String}
+    :timeout #{:required :Integer}
    }))
 
 (def action-validation
   {:operates-on #{:required :String :type-exists}
-   :name #{:required :String} :timeout #{:Integer :required}})
+   :name #{:required :String} :src #{:required :String}})
 
 (defn validate-action [action]
    (let [remoter-validation {(figure-rem action) #{:required :git-based*}}]
