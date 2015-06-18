@@ -31,10 +31,13 @@
 
 (defn add-provided [action]
   "appends action expected arguments derived from args strings"
-   (reduce 
-     (fn [m e] 
-       (assoc-in m [(figure-rem m) e :provided] 
-         (remove #{"target" "hostname"} (c/args-of (join " " ((remoter m) e :args)))))) action (keys (remoter action)))) 
+   (if (:args (remoter action))
+     action ; not migrated yet
+     (reduce 
+      (fn [m e] 
+        (assoc-in m [(figure-rem m) e :provided] 
+          (remove #{"target" "hostname"} 
+            (c/args-of (join " " ((remoter m) e :args)))))) action (keys (remoter action))))) 
 
 (def with-provided (partial c/with-transform add-provided))
 
