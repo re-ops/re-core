@@ -1,4 +1,4 @@
-(defproject celestial "0.9.1"
+(defproject celestial "0.10.0"
   :description "A launching pad for virtualized applications"
   :url "https://github.com/celestial-ops/celestial-core"
   :license  {:name "Apache License, Version 2.0" :url "http://www.apache.org/licenses/LICENSE-2.0.html"}
@@ -144,7 +144,7 @@
 
   :topping {
       :service "celestial"
-      :app {:app-name "celestial" :src "target/celestial-0.9.1.jar"}
+      :app {:app-name "celestial" :src "target/celestial-0.10.0.jar"}
       :env {:roles {:remote #{{:host "celestial" :user "ubuntu" :sudo true}}}}
    } 
 
