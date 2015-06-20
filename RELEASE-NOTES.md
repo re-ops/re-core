@@ -1,4 +1,4 @@
-# Celestial 0.9.2 ():
+# Celestial 0.10.0 (21/06/15):
 
 ## Fixes:
 
