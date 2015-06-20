@@ -124,6 +124,10 @@
 
         :jvm-opts ["-XX:MaxPermSize=512m"]
 
+        :aot [remote.capistrano remote.ruby proxmox.provider vc.provider freenas.provider
+              aws.provider docker.provider physical.provider openstack.provider
+              celestial.core celestial.puppet-standalone celestial.launch]
+ 
         :main celestial.launch
       } 
     }
