@@ -25,7 +25,7 @@
 
 (defn auth  
    []
-  [(hypervisor :freenas :user) (hypervisor :freenas :password)]
+  [(hypervisor :freenas :username) (hypervisor :freenas :password)]
   )
 
 (defn call [verb api args]
