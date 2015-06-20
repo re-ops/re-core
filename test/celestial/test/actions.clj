@@ -12,8 +12,7 @@
 
 (fact "actions to remoter construction"
   (rconstruct redis-deploy {:target "192.168.5.31" :hostname "foo" :env :dev}) =>
-    (contains {:args ["deploy" "-s" "hostname=192.168.5.31"]
-               :src  "git://github.com/narkisr/cap-demo.git"}))
+    (contains {:args ["deploy" "-s" "hostname=192.168.5.31"] :timeout 300000}))
 
 (fact "action validations"
   (with-redefs [type-exists? (fn [_] true)]
