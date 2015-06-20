@@ -4,7 +4,7 @@
     :dev {
       :args ["deploy" "-s" "hostname=~{target}"]
       :timeout 300000
-      :provided '()
+      :provided () 
     }
  } 
  
