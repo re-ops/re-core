@@ -38,7 +38,7 @@
 
       (fact "openstack puppetization" :integration :openstack :workflow :puppet
           (wf/create (spec)) => nil
-          (wf/puppetize redis-type (spec)) => nil 
+          (wf/provision redis-type (spec)) => nil 
           (wf/destroy (spec)) => nil)
 
       (fact "openstack floating ip" :integration :openstack :workflow :floating

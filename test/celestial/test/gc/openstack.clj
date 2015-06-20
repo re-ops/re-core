@@ -1,4 +1,4 @@
-(ns celestial.integration.gc.openstack
+(ns celestial.test.gc.openstack
   (:require 
     [celestial.security :refer (set-user current-user)]
     [openstack.gc :refer (find-candidates)]
@@ -16,3 +16,6 @@
    (find-candidates machines []) =>  '()
    (find-candidates machines [] ["1a"]) =>  '())
 
+(fact "openstack candidates exclude" :gc :openstack 
+   (find-candidates machines ["1a" "2b" "3c"] ["3c"]) => '("2b")
+   )

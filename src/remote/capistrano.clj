@@ -42,8 +42,10 @@
   (cleanup [this]
            (delete-dir dst)))
 
-(defmethod rconstruct :capistrano [{:keys [src capistrano name timeout] :as spec} run-info]
-  (let [interuplated (mapv #(interpulate % run-info) (capistrano :args))]
-    (->Capistrano src interuplated (<< "~(tmpdir)/~(gen-uuid)/~{name}") timeout)))
+(defmethod rconstruct :capistrano [{:keys [capistrano name src] :as action} 
+                                   {:keys [env] :as run-info}]
+  (let [{:keys [args timeout]} (capistrano env)]
+    (assert (and (:target run-info) (:hostname run-info)))
+    (->Capistrano src (mapv #(interpulate % run-info) args) (<< "~(tmpdir)/~(gen-uuid)/~{name}") timeout)))
 
 

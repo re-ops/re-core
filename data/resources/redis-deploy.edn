@@ -1,7 +1,12 @@
 {
  :operates-on "redis"
- :src "git://github.com/narkisr/cap-demo.git"
- :capistrano {:args ["deploy" "-s" "hostname=~{target}"]} 
- :timeout 300000
+ :capistrano {
+    :dev {
+      :args ["deploy" "-s" "hostname=~{target}"]
+      :timeout 300000
+    }
+ } 
+ 
  :name "deploy"
+ :src "git://github.com/narkisr/cap-demo.git"
 }

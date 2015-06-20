@@ -65,14 +65,14 @@
 
       (fact "aws puppetization" :integration :ec2 :workflow
           (wf/create (spec)) => nil
-          (wf/puppetize redis-type (spec)) => nil 
+          (wf/provision redis-type (spec)) => nil 
           (wf/destroy (spec)) => nil)
 
       (fact "aws puppetization of s3" :integration :ec2 :workflow
           (let [s3-redis (assoc-in redis-type [:puppet-std :module :src] 
                             "s3://opsk-sandboxes/redis-sandbox-0.3.5.tar.gz")]
             (wf/create (spec)) => nil
-            (wf/puppetize s3-redis (spec)) => nil 
+            (wf/provision s3-redis (spec)) => nil 
             (wf/destroy (spec)) => nil))
       
       (fact "aws clone workflows" :integration :ec2 :workflow
@@ -92,7 +92,7 @@
      (fact "aws centos provisioning" :integration :ec2 :workflow
         (wf/create (spec)) => nil
         (wf/stop (spec)) => nil 
-        (wf/puppetize redis-type (spec)) => (throws java.lang.AssertionError)
+        (wf/provision redis-type (spec)) => (throws java.lang.AssertionError)
         (wf/start (spec)) => nil 
-        (wf/puppetize redis-type (spec)) => nil
+        (wf/provision redis-type (spec)) => nil
         (wf/destroy (spec)) => nil))))

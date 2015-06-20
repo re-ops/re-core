@@ -64,11 +64,13 @@
                     (save-status spec' :success)) 
                 (do (apply f args) 
                     (save-status spec' :success))) 
-              (catch Throwable e (error e) 
-                (save-status spec' :error)))))))))
+              (catch Throwable e 
+                (error e) 
+                (save-status spec' :error)
+                ))))))))
 
 (defn jobs []
-  {:reload [wf/reload 2] :destroy [wf/destroy 2] :provision [wf/puppetize 2]
+  {:reload [wf/reload 2] :destroy [wf/destroy 2] :provision [wf/provision 2]
    :stage [wf/stage 2] :run-action [wf/run-action 2] :create [wf/create 2]
    :start [wf/start 2] :stop [wf/stop 2] :clear [wf/clear 1] :clone [wf/clone 1]})
 
@@ -154,6 +156,6 @@
       (clear-locks))))
 
 (defn instance 
-   "creats a jobs instance" 
+   "Creates a jobs instance" 
    []
   (Jobs.))

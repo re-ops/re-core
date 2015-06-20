@@ -34,7 +34,7 @@
 
     (fact "proxmox puppetization" :integration :proxmox :workflow
         (wf/create (spec)) => nil
-        (wf/puppetize redis-type (spec)) => nil 
+        (wf/provision redis-type (spec)) => nil 
         (wf/destroy (spec)) => nil))))
 
 

@@ -13,8 +13,10 @@
   "GCing Vm's in openstack"
   (:refer-clojure :exclude [==])
   (:require 
+    [celestial.security :refer (set-user)]
     [clojure.java.data :refer [from-java]]
     [openstack.common :refer (servers)]
+    [celestial.model :refer (set-env)]
     [celestial.common :refer (import-logging)]
     [cheshire.core :refer (generate-string)]
     [clojure.core.logic :refer (!= == run* membero fresh featurec run nafc)]
@@ -25,14 +27,14 @@
 (defn list-servers 
    "list all current vms" 
    [tenant]
-   (-> (servers tenant) (.listAll true)))
+     (into {} (mapv (juxt #(.getId %) identity) (.listAll (servers tenant) true))))
 
 (defn ids [tenant]
-  (map #(.getId %) (list-servers tenant)))
+  (map #((info (.getName %)) (.getId %)) ))
 
 (defn data [env]
   (filter :openstack
-    (map #(assoc :system-id (s/get-system %) %) s/get-system (s/get-system-index :env env))))
+    (map #(assoc (s/get-system %) :system-id  %) (s/get-system-index :env env))))
 
 (defn managedo [ms]
    (run* [q]
@@ -53,11 +55,13 @@
        (nafc membero ?instance-id (managedo ms))
        (== q ?instance-id)))))
 
-(defn clean 
-   "clears up instances" 
-   [tenant env es]
-   (let [ds (ids tenant) ms (data env :openstack) cs (find-candidates ms ds es)]
-     (debug "following" cs "ids will be cleared")
-     (doseq [c cs]
-       (.delete servers c)
-       (debug "cleared" c))))
+(defn cleanup
+  "Clears up instances not managed in Celestial" 
+  [{:keys [tenant env es user]}]
+  (set-user {:username user}
+    (set-env env
+     (let [s (list-servers tenant) ds (keys s)
+           ms (data env) cs (find-candidates ms ds es)]
+       (doseq [c cs]
+         #_(.delete servers c)
+         (info "cleared" c (.getName (s c))))))))

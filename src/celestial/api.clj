@@ -21,6 +21,7 @@
     [compojure.core :refer (defroutes routes)] 
     [clojure.core.strint :refer (<<)]
     [celestial.api  
+      [monitoring :refer (metrics)]
       [jobs :refer (jobs)]
       [actions :refer (actions actions-ro)]
       [types :refer (types types-ro)]
@@ -34,13 +35,16 @@
     [swag.core :refer (swagger-routes)]
     [compojure.handler :as handler]
     [cemerick.friend :as friend]
-    [compojure.route :as route]))
+    [compojure.route :as route]
+    ))
+
 
 (import-logging)
 
 (defroutes app-routes
   systems types-ro audits-ro actions-ro 
   environments jobs sessions users-current
+  (friend/wrap-authorize metrics su)
   (friend/wrap-authorize users-ro su)
   (friend/wrap-authorize users admin)
   (friend/wrap-authorize systems-admin admin)
@@ -48,6 +52,7 @@
   (friend/wrap-authorize types admin)
   (friend/wrap-authorize audits admin)
   (friend/wrap-authorize quotas admin)
+
   (route/not-found "Not Found"))
 
 (defn error-wrap

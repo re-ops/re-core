@@ -18,7 +18,7 @@
     [celestial.persistency.common :as c]
     [celestial.model :refer (figure-rem)]
     [slingshot.slingshot :refer  [throw+]]
-    [subs.core :as subs :refer (validate!)]
+    [subs.core :as subs :refer (validate! validation every-kv combine)]
     [clojure.core.strint :refer (<<)]
     [puny.core :refer (entity)]))
 
@@ -31,7 +31,13 @@
 
 (defn add-provided [action]
   "appends action expected arguments derived from args strings"
-   (assoc action :provided (remove #{"target" "hostname"} (c/args-of (join " " ((remoter action) :args)))))) 
+   (if (:args (remoter action))
+     action ; not migrated yet
+     (reduce 
+      (fn [m e] 
+        (assoc-in m [(figure-rem m) e :provided] 
+          (remove #{"target" "hostname"} 
+            (c/args-of (join " " ((remoter m) e :args)))))) action (keys (remoter action))))) 
 
 (def with-provided (partial c/with-transform add-provided))
 
@@ -45,18 +51,19 @@
     (throw+ {:type ::duplicated-action } (<< "action for ~{operates-on} named ~{name} already exists")))
   (apply f args))
 
-(def has-args {:args #{:required :Vector}})
+(validation :git-based*
+  (every-kv {
+    :args #{:required :Vector}
+    :timeout #{:required :Integer}
+   }))
 
-(def action-base-validation
-  {:src #{:required :String} :operates-on #{:required :String :type-exists}
-   :name #{:required :String} :timeout #{:Integer :required}})
+(def action-validation
+  {:operates-on #{:required :String :type-exists}
+   :name #{:required :String} :src #{:required :String}})
 
-(defn validate-action [{:keys [name type] :as action}]
-  (if-let [r (remoter action)] 
-    (validate! r has-args :error ::invalid-remoter)
-    (throw+ {:type ::no-matching-remoter } (<< "no matching remoter found for ~{action}"))
-    )
-  (validate! action action-base-validation :error ::invalid-action))
+(defn validate-action [action]
+   (let [remoter-validation {(figure-rem action) #{:required :git-based*}}]
+     (validate! action (combine action-validation remoter-validation) :error ::invalid-action)))
 
 (defrecord Timeout [identifier]
   Migration

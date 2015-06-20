@@ -54,7 +54,6 @@
 (def redis-ec2-centos 
   (assoc-in (read-fixture "redis-ec2-centos") [:aws :key-name] host))
 
-
 (def redis-vc-spec (read-fixture "redis-vc-system"))
 
 (def redis-docker-spec (read-fixture "redis-docker-system"))
@@ -63,8 +62,6 @@
 
 (def clustered-prox (read-fixture "celestial-cluster"))
  
-
-
 (def local-conf 
   (let [path (me.raynes.fs/expand-home "~/.celestial.edn")]
     (when (me.raynes.fs/exists? path) (slurp-edn path))))

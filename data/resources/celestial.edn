@@ -139,4 +139,15 @@
    ;; }
    
  }
+
+ :scheduled {
+   openstack.gc/cleanup {
+     :every [5 :secs]
+     :args {
+       :tenant "foo" :env :dev :user "admin"
+       :exclude ["1234"] 
+     }
+   }
+ }
+
 }

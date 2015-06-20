@@ -6,7 +6,7 @@
     [celestial.fixtures.core :refer (with-defaults) :as f]  
     [celestial.fixtures.populate :refer (add-users)]  
     [celestial.fixtures.data :as d]  
-    [celestial.workflows :refer (reload puppetize destroy)]
+    [celestial.workflows :refer (reload provision destroy)]
     [celestial.redis :refer (clear-all)]
     [celestial.config :refer (path)]
     )
@@ -19,7 +19,7 @@
   (let [id (s/add-system spec)] 
     (try 
       (reload (assoc spec :system-id id))
-      (puppetize type (s/get-system id))
+      (provision type (s/get-system id))
       (finally 
         (destroy (assoc (s/get-system id) :system-id id))))))
 

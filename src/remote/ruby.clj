@@ -41,5 +41,7 @@
   (cleanup [this]
            (delete-dir dst)))
 
-(defmethod rconstruct :ruby [{:keys [src ruby name timeout] :as action} run-info]
-    (->Ruby src (mapv #(interpulate % run-info) (ruby :args)) (<< "~(tmpdir)/~(gen-uuid)/~{name}") timeout))
+(defmethod rconstruct :ruby [{:keys [src ruby name]:as action} 
+                             {:keys [env] :as run-info}]
+    (let [{:keys [args timeout]} (ruby env)]
+      (->Ruby src (mapv #(interpulate % run-info) args) (<< "~(tmpdir)/~(gen-uuid)/~{name}") timeout)))
