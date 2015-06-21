@@ -22,8 +22,8 @@
                  [camel-snake-kebab "0.1.2"]
                  ; logging 
                  [com.taoensso/timbre "2.6.3"]
-                 [ch.qos.logback/logback-classic "1.0.13"]
-                 [org.codehaus.groovy/groovy "2.1.6"]
+                 [ch.qos.logback/logback-classic "1.1.3"]
+                 [org.codehaus.groovy/groovy "2.4.3"]
                  ; hooks/remoting
                  [clj-http "0.7.6"]
                  [http-kit "2.1.16"]
