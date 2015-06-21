@@ -1,3 +1,9 @@
+# Celestial 0.10.2 (22/06/15):
+
+## Fixes:
+
+* Fixing bouncy castle depdency
+
 # Celestial 0.10.0 (21/06/15):
 
 ## Fixes:
