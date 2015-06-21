@@ -1,4 +1,4 @@
-(defproject celestial "0.10.0"
+(defproject celestial "0.10.1"
   :description "A launching pad for virtualized applications"
   :url "https://github.com/celestial-ops/celestial-core"
   :license  {:name "Apache License, Version 2.0" :url "http://www.apache.org/licenses/LICENSE-2.0.html"}
@@ -124,6 +124,10 @@
 
         :jvm-opts ["-XX:MaxPermSize=512m"]
 
+        :aot [remote.capistrano remote.ruby proxmox.provider vc.provider freenas.provider
+              aws.provider docker.provider physical.provider openstack.provider
+              celestial.core celestial.puppet-standalone celestial.launch]
+ 
         :main celestial.launch
       } 
     }
@@ -144,7 +148,7 @@
 
   :topping {
       :service "celestial"
-      :app {:app-name "celestial" :src "target/celestial-0.10.0.jar"}
+      :app {:app-name "celestial" :src "target/celestial-0.10.1.jar"}
       :env {:roles {:remote #{{:host "celestial" :user "ubuntu" :sudo true}}}}
    } 
 

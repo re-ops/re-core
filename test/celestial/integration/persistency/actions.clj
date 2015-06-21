@@ -8,20 +8,18 @@
   [celestial.persistency.actions :as a])
  (:use midje.sweet))
 
-(def redis-deploy-provided (assoc redis-deploy :provided '()))
-
 (with-conf
   (with-state-changes [(before :facts (re-initlize))]
    (fact "basic actions usage" :integration :redis :actions
      (t/add-type redis-type) 
      (let [id (a/add-action redis-deploy)]
-       (a/get-action id) => redis-deploy-provided
+       (a/get-action id) => redis-deploy
        (a/get-action-index :operates-on "redis") => [(str id)]
-       (a/find-action-for "deploy" "redis") =>  redis-deploy-provided))
+       (a/find-action-for "deploy" "redis") =>  redis-deploy))
  
    (fact "duplicated actions" :integration :redis :actions
      (t/add-type redis-type) 
      (let [id (a/add-action redis-deploy)]
-       (a/get-action id) => redis-deploy-provided
+       (a/get-action id) => redis-deploy
        (a/add-action redis-deploy) => 
           (throws ExceptionInfo (is-type? :celestial.persistency.actions/duplicated-action))))))
