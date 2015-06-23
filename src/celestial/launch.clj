@@ -12,19 +12,19 @@
 (ns celestial.launch
   "celestial lanching ground aka main"
   (:gen-class true)
-  (:use 
-    [clojure.core.strint :only (<<)]
-    [clojure.tools.nrepl.server :only (start-server stop-server)]
-    [gelfino.timbre :only (set-tid get-tid)]
-    [clojure.java.io :only (resource)]
-    [gelfino.timbre :only (gelf-appender)]
-    [supernal.core :only [ssh-config]]
-    [celestial.common :only (get! get* import-logging version)]
-    [taoensso.timbre :only (set-config! set-level!)])
   (:require 
+    [clojure.tools.nrepl.server :refer (start-server stop-server)]
+    [clojure.java.io :refer (resource)]
+    [celestial.common :refer (get! get* import-logging version)]
+    [clojure.core.strint :refer (<<)]
+    [supernal.core :refer [ssh-config]]
+    [gelfino.timbre :refer (set-tid get-tid gelf-appender)]
+    [taoensso.timbre :refer (merge-config! set-level!)]
+    [taoensso.timbre.appenders.3rd-party.rolling :refer (rolling-appender) ] 
+    [taoensso.timbre.appenders.core :refer (spit-appender)]
     [components.core :refer (start-all stop-all setup-all)]
     [celestial.persistency.core :as p]
-    [hypervisors.networking :refer [initialize-networking]]
+    [hypervisors.networking :refer (initialize-networking)]
     [es.core :as es]
     [celestial.metrics :as met]
     [celestial.jobs :as jobs]
