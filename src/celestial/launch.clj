@@ -39,10 +39,8 @@
   []
   (let [log* (partial get* :celestial :log)]
     (when (log* :gelf)
-      (set-config! [:appenders :gelf] gelf-appender) 
-      (set-config! [:shared-appender-config :gelf] {:host (log* :gelf :host)})) 
-    (set-config! [:shared-appender-config :spit-filename] (log* :path)) 
-    (set-config! [:appenders :spit :enabled?] true) 
+      (merge-config! {:appenders {:gelf (gelf-appender  {:host (log* :gelf :host)})}}))
+    (merge-config! {:appenders {:rolling (rolling-appender {:path (log* :path) :pattern :weekly})}})
     (set-level! (log* :level))))
 
 (defn build-components []
