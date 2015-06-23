@@ -5,8 +5,6 @@
 
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [clj-config "0.2.0" ]
-                 [com.narkisr/gelfino-client "0.7.0" 
-                   :exclusions [com.fasterxml.jackson.core/jackson-core]]
                  ; utils
                  [me.raynes/fs "1.4.6"]
                  [robert/hooke "1.3.0"]
@@ -17,11 +15,12 @@
                  [org.clojure/tools.macro "0.1.5"]
                  [org.clojure/java.data "0.1.1"]
                  ; templating
-                 [selmer "0.3.4"]
+                 [selmer "0.8.2"]
                  [com.palletops/stevedore "0.8.0-beta.5"]
                  [camel-snake-kebab "0.1.2"]
                  ; logging 
-                 [com.taoensso/timbre "2.6.3"]
+                 [com.narkisr/gelfino-client "0.8.1"]
+                 [com.taoensso/timbre "4.0.1"]
                  [ch.qos.logback/logback-classic "1.1.3"]
                  [org.codehaus.groovy/groovy "2.4.3"]
                  ; hooks/remoting
@@ -66,7 +65,7 @@
                  [metrics-clojure-ring "2.5.1"]
                ]
 
-  :exclusions [org.clojure/clojure commons-codec]
+  :exclusions [org.clojure/clojure com.taoensso/timbre commons-codec]
 
   :plugins  [[jonase/eastwood "0.2.1"] 
              [self-build "0.0.6"]
