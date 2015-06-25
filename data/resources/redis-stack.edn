@@ -1,0 +1,14 @@
+{
+ :shared {
+    :machine {:hostname celestial.generators/hostgen :domain "local"}
+    :openstack {:tenant "skywind" :key-name "foo"}
+  } 
+ 
+ 
+  :systems [
+    {:count 2 :template :small-redis } 
+    {:count 1 :template :tiny-jvm }        
+  ]
+    
+  
+}

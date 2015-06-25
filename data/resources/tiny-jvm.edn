@@ -1,0 +1,18 @@
+{
+ :template true
+
+ :machine {
+  :user "ubuntu" 
+  :os :ubuntu-14.10
+ }
+
+ :openstack {
+  :flavor "m1.small" 
+  :tenant "skywind"
+  :key-name "foo"
+  :security-groups ["default"]
+  :networks ["playtech-int-2"]
+ }
+
+ :type "jvm"
+}
