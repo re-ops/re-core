@@ -11,15 +11,12 @@
 
 (ns celestial.api.stacks
   "Setting up clusteres of systems"
+  (:require 
+    [swag.model :refer (defmodel defc)] 
+    )
  )
 
-(defmodel system 
-  :env :string
-  :type :string
-  :user :string
-  :machine {:type "Machine"} 
-  :aws {:type "Aws" :description "An EC2 based system"}
-  :physical {:type "Physical" :description "A physical machine"}
-  :openstack {:type "Openstack" :description "An openstack based instance"}
-  :proxmox {:type "Proxmox" :description "A Proxmox based system"}
-  :vcenter {:type "Vcenter" :description "A vCenter based system"})
+(defmodel stack
+  :shared :string
+  :systems :string
+)
