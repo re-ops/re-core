@@ -18,7 +18,6 @@
     [celestial.security :refer (current-user)]
     [ring.util.codec :refer (base64-decode)]
     [clojure.data.json :as json]
-    [cemerick.friend :as friend]
     [celestial.persistency.systems :as s]
     [es.systems :as es]
     [celestial.model :refer (sanitized-envs)] 
