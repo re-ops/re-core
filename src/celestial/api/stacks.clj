@@ -10,13 +10,22 @@
    limitations under the License.)
 
 (ns celestial.api.stacks
-  "Setting up clusteres of systems"
-  (:require 
-    [swag.model :refer (defmodel defc)] 
-    )
+  "Stacks api"
+   (:require 
+    [taoensso.timbre :as timbre]
+    [celestial.persistency.stacks :as s]
+    [celestial.common :refer (import-logging wrap-errors success)]
+    [swag.model :refer (defmodel)]
+    [swag.core :refer (GET- POST- PUT- DELETE- defroutes-)])
  )
 
+(timbre/refer-timbre)
+
 (defmodel stack
-  :shared :string
-  :systems :string
+  :shared {
+    :type "Hash" :description "Shared peroperties include: :owner :env :machine :openstack/:aws etc"
+  }
+  :systems {
+    :type "List" :description "count per template {:count 1 :template :foo}"
+  }
 )

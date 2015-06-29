@@ -3,8 +3,7 @@
   (:require 
     [subs.core :as subs :refer (validate! validation when-not-nil every-v)]
     [puny.core :refer (entity)]
-    )
- )
+    ))
 
 
 (entity {:version 1} stack)
