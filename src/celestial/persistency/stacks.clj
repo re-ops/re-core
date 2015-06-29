@@ -8,16 +8,18 @@
 
 (entity {:version 1} stack)
 
-(validation :count {:template #{:required :Keyword} :count #{:required :Integer}})
+(validation :count {
+  :template #{:required :Keyword} :count #{:required :Integer}
+})
 
 (validation :system* (every-v  #{:count}))
 
-(validation :shared {:owner #{:required :String} :env #{:required :Keyword} :machine #{:Map}})
-
 (def stack-base {
    :systems #{:system*}
-   :shared #{:required }
-  })
+   :shared {
+      :owner #{:required :String} :env #{:required :Keyword} :machine #{:Map}
+   }
+})
 
 (defn validate-stack
   [stack]
