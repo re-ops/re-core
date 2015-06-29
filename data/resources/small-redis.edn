@@ -1,6 +1,4 @@
 {
- :template true
-
  :machine {
   :user "ubuntu" 
   :os :ubuntu-14.10
