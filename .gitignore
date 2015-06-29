@@ -10,6 +10,7 @@ pom.xml.asc
 .lein-plugins
 .lein-repl-history
 celestial.log
+celestial.log.*
 takadu-systems
 foo.keystore
 celestial.log 
