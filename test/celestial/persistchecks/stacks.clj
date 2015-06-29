@@ -1,4 +1,4 @@
-(ns celestial.persistency.stacks
+(ns celestial.persistchecks.stacks
   "Testing basic stacks persisetency"
   (:require 
     [celestial.persistency.stacks :as s]
