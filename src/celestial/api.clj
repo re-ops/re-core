@@ -27,6 +27,7 @@
       [types :refer (types types-ro)]
       [audits :refer (audits-ro audits)]
       [systems :refer (systems environments systems-admin)] 
+      [stacks :refer (stacks stacks-ro)] 
       [users :refer (users quotas users-ro users-current)]
       [ui :refer (public sessions)]]
     [celestial.security :as sec]
@@ -42,12 +43,13 @@
 (import-logging)
 
 (defroutes app-routes
-  systems types-ro audits-ro actions-ro 
+  systems types-ro audits-ro actions-ro stacks-ro
   environments jobs sessions users-current
   (friend/wrap-authorize metrics su)
   (friend/wrap-authorize users-ro su)
   (friend/wrap-authorize users admin)
   (friend/wrap-authorize systems-admin admin)
+  (friend/wrap-authorize stacks admin)
   (friend/wrap-authorize actions admin)
   (friend/wrap-authorize types admin)
   (friend/wrap-authorize audits admin)
