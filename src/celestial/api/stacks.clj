@@ -12,11 +12,12 @@
 (ns celestial.api.stacks
   "Stacks api"
    (:require 
+    [slingshot.slingshot :refer  [throw+ try+]] 
     [celestial.persistency.stacks :as s]
     [celestial.common :refer (success wrap-errors conflict bad-req)]
     [taoensso.timbre :as timbre]
     [swag.model :refer (defmodel)]
-    [swag.core :refer (GET- POST- PUT- DELETE- defroutes-)])
+    [swag.core :refer (GET- POST- PUT- DELETE- defroutes- errors)])
  )
 
 (timbre/refer-timbre)
@@ -33,6 +34,15 @@
 (defroutes- stacks {:path "/stacks" :description "Operations on stacks"}
   (POST- "/stacks" [& ^:stack stack] {:nickname "addStack" :summary "Add stack"}
     (wrap-errors (s/add-stack stack) (success {:message "new stack saved"})))
+
+  (DELETE- "/stacks/:id" [^:int id] {:nickname "deleteStack" :summary "Delete Stack" 
+                                          :errorResponses (errors {:bad-req "Stack does not exist"})}
+         (try+ 
+             (let [spec (s/get-stack! id) int-id (Integer/valueOf id)]               
+               (s/delete-stack! int-id) 
+               (success {:message "Stack deleted"})) 
+             (catch [:type :celestial.persistency/missing-stack] e 
+               (bad-req {:message "Stack does not exist"}))))
 
   (PUT- "/stacks/:id" [^:int id & ^:stack stack] {:nickname "updateStack" :summary "Update stack"}
      (if-not (s/stack-exists? id)
