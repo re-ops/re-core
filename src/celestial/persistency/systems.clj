@@ -135,7 +135,7 @@
 
 (defn validate-system
   [system]
-  (validate! system system-base :error ::non-valid-machine-type)
+  (validate! system system-base :error ::non-valid-system)
   ((hyp-to-v (figure-virt system)) system))
 
 (defn clone-system 
@@ -185,5 +185,13 @@
   )
 
 
+(declare validate-template)
 
+(entity {:version 1} template :indices [type])
 
+(def template-base {:type #{:required :type-exists}})
+
+(defn validate-template
+  [template]
+  (validate! template template-base :error ::non-valid-template)
+  ((hyp-to-v (figure-virt template)) template))
