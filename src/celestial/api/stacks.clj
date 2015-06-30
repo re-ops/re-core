@@ -12,6 +12,8 @@
 (ns celestial.api.stacks
   "Stacks api"
    (:require 
+    [celestial.persistency.stacks :as s]
+    [celestial.common :refer (success wrap-errors conflict bad-req)]
     [taoensso.timbre :as timbre]
     [swag.model :refer (defmodel)]
     [swag.core :refer (GET- POST- PUT- DELETE- defroutes-)])
@@ -37,10 +39,8 @@
           (conflict {:message "Stack does not exists, use POST /stack first"}) 
           (wrap-errors
             (s/update-stack (Integer/valueOf id) stack) 
-            (success {:message "stack updated" :id id})))) 
-  )
+            (success {:message "stack updated" :id id})))))
 
 (defroutes- stacks-ro {:path "/stacks" :description "Read only stacks api"}
   (GET- "/stacks/:id" [^:int id] {:nickname "getStackById" :summary "Get stack by its id"}
-     (success (s/get-stack id))) 
-  )
+     (success (s/get-stack id))))
