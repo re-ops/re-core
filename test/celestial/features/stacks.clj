@@ -24,5 +24,5 @@
    (s/validate-stack (dissoc-in* simple-stack [:shared :owner])) => 
      (throws ExceptionInfo (with-m? {:shared {:owner "must be present"}}))
    (s/validate-stack (assoc-in simple-stack [:systems 2] {})) => 
-      (throws ExceptionInfo (with-m? '{:systems ({2 {:count "must be present", :template "must be present"}})}))
-  )
+      (throws ExceptionInfo 
+        (with-m? '{:systems ({2 {:count "must be present", :template "must be present"}})})))
