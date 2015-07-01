@@ -12,13 +12,13 @@
 (ns freenas.provider
   "Freenas jails provider"
   (:require 
+    [clojure.core.strint :refer (<<)] 
     [celestial.provider :refer (wait-for-ssh mappings wait-for)]
     [freenas.remote :refer [call]]
     [freenas.validations :refer [validate-provider jail-mappings]]
     [slingshot.slingshot :refer  [throw+]]
     [celestial.persistency.systems :as s]
     [celestial.common :refer (import-logging)]
-    [celestial.provider :refer (wait-for wait-for-ssh)]
     [org.httpkit.client :as client]
     [celestial.core :refer (Vm)] 
     [celestial.model :refer (hypervisor translate vconstruct)])
@@ -26,14 +26,32 @@
 
 (import-logging)
 
+(defn instance-id*
+  "grabbing instance id of spec"
+   [spec]
+  (get-in (s/get-system (spec :system-id)) [:freenas :id]))
+
+(defmacro with-id [& body]
+ `(if-let [~'id (instance-id* ~'spec)]
+    (do ~@body) 
+    (throw+ {:type ::freenas:missing-id} "Instance id not found"))
+  )
+
 (defrecord Jail [spec]
   Vm
   (create [this] 
-    (call client/post "jails/jails" spec)
+    (let [{:keys [id]} (call client/post "jails/jails" spec)]
+     (s/partial-system (spec :system-id) {:freenas {:id id}})
+     (debug "created" id)
+      this)
     )
 
   (start [this]
-     )
+    (with-id
+      (let [{:keys [machine]} (s/get-system (spec :system-id))]
+        (call client/post (<< "jails/jails/~{id}/start") spec)
+        (wait-for-ssh  (machine :ip) "root" [5 :minute]))
+      ))
 
   (delete [this]
      )

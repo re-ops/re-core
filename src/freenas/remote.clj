@@ -29,9 +29,5 @@
   )
 
 (defn call [verb api args]
-   @(verb (<< "~(root)~{api}") (merge args {:basic-auth (auth) :insecure? true})))
-
-
-;; (clojure.pprint/pprint (parse-string (:body (call client/get  "jails/jails/?format=json" {})) true))
-;; (clojure.pprint/pprint (parse-string (:body (call client/get  "jails/templates/?format=json" {})) true))
+   (-> @(verb (<< "~(root)~{api}") (merge args {:basic-auth (auth) :insecure? true})) :body parse-string))
 
