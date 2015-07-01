@@ -12,6 +12,7 @@
 (ns freenas.provider
   "Freenas jails provider"
   (:require 
+    [taoensso.timbre :as timbre]
     [clojure.core.strint :refer (<<)] 
     [celestial.provider :refer (wait-for-ssh mappings wait-for)]
     [freenas.remote :refer [call]]
@@ -24,7 +25,7 @@
     [celestial.model :refer (hypervisor translate vconstruct)])
  )
 
-(import-logging)
+(timbre/refer-timbre)
 
 (defn instance-id*
   "grabbing instance id of spec"
@@ -40,7 +41,7 @@
 (defrecord Jail [spec]
   Vm
   (create [this] 
-    (let [{:keys [id]} (call client/post "jails/jails" spec)]
+    (let [{:keys [id]} (call client/post "jails/jails/" spec)]
      (s/partial-system (spec :system-id) {:freenas {:id id}})
      (debug "created" id)
       this)
