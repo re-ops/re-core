@@ -11,11 +11,15 @@
 
 (ns freenas.remote
   (:require 
+    [slingshot.slingshot :refer  [throw+]]
+    [taoensso.timbre :as timbre]
     [celestial.common :refer (import-logging)]
     [cheshire.core :refer :all]
     [celestial.model :refer (hypervisor)]
     [clojure.core.strint :refer (<<)]
     [org.httpkit.client :as client]))
+
+(timbre/refer-timbre)
 
 (defn freenas [ks])
 
@@ -28,6 +32,16 @@
   [(hypervisor :freenas :username) (hypervisor :freenas :password)]
   )
 
-(defn call [verb api args]
-   (-> @(verb (<< "~(root)~{api}") (merge args {:basic-auth (auth) :insecure? true})) :body parse-string))
+(defn defaults []
+  {:basic-auth (auth) :insecure? true :headers {"Content-Type" "application/json"}})
+
+(defn call 
+  ([verb api] (call verb api nil))
+  ([verb api params]
+   (let [args* (merge (defaults) {:body (generate-string params)} {})
+         {:keys [body status] :as res} @(verb (<< "~(root)~{api}") args*)]
+     (when-not (= 201 status)
+       (info status)
+       (throw+ (assoc res :type ::call-failed)))
+     (-> body parse-string))))
 
