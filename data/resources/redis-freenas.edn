@@ -5,12 +5,11 @@
 
   :machine {
     :hostname "red1" :ip "192.168.3.100"
-    :netmask "255.255.255.0/24" ; ipv4 netmask
+    :netmask "24" ; ipv4 netmask
     :mac "02:00:21:00:0c:0a"
   } 
 
   :freenas {
-    :type :standard ;jail type pluginjail, standard, portjail
     :flags "allow.raw_sockets=true"
   }
 
