@@ -74,6 +74,8 @@
   "Creates a Virtualized instance model from input spec" 
   (fn [spec] (figure-virt spec)))
 
+(defmulti check-validity (fn [m] [(figure-virt m) (or (:as m) :entity)] ))
+
 (def provisioners #{:chef :puppet :puppet-std})
 
 (defmulti pconstruct

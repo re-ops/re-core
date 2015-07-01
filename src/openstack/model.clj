@@ -14,6 +14,10 @@
   (:use [flatland.useful.map :only  (dissoc-in*)]
         [celestial.model :only (clone)])) 
 
+(def identifiers 
+  {:machine #{:ip :hostname}
+   :openstack #{:instance-id}})
+
 (defmethod clone :openstack [spec clone-spec]
   "Clones the model replace unique identifiers in the process" 
   (-> spec 

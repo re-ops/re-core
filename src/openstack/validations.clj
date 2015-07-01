@@ -12,6 +12,7 @@
 (ns openstack.validations
   "Openstack validations"
   (:require 
+    [celestial.model :refer (check-validity)]
     [clojure.core.strint :refer (<<)]
     [subs.core :as subs :refer (validate! combine every-v every-kv validation when-not-nil)])
  )
@@ -46,10 +47,11 @@
     :hints #{::hint*} :volumes #{::volume*}}
    })
 
-(defn validate-entity 
-  "openstack based systems entity validation " 
-  [openstack]
-  (validate! openstack (combine machine-entity openstack-common) :error ::invalid-system))
-
 (defn provider-validation [spec]
   (validate! spec (combine machine-entity openstack-common) :error ::invalid-openstack))
+
+(defmethod check-validity [:openstack :entity] [m]
+  (validate! m (combine machine-entity openstack-common) :error ::invalid-system))
+
+(defmethod check-validity [:openstack :template] [m]
+  (validate! m (combine machine-entity openstack-common) :error ::invalid-system))

@@ -32,7 +32,7 @@
     [puny.core :refer (entity)]
     [slingshot.slingshot :refer  [throw+]]
     [puny.migrations :refer (Migration register)]
-    [celestial.model :refer (clone hypervizors figure-virt)] 
+    [celestial.model :refer (clone hypervizors figure-virt check-validity)] 
     [clojure.core.strint :refer (<<)]  
     proxmox.model aws.model))
 
@@ -114,7 +114,7 @@
 (defn system-ip [id]
   (get-in (get-system id) [:machine :ip]))
 
-(def hyp-to-v {
+#_(def hyp-to-v {
    :openstack ov/validate-entity
    :freenas fv/validate-entity
    :physical ph/validate-entity 
@@ -136,7 +136,7 @@
 (defn validate-system
   [system]
   (validate! system system-base :error ::non-valid-system)
-  ((hyp-to-v (figure-virt system)) system))
+  (check-validity system))
 
 (defn clone-system 
   "clones an existing system"
@@ -194,4 +194,4 @@
 (defn validate-template
   [template]
   (validate! template template-base :error ::non-valid-template)
-  ((hyp-to-v (figure-virt template)) template))
+  (check-validity (assoc template :as :template)))
