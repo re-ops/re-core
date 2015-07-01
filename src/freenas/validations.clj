@@ -27,14 +27,10 @@
    :netmask #{:required :String} :mac #{:required :mac}
   })
 
-(def jail-type #{:standard :pluginjail :portjail})
-
-(validation :jail-type
-  (when-not-nil jail-type (<< "Jail type must be either ~{jail-type}")))
 
 (def freenas
   {:freenas {
-    :type #{:required :jail-type} :flags #{:String}
+     :flags #{:String}
    }})
 
 (defmethod check-validity [:freenas :entity] [spec]
@@ -42,7 +38,7 @@
 
 (def jail-mappings {
   :ip :jail_ipv4 :hostname :jail_host :netmask :jail_ipv4_netmask 
-   :mac :jail_mac :type :jail_type :flags :jail_flags })
+   :mac :jail_mac :flags :jail_flags })
 
 (defn validate-provider [spec]
   (validate! spec (combine (mappings machine-common jail-mappings))  :error ::invalid-jail))
