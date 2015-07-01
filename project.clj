@@ -50,7 +50,7 @@
                  [puny "0.3.0"]
                  [com.taoensso/carmine "2.11.1"] 
                  [commons-codec "1.10"]
-                 [substantiation "0.2.1"]
+                 [substantiation "0.3.1"]
                  [fogus/minderbinder "0.2.0"]
                  [org.clojure/core.logic "0.8.10"]
                  ; scheduling
