@@ -5,10 +5,8 @@
    [celestial.persistency 
     [types :refer (validate-type)] [users :refer (user-exists? validate-user)]]
    [celestial.persistency.quotas :refer (validate-quota)]
+   [celestial.model :refer (check-validity)] 
    [aws.validations :as awsv]
-   [physical.validations :as phv]
-   [docker.validations :as dv]
-   [openstack.validations :as ov]
    [celestial.fixtures.data :refer 
     (redis-type user-quota redis-ec2-spec 
      redis-openstack-spec redis-physical redis-docker-spec)]
@@ -69,35 +67,35 @@
 
 (fact "aws volume validations"
   ; TODO this should fail! seems to be a subs issue
-  (awsv/validate-entity  
+  (check-validity  
     (merge-with merge redis-ec2-spec 
       {:aws {:volumes [{:device "do"}]}})) => 
       (throws ExceptionInfo 
         (with-m? 
           '{:aws {:volumes ({0 {:clear "must be present", :size "must be present", :volume-type "must be present"}})}}))
 
-  (awsv/validate-entity  
+  (check-validity  
     (merge-with merge redis-ec2-spec 
       {:aws {:volumes [{:device "do" :volume-type "gp2" :size 100 :clear true}]}})) => {}
 
-  (awsv/validate-entity  
+  (check-validity  
     (merge-with merge redis-ec2-spec 
       {:aws {:volumes [{:device "do" :volume-type "io1" :iops 100 :size 10 :clear false}]}})) => {}
 
-  (awsv/validate-entity  
+  (check-validity  
     (merge-with merge redis-ec2-spec 
       {:aws {:volumes [{:device "do" :volume-type "io1" :size 10 :clear false}]}})) => 
       (throws ExceptionInfo 
         (with-m?  {:aws {:volumes '({0 "iops required if io1 type is used"})}})))
 
 (fact "aws entity validations" 
-  (awsv/validate-entity redis-ec2-spec) => {}
+  (check-validity redis-ec2-spec) => {}
   
-  (awsv/validate-entity 
+  (check-validity 
     (merge-with merge redis-ec2-spec {:aws {:security-groups [1]}})) =>
     (throws ExceptionInfo (with-m? {:aws {:security-groups '({0 "must be a string"})}}))
 
-  (awsv/validate-entity 
+  (check-validity 
     (merge-with merge redis-ec2-spec {:aws {:availability-zone 1}})) =>
     (throws ExceptionInfo (with-m? {:aws {:availability-zone "must be a string"}})))
 
@@ -106,30 +104,28 @@
    
    (awsv/provider-validation base) => {}
 
-   (awsv/provider-validation 
-     (merge-with merge base {:aws {:placement {:availability-zone "eu-west-1a"}}})) => {}
+   (awsv/provider-validation (merge-with merge base {:aws {:placement {:availability-zone "eu-west-1a"}}})) => {}
 
-   (awsv/provider-validation 
-     (merge-with merge base {:aws {:placement {:availability-zone 1}}})) => 
+   (awsv/provider-validation (merge-with merge base {:aws {:placement {:availability-zone 1}}})) => 
     (throws ExceptionInfo 
       (with-m? {:placement {:availability-zone "must be a string"}}))))
 
 
 (fact "physical systmes validation" 
-   (phv/validate-entity redis-physical) => {}
+   (check-validity redis-physical) => {}
 
-   (phv/validate-entity (assoc-in redis-physical [:physical :mac] "aa:bb")) =>
+   (check-validity (assoc-in redis-physical [:physical :mac] "aa:bb")) =>
      (throws ExceptionInfo (with-m? {:physical {:mac "must be a legal mac address"}}))
 
-   (phv/validate-entity (assoc-in redis-physical [:physical :broadcast] "a.1.2")) =>
+   (check-validity (assoc-in redis-physical [:physical :broadcast] "a.1.2")) =>
       (throws ExceptionInfo (with-m? {:physical {:broadcast "must be a legal ip address"}})))
 
 (fact "docker systems validation" 
-   (dv/validate-entity redis-docker-spec) => {})
+   (check-validity redis-docker-spec) => {})
 
 (fact "openstack volume validations"
   (let [spec (merge-with merge redis-openstack-spec {:openstack {:volumes [{:device "do" :size 10}]}})]
-    (ov/validate-entity spec) => 
+    (check-validity spec) => 
       (throws ExceptionInfo 
         (with-m? 
           '{:openstack 

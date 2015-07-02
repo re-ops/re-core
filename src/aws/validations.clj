@@ -12,6 +12,7 @@
 (ns aws.validations
   "AWS based validations"
   (:require 
+    [celestial.model :refer (check-validity)]
     [clojure.core.strint :refer (<<)]
     [subs.core :as subs :refer (validate! combine every-v every-kv validation when-not-nil)]))
 
@@ -51,11 +52,8 @@
     }})
 
 
-(defn validate-entity 
-  "aws based systems entity validation " 
-  [aws]
+(defmethod check-validity [:aws :entity] [aws]
   (validate! aws (combine machine-entity aws-entity) :error ::invalid-system))
-
 
 (def aws-provider
   {:instance-type #{:required :String} :key-name #{:required :String}

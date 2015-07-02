@@ -11,6 +11,7 @@
 
 (ns vc.validations
   (:use 
+    [celestial.model :refer (check-validity)]
     [vc.vijava :only (disk-format-types)]
     [clojure.core.strint :only (<<)]
     [subs.core :only (validate! combine validation when-not-nil)]))
@@ -56,8 +57,5 @@
   (combine {:allocation {:disk-format #{:format-str :required}}} 
       common-allocation machine-common machine-networking machine-entity))
 
-(defn validate-entity
-  "vcenter based system entity validation for persistence layer" 
-  [{:keys [machine vcenter] :as vc}]
+(defmethod check-validity [:vcenter :entity] [{:keys [machine vcenter] :as vc}]
   (validate! {:allocation vcenter :machine machine} vcenter-entity :error ::invalid-system))
-

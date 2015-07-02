@@ -12,6 +12,7 @@
 (ns physical.validations
   "physical machine validations"
   (:require 
+    [celestial.model :refer (check-validity)] 
     [subs.core :refer (validate! combine validation when-not-nil)]
     ))
 
@@ -26,9 +27,8 @@
     :mac #{:required :mac} :broadcast #{:required :ip}
    }})
 
-(defn validate-entity [physical]
-  (validate! physical (combine machine-entity physical-entity) 
-     :error ::invalid-system))
+(defmethod check-validity [:physical :entity] [physical]
+  (validate! physical (combine machine-entity physical-entity) :error ::invalid-system))
 
 (def physical-provider {
   :remote {:host #{:required :String} :user #{:required :String}}                      :interface {:broadcast #{:required :ip} :mac #{:required :mac}}  

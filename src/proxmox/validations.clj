@@ -12,6 +12,7 @@
 (ns proxmox.validations
   "Proxmox based validations"
   (:require 
+    [celestial.model :refer (check-validity)] 
     [clojure.core.strint :refer (<<)] 
     [subs.core :refer (validate! combine validation when-not-nil)]
     ))
@@ -50,9 +51,7 @@
   (combine (if bridge {:machine common-bridging} {}) 
     {:machine common-resources} machine-entity proxmox-entity))
 
-(defn validate-entity
-  "proxmox based system entity validation for persistence layer" 
-  [{:keys [machine] :as proxmox}]
+(defmethod check-validity [:proxmox :entity] [{:keys [machine] :as proxmox}]
   (validate! proxmox (entity-validation machine) :error ::invalid-system))
 
 (def extended-vs

@@ -12,6 +12,7 @@
 (ns freenas.validations
   "Freenas based validations"
   (:require 
+    [celestial.model :refer (check-validity)]
     [celestial.provider :refer (mappings)]
     [clojure.core.strint :refer (<<)] 
     [subs.core :refer (validate! combine validation when-not-nil)]
@@ -36,10 +37,7 @@
     :type #{:required :jail-type} :flags #{:String}
    }})
 
-
-(defn validate-entity
-  "freenas based system entity validation for persistence layer" 
-  [spec]
+(defmethod check-validity [:freenas :entity] [spec]
   (validate! spec (combine {:machine machine-common} freenas) :error ::invalid-system))
 
 (def jail-mappings {

@@ -12,6 +12,7 @@
 (ns docker.validations
   "Docker validations"
   (:require 
+    [celestial.model :refer (check-validity)] 
     [clojure.core.strint :refer (<<)] 
     [subs.core :refer (validate! combine validation when-not-nil every-v)]
     ))
@@ -33,10 +34,8 @@
     {:cpus #{:required :Integer} :hostname #{:required :String}
      :memory #{:required :Integer}}})
 
-(defn validate-entity [spec]
+(defmethod check-validity [:docker :entity] [spec]
   (validate! spec (combine machine-common)))
-
-;; (validation :quota* (every-kv {:limit #{:required :Integer}}))
 
 (def start-v 
  {:port-bindings #{:required :Map} :binds #{:required :Map}})
