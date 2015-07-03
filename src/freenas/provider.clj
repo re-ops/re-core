@@ -38,30 +38,37 @@
     (throw+ {:type ::freenas:missing-id} "Instance id not found"))
   )
 
+(defn jails [host] 
+  (let [js (call client/get "jails/jails/") ]
+    (first (filter #(= (:jail_host %) host) js))))
+
 (defrecord Jail [spec]
   Vm
   (create [this] 
-    (let [{:keys [id]} (call client/post "jails/jails/" spec)]
-     (s/partial-system (spec :system-id) {:freenas {:id id}})
+    (call client/post "jails/jails/" spec)
+    (let [{:keys [id]} (jails (spec :jail_host))]
      (debug "created" id)
+     (s/partial-system (spec :system-id) {:freenas {:id id}})
       this)
     )
 
   (start [this]
     (with-id
       (let [{:keys [machine]} (s/get-system (spec :system-id))]
-        (call client/post (<< "jails/jails/~{id}/start") spec)
+        (when-not (= "running" (.status this))
+          (call client/post (<< "jails/jails/~{id}/start") spec))
         (wait-for-ssh  (machine :ip) "root" [5 :minute]))
       ))
 
   (delete [this]
-     )
+     (with-id (call client/delete (<< "jails/jails/~{id}/"))))
 
   (stop [this]
-     )
+    (with-id (call client/post (<< "jails/jails/~{id}/stop/"))))
 
   (status [this] 
-     ))
+    (when-let [jail (jails (spec :jail_host))]
+      (.toLowerCase (:jail_status jail)))))
 
 
 (defmethod translate :freenas [{:keys [machine freenas system-id] :as spec}]
