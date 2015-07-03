@@ -42,22 +42,27 @@
   (let [js (call client/get "jails/jails/") ]
     (first (filter #(= (:jail_host %) host) js))))
 
+(defn enable-ssh [host]
+  ;; jexec 19 sed -i.bak 's/^sshd_enable=.*/sshd_enable="YES"/' /etc/rc.conf
+  ;; jexec  19 /etc/rc.d/sshd start
+  )
+
 (defrecord Jail [spec]
   Vm
   (create [this] 
-    (call client/post "jails/jails/" spec)
-    (let [{:keys [id]} (jails (spec :jail_host))]
+    (let [{:keys [jail_host]} (call client/post "jails/jails/" spec)
+          {:keys [id]} (jails jail_host)]
      (debug "created" id)
      (s/partial-system (spec :system-id) {:freenas {:id id}})
-      this)
-    )
+     (enable-ssh jail_host)
+      this))
 
   (start [this]
     (with-id
       (let [{:keys [machine]} (s/get-system (spec :system-id))]
         (when-not (= "running" (.status this))
           (call client/post (<< "jails/jails/~{id}/start") spec))
-        (wait-for-ssh  (machine :ip) "root" [5 :minute]))
+        (wait-for-ssh (machine :ip) "root" [5 :minute]))
       ))
 
   (delete [this]
