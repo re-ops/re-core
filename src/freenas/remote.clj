@@ -40,8 +40,8 @@
   ([verb api params]
    (let [args* (merge (defaults) {:body (generate-string params)} {})
          {:keys [body status] :as res} @(verb (<< "~(root)~{api}") args*)]
-     (when-not (= 201 status)
+     (when-not (#{200 201 202 204} status) 
        (info status)
        (throw+ (assoc res :type ::call-failed)))
-     (-> body parse-string))))
+     (-> body (parse-string true)))))
 
