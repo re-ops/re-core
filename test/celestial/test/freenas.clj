@@ -8,4 +8,4 @@
 (with-conf
   (let [{:keys [machine freenas]} redis-freenas]
     (fact "legal freenas system"
-       (:spec (vconstruct redis-freenas)) => (contains {:jail_type :standard}))))
+       (:spec (vconstruct redis-freenas)) => (contains {:jail_host "red1"}))))
