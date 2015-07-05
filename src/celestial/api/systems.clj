@@ -166,33 +166,31 @@
       (wrap-errors (success (s/re-index (working-username))))))
 
 (defroutes- templates {:path "/templates" :description "Operations on templates"}
-  (POST- "/templates" [& ^:template spec] {:nickname "addTemplate" :summary "Add template" 
-     :errorResponses (errors {:bad-req "Missing system type"})}
+  (POST- "/templates" [& ^:template spec] {:nickname "addTemplate" :summary "Add template"}
     (wrap-errors
-      (let [id (s/add-template spec)] 
-        (success {:message "new template saved" :id id}))))
+      (s/add-template spec) 
+      (success {:message "new template saved"})))
 
-  (GET- "/templates/:id" [^:int id] {:nickname "getTemplate" :summary "Get template by id"}
-     (success (s/get-template id)))
+  (GET- "/templates/:name" [^:string name] {:nickname "getTemplate" :summary "Get template by name"}
+     (success (s/get-template name)))
 
-  (DELETE- "/templates/:id" [^:int id] {:nickname "deleteTemplate" :summary "Delete Template" 
+  (GET- "/templates" [] {:nickname "getTemplates" :summary "Get all templates"}
+        (success {:templates (map s/get-template (s/all-templates))}))
+
+  (DELETE- "/templates/:name" [^:string name] {:nickname "deleteTemplate" :summary "Delete Template" 
                                           :errorResponses (errors {:bad-req "Template does not exist"})}
-     (try+ 
-        (let [spec (s/get-template! id) int-id (Integer/valueOf id)]               
-          (s/delete-template! int-id) 
-          (success {:message "Template deleted"})) 
-       (catch [:type :celestial.persistency/missing-template] e 
-          (bad-req {:message "Template does not exist"}))))
+     (if (s/template-exists? template)
+        (do (s/delete-template template) 
+          (success {:message "Template deleted"}))
+        (bad-req {:message "Template does not exist"}))
+     )
 
-  (PUT- "/templates/:id" [^:int id & ^:template template] {:nickname "updateTemplate" :summary "Update template" 
-                                                         :errorResponses (errors {:conflict "Template does not exist"}) }
-        (if-not (s/template-exists? id)
-          (conflict {:message "Template does not exists, use POST /host/template first"}) 
-          (wrap-errors
-            (s/update-template (Integer/valueOf id) template) 
-            (success {:message "template updated" :id id}))))
-  
-  )
+  (PUT- "/templates" [& ^:template props] {:nickname "updateTemplate" :summary "Update template"}
+        (wrap-errors
+          (if-not (s/template-exists? (props :name))
+            (conflict {:message "Template does not exists, use POST /template first"}) 
+            (do (s/update-template props) 
+                (success {:message "template updated"}))))))
 
 (defroutes- environments {:path "/environments" :description "Operations on environments"}
   (GET- "/environments" [] {:nickname "getEnvironments" :summary "Get sanitized environments for current user"}

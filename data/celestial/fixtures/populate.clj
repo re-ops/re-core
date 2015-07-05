@@ -99,9 +99,9 @@
 
 (defn populate-all 
   "populates all data types" 
-  [& {:keys [excludes] :or {excludes []}}]
+  [& {:keys [skip] :or {skip []}}]
   (re-initlize true)
-  (doseq [[_ p] (dissoc populators excludes)] (p)))
+  (doseq [[_ p] (dissoc populators skip)] (p)))
 
 (defn populate-system 
   "Adds single type and system" 
