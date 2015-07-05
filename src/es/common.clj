@@ -56,7 +56,7 @@
 (defn flush- 
   []
   (when (idx/exists? index)
-    (info "Flushing index" index)
+    (debug "Flushing index" index)
     (idx/flush index)))
  
 (defn env-term 
