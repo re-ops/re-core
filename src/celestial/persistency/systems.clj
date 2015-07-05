@@ -114,15 +114,6 @@
 (defn system-ip [id]
   (get-in (get-system id) [:machine :ip]))
 
-#_(def hyp-to-v {
-   :openstack ov/validate-entity
-   :freenas fv/validate-entity
-   :physical ph/validate-entity 
-   :proxmox pv/validate-entity 
-   :docker dv/validate-entity 
-   :aws av/validate-entity 
-   :vcenter vc/validate-entity})
-
 (validation :type-exists (when-not-nil t/type-exists? "type not found, create it first"))
 
 (validation :user-exists (when-not-nil u/user-exists? "user not found"))
