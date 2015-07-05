@@ -105,5 +105,6 @@
   [& args]
   (set-user {:username "admin"}
      (populate-all)
+     (es/flush-)
      (u/delete-user "admin"); will be set up in next launch
      (println "populate done!")))
