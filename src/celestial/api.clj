@@ -27,7 +27,7 @@
       [actions :refer (actions actions-ro)]
       [types :refer (types types-ro)]
       [audits :refer (audits-ro audits)]
-      [systems :refer (systems environments systems-admin)] 
+      [systems :refer (systems environments systems-admin templates)] 
       [stacks :refer (stacks stacks-ro)] 
       [users :refer (users quotas users-ro users-current)]
       [ui :refer (public sessions)]]
@@ -44,7 +44,8 @@
 (import-logging)
 
 (defroutes app-routes
-  systems types-ro audits-ro actions-ro stacks-ro
+  templates systems types-ro 
+  audits-ro actions-ro stacks-ro
   environments jobs sessions users-current
   (friend/wrap-authorize metrics su)
   (friend/wrap-authorize users-ro su)
