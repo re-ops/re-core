@@ -1,0 +1,14 @@
+{
+ :puppet-std {
+   :dev {
+       :module {
+         :name "jvm-sandbox-0.4.0" 
+         :src "http://dl.bintray.com/content/narkisr/boxes/jvm-sandbox-0.4.0.tar.gz"
+       }
+       :args []
+       :classes {:jvm {}}
+   }
+  }
+
+ :type "jvm"
+}

@@ -24,6 +24,7 @@
    "populates types" 
    []
   (t/add-type d/smokeping-type)
+  (t/add-type d/jvm-type)
   (t/add-type d/redis-type))
 
 (defn add-actions 
@@ -33,6 +34,8 @@
   ; these actions won't work
   (a/add-action (assoc d/redis-deploy :name "restart-tomcat"))
   (a/add-action (assoc d/redis-deploy :name "flush-cache")))
+
+
 
 (def host 
   (g/fmap (partial apply str) 
@@ -74,6 +77,12 @@
   (doseq [s (g/sample systems-with-machines 100)] 
     (s/add-system s)))
 
+(defn add-templates 
+   "populate templates" 
+   []
+  (s/add-template d/small-redis)
+  (s/add-template d/tiny-jvm))
+
 (defn re-initlize
   "Re-init datastores"
   ([] (re-initlize false))
@@ -83,14 +92,16 @@
    (es/initialize)
    (red/clear-all)))
 
+(def populators {
+  :users add-users :types add-types :actions add-actions
+  :systems add-systems :templates add-templates
+})
+
 (defn populate-all 
   "populates all data types" 
-  []
+  [& {:keys [excludes] :or {excludes []}}]
   (re-initlize true)
-  (add-users)
-  (add-types)
-  (add-actions)
-  (add-systems))
+  (doseq [[_ p] (dissoc populators excludes)] (p)))
 
 (defn populate-system 
   "Adds single type and system" 

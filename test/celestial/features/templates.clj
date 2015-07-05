@@ -9,9 +9,9 @@
 
 (set-user {:username "admin"}
   (with-conf
-    (with-state-changes [(before :facts (populate-all))]
+    (with-state-changes [(before :facts (populate-all :exclude :templates))]
       (fact "basic template persistency" :integration :redis :templates
-      (s/add-template small-redis) => 1
-      (s/get-template 1) => (contains {:type "redis" :name "small-redis"})
+      (let [id (s/add-template small-redis)]
+        (s/get-template id) => (contains {:type "redis" :name "small-redis"})) 
       (let [provided {:env :dev :owner "admin" :machine {:hostname "foo" :domain "local"}}]
         (s/templatize 1 provided) => 101)))))
