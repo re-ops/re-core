@@ -14,6 +14,7 @@
   (:require 
     [celestial.roles :refer (admin su)]
     [ring.middleware.format :refer (wrap-restful-format)]
+    [ ring.middleware.format-params :refer (wrap-json-kw-params)]
     [ring.middleware.session-timeout :refer (wrap-idle-session-timeout)]
     [ring.middleware.x-headers :refer (wrap-frame-options)]
     [swag.model :refer (wrap-swag)]
@@ -84,6 +85,7 @@
       (wrap-swag) 
       (wrap-idle-session-timeout {:timeout (or (get* :celestial :session-timeout) 600) :timeout-response (ring.util.response/redirect (<< "/login"))})
       (wrap-session {:cookie-name "celestial" :store (cookie-store) :cookie-attrs {:secure true :max-age 3600}})
+      (wrap-json-kw-params)
       (wrap-restful-format :formats [:json-kw :edn :yaml-kw :yaml-in-html])
       (handler/api)
       (wrap-frame-options :deny)
