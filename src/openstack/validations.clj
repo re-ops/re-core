@@ -55,4 +55,4 @@
   (validate! m (combine machine-entity openstack-common) :error ::invalid-system))
 
 (defmethod check-validity [:openstack :template] [m]
-  (validate! m (subtract (combine machine-entity openstack-common) identifiers) :error ::invalid-system))
+  (validate! m (subtract (combine machine-entity openstack-common) identifiers) :error ::invalid-template))
