@@ -16,7 +16,7 @@
 
 (def identifiers 
   {:machine #{:ip :hostname :domain}
-   :openstack #{:instance-id}})
+   :openstack #{:instance-id :floating-ip}})
 
 (defmethod clone :openstack [spec clone-spec]
   "Clones the model replace unique identifiers in the process" 
