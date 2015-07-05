@@ -11,7 +11,6 @@
 
 (ns proxmox.provider
   (:use 
-    [clojure.core.memoize :only (memo-ttl)]
     [clojure.core.strint :only (<<)]
     [celestial.core :only (Vm)]
     [supernal.sshj :only (execute)]
@@ -21,6 +20,7 @@
     [proxmox.generators :only (ct-id)]
     [celestial.model :only (translate vconstruct hypervisor*)])
   (:require 
+    [clojure.core.memoize :refer (ttl)]
     [celestial.provider :refer 
        (selections mappings transform os->template wait-for wait-for-ssh)]
     [celestial.common :refer (import-logging get*)]
@@ -36,12 +36,12 @@
 
 (def node-available? 
   "Node availability check, result is cached for one minute"
-  (memo-ttl  
+  (ttl  
     (fn [node] 
       (try+ 
         (prox-get (<< "/nodes/~{node}/status" ))
         true
-        (catch [:status 500] e false))) (* 60 1000)))
+        (catch [:status 500] e false))) :ttl/threshold (* 60 1000)))
 
 (defn task-status [node upid]
   (prox-get (<< "/nodes/~{node}/tasks/~{upid}/status")))
