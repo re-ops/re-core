@@ -33,7 +33,7 @@
                  [clj-yaml "0.4.0"]
                  [org.clojure/data.json "0.2.2" ]
                  ; ring
-                 [ring-middleware-format "0.3.0"]
+                 [ring-middleware-format "0.5.0"]
                  [ring/ring-jetty-adapter "1.3.2"]
                  [ring "1.3.2"]
                  [compojure "1.3.4" :exclusions  [ring/ring-core]]
