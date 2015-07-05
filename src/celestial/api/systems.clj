@@ -38,6 +38,11 @@
   :proxmox {:type "Proxmox" :description "A Proxmox based system"}
   :vcenter {:type "Vcenter" :description "A vCenter based system"})
 
+(defmodel provided
+  :env :string
+  :provided :object
+  )
+
 (defmodel system 
   :env :string
   :type :string
@@ -121,6 +126,12 @@
 
   (GET- "/systems/type/:type" [^:string type] {:nickname "getSystemsByType" :summary "Get systems by type"}
         (success {:ids (s/get-system-index :type type)}))
+
+  (POST- "/systems/template/:id" [^:int id & ^:provided provided] 
+        {:nickname "createFromTemplate" :summary "Create a system from template"}
+     (wrap-errors
+       (let [id (s/templatize id provided)]
+         (success {:message "new system created from template" :id id}))))
 
   (POST- "/systems" [& ^:system spec] 
     {:nickname "addSystem" :summary "Add system" 

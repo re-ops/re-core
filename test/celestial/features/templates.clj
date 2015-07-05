@@ -7,10 +7,11 @@
     [celestial.fixtures.data :refer (small-redis)])
  (:use midje.sweet))
 
-(with-conf
-  (with-state-changes [(before :facts (set-user {:username "admin"} (populate-all)))]
-   (fact "basic template persistency" :integration :redis :templates
-     (s/add-template small-redis) => 1
-     (s/get-template 1) => (contains {:type "redis"})
-     )
-   ))
+(set-user {:username "admin"}
+  (with-conf
+    (with-state-changes [(before :facts (populate-all))]
+      (fact "basic template persistency" :integration :redis :templates
+      (s/add-template small-redis) => 1
+      (s/get-template 1) => (contains {:type "redis"})
+      (let [provided {:env :dev :owner "admin" :machine {:hostname "foo" :domain "local"}}]
+        (s/templatize 1 provided) => 101)))))

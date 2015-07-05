@@ -184,3 +184,11 @@
   [template]
   (validate! template template-base :error ::non-valid-template)
   (check-validity (assoc template :as :template)))
+
+(defn templatize
+  "Create a system from a template"
+   [id {:keys [env] :as provided}]
+   (let [{:keys [defaults] :as t} (get-template! id)]
+     (add-system (merge-with merge t (defaults env) provided))
+    )
+  )
