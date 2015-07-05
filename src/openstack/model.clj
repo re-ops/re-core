@@ -15,7 +15,7 @@
         [celestial.model :only (clone)])) 
 
 (def identifiers 
-  {:machine #{:ip :hostname}
+  {:machine #{:ip :hostname :domain}
    :openstack #{:instance-id}})
 
 (defmethod clone :openstack [spec clone-spec]
