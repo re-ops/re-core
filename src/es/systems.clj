@@ -25,9 +25,15 @@
 
 (import-logging)
 
+(def ^:dynamic flush? false)
+
+(defmacro set-flush
+   [flush* & body]
+  `(binding [flush? ~flush*] ~@body))
+
 (defn put
    "Add/Update a system into ES"
-   [id system & {:keys [flush?]}]
+   [id system]
   (doc/put index "system" id system)
   (when flush? (flush-)))
 
@@ -83,4 +89,4 @@
   (initialize)
   (doseq [[id s] systems] (put id s))
   (let [[id s] (first systems)] 
-     (put id s :flush? true)))
+     (put id s)))

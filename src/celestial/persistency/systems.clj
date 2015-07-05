@@ -99,7 +99,7 @@
    [f & args]
      (if (map? (first args)) 
       (let [id (apply f args) spec (first args)]  
-        (es/put (str id) spec :flush? true) id)
+        (es/put (str id) spec) id)
       (apply f args)))
 
 (defn es-delete
@@ -181,9 +181,7 @@
 
 (defn register-migrations []
   (register :systems (OwnerIndices. :systems-owner-indices))
-  (register :systems (EnvIndices. :systems-env-indices))
-  )
-
+  (register :systems (EnvIndices. :systems-env-indices)))
 
 (declare validate-template)
 
