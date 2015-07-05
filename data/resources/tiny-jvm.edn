@@ -8,8 +8,17 @@
   :flavor "m1.small" 
   :tenant "skywind"
   :key-name "foo"
-  :security-groups ["default"]
   :networks ["playtech-int-2"]
+  :security-groups ["default"]
+ }
+
+ :defaults {
+   :dev {
+     :openstack {
+        :networks ["int-2"]
+        :security-groups ["default"]
+     }
+   }
  }
 
  :type "jvm"

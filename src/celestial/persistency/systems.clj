@@ -178,7 +178,7 @@
 
 (entity {:version 1} template :indices [type])
 
-(def template-base {:type #{:required :type-exists}})
+(def template-base {:type #{:required :type-exists} :defaults #{:required :Map}})
 
 (defn validate-template
   [template]

@@ -12,5 +12,6 @@
   :networks ["playtech-int-2"]
  }
 
+ :defaults {}
  :type "redis"
 }
