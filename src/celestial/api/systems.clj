@@ -29,10 +29,19 @@
 
 (import-logging)
 
+(defmodel template
+  :type :string
+  :machine {:type "Machine"} 
+  :aws {:type "Aws" :description "An EC2 based system"}
+  :physical {:type "Physical" :description "A physical machine"}
+  :openstack {:type "Openstack" :description "An openstack based instance"}
+  :proxmox {:type "Proxmox" :description "A Proxmox based system"}
+  :vcenter {:type "Vcenter" :description "A vCenter based system"})
+
 (defmodel system 
   :env :string
   :type :string
-  :user :string
+  :owner :string
   :machine {:type "Machine"} 
   :aws {:type "Aws" :description "An EC2 based system"}
   :physical {:type "Physical" :description "A physical machine"}
@@ -73,6 +82,10 @@
 
 (defc "/systems" [:env] (keyword v))
  
+(defc "/templates" [:machine :os] (keyword v))
+
+(defc "/templates" [:proxmox :type] (keyword v))
+
 (defn working-username  []
    (let [{:keys [username]} (current-user)] username))
 
@@ -137,11 +150,37 @@
         (success (t/get-type (:type (s/get-system id))))))
 
 (defroutes- systems-admin {:path "/systems" :description "Operations on Systems"}
-
   (POST- "/systems/reindex" [] 
     {:nickname "reindexSystems" :summary "Trigger search re-index of all systems available for user" }
-      (wrap-errors (success (s/re-index (working-username)))))
+      (wrap-errors (success (s/re-index (working-username))))))
 
+(defroutes- templates {:path "/templates" :description "Operations on templates"}
+  (POST- "/templates" [& ^:template spec] {:nickname "addTemplate" :summary "Add template" 
+     :errorResponses (errors {:bad-req "Missing system type"})}
+    (wrap-errors
+      (let [id (s/add-template spec)] 
+        (success {:message "new template saved" :id id}))))
+
+  (GET- "/templates/:id" [^:int id] {:nickname "getTemplate" :summary "Get template by id"}
+     (success (s/get-template id)))
+
+  (DELETE- "/templates/:id" [^:int id] {:nickname "deleteTemplate" :summary "Delete Template" 
+                                          :errorResponses (errors {:bad-req "Template does not exist"})}
+     (try+ 
+        (let [spec (s/get-template! id) int-id (Integer/valueOf id)]               
+          (s/delete-template! int-id) 
+          (success {:message "Template deleted"})) 
+       (catch [:type :celestial.persistency/missing-template] e 
+          (bad-req {:message "Template does not exist"}))))
+
+  (PUT- "/templates/:id" [^:int id & ^:template template] {:nickname "updateTemplate" :summary "Update template" 
+                                                         :errorResponses (errors {:conflict "Template does not exist"}) }
+        (if-not (s/template-exists? id)
+          (conflict {:message "Template does not exists, use POST /host/template first"}) 
+          (wrap-errors
+            (s/update-template (Integer/valueOf id) template) 
+            (success {:message "template updated" :id id}))))
+  
   )
 
 (defroutes- environments {:path "/environments" :description "Operations on environments"}
