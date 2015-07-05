@@ -12,6 +12,6 @@
     (with-state-changes [(before :facts (populate-all))]
       (fact "basic template persistency" :integration :redis :templates
       (s/add-template small-redis) => 1
-      (s/get-template 1) => (contains {:type "redis"})
+      (s/get-template 1) => (contains {:type "redis" :name "small-redis"})
       (let [provided {:env :dev :owner "admin" :machine {:hostname "foo" :domain "local"}}]
         (s/templatize 1 provided) => 101)))))

@@ -22,4 +22,5 @@
  }
 
  :type "jvm"
+ :name "tiny-jvm"
 }

@@ -176,9 +176,12 @@
 
 (declare validate-template)
 
-(entity {:version 1} template :indices [type])
+(entity {:version 1} template :indices [type name])
 
-(def template-base {:type #{:required :type-exists} :defaults #{:required :Map}})
+(def template-base {
+  :type #{:required :type-exists} :defaults #{:required :Map}
+  :name #{:require :String}
+})
 
 (defn validate-template
   [template]
@@ -189,6 +192,4 @@
   "Create a system from a template"
    [id {:keys [env] :as provided}]
    (let [{:keys [defaults] :as t} (get-template! id)]
-     (add-system (merge-with merge t (defaults env) provided))
-    )
-  )
+     (add-system (merge-with merge t (defaults env) provided))))
