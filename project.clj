@@ -68,7 +68,7 @@
   :exclusions [org.clojure/clojure com.taoensso/timbre commons-codec]
 
   :plugins  [[jonase/eastwood "0.2.1"] 
-             [self-build "0.0.6"]
+             [self-build "0.0.9"]
              [lein-ancient "0.6.7" :exclusions [org.clojure/clojure]] 
              [lein-tar "2.0.0" ]
              [lein-tag "0.1.0"] [lein-set-version "0.3.0"]
