@@ -7,7 +7,7 @@
  :openstack {
   :flavor "m1.small" 
   :tenant "skywind"
-  :key-name "foo"
+  :key-name "celestial"
   :security-groups ["default"]
   :networks ["playtech-int-2"]
  }
