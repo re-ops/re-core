@@ -69,5 +69,11 @@
   (with-ctx ec2/describe-addresses :filters 
     [{:name "instance-id" :values [instance-id]}]))
 
-(defn assoc-pub-ip [endpoint instance-id ip]
-  (with-ctx ec2/associate-address {:instance-id instance-id :public-ip ip}))
+(defn assoc-pub-ip [endpoint instance-id {:keys [machine aws]}]
+   (let [{:keys [ip]} machine {:keys [subnet-id allocation-id]} aws]
+     (if-not subnet-id
+       (with-ctx ec2/associate-address 
+         {:instance-id instance-id :public-ip ip})
+       (with-ctx ec2/associate-address 
+         {:instance-id instance-id :public-ip ip :allocation-id allocation-id})
+       )))

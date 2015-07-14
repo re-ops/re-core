@@ -49,7 +49,7 @@
 (defn creation-keys [aws]
   (clojure.set/subset? (into #{} (keys aws))
     #{:volumes :min-count :max-count :instance-type :ebs-optimized
-      :key-name :placement :security-groups :block-device-mappings}))
+      :key-name :placement :security-groups :subnet-id :allocation-id :block-device-mappings}))
 
 (defn create-instance 
    "creates instance from aws" 
@@ -66,9 +66,9 @@
        (s/partial-system (spec :system-id) {:aws {:instance-id instance-id}})
        (debug "created" instance-id)
        (handle-volumes spec endpoint instance-id)    
-       (when-let [ip (get-in spec [:machine :ip])] 
-         (debug (<<  "Associating existing ip ~{ip} to ~{instance-id}"))
-         (assoc-pub-ip endpoint instance-id ip))
+       (when (get-in spec [:machine :ip]) 
+         (debug (<<  "Associating existing ip to ~{instance-id}"))
+         (assoc-pub-ip endpoint instance-id spec))
        (update-ip spec endpoint instance-id)
        (wait-for-ssh (pub-dns endpoint instance-id) user [5 :minute])
        (set-hostname spec endpoint instance-id user)
@@ -79,9 +79,9 @@
       (debug "starting" instance-id)
       (with-ctx ec2/start-instances {:instance-ids [instance-id]}) 
       (wait-for-status this "running" [5 :minute]) 
-      (when-let [ip (get-in spec [:machine :ip])] 
-        (debug (<<  "Associating existing ip ~{ip} to ~{instance-id}"))
-        (assoc-pub-ip endpoint instance-id ip))
+      (when (get-in spec [:machine :ip]) 
+        (debug (<<  "Associating existing ip to ~{instance-id}"))
+        (assoc-pub-ip endpoint instance-id spec))
       (update-ip spec endpoint instance-id)
       (wait-for-ssh (pub-dns endpoint instance-id) user [5 :minute])))
 
@@ -100,7 +100,7 @@
     (with-instance-id 
        (debug "stopping" instance-id)
        (when-not (first (:addresses (describe-eip endpoint instance-id)))
-         (debug "clearing dynamic ip from system")
+         (debug "clearing dynamic public ip from system")
          (s/update-system (spec :system-id) 
            (dissoc-in* (s/get-system (spec :system-id)) [:machine :ip])))
        (with-ctx ec2/stop-instances {:instance-ids [instance-id]}) 
