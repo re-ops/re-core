@@ -11,6 +11,7 @@
 
 (ns aws.networking
   "AWS networking functions"
+  (:import com.amazonaws.services.ec2.model.AssociateAddressRequest)
   (:require 
     [amazonica.aws.ec2 :as ec2]
     [slingshot.slingshot :refer  [throw+]] 
@@ -69,11 +70,18 @@
   (with-ctx ec2/describe-addresses :filters 
     [{:name "instance-id" :values [instance-id]}]))
 
-(defn assoc-pub-ip [endpoint instance-id {:keys [machine aws]}]
+(defn describe-address [endpoint ip]
+   (get-in (with-ctx ec2/describe-addresses {:public-ips [ip]}) [:addresses 0]))
+
+(defn attach-vpc-ip [endpoint instance-id {:keys [machine aws] :as spec}]
+   (let [{:keys [ip]} machine {:keys [allocation-id]} (describe-address endpoint ip)]
+      (with-ctx ec2/associate-address {:instance-id instance-id :allocation-id allocation-id})))
+
+(defn assoc-pub-ip [endpoint instance-id {:keys [machine aws] :as spec}]
    (let [{:keys [ip]} machine {:keys [subnet-id allocation-id]} aws]
-     (if-not subnet-id
-       (with-ctx ec2/associate-address 
-         {:instance-id instance-id :public-ip ip})
-       (with-ctx ec2/associate-address 
-         {:instance-id instance-id :public-ip ip :allocation-id allocation-id})
-       )))
+      (if-not subnet-id
+        (with-ctx ec2/associate-address {:instance-id instance-id :public-ip ip})
+        (attach-vpc-ip endpoint instance-id spec) 
+        )))
+
+

@@ -139,10 +139,3 @@
 (defmethod vconstruct :aws [spec]
   (apply ->Instance (validate (translate spec))))
 
-(comment 
-  (clojure.pprint/pprint 
-    (celestial.model/set-env :dev 
-     (first (:addresses (describe-eip "ec2.eu-west-1.amazonaws.com" "i-ba1b0111"))))) 
-  ) 
-
-

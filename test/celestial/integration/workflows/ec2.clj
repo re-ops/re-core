@@ -29,18 +29,16 @@
 
       (fact "vpc" :integration :ec2 :vpc
         ; will be run only if VPC_SUB env var is defined
-        (when-let [subnet (System/getenv "VPC_SUB")]
-           (wf/create 
-             (spec 
-               {:machine {:ip "52.18.142.71"} 
-                :aws {:allocation-id "eipalloc-b637fed3" :subnet-id subnet}})) => nil
-           (wf/stop (spec)) => nil 
-           ;; (wf/reload (spec)) => nil 
+        (when-let [eip (System/getenv "EIP")]
+          (when-let [subnet (System/getenv "VPC_SUB")]
+           (wf/create (spec {:machine {:ip eip :os :ubuntu-14.04} :aws {:subnet-id subnet}})) => nil
+           #_(wf/stop (spec)) => nil 
+           #_(wf/reload (spec {:machine {:ip eip} :aws {:subnet-id subnet}})) => nil 
            ; (instance-desc (get-spec :aws :endpoint) (get-spec :aws :instance-id))
              ;; => (contains {:public-ip-address eip}) 
            ;; (:machine (spec)) => (contains {:ip eip})
            (wf/destroy (spec)) => nil
-          ))
+          )))
       
       (fact "aws eip workflows" :integration :ec2 :workflow
         ; will be run only if EIP env var is defined
