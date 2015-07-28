@@ -13,6 +13,7 @@
   "AWS networking functions"
   (:import com.amazonaws.services.ec2.model.AssociateAddressRequest)
   (:require 
+    [taoensso.timbre :as timbre]
     [amazonica.aws.ec2 :as ec2]
     [slingshot.slingshot :refer  [throw+]] 
     [celestial.model :refer (hypervisor)]  
@@ -21,6 +22,8 @@
     [clojure.string :refer (join)]
     [aws.common :refer (with-ctx instance-desc)]
     [celestial.persistency.systems :as s]))
+
+(timbre/refer-timbre)
 
 (defn pub-dns [endpoint instance-id]
   (instance-desc endpoint instance-id :public-dns-name))
@@ -79,9 +82,8 @@
 
 (defn assoc-pub-ip [endpoint instance-id {:keys [machine aws] :as spec}]
    (let [{:keys [ip]} machine {:keys [subnet-id allocation-id]} aws]
-      (if-not subnet-id
-        (with-ctx ec2/associate-address {:instance-id instance-id :public-ip ip})
-        (attach-vpc-ip endpoint instance-id spec) 
-        )))
+     (if-not subnet-id
+       (with-ctx ec2/associate-address {:instance-id instance-id :public-ip ip})
+       (attach-vpc-ip endpoint instance-id spec))))
 
 
