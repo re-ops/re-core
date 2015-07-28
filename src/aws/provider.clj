@@ -24,11 +24,11 @@
     [slingshot.slingshot :refer  [throw+ try+]] 
     [celestial.provider :refer (wait-for wait-for-ssh)] 
     [celestial.core :refer (Vm)] 
-    [celestial.common :refer (import-logging)] 
+    [taoensso.timbre :as timbre]
     [celestial.persistency.systems :as s]
     [celestial.model :refer (translate vconstruct)]))
 
-(import-logging)
+(timbre/refer-timbre)
 
 (defn wait-for-status [instance req-stat timeout]
   "Waiting for ec2 machine status timeout is in mili"
@@ -49,7 +49,8 @@
 (defn creation-keys [aws]
   (clojure.set/subset? (into #{} (keys aws))
     #{:volumes :min-count :max-count :instance-type :ebs-optimized
-      :key-name :placement :security-groups :subnet-id :allocation-id :block-device-mappings}))
+      :key-name :placement :security-groups :network-interfaces
+      :subnet-id :allocation-id :block-device-mappings}))
 
 (defn create-instance 
    "creates instance from aws" 
