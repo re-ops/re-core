@@ -13,7 +13,6 @@
   (:use 
     [clojure.core.strint :only (<<)]
     [celestial.core :only (Vm)]
-    [supernal.sshj :only (execute)]
     [proxmox.remote :only (prox-post prox-delete prox-get)]
     [slingshot.slingshot :only  [throw+ try+]]
     [clojure.set :only (difference)]
