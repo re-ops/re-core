@@ -27,19 +27,34 @@
           (wf/reload (spec)) => nil 
           (wf/destroy (spec)) => nil)
 
-      (fact "vpc" :integration :ec2 :vpc
+      (fact "vpc public ip" :integration :ec2 :vpc
+        (when-let [subnet (System/getenv "VPC_SUB")]
+          (s/update-system 1 
+           (spec {
+             :machine {:os :ubuntu-14.04} 
+             :aws {
+               :network-interfaces [
+                  {:device-index 0 :associate-public-ip-address true :subnet-id subnet}
+               ]
+             }}))
+          (wf/create (spec)) => nil
+          (wf/stop (spec)) => nil 
+          (wf/reload (spec)) => nil 
+          (wf/destroy (spec)) => nil))
+
+      (fact "vpc eip" :integration :ec2 :vpc
         ; will be run only if VPC_SUB env var is defined
         (when-let [eip (System/getenv "EIP")]
           (when-let [subnet (System/getenv "VPC_SUB")]
-           (wf/create (spec {:machine {:ip eip :os :ubuntu-14.04} :aws {:subnet-id subnet}})) => nil
-           #_(wf/stop (spec)) => nil 
-           #_(wf/reload (spec {:machine {:ip eip} :aws {:subnet-id subnet}})) => nil 
-           ; (instance-desc (get-spec :aws :endpoint) (get-spec :aws :instance-id))
-             ;; => (contains {:public-ip-address eip}) 
-           ;; (:machine (spec)) => (contains {:ip eip})
-           (wf/destroy (spec)) => nil
-          )))
-      
+           (s/update-system 1 (spec {:machine {:ip eip :os :ubuntu-14.04} :aws {:subnet-id subnet}}))
+           (wf/create (spec)) => nil
+           (:machine (spec)) => (contains {:ip eip})
+           (wf/stop (spec)) => nil 
+           (wf/reload (spec)) => nil 
+           (instance-desc (get-spec :aws :endpoint) (get-spec :aws :instance-id))
+              => (contains {:public-ip-address eip}) 
+           (wf/destroy (spec)) => nil)))
+
       (fact "aws eip workflows" :integration :ec2 :workflow
         ; will be run only if EIP env var is defined
         (when-let [eip (System/getenv "EIP")]
@@ -50,8 +65,7 @@
            (instance-desc (get-spec :aws :endpoint) (get-spec :aws :instance-id))
              => (contains {:public-ip-address eip}) 
            (:machine (spec)) => (contains {:ip eip})
-           (wf/destroy (spec)) => nil
-          ))
+           (wf/destroy (spec)) => nil))
 
       (fact "aws with ebs volumes" :integration :ec2 :workflow
         (let [with-vol {:aws {:volumes [{:device "/dev/sdn" :size 10 :clear true :volume-type "standard" }]}}]
