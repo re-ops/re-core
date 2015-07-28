@@ -18,7 +18,7 @@
       (fact "freenas creation workflows" :integration :freenas :workflow
           (wf/create (spec)) => nil 
           ;; (wf/create (spec)) => (throws ExceptionInfo  (is-type? :celestial.workflows/machine-exists)) 
-          ;; (wf/stop (spec)) => nil 
+          (wf/stop (spec)) => nil 
           ;; (wf/create (spec)) => (throws ExceptionInfo  (is-type? :celestial.workflows/machine-exists)) 
-          ;; (wf/destroy (spec)) => nil)
+          (wf/destroy (spec)) => nil
       ))))
