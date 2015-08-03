@@ -26,7 +26,7 @@
                  ; hooks/remoting
                  [clj-http "0.7.6"]
                  [http-kit "2.1.16"]
-                 [supernal "0.5.2"]
+                 [supernal "0.6.0"]
                  [conjul "0.0.2"]
                  ;api
                  [swag "0.2.7"]

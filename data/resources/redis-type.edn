@@ -4,6 +4,7 @@
        :module {
          :name "redis-sandbox-0.4.0" 
          :src "http://dl.bintray.com/content/narkisr/boxes/redis-sandbox-0.4.0.tar.gz"
+         :options {:unsecure true}
        }
        :args []
        :classes {:redis {:append true}}
