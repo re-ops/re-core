@@ -1,3 +1,12 @@
+# Celestial 0.10.3 (3/08/15):
+
+## Fixes:
+
+
+## Features:
+
+* Supporting puppet type https unsecure option.
+
 # Celestial 0.10.2 (22/06/15):
 
 ## Fixes:
