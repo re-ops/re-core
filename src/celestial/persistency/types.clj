@@ -22,6 +22,7 @@
      :module {
         :name #{:required :String}
         :src  #{:required :String}
+        :options #{:Map}
       }
       :classes #{:required :Map} 
       :args #{:Vector} 

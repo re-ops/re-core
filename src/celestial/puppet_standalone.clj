@@ -39,7 +39,7 @@
 (ns- puppet
    (task copy-module
      (let [{:keys [module]} args]
-       (copy (module :src) "/tmp") ))
+       (copy (module :src) "/tmp" (or (module :options) {})) ))
 
    (task extract-module 
       (let [{:keys [module]} args]
