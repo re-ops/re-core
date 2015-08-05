@@ -27,31 +27,30 @@
           (wf/reload (spec)) => nil 
           (wf/destroy (spec)) => nil)
 
-      (fact "vpc public ip" :vpc :integration :ec2 
-        (when-let [subnet (System/getenv "VPC_SUB")]
+      (fact "vpc public ip" :integration :ec2 :vpc 
+        (when-let [{:keys [subnet id]} (clojure.edn/read-string (System/getenv "VPC"))]
           (s/update-system 1 
             (spec {
               :machine {:os :ubuntu-14.04} 
-              :aws { :vpc {:assign-public true :subnet-id subnet} }}))
+              :aws { :vpc {:assign-public true :subnet-id subnet :vpc-id id} }}))
           (wf/create (spec)) => nil
           (wf/stop (spec)) => nil 
           (wf/reload (spec)) => nil 
           (wf/destroy (spec)) => nil))
 
       (fact "vpc eip" :integration :ec2 :vpc
-        ; will be run only if VPC_SUB env var is defined
-        (when-let [eip (System/getenv "EIP")]
-          (when-let [subnet (System/getenv "VPC_SUB")]
+        ; will be run only if VPC env var is defined
+        (when-let [{:keys [eip id subnet]} (clojure.edn/read-string (System/getenv "VPC"))]
            (s/update-system 1 
               (spec {:machine {:ip eip :os :ubuntu-14.04} 
-                     :aws {:vpc {:subnet-id subnet}}}))
+                     :aws {:vpc {:subnet-id subnet :vpc-id id}}}))
            (wf/create (spec)) => nil
            (:machine (spec)) => (contains {:ip eip})
            (wf/stop (spec)) => nil 
            (wf/reload (spec)) => nil 
            (instance-desc (get-spec :aws :endpoint) (get-spec :aws :instance-id))
               => (contains {:public-ip-address eip}) 
-           (wf/destroy (spec)) => nil)))
+           (wf/destroy (spec)) => nil))
 
       (fact "aws eip workflows" :integration :ec2 :workflow
         ; will be run only if EIP env var is defined
