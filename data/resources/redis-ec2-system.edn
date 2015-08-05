@@ -13,7 +13,7 @@
   :key-name "Uranus" 
   :endpoint "ec2.eu-west-1.amazonaws.com"
   ;; :availability-zone "eu-west-1a"
-  ;; :security-groups ["default"]
+  :security-groups ["default"]
   :ebs-optimized false
  }
 
