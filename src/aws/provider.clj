@@ -119,18 +119,24 @@
 (defn map-key [m from to]
   (dissoc-in* (assoc-in m to (get-in m from)) from))
 
+(defn find-groups 
+   [endpoint names vpc-id]
+   (map :group-id
+     (filter (fn [{:keys [group-id group-name]}] ((into #{} names) group-name))
+      (:security-groups 
+        (with-ctx ec2/describe-security-groups {:filters [{:name "vpc-id" :values [vpc-id]}]})))))
+
 (defn assign-vpc 
    "Attach vpc info" 
    [{:keys [aws] :as spec}]
-   {:pre [(not (nil? (:vpc aws)))]}
-   (let [{:keys [subnet-id assign-public]} (:vpc aws)
-         public [{:groups ["sg-bb3b20de"] :device-index 0 :associate-public-ip-address true :subnet-id subnet-id}]]
-     (dissoc-in* 
-       (if assign-public
-         (assoc-in spec [:aws :network-interfaces] public)
-         (assoc-in spec [:aws :subnet-id] subnet-id))
-         [:aws :vpc] 
-       )))
+   {:pre [(not (nil? (:vpc aws))) (every? (:vpc aws) [:vpc-id :subnet-id])]}
+   (let [{:keys [subnet-id assign-public vpc-id]} (:vpc aws)
+         groups (find-groups (:endpoint aws) (:security-groups aws) vpc-id)
+         public [{:groups groups :device-index 0 :associate-public-ip-address assign-public :subnet-id subnet-id}]]
+     (-> spec
+        (assoc-in [:aws :network-interfaces] public)
+        (dissoc-in* [:aws :vpc])
+        (dissoc-in* [:aws :security-groups]))))
 
 (defn aws-spec 
   "Creates an ec2 spec" 
