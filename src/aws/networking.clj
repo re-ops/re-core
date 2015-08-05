@@ -81,7 +81,7 @@
       (with-ctx ec2/associate-address {:instance-id instance-id :allocation-id allocation-id})))
 
 (defn assoc-pub-ip [endpoint instance-id {:keys [machine aws] :as spec}]
-   (let [{:keys [ip]} machine {:keys [subnet-id allocation-id]} aws]
+   (let [{:keys [ip]} machine {:keys [subnet-id]} aws]
      (if-not subnet-id
        (with-ctx ec2/associate-address {:instance-id instance-id :public-ip ip})
        (attach-vpc-ip endpoint instance-id spec))))
