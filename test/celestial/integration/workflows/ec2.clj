@@ -27,16 +27,12 @@
           (wf/reload (spec)) => nil 
           (wf/destroy (spec)) => nil)
 
-      (fact "vpc public ip" :integration :ec2 :vpc
+      (fact "vpc public ip" :vpc :integration :ec2 
         (when-let [subnet (System/getenv "VPC_SUB")]
           (s/update-system 1 
-           (spec {
-             :machine {:os :ubuntu-14.04} 
-             :aws {
-               :network-interfaces [
-                  {:device-index 0 :associate-public-ip-address true :subnet-id subnet}
-               ]
-             }}))
+            (spec {
+              :machine {:os :ubuntu-14.04} 
+              :aws { :vpc {:assign-public true :subnet-id subnet} }}))
           (wf/create (spec)) => nil
           (wf/stop (spec)) => nil 
           (wf/reload (spec)) => nil 
@@ -46,7 +42,9 @@
         ; will be run only if VPC_SUB env var is defined
         (when-let [eip (System/getenv "EIP")]
           (when-let [subnet (System/getenv "VPC_SUB")]
-           (s/update-system 1 (spec {:machine {:ip eip :os :ubuntu-14.04} :aws {:subnet-id subnet}}))
+           (s/update-system 1 
+              (spec {:machine {:ip eip :os :ubuntu-14.04} 
+                     :aws {:vpc {:subnet-id subnet}}}))
            (wf/create (spec)) => nil
            (:machine (spec)) => (contains {:ip eip})
            (wf/stop (spec)) => nil 
