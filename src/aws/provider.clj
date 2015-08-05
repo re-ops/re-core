@@ -50,7 +50,7 @@
   (clojure.set/subset? (into #{} (keys aws))
     #{:volumes :min-count :max-count :instance-type :ebs-optimized
       :key-name :placement :security-groups :network-interfaces
-      :subnet-id :allocation-id :block-device-mappings}))
+      :subnet-id :block-device-mappings}))
 
 (defn create-instance 
    "creates instance from aws" 
@@ -119,6 +119,19 @@
 (defn map-key [m from to]
   (dissoc-in* (assoc-in m to (get-in m from)) from))
 
+(defn assign-vpc 
+   "Attach vpc info" 
+   [{:keys [aws] :as spec}]
+   {:pre [(not (nil? (:vpc aws)))]}
+   (let [{:keys [subnet-id assign-public]} (:vpc aws)
+         public [{:groups ["sg-bb3b20de"] :device-index 0 :associate-public-ip-address true :subnet-id subnet-id}]]
+     (dissoc-in* 
+       (if assign-public
+         (assoc-in spec [:aws :network-interfaces] public)
+         (assoc-in spec [:aws :subnet-id] subnet-id))
+         [:aws :vpc] 
+       )))
+
 (defn aws-spec 
   "Creates an ec2 spec" 
   [{:keys [aws machine] :as spec}]
@@ -127,7 +140,8 @@
       (get-in spec' [:aws :availability-zone]) 
         (map-key [:aws :availability-zone] [:aws :placement :availability-zone])
       (get-in spec' [:aws :block-devices])
-        (map-key [:aws :block-devices] [:aws :block-device-mappings]))))
+        (map-key [:aws :block-devices] [:aws :block-device-mappings])
+      (get-in spec' [:aws :vpc]) assign-vpc)))
 
 (defmethod translate :aws [{:keys [aws machine] :as spec}] 
   [(aws :endpoint) (aws-spec spec) (or (machine :user) "root")])
