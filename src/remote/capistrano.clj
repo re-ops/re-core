@@ -30,7 +30,7 @@
          (when (exists? (dest-path src dst)) 
            (throw+ {:type ::old-code :message "Old code found in place, cleanup first"})) 
          (mkdirs dst) 
-         (copy src dst)
+         (copy src dst {})
          (try 
            (sh- "cap" "-T" {:dir (dest-path src dst)})
            (catch Throwable e
