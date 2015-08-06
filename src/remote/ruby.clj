@@ -34,7 +34,7 @@
            (sh- "ruby" "-v" {:dir dst})
            (catch Throwable e
              (throw+ {:type ::ruby-sanity-fail} "Failed to run ruby sanity step")))
-         (copy src dst))
+         (copy src dst {}))
   (run [this]
        (info (dest-path src dst))
        (apply sh- "ruby" (conj args {:dir (dest-path src dst) :timeout timeout})))
