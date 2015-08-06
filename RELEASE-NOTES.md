@@ -1,3 +1,11 @@
+# Celestial 0.10.4 (6/08/15):
+
+## Fixes:
+
+* Fixing capistrano copy missing argument
+
+## Features:
+
 # Celestial 0.10.3 (3/08/15):
 
 ## Fixes:
