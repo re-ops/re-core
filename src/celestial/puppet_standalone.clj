@@ -85,5 +85,5 @@
 (defmethod pconstruct :puppet-std [{:keys [run-opts] :as type} {:keys [machine env] :as spec}]
   (let [remote {:host (machine :ip) :user (or (machine :user) "root")}
         by-env (get-in type [:puppet-std env])
-        with-opts (update-in by-env [:args] (fn [a] (concat a (run-opts :args))))]
+        with-opts (update-in by-env [:args] (fn [a] (concat a ((or run-opts {}) :args))))]
     (Standalone. remote (assoc with-opts :hostname (machine :hostname)))))
