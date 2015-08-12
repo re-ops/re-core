@@ -76,6 +76,14 @@
   :bin {:name "celestial"}
 
   :profiles {
+     :populate {
+        :source-paths ["data"]
+        :test-paths ["test"]
+        :jvm-opts ["-XX:MaxPermSize=256m"]
+        :dependencies [[org.clojure/test.check "0.7.0"]]
+
+     }
+
      :refresh {
         :repl-options {
           :init-ns user
@@ -131,11 +139,11 @@
     }
 
 
-  :aliases {"celestial" [ "with-profile" "prod" "do" "compile," "trampoline" "run"]
+  :aliases {"celestial" ["with-profile" "prod" "do" "compile," "trampoline" "run"]
             "remote-repl" ["repl" ":connect" "celestial:7888"]
             "autotest" ["midje" ":autotest" ":filter" "-integration"] 
             "runtest" ["midje" ":filter" "-integration"] 
-            "populate" ["run" "-m" "celestial.fixtures.populate"]
+            "populate" ["with-profile" "populate" "do" "run" "-m" "celestial.fixtures.populate"]
             ; https://github.com/stuartsierra/reloaded workflow
             "dev-repl" ["with-profile" "refresh" "do" "clean," "repl"] 
             }
