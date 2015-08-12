@@ -1,6 +1,7 @@
 (ns celestial.fixtures.data
   "loading fixtures data"
   (:require 
+    [me.raynes.fs :as fs]
     [clojure.java.io :refer (file)]
     [celestial.model :refer (operations)]
     [clojure.core.strint :refer  (<<)]
@@ -63,5 +64,5 @@
 (def clustered-prox (read-fixture "celestial-cluster"))
  
 (def local-conf 
-  (let [path (me.raynes.fs/expand-home "~/.celestial.edn")]
-    (when (me.raynes.fs/exists? path) (slurp-edn path))))
+  (let [path (fs/expand-home "~/.celestial.edn")]
+    (when (fs/exists? path) (slurp-edn path))))
