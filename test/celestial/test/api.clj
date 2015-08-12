@@ -29,16 +29,16 @@
     (s/get-system "1") => {:type "redis"} 
     (t/get-type "redis") => {:classes {:redis {:append true}}}))
 
-(let [machine {:type "redis" :machine {:host "foo"}} type {:classes {:redis {}}}]
+(let [machine {:type "redis" :machine {:host "foo"}} type {:run-opts nil :classes {:redis {}}}]
   (fact "provisioning job"
-    (non-sec-app (request :post "/jobs/provision/1")) => (contains {:status 200})
+    (non-sec-app (request :post "/jobs/provision/1" {})) => (contains {:status 200})
     (provided 
       (u/op-allowed? "provision" nil) => true
       (s/system-exists? "1") => true
       (s/get-system "1")  => machine
       (s/get-system "1" :env)  => :dev
       (t/get-type "redis") => type
-      (jobs/enqueue "provision" { :identity "1" :args [type (assoc machine :system-id 1)] :tid nil :env :dev :user nil}) => nil)))
+      (jobs/enqueue "provision" {:identity "1" :args [type (assoc machine :system-id 1)] :tid nil :env :dev :user nil}) => nil)))
 
 (fact "staging job" 
   (non-sec-app (request :post "/jobs/stage/1")) => (contains {:status 200})
