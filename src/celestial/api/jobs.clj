@@ -86,13 +86,13 @@
     {:nickname "stopSystem" :summary "System stop job" :notes "Stops a system"}
          (schedule-job id "stop" "submitted system stop"))
 
-  (POST- "/jobs/provision/:id" [^:int id] 
+  (POST- "/jobs/provision/:id" [^:int id ^:hash run-opts] 
     {:nickname "provisionSystem" :summary "Provisioning job"
      :notes "Starts a provisioning workflow on a remote system
-             using the provisioner configured in system type"}
+             using the provisioner configured in the systems type"}
          (let [system (s/get-system id) type (t/get-type (:type system))]
            (schedule-job id "provision" "submitted provisioning" 
-              [type (assoc system :system-id (Integer. ^String id))])))
+              [(assoc type :run-opts run-opts) (assoc system :system-id (Integer. ^String id))])))
 
   (POST- "/jobs/clone/:id" [^:int id & ^:hash spec] 
      {:nickname "cloneSystem" :summary "Clones a system" 
