@@ -27,6 +27,18 @@
           (wf/reload (spec)) => nil 
           (wf/destroy (spec)) => nil)
 
+      (fact "vpc private ip" :integration :ec2 :vpc 
+        (when-let [{:keys [subnet id]} (clojure.edn/read-string (System/getenv "VPC"))]
+          (s/update-system 1 
+            (spec {
+              :machine {:os :ubuntu-14.04} 
+              :aws { :vpc {:assign-public false :subnet-id subnet :vpc-id id} }}))
+          (wf/create (spec)) => nil
+          (wf/stop (spec)) => nil 
+          (wf/reload (spec)) => nil 
+          (wf/destroy (spec)) => nil))
+
+
       (fact "vpc public ip" :integration :ec2 :vpc 
         (when-let [{:keys [subnet id]} (clojure.edn/read-string (System/getenv "VPC"))]
           (s/update-system 1 

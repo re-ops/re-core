@@ -14,7 +14,7 @@
     [amazonica.aws.ec2 :as ec2]
     [aws.common :refer (with-ctx instance-desc creds image-id)]
     [aws.networking :refer 
-      (update-ip set-hostname pub-dns assoc-pub-ip describe-eip)]
+      (update-ip set-hostname instance-ip assoc-pub-ip describe-eip)]
     [aws.volumes :refer (delete-volumes handle-volumes)]
     [aws.validations :refer (provider-validation)]
     [clojure.core.strint :refer (<<)] 
@@ -71,7 +71,7 @@
          (debug (<<  "Associating existing ip to ~{instance-id}"))
          (assoc-pub-ip endpoint instance-id spec))
        (update-ip spec endpoint instance-id)
-       (wait-for-ssh (pub-dns endpoint instance-id) user [5 :minute])
+       (wait-for-ssh (instance-ip spec endpoint instance-id) user [5 :minute])
        (set-hostname spec endpoint instance-id user)
         this))
 
@@ -84,7 +84,7 @@
         (debug (<<  "Associating existing ip to ~{instance-id}"))
         (assoc-pub-ip endpoint instance-id spec))
       (update-ip spec endpoint instance-id)
-      (wait-for-ssh (pub-dns endpoint instance-id) user [5 :minute])))
+      (wait-for-ssh (instance-ip spec endpoint instance-id) user [5 :minute])))
 
   (delete [this]
     (with-instance-id

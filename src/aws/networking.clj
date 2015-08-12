@@ -25,14 +25,17 @@
 
 (timbre/refer-timbre)
 
-(defn pub-dns [endpoint instance-id]
-  (instance-desc endpoint instance-id :public-dns-name))
+(defn instance-ip [{:keys [aws] :as spec} endpoint instance-id]
+   (let [public-ip (instance-desc endpoint instance-id :public-ip-address)
+         private-ip  (instance-desc endpoint instance-id :private-ip-address)]
+      (if public-ip 
+        public-ip
+        (when (and (aws :network-interfaces) private-ip) private-ip))))
 
-(defn update-ip [spec endpoint instance-id]
+(defn update-ip [{:keys [aws] :as spec} endpoint instance-id]
   "updates public dns in the machine persisted data"
   (when (s/system-exists? (spec :system-id))
-    (let [public-ip (instance-desc endpoint instance-id :public-ip-address)]
-      (s/partial-system (spec :system-id) {:machine {:ip public-ip}}))))
+    (s/partial-system (spec :system-id) {:machine {:ip (instance-ip spec endpoint instance-id)}})))
 
 (defn override-hostname 
   "sets hostname and hosts file" 
@@ -58,7 +61,7 @@
   "Uses a generic method of setting hostname in Linux (see http://www.debianadmin.com/manpages/sysctlmanpage.txt)
   Note that in ec2 both Centos and Ubuntu use sudo!"
   (let [{:keys [hostname domain os]} machine  fqdn (<< "~{hostname}.~{domain}")
-        remote {:host (pub-dns endpoint instance-id) :user user}]
+        remote {:host (instance-ip spec endpoint instance-id) :user user}]
     (kernel-hostname hostname fqdn remote)
     (override-hostname hostname fqdn remote)
     (case (hypervisor :aws :ostemplates os :flavor)
