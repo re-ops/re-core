@@ -6,6 +6,7 @@
 
 ## Features:
 
+* Adding Puppet dryrun and specific classes support options in UI and backend
 # Celestial 0.10.3 (3/08/15):
 
 ## Fixes:
