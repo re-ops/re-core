@@ -1,4 +1,4 @@
-# Celestial 0.10.4 (6/08/15):
+# Celestial 0.10.4 (13/08/15):
 
 ## Fixes:
 
@@ -6,7 +6,10 @@
 
 ## Features:
 
-* Adding Puppet dryrun and specific classes support options in UI and backend
+* Adding Puppet dryrun and specific classes support options in UI and backend.
+
+* Supporting AWS VPC.
+
 # Celestial 0.10.3 (3/08/15):
 
 ## Fixes:
