@@ -12,7 +12,6 @@
 (ns celestial.puppet-standalone
   "A standalone puppet provisioner"
   (:use 
-    clojure.pprint
     [clj-yaml.core :as yaml]
     [clojure.java.io :only (file)]
     [clojure.core.strint :only (<<)]
@@ -20,7 +19,9 @@
     [celestial.model :only (pconstruct)]
     [taoensso.timbre :only (debug info error warn trace)]
     [supernal.core :only (ns- lifecycle copy run execute env)]
-    [clojure.string :only (join)]))
+    [clojure.string :only (join)])
+  (:require 
+    [slingshot.slingshot :refer [throw+]]))
 
 (defn copy-module [remote {:keys [src name]}]
   {:pre [(remote :host) src name]}
@@ -85,9 +86,10 @@
 (defmethod pconstruct :puppet-std 
   [{:keys [run-opts] :as type :or {run-opts {}}} {:keys [machine env] :as spec}]
   (let [remote {:host (machine :ip) :user (or (machine :user) "root")}]
-    (Standalone. remote
-      (-> (get-in type [:puppet-std env])
-        (update-in [:args] (fn [a] (concat a (run-opts :args))))
-        (merge (select-keys run-opts [:classes]))
-        (assoc :hostname (machine :hostname))
-        ))))
+    (if-let [m (get-in type [:puppet-std env])]
+      (Standalone. remote
+        (-> m
+          (update-in [:args] (fn [a] (concat a (run-opts :args))))
+          (merge (select-keys run-opts [:classes]))
+          (assoc :hostname (machine :hostname))))
+        (throw+ {:type ::missing-env} (<< "Type ~(type :type) is missing environment ~{env} values")))))
