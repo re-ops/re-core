@@ -5,7 +5,7 @@
 
  :machine {
   :hostname "red1" :user "ubuntu" 
-  :domain "local" :os :ubuntu-12.10
+  :domain "local" :os :ubuntu-14.04
  }
 
  :aws {
