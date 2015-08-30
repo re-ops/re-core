@@ -52,7 +52,7 @@
           (wf/reload (spec with-vol)) => nil 
           (wf/destroy (spec with-vol)) => nil))
 
-      (fact "aws with zone and groups" :integration :ec2 :workflow
+      (fact "aws with zone and groups" :integration :ec2 :workflow :zone
         (let [with-zone {:aws {:availability-zone "eu-west-1a" :security-groups ["test"]}} ]
           (wf/create (spec with-zone)) => nil
           (let [{:keys [placement security-groups]} 
@@ -63,21 +63,21 @@
           (wf/reload (spec with-zone)) => nil 
           (wf/destroy (spec with-zone)) => nil))
 
-      (fact "aws puppetization" :integration :ec2 :workflow
+      (fact "aws puppetization" :integration :ec2 :workflow :puppet :s3
           (wf/create (spec)) => nil
           (wf/provision redis-type (spec)) => nil 
           (wf/destroy (spec)) => nil)
 
-      (fact "aws puppetization of s3" :integration :ec2 :workflow
-          (let [s3-redis (assoc-in redis-type [:puppet-std :module :src] 
-                            "s3://opsk-sandboxes/redis-sandbox-0.3.5.tar.gz")]
+      (fact "aws puppetization of s3" :integration :ec2 :workflow :puppet
+          (let [s3-redis (assoc-in redis-type [:puppet-std :dev :module :src] 
+                            "s3://opsk-sandboxes/redis-sandbox-0.4.1.tar.gz")]
             (wf/create (spec)) => nil
             (wf/provision s3-redis (spec)) => nil 
             (wf/destroy (spec)) => nil))
       
-      (fact "aws clone workflows" :integration :ec2 :workflow
+      (fact "aws clone workflows" :integration :ec2 :workflow :clone
         (wf/create (spec)) => nil
-        (wf/clone 1 {:hostname "bar" :owner "ronen"}) => nil
+        (wf/clone {:system-id 1 :hostname "bar" :owner "ronen"}) => nil
         (wf/destroy (assoc (s/get-system 2) :system-id 2)) => nil
         (wf/destroy (spec)) => nil)
 
@@ -88,7 +88,7 @@
         (wf/destroy (spec)) => nil)
       ) 
 
-  (with-state-changes [(before :facts (populate-system redis-type redis-ec2-centos))]
+  #_(with-state-changes [(before :facts (populate-system redis-type redis-ec2-centos))]
      (fact "aws centos provisioning" :integration :ec2 :workflow
         (wf/create (spec)) => nil
         (wf/stop (spec)) => nil 
