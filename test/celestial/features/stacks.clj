@@ -13,7 +13,7 @@
 
 (with-conf
   (with-state-changes [(before :facts (re-initlize))]
-    (fact "stack persistency" :redis :stacks :persistency 
+    (fact "stack persistency" :redis :stacks :persistency :integration
       (s/add-stack simple-stack) => 1
       (s/update-stack "1" (assoc-in simple-stack [:shared :env] :qa)) 
       (get-in (s/get-stack 1) [:shared :env])  => :qa

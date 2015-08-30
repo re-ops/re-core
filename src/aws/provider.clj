@@ -14,7 +14,7 @@
     [amazonica.aws.ec2 :as ec2]
     [aws.common :refer (with-ctx instance-desc creds image-id)]
     [aws.networking :refer 
-      (update-ip set-hostname pub-dns assoc-pub-ip describe-eip)]
+      (update-ip set-hostname instance-ip assoc-pub-ip describe-eip)]
     [aws.volumes :refer (delete-volumes handle-volumes)]
     [aws.validations :refer (provider-validation)]
     [clojure.core.strint :refer (<<)] 
@@ -24,11 +24,11 @@
     [slingshot.slingshot :refer  [throw+ try+]] 
     [celestial.provider :refer (wait-for wait-for-ssh)] 
     [celestial.core :refer (Vm)] 
-    [celestial.common :refer (import-logging)] 
+    [taoensso.timbre :as timbre]
     [celestial.persistency.systems :as s]
     [celestial.model :refer (translate vconstruct)]))
 
-(import-logging)
+(timbre/refer-timbre)
 
 (defn wait-for-status [instance req-stat timeout]
   "Waiting for ec2 machine status timeout is in mili"
@@ -49,7 +49,8 @@
 (defn creation-keys [aws]
   (clojure.set/subset? (into #{} (keys aws))
     #{:volumes :min-count :max-count :instance-type :ebs-optimized
-      :key-name :placement :security-groups :block-device-mappings}))
+      :key-name :placement :security-groups :network-interfaces
+      :subnet-id :block-device-mappings}))
 
 (defn create-instance 
    "creates instance from aws" 
@@ -66,11 +67,11 @@
        (s/partial-system (spec :system-id) {:aws {:instance-id instance-id}})
        (debug "created" instance-id)
        (handle-volumes spec endpoint instance-id)    
-       (when-let [ip (get-in spec [:machine :ip])] 
-         (debug (<<  "Associating existing ip ~{ip} to ~{instance-id}"))
-         (assoc-pub-ip endpoint instance-id ip))
+       (when (get-in spec [:machine :ip]) 
+         (debug (<<  "Associating existing ip to ~{instance-id}"))
+         (assoc-pub-ip endpoint instance-id spec))
        (update-ip spec endpoint instance-id)
-       (wait-for-ssh (pub-dns endpoint instance-id) user [5 :minute])
+       (wait-for-ssh (instance-ip spec endpoint instance-id) user [5 :minute])
        (set-hostname spec endpoint instance-id user)
         this))
 
@@ -79,11 +80,11 @@
       (debug "starting" instance-id)
       (with-ctx ec2/start-instances {:instance-ids [instance-id]}) 
       (wait-for-status this "running" [5 :minute]) 
-      (when-let [ip (get-in spec [:machine :ip])] 
-        (debug (<<  "Associating existing ip ~{ip} to ~{instance-id}"))
-        (assoc-pub-ip endpoint instance-id ip))
+      (when (get-in spec [:machine :ip]) 
+        (debug (<<  "Associating existing ip to ~{instance-id}"))
+        (assoc-pub-ip endpoint instance-id spec))
       (update-ip spec endpoint instance-id)
-      (wait-for-ssh (pub-dns endpoint instance-id) user [5 :minute])))
+      (wait-for-ssh (instance-ip spec endpoint instance-id) user [5 :minute])))
 
   (delete [this]
     (with-instance-id
@@ -100,7 +101,7 @@
     (with-instance-id 
        (debug "stopping" instance-id)
        (when-not (first (:addresses (describe-eip endpoint instance-id)))
-         (debug "clearing dynamic ip from system")
+         (debug "clearing dynamic public ip from system")
          (s/update-system (spec :system-id) 
            (dissoc-in* (s/get-system (spec :system-id)) [:machine :ip])))
        (with-ctx ec2/stop-instances {:instance-ids [instance-id]}) 
@@ -118,6 +119,25 @@
 (defn map-key [m from to]
   (dissoc-in* (assoc-in m to (get-in m from)) from))
 
+(defn find-groups 
+   [endpoint names vpc-id]
+   (map :group-id
+     (filter (fn [{:keys [group-id group-name]}] ((into #{} names) group-name))
+      (:security-groups 
+        (with-ctx ec2/describe-security-groups {:filters [{:name "vpc-id" :values [vpc-id]}]})))))
+
+(defn assign-vpc 
+   "Attach vpc info" 
+   [{:keys [aws] :as spec}]
+   {:pre [(not (nil? (:vpc aws))) (every? (:vpc aws) [:vpc-id :subnet-id])]}
+   (let [{:keys [subnet-id assign-public vpc-id]} (:vpc aws)
+         groups (find-groups (:endpoint aws) (:security-groups aws) vpc-id)
+         public [{:groups groups :device-index 0 :associate-public-ip-address assign-public :subnet-id subnet-id}]]
+     (-> spec
+        (assoc-in [:aws :network-interfaces] public)
+        (dissoc-in* [:aws :vpc])
+        (dissoc-in* [:aws :security-groups]))))
+
 (defn aws-spec 
   "Creates an ec2 spec" 
   [{:keys [aws machine] :as spec}]
@@ -126,7 +146,8 @@
       (get-in spec' [:aws :availability-zone]) 
         (map-key [:aws :availability-zone] [:aws :placement :availability-zone])
       (get-in spec' [:aws :block-devices])
-        (map-key [:aws :block-devices] [:aws :block-device-mappings]))))
+        (map-key [:aws :block-devices] [:aws :block-device-mappings])
+      (get-in spec' [:aws :vpc]) assign-vpc)))
 
 (defmethod translate :aws [{:keys [aws machine] :as spec}] 
   [(aws :endpoint) (aws-spec spec) (or (machine :user) "root")])
@@ -138,11 +159,4 @@
 
 (defmethod vconstruct :aws [spec]
   (apply ->Instance (validate (translate spec))))
-
-(comment 
-  (clojure.pprint/pprint 
-    (celestial.model/set-env :dev 
-     (first (:addresses (describe-eip "ec2.eu-west-1.amazonaws.com" "i-ba1b0111"))))) 
-  ) 
-
 

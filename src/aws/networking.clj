@@ -11,7 +11,9 @@
 
 (ns aws.networking
   "AWS networking functions"
+  (:import com.amazonaws.services.ec2.model.AssociateAddressRequest)
   (:require 
+    [taoensso.timbre :as timbre]
     [amazonica.aws.ec2 :as ec2]
     [slingshot.slingshot :refer  [throw+]] 
     [celestial.model :refer (hypervisor)]  
@@ -21,14 +23,19 @@
     [aws.common :refer (with-ctx instance-desc)]
     [celestial.persistency.systems :as s]))
 
-(defn pub-dns [endpoint instance-id]
-  (instance-desc endpoint instance-id :public-dns-name))
+(timbre/refer-timbre)
 
-(defn update-ip [spec endpoint instance-id]
+(defn instance-ip [{:keys [aws] :as spec} endpoint instance-id]
+   (let [public-ip (instance-desc endpoint instance-id :public-ip-address)
+         private-ip  (instance-desc endpoint instance-id :private-ip-address)]
+      (if public-ip 
+        public-ip
+        (when (and (aws :network-interfaces) private-ip) private-ip))))
+
+(defn update-ip [{:keys [aws] :as spec} endpoint instance-id]
   "updates public dns in the machine persisted data"
   (when (s/system-exists? (spec :system-id))
-    (let [public-ip (instance-desc endpoint instance-id :public-ip-address)]
-      (s/partial-system (spec :system-id) {:machine {:ip public-ip}}))))
+    (s/partial-system (spec :system-id) {:machine {:ip (instance-ip spec endpoint instance-id)}})))
 
 (defn override-hostname 
   "sets hostname and hosts file" 
@@ -54,7 +61,7 @@
   "Uses a generic method of setting hostname in Linux (see http://www.debianadmin.com/manpages/sysctlmanpage.txt)
   Note that in ec2 both Centos and Ubuntu use sudo!"
   (let [{:keys [hostname domain os]} machine  fqdn (<< "~{hostname}.~{domain}")
-        remote {:host (pub-dns endpoint instance-id) :user user}]
+        remote {:host (instance-ip spec endpoint instance-id) :user user}]
     (kernel-hostname hostname fqdn remote)
     (override-hostname hostname fqdn remote)
     (case (hypervisor :aws :ostemplates os :flavor)
@@ -69,5 +76,17 @@
   (with-ctx ec2/describe-addresses :filters 
     [{:name "instance-id" :values [instance-id]}]))
 
-(defn assoc-pub-ip [endpoint instance-id ip]
-  (with-ctx ec2/associate-address {:instance-id instance-id :public-ip ip}))
+(defn describe-address [endpoint ip]
+   (get-in (with-ctx ec2/describe-addresses {:public-ips [ip]}) [:addresses 0]))
+
+(defn attach-vpc-ip [endpoint instance-id {:keys [machine aws] :as spec}]
+   (let [{:keys [ip]} machine {:keys [allocation-id]} (describe-address endpoint ip)]
+      (with-ctx ec2/associate-address {:instance-id instance-id :allocation-id allocation-id})))
+
+(defn assoc-pub-ip [endpoint instance-id {:keys [machine aws] :as spec}]
+   (let [{:keys [ip]} machine {:keys [network-interfaces]} aws]
+     (if-not network-interfaces
+       (with-ctx ec2/associate-address {:instance-id instance-id :public-ip ip})
+       (attach-vpc-ip endpoint instance-id spec))))
+
+
