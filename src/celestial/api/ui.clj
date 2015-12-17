@@ -14,6 +14,8 @@
         build (<< "~{cwd}/~{parent}/build") bin (<< "~{cwd}/~{parent}/bin")]
     (if (fs/exists? build ) build bin)))
 
+(defn static-path-2 [] "public/elm-ui/")
+
 (defroutes- sessions {:path "/sessions" :description "Session info"} 
   (GET- "/sessions" [] {:nickname "currentSession" :summary "Get current logged in user info"}
      (success (friend/current-authentication))))
@@ -21,5 +23,8 @@
 (defroutes public
   (GET "/login" [] (ring.util.response/file-response "assets/login.html" {:root (static-path)}))
   (friend/logout (ANY "/logout" request  (ring.util.response/redirect "/")))
-  (route/files "/" {:root (static-path)}))
+  (route/files "/" {:root (static-path)})
+  (route/files "/elm" {:root (static-path-2)})
+  )
  
+
