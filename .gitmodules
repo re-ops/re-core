@@ -1,3 +1,6 @@
 [submodule "public/celestial-ui"]
 	path = public/celestial-ui
 	url = git://github.com/celestial-ops/celestial-ui.git
+[submodule "public/elm-ui"]
+	path = public/elm-ui
+	url = git@github.com:narkisr/elm-ui.git
