@@ -25,7 +25,7 @@
                  [org.codehaus.groovy/groovy "2.4.3"]
                  ; hooks/remoting
                  [clj-http "0.7.6"]
-                 [http-kit "2.1.16"]
+                 [http-kit "2.1.18"]
                  [supernal "0.6.0"]
                  [conjul "0.0.2"]
                  ;api
@@ -42,6 +42,7 @@
                  [ring/ring-session-timeout "0.1.0"]
                  [ring/ring-headers "0.1.0"] 
                  ; hypervisors
+                 [digitalocean "1.2"]
                  [com.vmware/vijava "5.1" :exclusions [xml-apis]]
                  [org.pacesys/openstack4j "2.0.3"]
                  [amazonica "0.3.13" ]
