@@ -96,6 +96,11 @@
      :master #{:required :Keyword} :nodes #{:required :node*} 
      :ostemplates #{:template*} :task-timeout #{:number}}})
 
+(def ^{:doc "digital ocean section validation"} digital-v
+  {:digital-ocean { 
+     :token #{:required :String}
+     }})
+ 
 (def ^{:doc "aws section validation"} aws-v 
   {:freenas {:host #{:required :String} :user #{:required :String} :password #{:required :String}}})
 
@@ -118,11 +123,10 @@
 (defn hypervisor-validations 
   "find relevant hypervisor validations per env"
   [hypervisor]
-  (let [hvs [proxmox-v aws-v openstack-v vcenter-v docker-v] ks (map (comp first keys) hvs) 
+  (let [hvs [proxmox-v aws-v openstack-v vcenter-v docker-v digital-v] ks (map (comp first keys) hvs) 
         envs (map (fn [v] (fn [env] {:hypervisor {env v}})) hvs)]
     (first 
       (map (fn [[e hs]] (map #(((zipmap ks envs) %) e) (filter (into #{} ks) (keys hs)))) hypervisor))))
-
 
 (defn celestial-validations [{:keys [log job] :as celestial}]
    (let [v  (if (contains? log :gelf) (combine celestial-v gelf-v) celestial-v)]
