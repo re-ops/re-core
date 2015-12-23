@@ -16,9 +16,11 @@
     [clojure.core.strint :only (<<)]
     [slingshot.slingshot :only  [throw+ try+]]
     [celestial.model :only (vconstruct pconstruct rconstruct)]) 
-  (:require ; loading defmethods
+  (:require 
+    ; loading defmethods
     proxmox.provider 
     freenas.provider 
+    digital.provider 
     aws.provider 
     vc.provider 
     physical.provider 
