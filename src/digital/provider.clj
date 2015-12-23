@@ -12,9 +12,11 @@
 (ns digital.provider
    "Digital ocean provider"
    (:require  
+     [clojure.tools.trace :as tr]
+     [digital.validations :refer (provider-validation)]
      [clojure.core.strint :refer (<<)]
      [celestial.model :refer (translate vconstruct hypervisor*)]
-     [celestial.provider :refer (selections mappings transform os->template wait-for wait-for-ssh)]
+     [celestial.provider :refer (mappings transform selections os->template wait-for wait-for-ssh)]
      [celestial.persistency.systems :as s]
      [celestial.common :refer (import-logging get*)]
      [celestial.core :refer (Vm)]
@@ -31,10 +33,8 @@
 (defrecord Droplet [token spec]
   Vm
   (create [this]
-     (let [{:keys [droplet]} (do/create-droplet token nil props)
-           {:keys [id]} droplet ])
-          (s/partial-system (spec :system-id) {:digital-ocean {:id id}})    
-       )
+     (let [{:keys [droplet]} (do/create-droplet token nil spec) {:keys [id]} droplet]
+       (s/partial-system (spec :system-id) {:digital-ocean {:id id}})))
 
   (delete [this])
 
@@ -46,11 +46,34 @@
      (run-action "power_off" (get-in spec [:digital-ocean :id]))
     )
 
-  (status [this]))
-
-(defmethod vconstruct :digital-ocean [{:keys [digital-ocean] :as spec}]
-  (let [{:keys [token]} digital-ocean]
+  (status [this]
+     (let [status-map {"active" "running" "off" "stop"}
+           result (:status (do/get-droplet (get-in spec [:digital-ocean :id])))]
+       (or (status-map result) result))
     ))
+
+(defn machine-ts 
+  "Construcuting machine transformations"
+  [{:keys [domain]}]
+   {:name (fn [host] (<< "~{host}.~{domain}")) :image (fn [os] (:image ((os->template :digital-ocean) os)))})
+
+(def drop-ks [:name :region :size :image :ssh_keys])
+
+(defmethod translate :digital-ocean [{:keys [machine digital-ocean system-id] :as spec}] 
+   (-> (merge machine digital-ocean {:system-id system-id})
+     (mappings {:os :image :hostname :name})
+     (transform (machine-ts machine))
+     (assoc :ssh_keys [(hypervisor* :digital-ocean :ssh-key)])
+     (select-keys drop-ks)
+     )
+  )
+
+(defmethod vconstruct :digital-ocean [{:keys [digital-ocean machine] :as spec}]
+  (let [translated (translate spec)]
+     (provider-validation translated)
+     (->Droplet (hypervisor* :digital-ocean :token) translated)
+   )
+  )
 
 
 #_(clojure.pprint/pprint (map (juxt :id :slug) (:images (do/images (hypervisor* :digital-ocean :token)))))
