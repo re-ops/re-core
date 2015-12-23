@@ -104,6 +104,14 @@
 
      }  
 
+    :digital-ocean {
+      :token ""
+      :ssh-key ""
+      :ostemplates {
+         :ubuntu-14.04  {:image "ubuntu-14-04-x64" :flavor :debian}
+      }
+     }
+
     :physical { }
    }
  }
