@@ -100,6 +100,8 @@
 (def ^{:doc "digital ocean section validation"} digital-v
   {:digital-ocean { 
      :token #{:required :String}
+     :ssh-key #{:required :String}
+     :ostemplates #{:required :Map}
      }})
  
 (def ^{:doc "aws section validation"} aws-v 
