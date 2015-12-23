@@ -1,0 +1,17 @@
+{
+  :env :dev 
+
+  :owner "admin"
+
+  :machine {
+    :hostname "red1" :user "ubuntu" 
+    :domain "local" :os :ubuntu-14.04
+  } 
+
+  :digital-ocean {
+    :region "london1" :size "512mb"
+    :private_networking false
+  }
+
+  :type "redis"
+}
