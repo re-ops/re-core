@@ -12,6 +12,7 @@
 (ns celestial.provider
   "common providers functions"
     (:require 
+      [flatland.useful.map :refer (dissoc-in*)]
       [subs.core :refer (validation when-not-nil)]
       [supernal.sshj :refer (ssh-up?)] 
       [celestial.model :refer (hypervisor)]
@@ -44,7 +45,7 @@
      (apply juxt (map select kys)))))
 
 (defn os->template 
-  "Os key to vmware template" 
+  "Os key to template/VM/image" 
   [hyp]
   (fn [os]
     (let [ks [hyp :ostemplates os]]
@@ -79,6 +80,9 @@
                (ssh-up? {:host address :port 22 :user user})
                (catch Throwable e false))
             {:type ::ssh-failed :timeout timeout} "Timed out while waiting for ssh"))
+
+(defn map-key [m from to]
+  (dissoc-in* (assoc-in m to (get-in m from)) from))
 
 ; common validations
 (validation :ip 
