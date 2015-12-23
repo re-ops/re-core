@@ -16,8 +16,10 @@
     [clojure.core.strint :only (<<)]
     [slingshot.slingshot :only  [throw+ try+]]
     [celestial.model :only (vconstruct pconstruct rconstruct)]) 
-  (:require ; loading defmethods
+  (:require 
+    ; loading defmethods
     gce.provider 
+    digital.provider 
     proxmox.provider 
     freenas.provider 
     aws.provider 
@@ -38,7 +40,7 @@
    )
   (:import 
     [celestial.puppet_standalone Standalone]
-    ))
+    )
 
 (import-logging)
 
