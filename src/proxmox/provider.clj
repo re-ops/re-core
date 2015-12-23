@@ -216,7 +216,8 @@
       (mappings {:ip :ip_address :os #{:ostemplate :flavor} :domain :searchdomain})
       (transform (machine-ts machine))
       (transform (proxmox-ts machine))
-      generate (selections [ct-ks ex-ks net-ks])))
+       generate 
+      (selections [ct-ks ex-ks net-ks])))
 
 (defn validate [node [ct extended network :as args]]
   (validate-provider ct extended network) 
