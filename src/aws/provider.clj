@@ -22,7 +22,7 @@
     [flatland.useful.utils :refer (defm)] 
     [flatland.useful.map :refer (dissoc-in*)] 
     [slingshot.slingshot :refer  [throw+ try+]] 
-    [celestial.provider :refer (wait-for wait-for-ssh)] 
+    [celestial.provider :refer (wait-for wait-for-ssh map-key)] 
     [celestial.core :refer (Vm)] 
     [taoensso.timbre :as timbre]
     [celestial.persistency.systems :as s]
@@ -115,9 +115,6 @@
         (debug "No AWS instance id, most chances this instance hasn't been created yet") false))))
 
 (def defaults {:aws {:min-count 1 :max-count 1}})
-
-(defn map-key [m from to]
-  (dissoc-in* (assoc-in m to (get-in m from)) from))
 
 (defn find-groups 
    [endpoint names vpc-id]
