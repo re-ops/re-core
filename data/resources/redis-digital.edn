@@ -9,7 +9,7 @@
   } 
 
   :digital-ocean {
-    :region "london1" :size "512mb"
+    :region "lon1" :size "512mb"
     :private_networking false
   }
 
