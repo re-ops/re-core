@@ -12,6 +12,7 @@
 (ns digital.provider
    "Digital ocean provider"
    (:require  
+     [slingshot.slingshot :refer (throw+)]
      [clojure.tools.trace :as tr]
      [digital.validations :refer (provider-validation)]
      [clojure.core.strint :refer (<<)]
@@ -27,14 +28,21 @@
 
 (defn run-action [type* id]
   (let [post-action (do/generic :post (<< "droplets/~{id}/actions"))]
-    (post-action (hypervisor* :digital-ocean :token) nil  {:type (name type*)}))
+    (post-action (hypervisor* :digital-ocean :token) nil  {:type (name type*)})))
+
+(defn ip [droplet]
+  (get-in droplet [:networks :v4 :ip_address]) 
   )
 
-(defrecord Droplet [token spec]
+(defrecord Droplet [token spec ext]
   Vm
   (create [this]
-     (let [{:keys [droplet]} (do/create-droplet token nil spec) {:keys [id]} droplet]
-       (s/partial-system (spec :system-id) {:digital-ocean {:id id}})))
+     (let [{:keys [droplet message] :as result} (do/create-droplet token nil spec) {:keys [id]} droplet]
+       (when-not droplet 
+         (throw+ {:type ::droplet-fail} message))
+       (s/partial-system (ext :system-id) {:digital-ocean {:id id}})
+       this 
+       ))
 
   (delete [this])
 
@@ -64,14 +72,14 @@
      (mappings {:os :image :hostname :name})
      (transform (machine-ts machine))
      (assoc :ssh_keys [(hypervisor* :digital-ocean :ssh-key)])
-     (select-keys drop-ks)
+     (selections [drop-ks [:system-id]] )
      )
   )
 
 (defmethod vconstruct :digital-ocean [{:keys [digital-ocean machine] :as spec}]
-  (let [translated (translate spec)]
+  (let [[translated ext] (translate spec)]
      (provider-validation translated)
-     (->Droplet (hypervisor* :digital-ocean :token) translated)
+     (->Droplet (hypervisor* :digital-ocean :token) translated ext)
    )
   )
 
@@ -80,3 +88,4 @@
 
 
 
+; (clojure.pprint/pprint (do/regions (get* :hypervisor :dev :digital-ocean :token)))
