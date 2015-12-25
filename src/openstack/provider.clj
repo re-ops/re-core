@@ -12,11 +12,11 @@
 (ns openstack.provider
   (:require 
     [slingshot.slingshot :refer  [throw+]]
-    [celestial.persistency.systems :as s]
+    [celestial.persistency.systems :as s :refer (system-val)]
     [celestial.common :refer (import-logging)]
     [openstack.networking :refer (first-ip update-ip assoc-floating dissoc-floating)]
     [clojure.java.data :refer [from-java]]
-    [celestial.provider :refer (wait-for wait-for-ssh)]
+    [celestial.provider :refer (wait-for wait-for-ssh wait-for-stop running? wait-for-start)]
     [openstack.validations :refer (provider-validation)]
     [celestial.core :refer (Vm)] 
     [openstack.volumes :as v]
@@ -72,24 +72,7 @@
     {:type ::openstack:status-failed :timeout timeout} 
       "Timed out on waiting for ip to be available"))
 
-(defn running? [this] (= (.status this) "running"))
 
-(defn wait-for-start [this timeout]
-  "Wait for an ip to be avilable"
-  (wait-for {:timeout timeout} #(running? this)
-    {:type ::openstack:start-failed :timeout timeout} 
-      "Timed out on waiting for ip to be available"))
-
-(defn wait-for-stop [this timeout]
-  "Wait for an ip to be avilable"
-  (wait-for {:timeout timeout} #(not (running? this))
-    {:type ::openstack:stop-failed :timeout timeout} 
-      "Timed out on waiting for ip to be available"))
-
-(defn system-val
-  "grabbing instance id of spec"
-   [spec ks]
-  (get-in (s/get-system (spec :system-id)) ks))
 
 (defn instance-id* [spec] (system-val spec [:openstack :instance-id]))
 
@@ -127,7 +110,7 @@
        (when-not (running? this)
          (debug "starting" instance-id )
          (.action (servers tenant) instance-id Action/START)
-         (wait-for-start this [5 :minute])
+         (wait-for-start this [5 :minute] ::openstack:start-failed)
          (wait-for-ssh 
            (system-val spec [:machine :ip]) (get-in spec [:machine :user]) [5 :minute]))))
 
@@ -146,7 +129,7 @@
      (with-instance-id 
        (debug "stopping" instance-id)
        (.action (servers tenant) instance-id Action/STOP)
-       (wait-for-stop this [5 :minute])))
+       (wait-for-stop this [5 :minute] ::openstack:stop-failed)))
 
   (status [this] 
      (if-let [instance-id (instance-id* spec)]
