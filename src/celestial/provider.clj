@@ -92,3 +92,17 @@
   (when-not-nil (partial re-find #"^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$") "must be a legal mac address"))
 
 (test #'mappings)
+
+(defn running? [this] (= (.status this) "running"))
+
+(defn wait-for-stop [this timeout ex]
+  "Wait for an ip to be avilable"
+  (wait-for {:timeout timeout} #(not (running? this))
+    {:type ex :timeout timeout} 
+      "Timed out on waiting for ip to be available"))
+
+(defn wait-for-start [this timeout ex]
+  "Wait for an ip to be avilable"
+  (wait-for {:timeout timeout} #(running? this)
+    {:type ex :timeout timeout} 
+      "Timed out on waiting for ip to be available"))
