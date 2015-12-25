@@ -4,7 +4,7 @@
   :owner "admin"
 
   :machine {
-    :hostname "red1" :user "ubuntu" 
+    :hostname "red1" :user "root" 
     :domain "local" :os :ubuntu-14.04
   } 
 
