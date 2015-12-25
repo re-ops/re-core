@@ -193,3 +193,8 @@
    [name {:keys [env] :as provided}]
    (let [{:keys [defaults] :as t} (get-template! name)]
      (add-system (merge-with merge t (defaults env) provided))))
+
+(defn system-val
+  "grabbing instance id of spec"
+   [spec ks]
+  (get-in (get-system (spec :system-id)) ks))
