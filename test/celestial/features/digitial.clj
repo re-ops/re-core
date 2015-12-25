@@ -17,7 +17,7 @@
 (with-conf
   (let [{:keys [machine digital-ocean]} redis-digital]
     (fact "legal digital-ocean system" :digital-ocean
-       (:spec (vconstruct redis-digital)) => (contains {:name "red1.local"}))))
+       (:drp (vconstruct redis-digital)) => (contains {:name "red1.local"}))))
 
 (with-admin
   (with-conf local-conf
@@ -25,4 +25,6 @@
       (fact "digital-ocean creation workflows" :integration :digital-ocean :workflow
           (wf/create (spec)) => nil 
           (wf/stop (spec)) => nil 
-          (wf/destroy (spec)) => nil))))
+          (wf/start (spec)) => nil 
+          (wf/destroy (spec)) => nil
+          ))))
