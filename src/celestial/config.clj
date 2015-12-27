@@ -15,7 +15,8 @@
     [subs.core :refer (validate! combine validation when-not-nil every-kv)])
   (:use 
     [clojure.pprint :only (pprint)]
-    [taoensso.timbre :only (set-config! set-level! debug info error warn trace)]
+    [taoensso.timbre :only (merge-config! debug info error warn trace)]
+    [taoensso.timbre.appenders.core :refer (spit-appender)]
     [clojure.core.strint :only (<<)]
     [clojure.java.io :only (file)]
     [clj-config.core :as conf]))
@@ -147,9 +148,10 @@
   (let [st (java.io.StringWriter.)]
     (binding [*out* st] 
       (clojure.pprint/pprint m))
-    (set-config! [:shared-appender-config :spit-filename] 
-                 (get-in c [:celestial :log :path] "celestial.log")) 
-    (set-config! [:appenders :spit :enabled?] true) 
+    (merge-config!
+      {:appenders  
+        {:spit 
+         (spit-appender {:fname (get-in c [:celestial :log :path] "celestial.log")})}}) 
     (error "Following configuration errors found:\n" (.toString st)))) 
 
 (defn read-and-validate []

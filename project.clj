@@ -20,7 +20,7 @@
                  [camel-snake-kebab "0.1.2"]
                  ; logging 
                  [com.narkisr/gelfino-client "0.8.1"]
-                 [com.taoensso/timbre "4.0.1"]
+                 [com.taoensso/timbre "4.1.4"]
                  [ch.qos.logback/logback-classic "1.1.3"]
                  [org.codehaus.groovy/groovy "2.4.3"]
                  ; hooks/remoting
