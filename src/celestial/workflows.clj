@@ -17,6 +17,7 @@
     [slingshot.slingshot :only  [throw+ try+]]
     [celestial.model :only (vconstruct pconstruct rconstruct)]) 
   (:require ; loading defmethods
+    gce.provider 
     proxmox.provider 
     freenas.provider 
     aws.provider 
