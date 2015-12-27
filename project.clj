@@ -45,6 +45,14 @@
                  [com.vmware/vijava "5.1" :exclusions [xml-apis]]
                  [org.pacesys/openstack4j "2.0.3"]
                  [amazonica "0.3.13" ]
+                 ; gce
+                 [com.google.http-client/google-http-client-jackson2 "1.21.0"]
+                 [com.google.apis/google-api-services-compute "v1-rev88-1.21.0"]
+                 [com.google.api-client/google-api-client "1.21.0"]
+                 [com.google.oauth-client/google-oauth-client-java6 "1.21.0"]
+                 [com.google.oauth-client/google-oauth-client-jetty "1.21.0"]
+                 [com.fasterxml.jackson.core/jackson-core "2.6.4"]
+
                  ; persistency and model
                  [clojurewerkz/elastisch "2.0.0-beta3"]
                  [puny "0.3.0"]
@@ -163,5 +171,4 @@
   :target-path "target/"
   :test-paths  []
   :repl-options { }
-
 )
