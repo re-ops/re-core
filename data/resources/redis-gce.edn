@@ -1,0 +1,19 @@
+{
+ :env :dev 
+
+ :owner "admin"
+
+ :machine {
+  :hostname "red1" :user "ubuntu" 
+  :domain "local" :os :ubuntu-14.04
+ }
+
+ :gce {
+  :machine-type "n1-standard-1" 
+  :zone "europe-west1-d"
+  :tags ["default"]
+  :project-id ""
+ }
+
+ :type "redis"
+}
