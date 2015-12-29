@@ -12,12 +12,21 @@
  )
 
 (with-conf
-  (let [{:keys [machine gce]} redis-gce]
+  (let [machine-type "zones/europe-west1-d/machineTypes/n1-standard-1"
+        source-image "projects/ubuntu-os-cloud/global/images/ubuntu-1404-trusty-v20151113" 
+        {:keys [machine gce]} redis-gce]
     (fact "legal gce system" :gce
       (:gce (vconstruct redis-gce)) => 
-         (contains {:machineType  "zones/europe-west1-d/machineTypes/n1-standard-1"})
-      (provided (build-compute "") => nil)   
-         )))
+         (contains {
+           :name "red1"
+           :machineType machine-type
+           :disks [{
+              :initializeParams {:sourceImage source-image} :autoDelete true
+              :type "PERSISTENT" :boot true 
+            }]
+          })
+      (provided (build-compute "") => nil))))
+
 
 #_(with-admin
   (with-conf local-conf

@@ -89,8 +89,8 @@
 (defmethod translate :gce [{:keys [machine gce system-id] :as spec}]
     "Convert the general model into a gce instance"
     (-> (merge machine gce {:system-id system-id})
-      (mappings {:os :image})
-      (transform (machine-ts machine))
+      (mappings {:os :image :hostname :name})
+      (transform machine-ts)
       ((juxt into-gce (partial select-keys [:system-id :project-id])))
     ))
 
