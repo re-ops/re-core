@@ -30,26 +30,31 @@
          (.setHttpRequestInitializer (.createScoped auth scopes))
          (.build))))
 
+(defn instances [compute]
+  (-> compute (.instances)))
+
 (defn list-instances [compute project zone]
-  (let [items (get (-> compute (.instances) (.list project zone) (.execute)) "items")]
+  (let [items (get (-> (instances compute) (.list project zone) (.execute)) "items")]
     (map clojure.walk/keywordize-keys items)))
 
-(defn create-instance [spec] 
-  (.fromString (JacksonFactory/getDefaultInstance) (write-str spec) Instance))
+(defn create-instance [compute gce {:keys [project-id zone] :as spec}] 
+  (let [instance (.fromString (JacksonFactory/getDefaultInstance) (write-str gce) Instance)]
+    (-> (instances compute) (.insert project-id zone instance)) 
+    ))
  
 (defmacro with-id [& body])
 
-(defrecord GCEInstance [spec system-id]
+(defrecord GCEInstance [compute gce spec]
   Vm
   (create [this] 
-    (let [{:keys [id] :as instance} (create-instance spec) ]
+    (let [{:keys [id] :as instance} (create-instance gce) ]
      (debug "created" id)
-     (s/partial-system system-id {:gce {:id id}})
+     (s/partial-system (spec :system-id) {:gce {:id id}})
       this))
 
   (start [this]
     (with-id
-      (let [{:keys [machine]} (s/get-system (system :system-id))]
+      (let [{:keys [machine]} (s/get-system (spec :system-id))]
         (when-not (= "running" (.status this))
           )
         (wait-for-ssh (machine :ip) "root" [5 :minute]))
@@ -81,21 +86,17 @@
   "Construcuting machine transformations"
    {:image (fn [os] (:image ((os->template :gce) os)))})
 
-(defmethod translate :gce [{:keys [machine gce] :as spec}]
+(defmethod translate :gce [{:keys [machine gce] :as spec} system-id]
     "Convert the general model into a gce instance"
-    (-> (merge machine gce)
+    (-> (merge machine gce {:system-id system-id})
       (mappings {:os :image})
       (transform (machine-ts machine))
-      into-gce
+      ((juxt into-gce (select-keys [:system-id :project-id])))
     ))
 
 (defn validate [spec &] 
   (validate-provider spec) spec)
 
 (defmethod vconstruct :gce [{:keys [system-id] :as spec}]
-  (apply ->GCEInstance [(validate (translate spec)) system-id]))
+  (apply ->GCEInstance [(build-compute "") (validate (translate spec)) system-id]))
 
- 
-#_(let [compute (build-compute "/home/ronen/small-cell-vagrant.json")]
-  (clojure.pprint/pprint (first (list-vms compute "714167917779" "europe-west1-d")))
- )
