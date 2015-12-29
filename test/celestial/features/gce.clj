@@ -6,15 +6,18 @@
     [celestial.fixtures.populate :refer (populate-system)]  
     [celestial.integration.workflows.common :refer (spec)]
     [celestial.workflows :as wf]
+    [gce.provider :refer (build-compute)]
     [celestial.fixtures.data :refer [redis-gce]])
   (:use midje.sweet)
  )
 
-(with-conf local-conf
+(with-conf
   (let [{:keys [machine gce]} redis-gce]
     (fact "legal gce system" :gce
       (:gce (vconstruct redis-gce)) => 
-         (contains {:machineType  "zones/europe-west1-d/machineTypes/n1-standard-1"}))))
+         (contains {:machineType  "zones/europe-west1-d/machineTypes/n1-standard-1"})
+         (provided (build-compute "") => nil)   
+         )))
 
 #_(with-admin
   (with-conf local-conf
