@@ -15,7 +15,7 @@
     [celestial.model :refer (check-validity)]
     [celestial.provider :refer (mappings)]
     [clojure.core.strint :refer (<<)] 
-    [subs.core :refer (validate! combine validation when-not-nil every-v)]
+    [subs.core :refer (validate! combine validation when-not-nil every-v every-kv)]
     ))
 
 (def machine-entity
@@ -34,6 +34,18 @@
 (defmethod check-validity [:gce :entity] [spec]
   (validate! spec (combine machine-entity gce-entity) :error ::invalid-system))
 
-(defn validate-provider [spec]
-  )
+(validation :params {:sourceImage #{:required :String}})
+
+(validation :disk {:initializeParams #{:required :Map}})
+
+(validation :disk* (every-v #{:disk}))
+
+(def gce-provider { 
+   :name #{:required :String}
+   :machineType #{:required :String}
+   :disks #{:required :disk*}
+   })
+
+(defn validate-provider [gce spec]
+   (validate! gce gce-provider :error ::invalid-gce-instance))
 
