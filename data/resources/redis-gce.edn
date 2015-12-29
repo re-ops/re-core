@@ -11,8 +11,8 @@
  :gce {
   :machine-type "n1-standard-1" 
   :zone "europe-west1-d"
-  :tags ["default"]
-  :project-id ""
+  :tags ["ssh-enabled"]
+  :project-id "idc-smallcell-cloud"
  }
 
  :type "redis"
