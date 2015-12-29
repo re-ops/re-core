@@ -8,7 +8,7 @@
    [celestial.core :refer (Vm)] 
    [taoensso.timbre :as timbre]
    [celestial.persistency.systems :as s]
-   [celestial.model :refer (translate vconstruct)])
+   [celestial.model :refer (translate vconstruct hypervisor)])
   (:import 
     (com.google.api.services.compute.model Instance)
     (com.google.api.client.googleapis.javanet GoogleNetHttpTransport)
@@ -86,17 +86,18 @@
   "Construcuting machine transformations"
    {:image (fn [os] (:image ((os->template :gce) os)))})
 
-(defmethod translate :gce [{:keys [machine gce] :as spec} system-id]
+(defmethod translate :gce [{:keys [machine gce system-id] :as spec}]
     "Convert the general model into a gce instance"
     (-> (merge machine gce {:system-id system-id})
       (mappings {:os :image})
       (transform (machine-ts machine))
-      ((juxt into-gce (select-keys [:system-id :project-id])))
+      ((juxt into-gce (partial select-keys [:system-id :project-id])))
     ))
 
 (defn validate [spec &] 
   (validate-provider spec) spec)
 
-(defmethod vconstruct :gce [{:keys [system-id] :as spec}]
-  (apply ->GCEInstance [(build-compute "") (validate (translate spec)) system-id]))
+(defmethod vconstruct :gce [spec]
+  (let [compute (build-compute (hypervisor :gce :service-file))]
+   (apply (partial ->GCEInstance compute) (validate (translate spec)))))
 
