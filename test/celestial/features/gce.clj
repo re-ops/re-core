@@ -9,4 +9,6 @@
 (with-conf
   (let [{:keys [machine gce]} redis-gce]
     (fact "legal gce system"
-       (:spec (vconstruct redis-gce)) => (contains {:machine-type  "n1-standard-1"}))))
+      (:spec (vconstruct redis-gce)) => 
+         (contains {:machineType  "zones/europe-west1-d/machineTypes/n1-standard-1"}))))
+

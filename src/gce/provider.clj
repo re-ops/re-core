@@ -39,12 +39,12 @@
  
 (defmacro with-id [& body])
 
-(defrecord GCEInstance [spec system]
+(defrecord GCEInstance [spec system-id]
   Vm
   (create [this] 
     (let [{:keys [id] :as instance} (create-instance spec) ]
      (debug "created" id)
-     (s/partial-system (system :system-id) {:gce {:id id}})
+     (s/partial-system system-id {:gce {:id id}})
       this))
 
   (start [this]
@@ -75,25 +75,27 @@
     }]
  })
 
-(defn into-system [args])
+(defn into-system [system-id])
 
 (def machine-ts 
   "Construcuting machine transformations"
    {:image (fn [os] (:image ((os->template :gce) os)))})
 
-(defmethod translate :gce [{:keys [machine gce system-id] :as spec}]
+(defmethod translate :gce [{:keys [machine gce] :as spec}]
     "Convert the general model into a gce instance"
-    (-> (merge machine gce {:system-id system-id})
-     (mappings {:os :image})
-     (transform (machine-ts machine))
-     (juxt into-gce into-system)
+    (-> (merge machine gce)
+      (mappings {:os :image})
+      (transform (machine-ts machine))
+      into-gce
     ))
 
 (defn validate [spec &] 
   (validate-provider spec) spec)
 
-(defmethod vconstruct :gce [spec]
-  (apply ->GCEInstance (validate (translate spec))))
-
+(defmethod vconstruct :gce [{:keys [system-id] :as spec}]
+  (apply ->GCEInstance [(validate (translate spec)) system-id]))
 
  
+#_(let [compute (build-compute "/home/ronen/small-cell-vagrant.json")]
+  (clojure.pprint/pprint (first (list-vms compute "714167917779" "europe-west1-d")))
+ )
