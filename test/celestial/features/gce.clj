@@ -10,10 +10,10 @@
   (:use midje.sweet)
  )
 
-(with-conf
+(with-conf local-conf
   (let [{:keys [machine gce]} redis-gce]
     (fact "legal gce system" :gce
-      (:spec (vconstruct redis-gce)) => 
+      (:gce (vconstruct redis-gce)) => 
          (contains {:machineType  "zones/europe-west1-d/machineTypes/n1-standard-1"}))))
 
 #_(with-admin
