@@ -6,6 +6,7 @@
    [celestial.provider :refer (wait-for-ssh mappings wait-for transform os->template)]
    [clojure.java.data :refer (to-java from-java)]
    [celestial.core :refer (Vm)] 
+   [clojure.walk :refer (keywordize-keys)]
    [taoensso.timbre :as timbre]
    [celestial.persistency.systems :as s]
    [celestial.model :refer (translate vconstruct hypervisor)])
@@ -39,17 +40,31 @@
 
 (defn create-instance [compute gce {:keys [project-id zone] :as spec}] 
   (let [instance (.fromString (JacksonFactory/getDefaultInstance) (write-str gce) Instance)]
-    (-> (instances compute) (.insert project-id zone instance)) 
+    (-> (instances compute) 
+      (.insert project-id zone instance) (.execute) from-java keywordize-keys) 
     ))
- 
+
+(defn delete-instance [compute {:keys [name]} {:keys [project-id zone]}]
+   (-> (instances compute) (.delete project-id zone name) (.execute)))
+
+(defn get-instance [compute {:keys [name]} {:keys [project-id zone]}]
+   (-> (instances compute) (.get project-id zone name) (.execute) from-java keywordize-keys))
+
+(defn get-operation [compute {:keys [project-id zone]} operation]
+  (-> (.zoneOperations compute) 
+    (.get project-id zone (:name operation)) (.execute) from-java keywordize-keys))
+
 (defmacro with-id [& body])
 
 (defrecord GCEInstance [compute gce spec]
   Vm
   (create [this] 
-    (let [{:keys [id] :as instance} (create-instance gce) ]
-     (debug "created" id)
-     (s/partial-system (spec :system-id) {:gce {:id id}})
+    (let [operation (create-instance compute gce spec)]
+     (wait-for {:timeout [5 :minute]} 
+        #(= (:status (get-operation compute spec operation)) "DONE") 
+         {:type ::gce:creation-fail} "Timed out on waiting for creation to be done") 
+     (let [{:keys [natIp]} (get-instance compute gce spec)]
+       (s/partial-system (spec :system-id) {:machine {:ip natIp}}))
       this))
 
   (start [this]
@@ -60,16 +75,26 @@
         (wait-for-ssh (machine :ip) "root" [5 :minute]))
       ))
 
-  (delete [this])
+  (delete [this]
+     (let [{:keys [id] :as operation} (create-instance compute gce spec) ]
+      (wait-for {:timeout [5 :minute]} #(= ("status" operation) "DONE") 
+       {:type ::gce:fail} "Timed out on waiting for operation to be done"))
+    )
 
   (stop [this])
 
-  (status [this]))
+  (status [this]
+    (try 
+      (let [{:keys [status]} (get-instance compute gce spec)]
+        (.toLowerCase status))
+      (catch Exception e false) 
+      )))
 
-(defn into-gce [{:keys [name machine-type zone image]}]
+(defn into-gce [{:keys [name machine-type tags zone image]}]
   {
     :name name
     :machineType (<< "zones/~{zone}/machineTypes/~{machine-type}")
+    :tags {:items (clojure.tools.trace/trace tags)}
     :disks [{
       :initializeParams {:sourceImage image} :autoDelete true
       :type "PERSISTENT" :boot true
@@ -80,8 +105,6 @@
     }]
  })
 
-(defn into-system [system-id])
-
 (def machine-ts 
   "Construcuting machine transformations"
    {:image (fn [os] (:image ((os->template :gce) os)))})
@@ -91,11 +114,11 @@
     (-> (merge machine gce {:system-id system-id})
       (mappings {:os :image :hostname :name})
       (transform machine-ts)
-      ((juxt into-gce (partial select-keys [:system-id :project-id])))
+      ((juxt into-gce (fn [m] (select-keys m [:system-id :project-id :zone]))))
     ))
 
-(defn validate [spec &] 
-  (validate-provider spec) spec)
+(defn validate [[gce spec]] 
+  (validate-provider gce spec) [gce spec])
 
 (defmethod vconstruct :gce [spec]
   (let [compute (build-compute (hypervisor :gce :service-file))]
