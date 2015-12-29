@@ -16,7 +16,7 @@
     (fact "legal gce system" :gce
       (:gce (vconstruct redis-gce)) => 
          (contains {:machineType  "zones/europe-west1-d/machineTypes/n1-standard-1"})
-         (provided (build-compute "") => nil)   
+      (provided (build-compute "") => nil)   
          )))
 
 #_(with-admin
