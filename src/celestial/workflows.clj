@@ -36,11 +36,9 @@
     openstack.model
     [celestial.persistency.systems :as s]
     [clojure.tools.macro :as tm]
-    [metrics.timers :refer  [deftimer time!]]
-   )
-  (:import 
-    [celestial.puppet_standalone Standalone]
-    )
+    [metrics.timers :refer  [deftimer time!]])
+  (:import [celestial.puppet_standalone Standalone])
+  )
 
 (import-logging)
 
