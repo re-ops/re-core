@@ -104,8 +104,5 @@
 (defmethod vconstruct :digital-ocean [{:keys [digital-ocean machine] :as spec}]
   (let [[translated ext] (translate spec)]
      (provider-validation translated)
-     (->Droplet (hypervisor* :digital-ocean :token) translated ext)
-   )
-  )
+     (->Droplet (hypervisor* :digital-ocean :token) translated ext)))
 
-(:status (:droplet (get-droplet "9652542")))
