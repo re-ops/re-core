@@ -106,7 +106,7 @@
 
     :gce {
      :ostemplates {
-        :ubuntu-14.10 {
+        :ubuntu-14.04 {
           :image "projects/ubuntu-os-cloud/global/images/ubuntu-1404-trusty-v20151113" :flavor :debian
         }
       }    
