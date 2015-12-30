@@ -1,5 +1,6 @@
 (ns celestial.features.gce
   (:require 
+    [celestial.persistency.systems :as s]
     [celestial.model :refer (vconstruct)]
     [celestial.fixtures.core :refer (with-conf with-admin is-type?) :as f]
     [celestial.fixtures.data :refer (redis-type local-conf redis-gce)]  
@@ -14,7 +15,7 @@
 
 (with-conf
   (let [machine-type "zones/europe-west1-d/machineTypes/n1-standard-1"
-        source-image "projects/ubuntu-os-cloud/global/images/ubuntu-1404-trusty-v20151113" 
+        source-image "projects/ronen-playground/global/images/ubuntu-1510-puppet-382-1451476982" 
         {:keys [machine gce]} redis-gce]
 
     (fact "legal instance spec" :gce
@@ -32,17 +33,28 @@
               :type "PERSISTENT" :boot true 
             }]
           })
+
      (provided (build-compute "/home/ronen/compute-playground.json") => nil))))
 
 
 (with-admin
   (with-conf local-conf
     (with-state-changes [(before :facts (populate-system redis-type redis-gce))]
-      (fact "compute creation workflows" :integration :gce :workflow
+      (fact "gce creation" :integration :gce :workflow
           (wf/create (spec)) => nil 
           (wf/create (spec)) => 
              (throws ExceptionInfo  (is-type? :celestial.workflows/machine-exists)) 
           (wf/stop (spec)) => nil 
           (wf/create (spec)) => 
             (throws ExceptionInfo  (is-type? :celestial.workflows/machine-exists)) 
-          (wf/destroy (spec)) => nil))))
+          (wf/destroy (spec)) => nil)
+
+     (fact "gce clone" :integration :gce :workflow
+        (wf/create (spec)) => nil
+        (wf/clone {:system-id 1 :hostname "bar" :owner "ronen"}) => nil
+        (wf/destroy (assoc (s/get-system 2) :system-id 2)) => nil
+        (wf/destroy (spec)) => nil)
+
+
+      
+      )))

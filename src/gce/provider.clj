@@ -8,8 +8,9 @@
    [celestial.core :refer (Vm)] 
    [clojure.walk :refer (keywordize-keys)]
    [taoensso.timbre :as timbre]
+   [flatland.useful.map :refer (dissoc-in*)]
    [celestial.persistency.systems :as s]
-   [celestial.model :refer (translate vconstruct hypervisor)])
+   [celestial.model :refer (translate vconstruct hypervisor clone)])
   (:import 
     (com.google.api.services.compute.model Instance)
     (com.google.api.client.googleapis.javanet GoogleNetHttpTransport)
@@ -122,3 +123,6 @@
   (let [compute (build-compute (hypervisor :gce :service-file))]
    (apply (partial ->GCEInstance compute) (validate (translate spec)))))
 
+(defmethod clone :gce [spec clone-spec]
+  "Clones the model replace unique identifiers in the process" 
+  (-> spec (dissoc-in* [:machine :ip])))
