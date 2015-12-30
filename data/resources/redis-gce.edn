@@ -12,7 +12,7 @@
   :machine-type "n1-standard-1" 
   :zone "europe-west1-d"
   :tags ["ssh-enabled"]
-  :project-id "idc-smallcell-cloud"
+  :project-id "ronen-playground"
  }
 
  :type "redis"

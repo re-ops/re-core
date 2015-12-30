@@ -110,7 +110,7 @@
           :image "projects/ubuntu-os-cloud/global/images/ubuntu-1404-trusty-v20151113" :flavor :debian
         }
       }    
-      :service-file ""
+      :service-file "/home/ronen/compute-playground.json"
     }
 
     :digital-ocean {
