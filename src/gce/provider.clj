@@ -31,70 +31,68 @@
          (.setHttpRequestInitializer (.createScoped auth scopes))
          (.build))))
 
-(defn instances [compute]
-  (-> compute (.instances)))
+(defn instances [compute] (-> compute (.instances)))
 
 (defn list-instances [compute project zone]
   (let [items (get (-> (instances compute) (.list project zone) (.execute)) "items")]
-    (map clojure.walk/keywordize-keys items)))
+    (map keywordize-keys items)))
 
 (defn create-instance [compute gce {:keys [project-id zone] :as spec}] 
   (let [instance (.fromString (JacksonFactory/getDefaultInstance) (write-str gce) Instance)]
     (-> (instances compute) 
-      (.insert project-id zone instance) (.execute) from-java keywordize-keys) 
-    ))
+      (.insert project-id zone instance) (.execute) from-java keywordize-keys)))
 
-(defn delete-instance [compute {:keys [name]} {:keys [project-id zone]}]
-   (-> (instances compute) (.delete project-id zone name) (.execute)))
-
-(defn get-instance [compute {:keys [name]} {:keys [project-id zone]}]
-   (-> (instances compute) (.get project-id zone name) (.execute) from-java keywordize-keys))
-
+(defmacro run [action]
+  `(-> (instances ~'compute) 
+     (~action (~'spec :project-id) (~'spec :zone) (~'gce :name))
+        (.execute) from-java keywordize-keys))
+  
 (defn get-operation [compute {:keys [project-id zone]} operation]
   (-> (.zoneOperations compute) 
     (.get project-id zone (:name operation)) (.execute) from-java keywordize-keys))
 
 (defmacro with-id [& body])
 
+(defn wait-for-operation [compute gce spec operation]
+   (wait-for {:timeout [5 :minute]} 
+     #(= (:status (get-operation compute spec operation)) "DONE") 
+       {:type ::gce:operation-fail} (<< "Timed out on waiting for operation ~{operation}")))
+
 (defrecord GCEInstance [compute gce spec]
   Vm
   (create [this] 
     (let [operation (create-instance compute gce spec)]
-     (wait-for {:timeout [5 :minute]} 
-        #(= (:status (get-operation compute spec operation)) "DONE") 
-         {:type ::gce:creation-fail} "Timed out on waiting for creation to be done") 
-     (let [{:keys [natIp]} (get-instance compute gce spec)]
+     (wait-for-operation compute gce spec operation) 
+     (let [{:keys [natIp]} (run .get)]
        (s/partial-system (spec :system-id) {:machine {:ip natIp}}))
       this))
 
   (start [this]
     (with-id
       (let [{:keys [machine]} (s/get-system (spec :system-id))]
-        (when-not (= "running" (.status this))
-          )
+        (when-not (= "running" (.status this)))
+        (let [operation (run .start)]
+          (wait-for-operation compute gce spec operation))
         (wait-for-ssh (machine :ip) "root" [5 :minute]))
       ))
 
   (delete [this]
-     (let [{:keys [id] :as operation} (create-instance compute gce spec) ]
-      (wait-for {:timeout [5 :minute]} #(= ("status" operation) "DONE") 
-       {:type ::gce:fail} "Timed out on waiting for operation to be done"))
-    )
+     (let [operation (run .delete)]
+       (wait-for-operation compute gce spec operation)))
 
-  (stop [this])
+  (stop [this]
+    (let [operation (run .stop)]
+       (wait-for-operation compute gce spec operation)))
 
   (status [this]
-    (try 
-      (let [{:keys [status]} (get-instance compute gce spec)]
-        (.toLowerCase status))
-      (catch Exception e false) 
-      )))
+    (try (.toLowerCase (:status (run .get)))
+      (catch Exception e false))))
 
 (defn into-gce [{:keys [name machine-type tags zone image]}]
   {
     :name name
     :machineType (<< "zones/~{zone}/machineTypes/~{machine-type}")
-    :tags {:items (clojure.tools.trace/trace tags)}
+    :tags {:items tags}
     :disks [{
       :initializeParams {:sourceImage image} :autoDelete true
       :type "PERSISTENT" :boot true
