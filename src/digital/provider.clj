@@ -13,7 +13,6 @@
    "Digital ocean provider"
    (:require  
      [slingshot.slingshot :refer (throw+)]
-     [clojure.tools.trace :as tr]
      [digital.validations :refer (provider-validation)]
      [clojure.core.strint :refer (<<)]
      [celestial.model :refer (translate vconstruct hypervisor*)]

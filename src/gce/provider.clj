@@ -60,8 +60,7 @@
        {:type ::gce:operation-fail} (<< "Timed out on waiting for operation ~{operation}")))
 
 (defn ip-from [instance]
-  (clojure.tools.trace/trace 
-    (-> instance :networkInterfaces first (get "accessConfigs") first (get "natIP"))))
+   (-> instance :networkInterfaces first (get "accessConfigs") first (get "natIP")))
 
 (defrecord GCEInstance [compute gce spec]
   Vm
