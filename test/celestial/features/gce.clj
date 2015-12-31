@@ -55,6 +55,12 @@
         (wf/destroy (assoc (s/get-system 2) :system-id 2)) => nil
         (wf/destroy (spec)) => nil)
 
+     (fact "gce provisioning" :integration :gce :workflow
+        (wf/create (spec)) => nil
+        (wf/reload (spec)) => nil 
+        (wf/destroy (spec)) => nil)
 
-      
-      )))
+     (fact "gce puppetization" :integration :gce :workflow :puppet
+        (wf/create (spec)) => nil
+        (wf/provision redis-type (spec)) => nil 
+        (wf/destroy (spec)) => nil))))

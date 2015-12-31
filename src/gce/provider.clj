@@ -59,31 +59,32 @@
      #(= (:status (get-operation compute spec operation)) "DONE") 
        {:type ::gce:operation-fail} (<< "Timed out on waiting for operation ~{operation}")))
 
+(defn ip-from [instance]
+  (clojure.tools.trace/trace 
+    (-> instance :networkInterfaces first (get "accessConfigs") first (get "natIP"))))
+
 (defrecord GCEInstance [compute gce spec]
   Vm
   (create [this] 
-    (let [operation (create-instance compute gce spec)]
-     (wait-for-operation compute gce spec operation) 
-     (let [{:keys [natIp]} (run .get)]
-       (s/partial-system (spec :system-id) {:machine {:ip natIp}}))
-      this))
+     (wait-for-operation compute gce spec (create-instance compute gce spec))
+     (let [instance (run .get) ip (ip-from instance)]
+       (s/partial-system (spec :system-id) {:machine {:ip ip}})
+       (wait-for-ssh ip (spec :user) [5 :minute]))
+      this)
 
   (start [this]
     (with-id
       (let [{:keys [machine]} (s/get-system (spec :system-id))]
         (when-not (= "running" (.status this)))
-        (let [operation (run .start)]
-          (wait-for-operation compute gce spec operation))
-        (wait-for-ssh (machine :ip) "root" [5 :minute]))
-      ))
+        (let [operation ]
+          (wait-for-operation compute gce spec (run .start)))
+        (wait-for-ssh (machine :ip) (spec :user) [5 :minute]))))
 
   (delete [this]
-     (let [operation (run .delete)]
-       (wait-for-operation compute gce spec operation)))
+     (wait-for-operation compute gce spec (run .delete)))
 
   (stop [this]
-    (let [operation (run .stop)]
-       (wait-for-operation compute gce spec operation)))
+     (wait-for-operation compute gce spec (run .stop)))
 
   (status [this]
     (try (.toLowerCase (:status (run .get)))
@@ -113,7 +114,7 @@
     (-> (merge machine gce {:system-id system-id})
       (mappings {:os :image :hostname :name})
       (transform machine-ts)
-      ((juxt into-gce (fn [m] (select-keys m [:system-id :project-id :zone]))))
+      ((juxt into-gce (fn [m] (select-keys m [:system-id :project-id :zone :user]))))
     ))
 
 (defn validate [[gce spec]] 
