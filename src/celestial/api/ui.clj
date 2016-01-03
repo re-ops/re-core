@@ -21,10 +21,10 @@
      (success (friend/current-authentication))))
 
 (defroutes public
-  (GET "/login" [] (ring.util.response/file-response "assets/login.html" {:root (static-path)}))
+  (GET "/login" [] (ring.util.response/file-response "login.html" {:root (static-path-2)}))
   (friend/logout (ANY "/logout" request  (ring.util.response/redirect "/")))
-  (route/files "/" {:root (static-path)})
-  (route/files "/elm" {:root (static-path-2)})
+  (route/files "/" {:root (static-path-2)})
+  (route/files "/old" {:root (static-path)})
   )
  
 
