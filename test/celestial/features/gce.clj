@@ -7,7 +7,7 @@
     [celestial.fixtures.populate :refer (populate-system)]  
     [celestial.integration.workflows.common :refer (spec)]
     [celestial.workflows :as wf]
-    [gce.provider :refer (build-compute)]
+    [gce.provider :refer (build-compute run ip-from)]
     [celestial.fixtures.data :refer [redis-gce]])
   (:use midje.sweet)
   (:import clojure.lang.ExceptionInfo)
@@ -40,7 +40,7 @@
 (with-admin
   (with-conf local-conf
     (with-state-changes [(before :facts (populate-system redis-type redis-gce))]
-      (fact "gce creation" :integration :gce :workflow
+     (fact "gce creation" :integration :gce :workflow
           (wf/create (spec)) => nil 
           (wf/create (spec)) => 
              (throws ExceptionInfo  (is-type? :celestial.workflows/machine-exists)) 
@@ -59,6 +59,17 @@
         (wf/create (spec)) => nil
         (wf/reload (spec)) => nil 
         (wf/destroy (spec)) => nil)
+
+     (fact "gce static ip" :integration :gce :workflow :static-ip
+        ; will be run only if SIP env var is defined
+        (when-let [sip (System/getenv "SIP")]
+          (s/partial-system ((spec) :system-id) {:gce {:static-ip sip}})
+          (wf/create (spec)) => nil
+          (let [{:keys [gce spec compute]} (vconstruct (spec))]
+            (ip-from (run .get)) => sip)
+          (wf/stop (spec)) => nil 
+          (wf/reload (spec)) => nil 
+          (wf/destroy (spec)) => nil))
 
      (fact "gce puppetization" :integration :gce :workflow :puppet
         (wf/create (spec)) => nil

@@ -89,8 +89,12 @@
     (try (.toLowerCase (:status (run .get)))
       (catch Exception e false))))
 
-(defn into-gce [{:keys [name machine-type tags zone image]}]
-  {
+(defn add-ip
+   [static-ip gce]
+   (if static-ip (assoc-in gce [:networkInterfaces 0 :accessConfigs 0 :natIP] static-ip) gce))
+
+(defn into-gce [{:keys [name machine-type tags zone image static-ip]}]
+  (add-ip static-ip {
     :name name
     :machineType (<< "zones/~{zone}/machineTypes/~{machine-type}")
     :tags {:items tags}
@@ -102,7 +106,7 @@
       :accessConfigs [{:type "ONE_TO_ONE_NAT", :name "External NAT" }]
       :network "global/networks/default"
     }]
- })
+ }))
 
 (def machine-ts 
   "Construcuting machine transformations"
