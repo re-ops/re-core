@@ -14,11 +14,12 @@
     [slingshot.slingshot :refer  [throw+]]
     [celestial.persistency.systems :as s :refer (system-val)]
     [celestial.common :refer (import-logging)]
-    [openstack.networking :refer (first-ip update-ip assoc-floating dissoc-floating)]
+    [openstack.networking :refer 
+      (first-ip update-ip assoc-floating dissoc-floating allocate-floating update-floating)]
     [clojure.java.data :refer [from-java]]
     [celestial.provider :refer (wait-for wait-for-ssh wait-for-stop running? wait-for-start)]
     [openstack.validations :refer (provider-validation)]
-    [celestial.core :refer (Vm)] 
+    [celestial.core :refer (Vm MultiIp)] 
     [openstack.volumes :as v]
     [openstack.common :refer (openstack servers compute)]
     [celestial.model :refer (hypervisor translate vconstruct)])
@@ -94,16 +95,22 @@
        (update-id spec instance-id)
        (debug "waiting for" instance-id "to get an ip on" network)
        (wait-for-ip servers' instance-id network [5 :minute])
-       (let [ip (first-ip (.get servers' instance-id) network)]
-         (update-ip spec ip)
-         (debug "waiting for ssh to be available at" ip)
-         (wait-for-ssh ip (get-in spec [:machine :user]) [5 :minute]))
-       (when-let [ip (get-in spec [:openstack :floating-ip])]
-         (assoc-floating (floating-ips tenant) server ip))
+       (update-ip spec (first-ip (.get servers' instance-id) network))
+
+       (if-let [ip (get-in spec [:openstack :floating-ip])]
+         (assoc-floating (floating-ips tenant) server ip)
+         (when-let [pool (get-in spec [:openstack :floating-ip-pool])]
+           (let [ip (allocate-floating (floating-ips tenant) pool)]
+             (assoc-floating (floating-ips tenant) server ip)
+             (update-floating spec ip))))
+
        (when-let [volumes (get-in spec [:openstack :volumes])]
          (doseq [{:keys [device] :as v} volumes :let [vid (v/create spec v tenant)]]
-           (v/attach instance-id vid device tenant)))  
-       this))
+           (v/attach instance-id vid device tenant)))
+         
+       (debug "waiting for ssh to be available at" (.remote this))
+       (wait-for-ssh (.remote this) (get-in spec [:machine :user]) [5 :minute])
+         this))
 
   (start [this]
      (with-instance-id
@@ -111,8 +118,7 @@
          (debug "starting" instance-id )
          (.action (servers tenant) instance-id Action/START)
          (wait-for-start this [5 :minute] ::openstack:start-failed)
-         (wait-for-ssh 
-           (system-val spec [:machine :ip]) (get-in spec [:machine :user]) [5 :minute]))))
+         (wait-for-ssh (.remote this) (get-in spec [:machine :user]) [5 :minute]))))
 
   (delete [this]
      (with-instance-id 
@@ -136,7 +142,14 @@
        (let [server (.get (servers tenant) instance-id)
              value (.toLowerCase (str (.getStatus server)))]
           (if (= value "active") "running" value))
-       (do (debug "no instance id found, instance not created") false))))
+       (do (debug "no instance id found, instance not created") false)))
+  
+ MultiIp
+  (remote [this]
+    (case (hypervisor :openstack :managment-interface)
+      :floating (system-val spec [:openstack :floating-ip]) 
+      :network (system-val spec [:machine :ip])
+      )))
 
 (defn openstack-spec 
    [spec]

@@ -17,8 +17,12 @@
   (delete [this] "Deletes a VM")  
   (start [this] "Starts an existing VM only if its not running, ssh should be up")  
   (stop [this]  "Stops a VM only if it exists and running")
-  (status [this] 
-    "Returns vm status (values defere between providers) false if it does not exists"))
+  (status [this] "Returns vm status (values defere between providers) false if it does not exists"))
+
+(defprotocol MultiIp
+  (remote [this] "Returns vm remote ssh connection info")
+  )
+
 
 (defprotocol Provision
   "A provisioner (puppet/chef) base API, implement this to add more provisioners"

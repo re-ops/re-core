@@ -30,11 +30,21 @@
   (when (s/system-exists? (spec :system-id))
      (s/partial-system (spec :system-id) {:machine {:ip ip}})))
 
+(defn update-floating [spec ip]
+  "update instance ip"
+  (when (s/system-exists? (spec :system-id))
+     (s/partial-system (spec :system-id) {:openstack {:floating-ip ip}})))
+
 (defn assoc-floating 
    "assoc floating ip with instance"
    [floating-ips server ip]
      (debug "assoc" ip "to" (:id (from-java server)))
      (.addFloatingIP floating-ips server ip))
+
+(defn allocate-floating 
+   "allocating floating ip using pool"
+   [floating-ips pool]
+     (.getFloatingIpAddress (.allocateIP floating-ips pool)))
 
 (defn dissoc-floating
    "dissoc ip for instance" 

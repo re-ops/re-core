@@ -110,12 +110,14 @@
 (def ^{:doc "aws section validation"} aws-v 
   {:aws {:access-key #{:required :String} :secret-key #{:required :String}}})
 
+(validation :managment
+  (when-not-nil #{:floating :network} "must be either floating or network"))
+ 
 (def ^{:doc "openstack section validation"} openstack-v 
   {:openstack {
     :username #{:required :String} :password #{:required :String} 
-    :endpoint #{:required :String}
+    :endpoint #{:required :String} :managment-interface #{:required :managment}    
   }})
-
 
 (def ^{:doc "vcenter section validation"} vcenter-v 
   {:vcenter {

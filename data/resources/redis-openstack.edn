@@ -5,15 +5,15 @@
 
  :machine {
   :hostname "red1" :user "ubuntu" 
-  :domain "local" :os :ubuntu-14.10
+  :domain "local" :os :ubuntu-15.10
  }
 
  :openstack {
   :flavor "m1.small" 
-  :tenant "skywind"
+  :tenant "admin"
   :key-name "foo"
   :security-groups ["default"]
-  :networks ["bar"]
+  :networks ["net04"]
  }
 
  :type "redis"

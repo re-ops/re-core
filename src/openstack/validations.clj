@@ -42,11 +42,12 @@
 
 (def openstack-common
   {:openstack
-   {:flavor #{:required :String} :tenant #{:required :String} 
-    :security-groups #{:Vector ::group*} :networks #{:Vector ::network*}
-    :key-name #{:required :String} :floating-ip #{:ip :String}
-    :hints #{::hint*} :volumes #{::volume*}}
-   })
+    {:flavor #{:required :String} :tenant #{:required :String} 
+     :security-groups #{:Vector ::group*} :networks #{:Vector ::network*}
+     :key-name #{:required :String} :hints #{::hint*} :volumes #{::volume*}
+     :floating-ip-pool #{:String} :floating-ip #{:ip :String}
+    }
+  })
 
 (defn provider-validation [spec]
   (validate! spec (combine machine-entity openstack-common) :error ::invalid-openstack))
