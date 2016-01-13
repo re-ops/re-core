@@ -20,8 +20,7 @@
       '{:hypervisor {:dev {:proxmox {:nodes ({:proxmox-a {:password "must be present"}})}}}}
      
     (validate-missing :hypervisor :dev :proxmox :nodes) => {:hypervisor {:dev {:proxmox {:nodes "must be present"}}}}
-    (validate-missing :hypervisor :dev :proxmox :master) => {:hypervisor {:dev {:proxmox {:master "must be present"}}}}
-      )
+    (validate-missing :hypervisor :dev :proxmox :master) => {:hypervisor {:dev {:proxmox {:master "must be present"}}}})
 
 (fact "non legal proxmox template flavor" 
   (validate-conf (assoc-in local-prox [:hypervisor :dev :proxmox :ostemplates :ubuntu-12.04 :flavor] :bar)) => 
@@ -32,9 +31,13 @@
     (validate-conf (assoc-in local-prox [:hypervisor :dev :aws] {})) => 
       {:hypervisor {:dev {:aws {:access-key "must be present" :secret-key "must be present"}}}})
 
-(fact "missing openstack  options"
+(fact "missing openstack options"
     (validate-conf (assoc-in local-prox [:hypervisor :dev :openstack] {})) => 
-      {:hypervisor {:dev {:openstack {:username "must be present" :password "must be present" :endpoint "must be present"}}}})
+      {:hypervisor 
+        {:dev 
+          {:openstack {
+            :username "must be present" :password "must be present" 
+            :endpoint "must be present" :managment-interface "must be present"}}}})
 
 (fact "vcenter validations" 
    (validate-missing :hypervisor :dev :vcenter :password) => {:hypervisor {:dev {:vcenter {:password "must be present"}}}}

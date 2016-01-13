@@ -1,6 +1,7 @@
 (ns celestial.integration.networking
   (:use midje.sweet)
   (:require 
+    [celestial.fixtures.data :refer :all]
     [celestial.fixtures.core :refer [with-conf]]  
     [hypervisors.networking :as n :refer (initialize-range long-to-ip list-used-ips clear-range)])
  )
