@@ -13,7 +13,7 @@
   :tenant "skywind"
   :key-name "foo"
   :security-groups ["default"]
-  :networks ["playtech-int-2"]
+  :networks ["bar"]
  }
 
  :type "redis"
