@@ -91,6 +91,9 @@
 (validation :mac 
   (when-not-nil (partial re-find #"^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$") "must be a legal mac address"))
 
+(validation :device 
+  #(when-not (re-find (re-matcher #"\/dev\/\w+" %)) "device should match /dev/{id} format"))
+
 (test #'mappings)
 
 (defn running? [this] (= (.status this) "running"))

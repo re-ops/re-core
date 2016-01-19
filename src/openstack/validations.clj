@@ -29,8 +29,6 @@
     :size #{:required :Integer}
     :clear #{:required :Boolean}})
 
-(validation :device 
-  #(when-not (re-find (re-matcher #"\/dev\/\w+" %)) "device should match /dev/{id} format"))
 
 (validation ::group* (every-v #{:String}))
 

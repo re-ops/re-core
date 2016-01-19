@@ -28,7 +28,7 @@
   (when-not-nil ebs-type (<< "EBS type must be either ~{ebs-type}")))
 
 (validation :volume {
-    :device #{:required :String} :size #{:required :Integer}
+    :device #{:required :device} :size #{:required :Integer}
     :clear #{:required :Boolean} :volume-type #{:required :ebs-type}
     :iops #{:Integer}
    })
