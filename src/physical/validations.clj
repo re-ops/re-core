@@ -24,7 +24,7 @@
 
 (def physical-entity 
   {:physical {
-    :mac #{:required :mac} :broadcast #{:required :ip}
+    :mac #{:mac} :broadcast #{:ip}
    }})
 
 (defmethod check-validity [:physical :entity] [physical]
