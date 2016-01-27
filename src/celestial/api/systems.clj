@@ -179,8 +179,8 @@
 
   (DELETE- "/templates/:name" [^:string name] {:nickname "deleteTemplate" :summary "Delete Template" 
                                           :errorResponses (errors {:bad-req "Template does not exist"})}
-     (if (s/template-exists? template)
-        (do (s/delete-template template) 
+     (if (s/template-exists? name)
+        (do (s/delete-template name) 
           (success {:message "Template deleted"}))
         (bad-req {:message "Template does not exist"}))
      )
