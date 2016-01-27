@@ -6,9 +6,9 @@
 
  :openstack {
   :flavor "m1.small" 
-  :tenant "skywind"
+  :tenant "admin"
   :key-name "celestial"
-  :networks ["playtech-int-2"]
+  :networks ["bar"]
   :security-groups ["default"]
  }
 
@@ -23,4 +23,5 @@
 
  :type "jvm"
  :name "tiny-jvm"
+ :description "A truly tiny JVM instance"
 }

@@ -6,13 +6,14 @@
 
  :openstack {
   :flavor "m1.small" 
-  :tenant "skywind"
+  :tenant "admin"
   :key-name "celestial"
   :security-groups ["default"]
-  :networks ["playtech-int-2"]
+  :networks ["foo"]
  }
 
  :defaults {}
  :type "redis"
  :name "small-redis"
+ :description "A redis instance with small backing VM"
 }

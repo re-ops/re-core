@@ -180,7 +180,7 @@
 
 (def template-base {
   :type #{:required :type-exists} :defaults #{:required :Map}
-  :name #{:required :String}
+  :name #{:required :String} :description #{:String}
 })
 
 (defn validate-template
