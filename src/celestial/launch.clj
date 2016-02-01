@@ -19,9 +19,9 @@
     [clojure.core.strint :refer (<<)]
     [supernal.core :refer [ssh-config]]
     [gelfino.timbre :refer (set-tid get-tid gelf-appender)]
-    [taoensso.timbre :refer (merge-config! set-level!)]
+    [taoensso.timbre  :as timbre :refer (merge-config! set-level!)]
     [taoensso.timbre.appenders.3rd-party.rolling :refer (rolling-appender) ] 
-    [taoensso.timbre.appenders.core :refer (spit-appender)]
+    [taoensso.timbre.appenders.core :refer (println-appender)]
     [components.core :refer (start-all stop-all setup-all)]
     [celestial.persistency.core :as p]
     [hypervisors.networking :refer (initialize-networking)]
@@ -34,13 +34,27 @@
 
 (import-logging)
 
+(defn disable-coloring 
+   "See https://github.com/ptaoussanis/timbre" 
+   []
+  (merge-config! {:output-fn (partial timbre/default-output-fn  {:stacktrace-fonts {}})}))
+
+(defn filter-security [{:keys [output-fn ?ns-str] :as data}]
+  (when-not (= "celestial.security" ?ns-str)
+    (println (output-fn data))))
+
 (defn setup-logging 
   "Sets up logging configuration"
   []
   (let [log* (partial get* :celestial :log)]
     (when (log* :gelf)
-      (merge-config! {:appenders {:gelf (gelf-appender  {:host (log* :gelf :host)})}}))
-    (merge-config! {:appenders {:rolling (rolling-appender {:path (log* :path) :pattern :weekly})}})
+      (merge-config! 
+        {:appenders {:gelf (gelf-appender {:host (log* :gelf :host)})}}))
+    (merge-config! 
+      {:appenders {:rolling (rolling-appender {:path (log* :path) :pattern :weekly})}})
+    (merge-config! 
+      {:appenders {:println {:fn filter-security}}})
+    (disable-coloring)
     (set-level! (log* :level))))
 
 (defn build-components []
