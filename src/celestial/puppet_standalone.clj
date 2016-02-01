@@ -79,17 +79,20 @@
     (let [roles {:roles {:web #{remote}}}
           res (execute puppet-provision m :web :env roles)]
         (when-let [fail (-> res first :fail)] 
-          (throw fail))
-      ))) 
+          (throw fail))))) 
 
+(defn into-module 
+  "We can pass classes and agent run options" 
+  [module machine run-opts]
+  (let [opts (or run-opts {:args [] :classes {}})]
+    (-> module
+      (update-in [:args] (fn [a] (concat a (opts :args))))
+      (merge (select-keys opts [:classes]))
+      (assoc :hostname (machine :hostname)))))
 
 (defmethod pconstruct :puppet-std 
-  [{:keys [run-opts] :as type :or {run-opts {}}} {:keys [machine env] :as spec}]
-  (let [remote {:host (machine :ip) :user (or (machine :user) "root")}]
-    (if-let [m (get-in type [:puppet-std env])]
-      (Standalone. remote
-        (-> m
-          (update-in [:args] (fn [a] (concat a (run-opts :args))))
-          (merge (select-keys run-opts [:classes]))
-          (assoc :hostname (machine :hostname))))
+  [{:keys [run-opts] :as type :or {run-opts {:args []}}} {:keys [machine env] :as spec}]
+  (let [remote {:host (machine :ip) :user (or (machine :user) "root")} ]
+    (if-let [module (get-in type [:puppet-std env])]
+      (Standalone. remote (into-module module machine run-opts) )
         (throw+ {:type ::missing-env} (<< "Type ~(type :type) is missing environment ~{env} values")))))
