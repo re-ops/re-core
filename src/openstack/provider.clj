@@ -19,7 +19,7 @@
     [clojure.java.data :refer [from-java]]
     [celestial.provider :refer (wait-for wait-for-ssh wait-for-stop running? wait-for-start)]
     [openstack.validations :refer (provider-validation)]
-    [celestial.core :refer (Vm MultiIp)] 
+    [celestial.core :refer (Vm)] 
     [openstack.volumes :as v]
     [openstack.common :refer (openstack servers compute)]
     [celestial.model :refer (hypervisor translate vconstruct)])
@@ -142,8 +142,7 @@
           (if (= value "active") "running" value))
        (do (debug "no instance id found, instance not created") false)))
   
- MultiIp
-  (remote [this]
+ (ip [this]
     (case (hypervisor :openstack :managment-interface)
       :floating (system-val spec [:openstack :floating-ip]) 
       :network (system-val spec [:machine :ip])

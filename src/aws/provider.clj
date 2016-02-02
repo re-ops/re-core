@@ -112,7 +112,11 @@
       (with-instance-id 
          (instance-desc endpoint instance-id :state :name)) 
       (catch [:type ::aws:missing-id] e 
-        (debug "No AWS instance id, most chances this instance hasn't been created yet") false))))
+        (debug "No AWS instance id, most chances this instance hasn't been created yet") false)))
+ 
+  (ip [this]
+    (with-instance-id
+      (instance-ip spec endpoint instance-id))))
 
 (def defaults {:aws {:min-count 1 :max-count 1}})
 

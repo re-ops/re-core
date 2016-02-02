@@ -17,11 +17,10 @@
   (delete [this] "Deletes a VM")  
   (start [this] "Starts an existing VM only if its not running, ssh should be up")  
   (stop [this]  "Stops a VM only if it exists and running")
-  (status [this] "Returns vm status (values defere between providers) false if it does not exists"))
-
-(defprotocol MultiIp
-  (remote [this] "Returns vm remote ssh connection info")
+  (status [this] "Returns vm status (values defere between providers) false if it does not exists")
+  (ip [this] "Instance IP address") 
   )
+
 
 
 (defprotocol Provision

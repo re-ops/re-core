@@ -130,21 +130,21 @@
 (defrecord Container [node ct extended network]
   Vm
   (create [this] 
-          (debug "creating" (:vmid ct))
-          (let [[ct* network*] (assign-networking ct network) ip (ip-address ct* network*)
-                {:keys [hostname vmid]} ct* id (extended :system-id)] 
-            (try+ 
-              (check-task node (prox-post (str "/nodes/" node "/openvz") ct*)) 
-              (enable-features this) 
-              (if (s/system-exists? id)
-                (s/partial-system id {:proxmox {:vmid vmid} :machine {:ip ip}})
-                (warn "Creating a proxmox instance without a valid system id")) 
-              (when (ct* :netif)
-                (update-interfaces node (extended :flavor) ip network* vmid))
-              (->Container node ct* extended network*)
-              (catch [:status 500] e 
-                (warn "Failed to create container" e) (throw+ e))
-              (catch Throwable e (release-ip ip :proxmox)  (throw+ e)))))
+     (debug "creating" (:vmid ct))
+     (let [[ct* network*] (assign-networking ct network) ip (ip-address ct* network*)
+           {:keys [hostname vmid]} ct* id (extended :system-id)] 
+        (try+ 
+           (check-task node (prox-post (str "/nodes/" node "/openvz") ct*)) 
+           (enable-features this) 
+          (if (s/system-exists? id)
+             (s/partial-system id {:proxmox {:vmid vmid} :machine {:ip ip}})
+             (warn "Creating a proxmox instance without a valid system id")) 
+          (when (ct* :netif)
+             (update-interfaces node (extended :flavor) ip network* vmid))
+             (->Container node ct* extended network*)
+        (catch [:status 500] e 
+           (warn "Failed to create container" e) (throw+ e))
+           (catch Throwable e (release-ip ip :proxmox)  (throw+ e)))))
 
   (delete [this]
      (try 
@@ -154,22 +154,23 @@
       (finally (release-ip (ip-address this) :proxmox))))
 
   (start [this]
-         (debug "starting" (:vmid ct))
-         (safe
-           (prox-post (str "/nodes/" node "/openvz/" (:vmid ct) "/status/start")))
-           (wait-for-ssh (ip-address this) (:user extended) [5 :minute]))
+     (debug "starting" (:vmid ct))
+     (safe
+       (prox-post (str "/nodes/" node "/openvz/" (:vmid ct) "/status/start")))
+       (wait-for-ssh (ip-address this) (:user extended) [5 :minute]))
 
   (stop [this]
-        (debug "stopping" (:vmid ct))
-        (safe 
-          (prox-post (str "/nodes/" node "/openvz/" (:vmid ct) "/status/stop"))))
+     (debug "stopping" (:vmid ct))
+     (safe (prox-post (str "/nodes/" node "/openvz/" (:vmid ct) "/status/stop"))))
 
   (status [this] 
-          (try+ 
-            (:status 
-              (prox-get 
-                (str "/nodes/" node "/openvz/" (:vmid ct) "/status/current")))
-            (catch [:status 500] e false)))) 
+    (try+ 
+      (:status (prox-get (str "/nodes/" node "/openvz/" (:vmid ct) "/status/current")))
+    (catch [:status 500] e false)))
+  
+  (ip [this]
+    (ip-address this)) 
+  ) 
 
 (defn unmount [{:keys [ct node]}]
   (let [{:keys [vmid]} ct]

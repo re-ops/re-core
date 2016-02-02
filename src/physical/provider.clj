@@ -54,7 +54,10 @@
   (status [this] 
      (try 
        (if (ssh-up? remote) "running" "Nan")
-        (catch Throwable t "Nan"))))
+        (catch Throwable t "Nan")))
+
+  (ip [this] 
+    (remote :ip)))
 
 (defmethod translate :physical 
   [{:keys [physical machine]}]

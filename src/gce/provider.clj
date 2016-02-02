@@ -87,7 +87,10 @@
 
   (status [this]
     (try (.toLowerCase (:status (run .get)))
-      (catch Exception e false))))
+      (catch Exception e false)))
+  
+  (ip [this]
+     (get-in (s/get-system (spec :system-id)) [:machine :ip])))
 
 (defn add-ip
    [static-ip gce]

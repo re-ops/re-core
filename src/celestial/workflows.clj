@@ -164,7 +164,7 @@
      (info "starting to provision") 
      (trace type spec) 
      (let [vm (vconstruct spec) 
-           provisioner (pconstruct type (assoc-in spec [:machine :ip] (.remote vm)))]
+           provisioner (pconstruct type (assoc-in spec [:machine :ip] (.ip vm)))]
         (running! vm)
         (.apply- provisioner ))
      (info "done provisioning"))

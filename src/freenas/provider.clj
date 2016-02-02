@@ -94,7 +94,10 @@
 
   (status [this] 
     (when-let [jail (jails (spec :jail_host))]
-      (.toLowerCase (:jail_status jail)))))
+      (.toLowerCase (:jail_status jail))))
+  
+  (ip [this]
+     (get-in (s/get-system (spec :system-id)) [:machine :ip])))
 
 
 (defmethod translate :freenas [{:keys [machine freenas system-id] :as spec}]

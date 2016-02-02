@@ -82,7 +82,9 @@
              droplet-status (get-in (get-droplet id) [:droplet :status])]
          (or (status-map droplet-status) droplet-status))
        (do (debug "id not found, instance not created") false)
-       )))
+       ))
+  (ip [this]
+    (with-id (get-ip id))))
 
 (defn machine-ts 
   "Construcuting machine transformations"
