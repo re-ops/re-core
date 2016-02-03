@@ -10,5 +10,6 @@
    }
   }
 
+ :description "Only JVM installed"
  :type "jvm"
 }
