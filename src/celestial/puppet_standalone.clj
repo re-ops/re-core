@@ -87,7 +87,7 @@
   (let [opts (or run-opts {:args [] :classes {}})]
     (-> module
       (update-in [:args] (fn [a] (concat a (opts :args))))
-      (merge (select-keys opts [:classes]))
+      ((partial merge-with merge) (select-keys opts [:classes]))
       (assoc :hostname (machine :hostname)))))
 
 (defmethod pconstruct :puppet-std 
