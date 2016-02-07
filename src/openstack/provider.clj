@@ -103,8 +103,8 @@
            (let [ip (allocate-floating (floating-ips tenant) pool)]
              (assoc-floating (floating-ips tenant) server ip)
              (update-floating spec ip))))
-       (debug "waiting for ssh to be available at" (.remote this))
-       (wait-for-ssh (.remote this) (get-in spec [:machine :user]) [5 :minute])
+       (debug "waiting for ssh to be available at" (.ip this))
+       (wait-for-ssh (.ip this) (get-in spec [:machine :user]) [5 :minute])
        (when-let [volumes (get-in spec [:openstack :volumes])]
          (doseq [{:keys [device] :as v} volumes :let [vid (v/create spec v tenant)]]
            (v/attach instance-id vid device tenant)))
@@ -116,7 +116,7 @@
          (debug "starting" instance-id )
          (.action (servers tenant) instance-id Action/START)
          (wait-for-start this [5 :minute] ::openstack:start-failed)
-         (wait-for-ssh (.remote this) (get-in spec [:machine :user]) [5 :minute]))))
+         (wait-for-ssh (.ip this) (get-in spec [:machine :user]) [5 :minute]))))
 
   (delete [this]
      (with-instance-id 
