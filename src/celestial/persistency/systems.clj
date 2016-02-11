@@ -190,7 +190,8 @@
 
 (defn templatize
   "Create a system from a template"
-   [name {:keys [env] :as provided}]
+   [name {:keys [env machine] :as provided}]
+   {:pre [machine (machine :hostname) (machine :domain)]}
    (let [{:keys [defaults] :as t} (get-template! name)]
      (add-system (merge-with merge t (defaults env) provided))))
 
