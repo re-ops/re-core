@@ -79,7 +79,7 @@
    :kibana3 
       "query=tid:~{tid}&fields=@timestamp,message,tid,"
    :kibana4 
-      "query:(query_string:(analyze_wildcard:!t,query:'tid:~{tid}')),columns:!('@timestamp',message,tid)" 
+      "query:(query_string:(analyze_wildcard:!t,query:'tid:~{tid}')),columns:!(message)" 
    }
   )
 
