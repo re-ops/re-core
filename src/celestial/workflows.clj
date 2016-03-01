@@ -19,6 +19,7 @@
   (:require 
     ; loading defmethods
     gce.provider 
+    kvm.provider 
     digital.provider 
     proxmox.provider 
     freenas.provider 

@@ -1,0 +1,15 @@
+{
+  :env :dev 
+
+  :owner "admin"
+
+  :machine {
+    :hostname "red1" :user "celestial" 
+    :domain "local" :os :ubuntu-15.04
+  } 
+
+  :kvm {
+  }
+
+  :type "redis"
+}

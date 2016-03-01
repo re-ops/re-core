@@ -28,7 +28,7 @@
 
 
 (def hypervizors 
-  #{:proxmox :aws :vcenter :vagrant :physical :docker :openstack :freenas :digital-ocean :gce })
+  #{:proxmox :aws :vcenter :vagrant :physical :docker :openstack :freenas :digital-ocean :gce :kvm})
 
 (def operations
  #{:reload :destroy :provision :stage :run-action :create :start :stop :clear :clone})

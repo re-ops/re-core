@@ -53,7 +53,11 @@
                  [com.google.oauth-client/google-oauth-client-java6 "1.21.0"]
                  [com.google.oauth-client/google-oauth-client-jetty "1.21.0"]
                  [com.fasterxml.jackson.core/jackson-core "2.6.4"]
-
+                 ; libvirt
+                 [org.clojure/data.xml "0.0.8"]
+                 [org.clojure/data.zip "0.1.1"]
+                 [net.java.dev.jna/jna "4.2.0"]
+                 [org.libvirt/libvirt "0.5.1"] 
                  ; persistency and model
                  [clojurewerkz/elastisch "2.0.0-beta3"]
                  [puny "0.3.0"]
@@ -159,7 +163,8 @@
 
   
   :repositories  {"bintray"  "http://dl.bintray.com/content/garkisr/narkisr-jars"
-                  "sonatype" "http://oss.sonatype.org/content/repositories/releases"}
+                  "sonatype" "http://oss.sonatype.org/content/repositories/releases"
+                  "libvirt-org" "http://libvirt.org/maven2"}
 
   :topping {
       :service "celestial"
