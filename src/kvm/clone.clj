@@ -3,8 +3,8 @@
     java.text.SimpleDateFormat
     org.libvirt.Connect) 
   (:require 
-     [libvirt.disks :refer (get-disks find-volume clone-disks update-disks)]
-     [libvirt.common :refer (connect tree-edit)]
+     [kvm.disks :refer (get-disks find-volume clone-disks update-disks)]
+     [kvm.common :refer (connect tree-edit)]
      [clojure.pprint :refer (pprint)]
      [clojure.zip :as zip]
      [clojure.data.zip.xml :as zx]
