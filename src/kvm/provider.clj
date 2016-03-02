@@ -11,6 +11,9 @@
 
 (ns kvm.provider
   (:require 
+    [clojure.core.strint :refer (<<)] 
+    [kvm.clone :refer (clone-domain)]
+    [kvm.common :refer (connect)]
     [celestial.provider :refer (wait-for wait-for-ssh map-key)] 
     [supernal.sshj :refer (ssh-up?)]
     [celestial.core :refer (Vm)] 
@@ -21,9 +24,18 @@
 
 (timbre/refer-timbre)
 
-(defrecord Domain []
+(defn connection [{:keys [host user port]}] 
+  (connect (<< "qemu+ssh://~{user}@~{host}:~{port}/system")))
+
+(defmacro with-connection [& body]
+  `(let [~'connection (connection ~'node)] (do ~@body)))
+
+(defrecord Domain [node domain]
   Vm
-  (create [this]) 
+  (create [this]
+    (with-connection 
+      (let [{:keys [image target]} domain]
+        (clone-domain connection image target)))) 
 
   (delete [this])
 
@@ -40,5 +52,6 @@
   )
 
 (defmethod vconstruct :kvm [{:keys [digital-ocean machine] :as spec}]
+
   )
 
