@@ -35,13 +35,8 @@
        (element :path {} file)      
        (element :format {:type type} nil))))
 
-(defn create-clone-with-backing-store []
-
-  )
-
 (defn clone-name [name idx]
   (str name "-" (str idx) ".qcow2"))
-
 
 (defn clone-disks [c name root]
   (let [volumes  (map-indexed vector (map (partial into-volume c) (get-disks root)))]
