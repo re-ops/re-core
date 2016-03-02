@@ -91,11 +91,17 @@
 (validation :template*
   (every-kv {:template #{:required :String} :flavor #{:required :Keyword :flavor}}))
 
-
 (def ^{:doc "proxmox section validation"} proxmox-v 
   {:proxmox { 
      :master #{:required :Keyword} :nodes #{:required :node*} 
      :ostemplates #{:template*} :task-timeout #{:number}}})
+
+(validation :kvm-node*
+  (every-kv {:username #{:required :String} :host #{:required :String} :ssh-port #{:required :number}}))
+
+
+(def ^{:doc "kvm validation"} kvm-v 
+  {:kvm {:nodes #{:required :kvm-node*} :ostemplates #{:template*} }})
 
 (def ^{:doc "digital ocean section validation"} digital-v
   {:digital-ocean { 
@@ -128,7 +134,7 @@
 (defn hypervisor-validations 
   "find relevant hypervisor validations per env"
   [hypervisor]
-  (let [hvs [proxmox-v aws-v openstack-v vcenter-v docker-v digital-v] ks (map (comp first keys) hvs) 
+  (let [hvs [proxmox-v kvm-v aws-v openstack-v vcenter-v docker-v digital-v] ks (map (comp first keys) hvs) 
         envs (map (fn [v] (fn [env] {:hypervisor {env v}})) hvs)]
     (first 
       (map (fn [[e hs]] (map #(((zipmap ks envs) %) e) (filter (into #{} ks) (keys hs)))) hypervisor))))

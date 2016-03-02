@@ -130,6 +130,16 @@
       }
      }
 
+    :kvm  {
+       :nodes {
+          :localhost {:username "ronen" :host "localhost" :ssh-port 22}
+        }
+       :ostemplates {
+          :ubuntu-15.04 {:template "/home/ronen/images/ubuntu-1504-server.img" :flavor :debian}
+        }
+       
+     }
+
     :physical { }
    }
  }
