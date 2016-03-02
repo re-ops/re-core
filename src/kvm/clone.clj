@@ -45,19 +45,35 @@
 (defn clear-all-macs [xml]
   (zip/xml-zip (tree-edit xml interface? clear-mac)))
 
-;; (def connection (connect "qemu+ssh://ronen@localhost/system"))
+(defn vcpu? [loc]
+   (= :vcpu (:tag (zip/node loc))))
+
+(defn set-cpu [xml cpu]
+  (zip/xml-zip 
+    (tree-edit xml vcpu? (fn [node] (assoc node :content (list cpu))))))
+
+(defn ram? [loc]
+  (let [tag (:tag (zip/node loc))]
+    (or (= tag :memory ) (= tag :currentMemory))))
+
+(defn set-ram [xml ram]
+  (zip/xml-zip 
+    (tree-edit xml ram? (fn [node] (assoc node :content (list (* ram 1024)))))))
 
 (defn domain-zip [c id]
   (-> (get-domain c id) xml-desc parse))  
 
-(defn clone-domain [c id name]
+(defn clone-root [root name cpu ram] 
+  (-> root 
+    (set-name name) clear-uuid clear-all-macs (set-cpu cpu) (set-ram ram)))
+
+; see clone https://github.com/xebialabs/overcast/blob/master/src/main/java/com/xebialabs/overcast/support/libvirt/DomainWrapper.java
+(defn clone-domain [c id {:keys [name cpu ram]}]
   (let [root (domain-zip c id) volumes (clone-disks c name root)
-        cloned-root (-> root (set-name name) clear-uuid clear-all-macs (update-disks volumes))
-        cloned-domain (.domainDefineXML c (xml/emit-str cloned-root))
-        ]
+        target-root (update-disks (clone-root root name cpu ram) volumes)
+        cloned-domain (.domainDefineXML c (xml/emit-str target-root))]
     (.create cloned-domain)))
 
-;; (clone-domain connection "ubuntu-15.04"  "dar")
-;; (doall (map #(vector (.getID %) (.getName %)) (domain-list connection)))
-; see clone https://github.com/xebialabs/overcast/blob/master/src/main/java/com/xebialabs/overcast/support/libvirt/DomainWrapper.java
+;; (def connection (connect "qemu+ssh://ronen@localhost/system"))
+(clone-domain connection "ubuntu-15.04" {:name "dar" :cpu 2 :ram 2048})
 
