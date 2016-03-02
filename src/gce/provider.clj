@@ -17,8 +17,7 @@
     (com.google.api.client.json.jackson2 JacksonFactory)
     (com.google.api.client.googleapis.auth.oauth2 GoogleCredential)
     (com.google.api.services.compute Compute$Builder ComputeScopes)
-    )
- )
+    ))
 
 (timbre/refer-timbre)
 
