@@ -45,8 +45,7 @@
 (defn clear-all-macs [xml]
   (zip/xml-zip (tree-edit xml interface? clear-mac)))
 
-;; (def connection (connect "qemu+ssh://ronen@charon/system"))
-(def connection (connect "qemu+ssh://ronen@localhost/system"))
+;; (def connection (connect "qemu+ssh://ronen@localhost/system"))
 
 (defn domain-zip [c id]
   (-> (get-domain c id) xml-desc parse))  
