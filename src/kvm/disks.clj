@@ -1,7 +1,7 @@
 (ns kvm.disks
   (:require 
     [clojure.zip :as zip]
-    [libvirt.common :refer (tree-edit)]
+    [kvm.common :refer (tree-edit)]
     [clojure.data.xml :as xml :refer (element)]
     [clojure.data.zip.xml :as zx])
   )
