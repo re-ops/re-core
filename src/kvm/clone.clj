@@ -75,5 +75,6 @@
     (.create cloned-domain)))
 
 ;; (def connection (connect "qemu+ssh://ronen@localhost/system"))
-(clone-domain connection "ubuntu-15.04" {:name "dar" :cpu 2 :ram 2048})
+;; (clone-domain connection "ubuntu-15.04" {:name "dar" :cpu 2 :ram 2048})
+;; (clojure.pprint/pprint (domain-zip connection "redis-sandbox_ubuntu"))
 
