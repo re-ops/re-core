@@ -19,7 +19,7 @@
     [celestial.core :refer (Vm)] 
     [taoensso.timbre :as timbre]
     [celestial.persistency.systems :as s]
-    [celestial.provider :refer (selections transform os->template wait-for wait-for-ssh)]
+    [celestial.provider :refer (mappings selections transform os->template wait-for wait-for-ssh)]
     [celestial.model :refer (translate vconstruct hypervisor*)]))
 
 (timbre/refer-timbre)
@@ -49,17 +49,19 @@
 
 (defn machine-ts 
   "Construcuting machine transformations"
-  [{:keys [hostname domain]}]
-   {:name (fn [host] (<< "~{hostname}.~{domain}")) :image (fn [os] (:image ((os->template :kvm) os)))})
+  [{:keys [hostname domain] :as machine}]
+   {:name (fn [hostname] (<< "~{hostname}.~{domain}")) 
+    :image (fn [os] ((os->template :kvm) os))})
 
 (defmethod translate :kvm [{:keys [machine kvm] :as spec}] 
    (-> machine
+     (mappings {:os :image :hostname :name})
      (transform (machine-ts machine))
      (selections [[:name :user :image]])))
 
 (defmethod vconstruct :kvm [{:keys [kvm machine system-id] :as spec}]
    (let [[domain] (translate spec) {:keys [node]} kvm]
      (provider-validation domain)
-     (->Domain system-id domain (hypervisor* :kvm :nodes node)))
+     (->Domain system-id (hypervisor* :kvm :nodes node) domain))
   )
 

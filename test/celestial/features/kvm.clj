@@ -15,8 +15,14 @@
 (with-conf
   (let [{:keys [machine kvm]} redis-gce]
     (fact "legal instance spec" :kvm
-      (:spec (vconstruct (assoc redis-kvm :system-id 1))) => 
-         (contains {:system-id 1}))
+      (let [domain (vconstruct (assoc redis-kvm :system-id 1))]
+        (:system-id domain ) => 1
+        (:node domain)  => (just {:username "ronen" :host "localhost" :ssh-port 22})
+        (:domain domain) => 
+          (just {
+            :user "celestial" :name "red1.local" 
+            :image {:flavor :debian :template "/home/ronen/images/ubuntu-1504-server.img"}
+           })))
 
     #_(fact "legal instance gce" :kvm
       (:gce (vconstruct redis-gce)) => 

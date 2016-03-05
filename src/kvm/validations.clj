@@ -33,7 +33,8 @@
    })
 
 (def domain-provider
-   {:name #{:required :String} :user #{:required :String} :image #{:required :String} 
+   {:name #{:required :String} :user #{:required :String} 
+    :image {:template #{:required :String} :flavor #{:required :Keyword}} 
   })
 
 (defmethod check-validity [:kvm :entity] [domain]
