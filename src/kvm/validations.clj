@@ -9,12 +9,16 @@
   See the License for the specific language governing permissions and
   limitations under the License.)
 
-(ns digital.validations
-  "Digital ocean validations"
+(ns kvm.validations
+  "KVM validations"
   (:require 
     [celestial.model :refer (check-validity)]
     [clojure.core.strint :refer (<<)]
-    [subs.core :as subs :refer (validate! combine every-v every-kv validation when-not-nil)]))
+    [subs.core :as subs :refer (validate! combine every-v every-kv validation when-not-nil)])
+ )
+
+(def common-resources
+   {:cpus #{:required :number} :memory #{:required :number} :hostname #{:required :String}})
 
 (def machine-entity
   {:machine {
@@ -22,23 +26,18 @@
      :user #{:required :String} :os #{:required :Keyword} 
   }})
 
-(def digital-entity
-  {:digital-ocean
-     {:region #{:required :String} :size #{:required :String}
-      :backups #{:Boolean} :private-networking #{:Boolean}
-      }
-    })
+(def kvm-entity
+  {:kvm {
+     :node {:required :Keyword}
+    }
+   })
 
-(defmethod check-validity [:digital-ocean :entity] [droplet]
-  (validate! droplet (combine machine-entity digital-entity) :error ::invalid-system))
- 
-(validation :ssh-key* (every-v #{:String}))
-
-(def digital-provider
-  {:region #{:required :String} :size #{:required :String}
-   :backups #{:Boolean} :private-networking #{:Boolean}
-   :ssh-keys #{:Vector :ssh-key*} :image #{:required :String}
+(def domain-provider
+   {:name #{:required :String} :user #{:required :String} :image #{:required :String} 
   })
 
-(defn provider-validation [droplet]
-  (validate! droplet digital-provider :error ::invalid-droplet))
+(defmethod check-validity [:kvm :entity] [domain]
+  (validate! domain (combine machine-entity kvm-entity) :error ::invalid-system))
+
+(defn provider-validation [domain]
+  (validate! domain domain-provider :error ::invalid-domain))

@@ -11,16 +11,16 @@
 
 (ns kvm.provider
   (:require 
+    [kvm.validations :refer (provider-validation)]
     [clojure.core.strint :refer (<<)] 
     [kvm.clone :refer (clone-domain)]
     [kvm.common :refer (connect)]
-    [celestial.provider :refer (wait-for wait-for-ssh map-key)] 
     [supernal.sshj :refer (ssh-up?)]
     [celestial.core :refer (Vm)] 
     [taoensso.timbre :as timbre]
     [celestial.persistency.systems :as s]
-    [celestial.model :refer (translate vconstruct)]))
-
+    [celestial.provider :refer (selections transform os->template wait-for wait-for-ssh)]
+    [celestial.model :refer (translate vconstruct hypervisor*)]))
 
 (timbre/refer-timbre)
 
@@ -30,7 +30,7 @@
 (defmacro with-connection [& body]
   `(let [~'connection (connection ~'node)] (do ~@body)))
 
-(defrecord Domain [node domain]
+(defrecord Domain [system-id node domain]
   Vm
   (create [this]
     (with-connection 
@@ -47,11 +47,19 @@
 
   (ip [this]))
 
-(defmethod translate :kvm [{:keys [machine digital-ocean system-id] :as spec}] 
-   
-  )
+(defn machine-ts 
+  "Construcuting machine transformations"
+  [{:keys [hostname domain]}]
+   {:name (fn [host] (<< "~{hostname}.~{domain}")) :image (fn [os] (:image ((os->template :kvm) os)))})
 
-(defmethod vconstruct :kvm [{:keys [digital-ocean machine] :as spec}]
+(defmethod translate :kvm [{:keys [machine kvm] :as spec}] 
+   (-> machine
+     (transform (machine-ts machine))
+     (selections [[:name :user :image]])))
 
+(defmethod vconstruct :kvm [{:keys [kvm machine system-id] :as spec}]
+   (let [[domain] (translate spec) {:keys [node]} kvm]
+     (provider-validation domain)
+     (->Domain system-id domain (hypervisor* :kvm :nodes node)))
   )
 
