@@ -14,7 +14,7 @@
     [kvm.validations :refer (provider-validation)]
     [clojure.core.strint :refer (<<)] 
     [kvm.clone :refer (clone-domain)]
-    [kvm.common :refer (connect)]
+    [kvm.common :refer (connect get-domain state)]
     [supernal.sshj :refer (ssh-up?)]
     [celestial.core :refer (Vm)] 
     [taoensso.timbre :as timbre]
@@ -24,8 +24,8 @@
 
 (timbre/refer-timbre)
 
-(defn connection [{:keys [host user port]}] 
-  (connect (<< "qemu+ssh://~{user}@~{host}:~{port}/system")))
+(defn connection [{:keys [host username port]}] 
+  (connect (<< "qemu+ssh://~{username}@~{host}:~{port}/system")))
 
 (defmacro with-connection [& body]
   `(let [~'connection (connection ~'node)] (do ~@body)))
@@ -37,13 +37,24 @@
       (let [{:keys [image target]} domain]
         (clone-domain connection image target)))) 
 
-  (delete [this])
+  (delete [this]
+    (with-connection 
+      (.destroy (get-domain connection (domain :name))))
+    )
 
-  (start [this])
+  (start [this]
+    (with-connection 
+      (.create (get-domain connection (domain :name)))))
 
-  (stop [this])
+  (stop [this]
+    (with-connection 
+      (.shutdown (get-domain connection (domain :name)))))
 
-  (status [this])
+  (status [this]
+    (with-connection 
+      (state (get-domain connection (domain :name))) 
+      ) 
+    )
 
   (ip [this]))
 
@@ -57,11 +68,10 @@
    (-> machine
      (mappings {:os :image :hostname :name})
      (transform (machine-ts machine))
-     (selections [[:name :user :image]])))
+     (selections [[:name :user :image :cpu :ram]])))
 
 (defmethod vconstruct :kvm [{:keys [kvm machine system-id] :as spec}]
    (let [[domain] (translate spec) {:keys [node]} kvm]
      (provider-validation domain)
-     (->Domain system-id (hypervisor* :kvm :nodes node) domain))
-  )
+     (->Domain system-id (hypervisor* :kvm :nodes node) domain)))
 
