@@ -28,7 +28,7 @@
 
 (def kvm-entity
   {:kvm {
-     :node {:required :Keyword}
+     :node #{:required :Keyword}
     }
    })
 
