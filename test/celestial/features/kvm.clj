@@ -22,17 +22,15 @@
           (just {
             :user "celestial" :name "red1.local" 
             :image {:flavor :debian :template "/home/ronen/images/ubuntu-1504-server.img"}
-           })))
+            :cpu 2 :ram 1024
+           })))))
 
-    #_(fact "legal instance gce" :kvm
-      (:gce (vconstruct redis-gce)) => 
-         (contains {
-           :name "red1"
-           :machineType machine-type
-           :disks [{
-              :initializeParams {:sourceImage source-image} :autoDelete true
-              :type "PERSISTENT" :boot true 
-            }]
-          })
-
-         )))
+(with-admin
+  (with-conf local-conf
+    (with-state-changes [(before :facts (populate-system redis-type redis-kvm))]
+      (fact "kvm creation workflows" :integration :kvm :workflow
+           (wf/create (spec)) => nil 
+          ;; (wf/stop (spec)) => nil 
+          ;; (wf/start (spec)) => nil 
+          ;; (wf/destroy (spec)) => nil
+          ))))
