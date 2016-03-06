@@ -23,3 +23,14 @@
           (if (not (= (zip/node new-loc) (zip/node loc)))
             (recur (zip/next new-loc))))
         (recur (zip/next loc))))))
+
+(defn get-domain [c name] 
+   (.domainLookupByName c name))
+
+(defn domain-list
+   [c]
+   (map (partial get-domain c) (.listDefinedDomains c)))
+
+(defn state [domain]
+  (let [s (.toString (.state (.getInfo domain)))]
+    (.toLowerCase (.replace s "VIR_DOMAIN_" ""))))

@@ -4,8 +4,7 @@
     org.libvirt.Connect) 
   (:require 
      [kvm.disks :refer (get-disks find-volume clone-disks update-disks)]
-     [kvm.common :refer (connect tree-edit)]
-     [clojure.pprint :refer (pprint)]
+     [kvm.common :refer (connect tree-edit get-domain state)]
      [clojure.zip :as zip]
      [clojure.data.zip.xml :as zx]
      [clojure.data.xml :as xml]))
@@ -13,16 +12,6 @@
 (defn version 
    [c]
    (.getLibVirVersion c))
-
-(defn get-domain [c name] 
-   (.domainLookupByName c name))
-
-(defn domain-list
-   [c]
-   (map (partial get-domain c) (.listDefinedDomains c)))
-
-(defn state [domain]
-  (.state (.getInfo domain)))
 
 (defn xml-desc [domain]
   (.getXMLDesc domain 0))
@@ -75,6 +64,7 @@
     (.create cloned-domain)))
 
 ;; (def connection (connect "qemu+ssh://ronen@localhost/system"))
+;; (state (get-domain connection "redis-sandbox_ubuntu")) 
 ;; (clone-domain connection "ubuntu-15.04" {:name "dar" :cpu 2 :ram 2048})
 ;; (clojure.pprint/pprint (domain-zip connection "redis-sandbox_ubuntu"))
 
