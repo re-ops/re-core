@@ -21,7 +21,7 @@
         (:domain domain) => 
           (just {
             :user "celestial" :name "red1.local" 
-            :image {:flavor :debian :template "/home/ronen/images/ubuntu-1504-server.img"}
+            :image {:flavor :debian :template "ubuntu-15.04"}
             :cpu 2 :ram 1024
            })))))
 

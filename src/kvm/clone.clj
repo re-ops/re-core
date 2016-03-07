@@ -57,7 +57,8 @@
     (set-name name) clear-uuid clear-all-macs (set-cpu cpu) (set-ram ram)))
 
 ; see clone https://github.com/xebialabs/overcast/blob/master/src/main/java/com/xebialabs/overcast/support/libvirt/DomainWrapper.java
-(defn clone-domain [c id {:keys [name cpu ram]}]
+(defn clone-domain [c id {:keys [name cpu ram] :as target}]
+  (println target id)
   (let [root (domain-zip c id) volumes (clone-disks c name root)
         target-root (update-disks (clone-root root name cpu ram) volumes)
         cloned-domain (.domainDefineXML c (xml/emit-str target-root))]

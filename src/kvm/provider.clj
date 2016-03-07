@@ -20,7 +20,8 @@
     [taoensso.timbre :as timbre]
     [celestial.persistency.systems :as s]
     [celestial.provider :refer (mappings selections transform os->template wait-for wait-for-ssh)]
-    [celestial.model :refer (translate vconstruct hypervisor*)]))
+    [celestial.model :refer (translate vconstruct hypervisor*)])
+  (:import org.libvirt.LibvirtException))
 
 (timbre/refer-timbre)
 
@@ -34,8 +35,10 @@
   Vm
   (create [this]
     (with-connection 
-      (let [{:keys [image target]} domain]
-        (clone-domain connection image target)))) 
+      (let [image (get-in domain [:image :template]) target (select-keys domain [:name :cpu :ram])]
+        (clone-domain connection image target)
+         this 
+        ))) 
 
   (delete [this]
     (with-connection 
@@ -44,7 +47,8 @@
 
   (start [this]
     (with-connection 
-      (.create (get-domain connection (domain :name)))))
+      (when-not (= (.status this) "running")
+        (.create (get-domain connection (domain :name))))))
 
   (stop [this]
     (with-connection 
@@ -52,9 +56,9 @@
 
   (status [this]
     (with-connection 
-      (state (get-domain connection (domain :name))) 
-      ) 
-    )
+      (try 
+        (state (get-domain connection (domain :name)))
+          (catch LibvirtException e (debug (.getMessage e)) false))))
 
   (ip [this]))
 

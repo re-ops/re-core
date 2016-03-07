@@ -135,7 +135,7 @@
           :localhost {:username "ronen" :host "localhost" :port 22}
         }
        :ostemplates {
-          :ubuntu-15.04 {:template "/home/ronen/images/ubuntu-1504-server.img" :flavor :debian}
+          :ubuntu-15.04 {:template "ubuntu-15.04" :flavor :debian}
         }
        
      }
