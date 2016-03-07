@@ -31,18 +31,26 @@
 (defmacro with-connection [& body]
   `(let [~'connection (connection ~'node)] (do ~@body)))
 
+(defn wait-for-status [instance req-stat timeout]
+  "Waiting for ec2 machine status timeout is in mili"
+  (wait-for {:timeout timeout} #(= req-stat (.status instance))
+    {:type ::kvm:status-failed :status req-stat :timeout timeout} 
+      "Timed out on waiting for status"))
+
+
 (defrecord Domain [system-id node domain]
   Vm
   (create [this]
     (with-connection 
       (let [image (get-in domain [:image :template]) target (select-keys domain [:name :cpu :ram])]
         (clone-domain connection image target)
+        (wait-for-status this "running" [5 :minute])
          this 
         ))) 
 
   (delete [this]
     (with-connection 
-      (.destroy (get-domain connection (domain :name))))
+      (.undefine (get-domain connection (domain :name))))
     )
 
   (start [this]
@@ -52,7 +60,9 @@
 
   (stop [this]
     (with-connection 
-      (.shutdown (get-domain connection (domain :name)))))
+      (.destroy (get-domain connection (domain :name)))
+      (wait-for-status this "shutoff" [5 :minute])
+      ))
 
   (status [this]
     (with-connection 
