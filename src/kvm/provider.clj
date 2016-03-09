@@ -13,7 +13,8 @@
   (:require 
     [kvm.validations :refer (provider-validation)]
     [clojure.core.strint :refer (<<)] 
-    [kvm.clone :refer (clone-domain)]
+    [kvm.clone :refer (clone-domain domain-zip)]
+    [kvm.disks :refer (clear-volumes)]
     [kvm.common :refer (connect get-domain state)]
     [supernal.sshj :refer (ssh-up?)]
     [celestial.core :refer (Vm)] 
@@ -50,6 +51,7 @@
 
   (delete [this]
     (with-connection 
+      (clear-volumes connection (domain-zip connection (domain :name)))
       (.undefine (get-domain connection (domain :name))))
     )
 

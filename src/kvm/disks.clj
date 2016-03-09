@@ -38,6 +38,10 @@
 (defn clone-name [name idx]
   (str name "-" (str idx) ".qcow2"))
 
+(defn clear-volumes [c root] 
+   (doseq [{:keys [volume]} (map (partial into-volume c) (get-disks root))]
+     (.delete volume 0)))
+
 (defn clone-disks [c name root]
   (let [volumes  (map-indexed vector (map (partial into-volume c) (get-disks root)))]
     (doall 
