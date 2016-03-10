@@ -1,3 +1,16 @@
+(comment 
+  Celestial, Copyright 2012 Ronen Narkis, narkisr.com
+  Licensed under the Apache License,
+  Version 2.0  (the "License") you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.)
+
+; see clone https://github.com/xebialabs/overcast/blob/master/src/main/java/com/xebialabs/overcast/support/libvirt/DomainWrapper.java
+
 (ns kvm.clone
   (:import 
     java.text.SimpleDateFormat
@@ -56,15 +69,8 @@
   (-> root 
     (set-name name) clear-uuid clear-all-macs (set-cpu cpu) (set-ram ram)))
 
-; see clone https://github.com/xebialabs/overcast/blob/master/src/main/java/com/xebialabs/overcast/support/libvirt/DomainWrapper.java
 (defn clone-domain [c id {:keys [name cpu ram] :as target}]
   (let [root (domain-zip c id) volumes (clone-disks c name root)
         target-root (update-disks (clone-root root name cpu ram) volumes)
         cloned-domain (.domainDefineXML c (xml/emit-str target-root))]
     (.create cloned-domain)))
-
-;; (def connection (connect "qemu+ssh://ronen@localhost/system"))
-;; (state (get-domain connection "redis-sandbox_ubuntu")) 
-;; (clone-domain connection "ubuntu-15.04" {:name "dar" :cpu 2 :ram 2048})
-;; (clojure.pprint/pprint (domain-zip connection "redis-sandbox_ubuntu"))
-
