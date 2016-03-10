@@ -54,7 +54,8 @@
 (def whitelist
   [[:proxmox :nodes] [:proxmox :ostemplates]
    [:docker :nodes] [:gce :ostemplates] [:digital-ocean]
-   [:vcenter :ostemplates] [:aws] [:physical] [:openstack]])
+   [:vcenter :ostemplates] [:aws] [:physical] [:openstack] 
+   [:kvm :ostemplates] [:kvm :nodes]])
 
 (defn sanitized-envs
   "sanitized (from sensative data) environments " 
