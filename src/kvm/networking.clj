@@ -11,6 +11,9 @@
 
 (ns kvm.networking
   (:require 
+    [clojure.core.strint :refer (<<)]
+    [supernal.sshj :refer (execute get-log collect-log)]
+    [celestial.common :refer [gen-uuid]]
     [clojure.java.shell :refer [sh]]
     [clojure.data.zip.xml :as zx]
     [kvm.common :refer (connect domain-zip)]))
@@ -19,12 +22,21 @@
 
 (defn macs [c id]
   (let [root (domain-zip c id)]
-    (map vector (zx/xml-> root :devices))))
+    (map vector 
+      (zx/xml-> root :devices :interface :source (zx/attr :bridge))
+      (zx/xml-> root :devices :interface :mac (zx/attr :address)))))
 
-(macs connection "ubuntu-15.04")
+(defn nat-ip 
+   [c id node]
+   (let [[nic mac] (first (macs c id)) uuid (gen-uuid)]
+     (execute (<< "arp -i ~{nic}") node :out-fn (collect-log uuid))        
+     (when-let [line (first (filter #(.contains % mac) (get-log uuid)))]
+       (first (.split line "\\s" )))))
 
-(let [{:keys [out exit]} (sh "/usr/sbin/arp" "-an")]
-  (filter #(.contains % "52:54:00:49:bc:85") (.split out "\\n" )) 
-  )
+(defn public-ip
+  [c node id]
+   (let [uuid (gen-uuid) nat (nat-ip connection id  node)]
+     (execute (<< "ssh celestial@~{nat} -C 'ifconfig eth1'") node :out-fn (collect-log uuid))
+     (second (re-matches #".*addr\:(\d+\.\d+\.\d+\.\d+).*" (second (get-log uuid))))))
 
-(.getDHCPLeases (.networkLookupByName connection "default"))
+;; (public-ip connection {:host "localhost" :user "ronen"} "ubuntu-15.04")
