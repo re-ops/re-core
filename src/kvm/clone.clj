@@ -17,7 +17,7 @@
     org.libvirt.Connect) 
   (:require 
      [kvm.disks :refer (get-disks find-volume clone-disks update-disks)]
-     [kvm.common :refer (connect tree-edit get-domain state)]
+     [kvm.common :refer (connect tree-edit domain-zip state)]
      [clojure.zip :as zip]
      [clojure.data.zip.xml :as zx]
      [clojure.data.xml :as xml]))
@@ -25,12 +25,6 @@
 (defn version 
    [c]
    (.getLibVirVersion c))
-
-(defn xml-desc [domain]
-  (.getXMLDesc domain 0))
-
-(defn parse [s]
-   (zip/xml-zip (xml/parse (java.io.ByteArrayInputStream. (.getBytes s)))))
 
 (defn set-name [xml name']
   (-> xml zip/down zip/down (zip/edit (fn [e]  name')) zip/root zip/xml-zip))
@@ -61,9 +55,6 @@
 (defn set-ram [xml ram]
   (zip/xml-zip 
     (tree-edit xml ram? (fn [node] (assoc node :content (list (* ram 1024)))))))
-
-(defn domain-zip [c id]
-  (-> (get-domain c id) xml-desc parse))  
 
 (defn clone-root [root name cpu ram] 
   (-> root 

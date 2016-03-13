@@ -13,9 +13,9 @@
   (:require 
     [kvm.validations :refer (provider-validation)]
     [clojure.core.strint :refer (<<)] 
-    [kvm.clone :refer (clone-domain domain-zip)]
+    [kvm.clone :refer (clone-domain)]
     [kvm.disks :refer (clear-volumes)]
-    [kvm.common :refer (connect get-domain state)]
+    [kvm.common :refer (connect get-domain domain-zip state)]
     [supernal.sshj :refer (ssh-up?)]
     [celestial.core :refer (Vm)] 
     [taoensso.timbre :as timbre]

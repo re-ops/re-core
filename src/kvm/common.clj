@@ -10,7 +10,9 @@
   limitations under the License.)
 
 (ns kvm.common
-  (:require [clojure.zip :as zip])
+  (:require 
+    [clojure.data.xml :as xml]
+    [clojure.zip :as zip])
   (:import 
      java.text.SimpleDateFormat
      org.libvirt.Connect))
@@ -45,3 +47,13 @@
 (defn state [domain]
   (let [s (.toString (.state (.getInfo domain)))]
     (.toLowerCase (.replace s "VIR_DOMAIN_" ""))))
+
+(defn xml-desc [domain]
+  (.getXMLDesc domain 0))
+
+ (defn parse [s]
+   (zip/xml-zip (xml/parse (java.io.ByteArrayInputStream. (.getBytes s)))))
+
+(defn domain-zip [c id]
+  (-> (get-domain c id) xml-desc parse))  
+ 
