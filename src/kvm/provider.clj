@@ -16,6 +16,7 @@
     [kvm.clone :refer (clone-domain)]
     [kvm.disks :refer (clear-volumes)]
     [kvm.common :refer (connect get-domain domain-zip state)]
+    [kvm.networking :refer (public-ip)]
     [supernal.sshj :refer (ssh-up?)]
     [celestial.core :refer (Vm)] 
     [taoensso.timbre :as timbre]
@@ -46,6 +47,7 @@
       (let [image (get-in domain [:image :template]) target (select-keys domain [:name :cpu :ram])]
         (clone-domain connection image target)
         (wait-for-status this "running" [5 :minute])
+        (wait-for-ssh (.ip this) (domain :user) [5 :minute])
          this 
         ))) 
 
@@ -58,7 +60,9 @@
   (start [this]
     (with-connection 
       (when-not (= (.status this) "running")
-        (.create (get-domain connection (domain :name))))))
+        (.create (get-domain connection (domain :name)))
+        (wait-for-ssh (.ip this) (domain :user) [5 :minute])
+        )))
 
   (stop [this]
     (with-connection 
@@ -72,7 +76,12 @@
         (state (get-domain connection (domain :name)))
           (catch LibvirtException e (debug (.getMessage e)) false))))
 
-  (ip [this]))
+  (ip [this]
+    (with-connection 
+      (let [ip (public-ip connection (domain :user) node (domain :name))]
+        (debug "ip is" ip) ip) 
+      )
+    ))
 
 (defn machine-ts 
   "Construcuting machine transformations"

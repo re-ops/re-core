@@ -34,9 +34,9 @@
        (first (.split line "\\s" )))))
 
 (defn public-ip
-  [c node id]
-   (let [uuid (gen-uuid) nat (nat-ip connection id  node)]
-     (execute (<< "ssh celestial@~{nat} -C 'ifconfig eth1'") node :out-fn (collect-log uuid))
+  [c user node id & {:keys [public-nic] :or {public-nic "eth1"}}]
+   (let [uuid (gen-uuid) nat (nat-ip connection id node)]
+     (execute (<< "ssh ~{user}@~{nat} -C 'ifconfig ~{public-nic}'") node :out-fn (collect-log uuid))
      (second (re-matches #".*addr\:(\d+\.\d+\.\d+\.\d+).*" (second (get-log uuid))))))
 
 ;; (public-ip connection {:host "localhost" :user "ronen"} "ubuntu-15.04")
