@@ -18,7 +18,6 @@
     [clojure.data.zip.xml :as zx]
     [kvm.common :refer (connect domain-zip)]))
 
-(def connection (connect "qemu+ssh://ronen@localhost/system"))
 
 (defn macs [c id]
   (let [root (domain-zip c id)]
@@ -39,4 +38,5 @@
      (execute (<< "ssh ~{user}@~{nat} -C 'ifconfig ~{public-nic}'") node :out-fn (collect-log uuid))
      (second (re-matches #".*addr\:(\d+\.\d+\.\d+\.\d+).*" (second (get-log uuid))))))
 
+;; (def connection (connect "qemu+ssh://ronen@localhost/system"))
 ;; (public-ip connection {:host "localhost" :user "ronen"} "ubuntu-15.04")
