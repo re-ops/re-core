@@ -34,7 +34,7 @@
 
 (defn public-ip
   [c user node id & {:keys [public-nic] :or {public-nic "eth1"}}]
-   (let [uuid (gen-uuid) nat (nat-ip connection id node)]
+   (let [uuid (gen-uuid) nat (nat-ip c id node)]
      (execute (<< "ssh ~{user}@~{nat} -C 'ifconfig ~{public-nic}'") node :out-fn (collect-log uuid))
      (second (re-matches #".*addr\:(\d+\.\d+\.\d+\.\d+).*" (second (get-log uuid))))))
 
