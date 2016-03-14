@@ -11,6 +11,8 @@
 
 (ns kvm.networking
   (:require 
+    [slingshot.slingshot :refer [throw+]]
+    [taoensso.timbre :as timbre]
     [clojure.core.strint :refer (<<)]
     [supernal.sshj :refer (execute get-log collect-log)]
     [celestial.common :refer [gen-uuid]]
@@ -18,6 +20,8 @@
     [clojure.data.zip.xml :as zx]
     [kvm.common :refer (connect domain-zip)]))
 
+
+(timbre/refer-timbre)
 
 (defn macs [c id]
   (let [root (domain-zip c id)]
@@ -29,14 +33,26 @@
    [c id node]
    (let [[nic mac] (first (macs c id)) uuid (gen-uuid)]
      (execute (<< "arp -i ~{nic}") node :out-fn (collect-log uuid))        
-     (when-let [line (first (filter #(.contains % mac) (get-log uuid)))]
-       (first (.split line "\\s" )))))
+     (if-let [line (first (filter #(.contains % mac) (get-log uuid)))]
+       (first (.split line "\\s" ))
+       (throw+ {:type ::kvm:networking} "Failed to grab domain Nat IP")
+       )))
+
+(def ignore-authenticity "-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no")
+
+(defn inet-line 
+   [lines]
+   (first (filter #(.contains % "inet addr") lines)))
 
 (defn public-ip
   [c user node id & {:keys [public-nic] :or {public-nic "eth1"}}]
-   (let [uuid (gen-uuid) nat (nat-ip c id node)]
-     (execute (<< "ssh ~{user}@~{nat} -C 'ifconfig ~{public-nic}'") node :out-fn (collect-log uuid))
-     (second (re-matches #".*addr\:(\d+\.\d+\.\d+\.\d+).*" (second (get-log uuid))))))
+   (let [uuid (gen-uuid) nat (nat-ip c id node)
+         cmd (<< "ssh ~{ignore-authenticity} ~{user}@~{nat} -C 'ifconfig ~{public-nic}'")]
+     (execute cmd node :out-fn (collect-log uuid))
+     (if-let [ip (second (re-matches #".*addr\:(\d+\.\d+\.\d+\.\d+).*" (inet-line (get-log uuid))))]
+        ip
+        (throw+ {:type ::kvm:networking} "Failed to grab domain public IP")
+        )))
 
 ;; (def connection (connect "qemu+ssh://ronen@localhost/system"))
 ;; (public-ip connection {:host "localhost" :user "ronen"} "ubuntu-15.04")
