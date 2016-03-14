@@ -11,7 +11,7 @@
 
 (ns openstack.provider
   (:require 
-    [slingshot.slingshot :refer  [throw+]]
+    [slingshot.slingshot :refer [throw+]]
     [celestial.persistency.systems :as s :refer (system-val)]
     [celestial.common :refer (import-logging)]
     [openstack.networking :refer 
