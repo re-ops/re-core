@@ -78,9 +78,7 @@
 
   (ip [this]
     (with-connection 
-      (let [ip (public-ip connection (domain :user) node (domain :name))]
-        (info "ip is" ip) ip) 
-      )
+      (public-ip connection (domain :user) node (domain :name)))
     ))
 
 (defn machine-ts 
@@ -96,7 +94,8 @@
      (selections [[:name :user :image :cpu :ram]])))
 
 (defmethod vconstruct :kvm [{:keys [kvm machine system-id] :as spec}]
-   (let [[domain] (translate spec) {:keys [node]} kvm]
+   (let [[domain] (translate spec) {:keys [node]} kvm
+         node* (mappings (hypervisor* :kvm :nodes node) {:username :user})]
      (provider-validation domain)
-     (->Domain system-id (hypervisor* :kvm :nodes node) domain)))
+     (->Domain system-id node* domain)))
 
