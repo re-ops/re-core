@@ -27,8 +27,8 @@
 
 (timbre/refer-timbre)
 
-(defn connection [{:keys [host username port]}] 
-  (connect (<< "qemu+ssh://~{username}@~{host}:~{port}/system")))
+(defn connection [{:keys [host user port]}] 
+  (connect (<< "qemu+ssh://~{user}@~{host}:~{port}/system")))
 
 (defmacro with-connection [& body]
   `(let [~'connection (connection ~'node)] (do ~@body)))
@@ -79,7 +79,7 @@
   (ip [this]
     (with-connection 
       (let [ip (public-ip connection (domain :user) node (domain :name))]
-        (debug "ip is" ip) ip) 
+        (info "ip is" ip) ip) 
       )
     ))
 

@@ -97,7 +97,7 @@
      :ostemplates #{:template*} :task-timeout #{:number}}})
 
 (validation :kvm-node*
-  (every-kv {:username #{:required :String} :host #{:required :String} :port #{:required :number}}))
+  (every-kv {:user #{:required :String} :host #{:required :String} :port #{:required :number}}))
 
 
 (def ^{:doc "kvm validation"} kvm-v 
