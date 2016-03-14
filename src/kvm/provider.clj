@@ -46,7 +46,9 @@
     (with-connection 
       (let [image (get-in domain [:image :template]) target (select-keys domain [:name :cpu :ram])]
         (clone-domain connection image target)
+        (debug "clone done")
         (wait-for-status this "running" [5 :minute])
+        (debug "in running state")
         (wait-for-ssh (.ip this) (domain :user) [5 :minute])
          this 
         ))) 
@@ -78,8 +80,10 @@
 
   (ip [this]
     (with-connection 
-      (public-ip connection (domain :user) node (domain :name)))
-    ))
+      (let [ip  (public-ip connection (domain :user) node (domain :name))]
+        (debug "domain public ip is" ip) ip)))
+  
+  )
 
 (defn machine-ts 
   "Construcuting machine transformations"
