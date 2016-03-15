@@ -11,6 +11,7 @@
 
 (ns kvm.networking
   (:require 
+    [celestial.provider :refer (wait-for)]
     [slingshot.slingshot :refer [throw+]]
     [taoensso.timbre :as timbre]
     [clojure.core.strint :refer (<<)]
@@ -33,10 +34,15 @@
    [c id node]
    (let [[nic mac] (first (macs c id)) uuid (gen-uuid)]
      (execute (<< "arp -i ~{nic}") node :out-fn (collect-log uuid))        
-     (if-let [line (first (filter #(.contains % mac) (get-log uuid)))]
+     (when-let [line (first (filter #(.contains % mac) (get-log uuid)))]
        (first (.split line "\\s" ))
-       (throw+ {:type ::kvm:networking} "Failed to grab domain Nat IP")
        )))
+
+(defn wait-for-nat [c id node timeout]
+  "Waiting for nat cache to update"
+  (wait-for {:timeout timeout} #(not (nil? (nat-ip c id node)))
+    {:type ::kvm:networking :timeout timeout} 
+      "Timed out on waiting for arp cache to update"))
 
 (def ignore-authenticity "-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no")
 
@@ -46,6 +52,7 @@
 
 (defn public-ip
   [c user node id & {:keys [public-nic] :or {public-nic "eth1"}}]
+   (wait-for-nat c id node [5 :minute])
    (let [uuid (gen-uuid) nat (nat-ip c id node)
          cmd (<< "ssh ~{ignore-authenticity} ~{user}@~{nat} -C 'ifconfig ~{public-nic}'")]
      (execute cmd node :out-fn (collect-log uuid))
