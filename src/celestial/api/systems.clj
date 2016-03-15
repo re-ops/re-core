@@ -35,6 +35,7 @@
   :aws {:type "Aws" :description "An EC2 based system"}
   :physical {:type "Physical" :description "A physical machine"}
   :openstack {:type "Openstack" :description "An openstack based instance"}
+  :kvm {:type "Kvm" :description "A kvm based instance"}
   :proxmox {:type "Proxmox" :description "A Proxmox based system"}
   :vcenter {:type "Vcenter" :description "A vCenter based system"})
 
@@ -51,6 +52,7 @@
   :aws {:type "Aws" :description "An EC2 based system"}
   :physical {:type "Physical" :description "A physical machine"}
   :openstack {:type "Openstack" :description "An openstack based instance"}
+  :kvm  {:type "Kvm" :description "A kvm based instance"}
   :proxmox {:type "Proxmox" :description "A Proxmox based system"}
   :vcenter {:type "Vcenter" :description "A vCenter based system"})
 
@@ -82,6 +84,8 @@
 (defmodel query :must {:type "List"} :should {:type "List"} :must_not {:type "List"})
 
 (defc "/systems" [:proxmox :type] (keyword v))
+
+(defc "/systems" [:kvm :node] (keyword v))
 
 (defc "/systems" [:machine :os] (keyword v))
 
