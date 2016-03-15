@@ -18,7 +18,7 @@
  )
 
 (def common-resources
-   {:cpus #{:required :number} :memory #{:required :number} :hostname #{:required :String}})
+   {:cpu #{:required :number} :ram #{:required :number} :hostname #{:required :String}})
 
 (def machine-entity
   {:machine {
@@ -38,7 +38,7 @@
   })
 
 (defmethod check-validity [:kvm :entity] [domain]
-  (validate! domain (combine machine-entity kvm-entity) :error ::invalid-system))
+  (validate! domain (combine common-resources machine-entity kvm-entity) :error ::invalid-system))
 
 (defn provider-validation [domain]
-  (validate! domain domain-provider :error ::invalid-domain))
+  (validate! domain (combine common-resources domain-provider) :error ::invalid-domain))
