@@ -17,13 +17,11 @@
     [subs.core :as subs :refer (validate! combine every-v every-kv validation when-not-nil)])
  )
 
-(def common-resources
-   {:cpu #{:required :number} :ram #{:required :number} :hostname #{:required :String}})
-
 (def machine-entity
   {:machine {
      :hostname #{:required :String} :domain #{:required :String} 
      :user #{:required :String} :os #{:required :Keyword} 
+     :cpu #{:required :number} :ram #{:required :number}
   }})
 
 (def kvm-entity
@@ -35,10 +33,11 @@
 (def domain-provider
    {:name #{:required :String} :user #{:required :String} 
     :image {:template #{:required :String} :flavor #{:required :Keyword}} 
+    :cpu #{:required :number} :ram #{:required :number}
   })
 
 (defmethod check-validity [:kvm :entity] [domain]
-  (validate! domain (combine common-resources machine-entity kvm-entity) :error ::invalid-system))
+  (validate! domain (combine machine-entity kvm-entity) :error ::invalid-system))
 
 (defn provider-validation [domain]
-  (validate! domain (combine common-resources domain-provider) :error ::invalid-domain))
+  (validate! domain domain-provider :error ::invalid-domain))
