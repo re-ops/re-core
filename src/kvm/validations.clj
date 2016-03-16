@@ -34,7 +34,7 @@
    {:name #{:required :String} :user #{:required :String} 
     :image {:template #{:required :String} :flavor #{:required :Keyword}} 
     :cpu #{:required :number} :ram #{:required :number}
-  })
+   })
 
 (defmethod check-validity [:kvm :entity] [domain]
   (validate! domain (combine machine-entity kvm-entity) :error ::invalid-system))
