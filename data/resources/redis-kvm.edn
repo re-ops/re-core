@@ -9,7 +9,7 @@
   } 
 
   :kvm {
-    :node :localhost
+    :node :remote
   }
 
   :type "redis"
