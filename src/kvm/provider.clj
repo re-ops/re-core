@@ -104,6 +104,6 @@
 (defmethod vconstruct :kvm [{:keys [kvm machine system-id] :as spec}]
    (let [[domain] (translate spec) {:keys [node]} kvm
          node* (mappings (hypervisor* :kvm :nodes node) {:username :user})]
-     (provider-validation domain)
+     (provider-validation domain node*)
      (->Domain system-id node* domain)))
 

@@ -36,8 +36,14 @@
     :cpu #{:required :number} :ram #{:required :number}
    })
 
+(def node-provider
+   {:user #{:required :String} :host #{:required :String} 
+    :port #{:required :number} 
+    })
+
 (defmethod check-validity [:kvm :entity] [domain]
   (validate! domain (combine machine-entity kvm-entity) :error ::invalid-system))
 
-(defn provider-validation [domain]
-  (validate! domain domain-provider :error ::invalid-domain))
+(defn provider-validation [domain node*]
+  (validate! domain domain-provider :error ::invalid-domain)
+  (validate! node* node-provider :error ::invalid-node))
