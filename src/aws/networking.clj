@@ -13,6 +13,7 @@
   "AWS networking functions"
   (:import com.amazonaws.services.ec2.model.AssociateAddressRequest)
   (:require 
+    [hypervisors.networking :as net]
     [taoensso.timbre :as timbre]
     [amazonica.aws.ec2 :as ec2]
     [slingshot.slingshot :refer  [throw+]] 
@@ -37,37 +38,13 @@
   (when (s/system-exists? (spec :system-id))
     (s/partial-system (spec :system-id) {:machine {:ip (instance-ip spec endpoint instance-id)}})))
 
-(defn override-hostname 
-  "sets hostname and hosts file" 
-  [hostname fqdn remote]
-  (execute (<< "echo ~{hostname} | sudo tee /etc/hostname") remote )
-  (execute (<< "echo 127.0.1.1 ~{fqdn} ~{hostname} | sudo tee -a /etc/hosts") remote)) 
-
-(defn kernel-hostname
-  "Set hosname in kernel for all OSes" 
-  [hostname fqdn remote]
-  (execute (<< "echo kernel.hostname=~{hostname} | sudo tee -a /etc/sysctl.conf") remote )
-  (execute (<< "echo kernel.domainname=\"~{fqdn}\" | sudo tee -a /etc/sysctl.conf") remote )
-  (execute "sudo sysctl -e -p" remote))
-
-(defn redhat-hostname
-  "Sets up hostname under /etc/sysconfig/network in redhat based systems" 
-  [fqdn remote]
-  (execute 
-    (<< "grep -q '^HOSTNAME=' /etc/sysconfig/network && sudo sed -i 's/^HOSTNAME=.*/HOSTNAME=~{fqdn}' /etc/sysconfig/network || sudo sed -i '$ a\\HOSTNAME=~{fqdn}' /etc/sysconfig/network") remote )
-  )
-
-(defn set-hostname [{:keys [aws machine] :as spec} endpoint instance-id user]
+(defn set-hostname [{:keys [machine] :as spec} endpoint instance-id user]
   "Uses a generic method of setting hostname in Linux (see http://www.debianadmin.com/manpages/sysctlmanpage.txt)
   Note that in ec2 both Centos and Ubuntu use sudo!"
-  (let [{:keys [hostname domain os]} machine  fqdn (<< "~{hostname}.~{domain}")
-        remote {:host (instance-ip spec endpoint instance-id) :user user}]
-    (kernel-hostname hostname fqdn remote)
-    (override-hostname hostname fqdn remote)
-    (case (hypervisor :aws :ostemplates os :flavor)
-      :debian  true ; hothing special todo
-      :redhat  (redhat-hostname fqdn remote)
-      (throw+ {:type ::no-matching-flavor} (<< "no os flavor found for ~{os}")))
+  (let [{:keys [hostname domain os]} machine fqdn (<< "~{hostname}.~{domain}")
+        remote {:host (instance-ip spec endpoint instance-id) :user user}
+        flavor (hypervisor :aws :ostemplates os :flavor) ]
+    (net/set-hostname hostname fqdn remote flavor)
     (with-ctx ec2/create-tags 
       {:resources [instance-id] :tags [{:key "Name" :value hostname}]})
     ))
