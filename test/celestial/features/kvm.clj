@@ -20,7 +20,7 @@
         (:node domain)  => (just {:user "ronen" :host "localhost" :port 22})
         (:domain domain) => 
           (just {
-            :user "celestial" :name "red1.local" 
+            :user "celestial" :name "red1.local" :hostname "red1"
             :image {:flavor :debian :template "ubuntu-15.04"}
             :cpu 2 :ram 1024
            })))))
