@@ -17,7 +17,7 @@
     (fact "legal instance spec" :kvm
       (let [domain (vconstruct (assoc redis-kvm :system-id 1))]
         (:system-id domain ) => 1
-        (:node domain)  => (just {:user "ronen" :host "localhost" :port 22})
+        (:node domain)  => (just {:user "ronen" :host "somehost" :port 22})
         (:domain domain) => 
           (just {
             :user "celestial" :name "red1.local" :hostname "red1"
