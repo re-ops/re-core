@@ -22,6 +22,7 @@
     [taoensso.timbre :as timbre]
     [celestial.persistency.systems :as s]
     [celestial.provider :refer (mappings selections transform os->template wait-for wait-for-ssh)]
+    [hypervisors.networking :refer (set-hostname)]
     [celestial.model :refer (translate vconstruct hypervisor*)])
   (:import org.libvirt.LibvirtException))
 
@@ -49,9 +50,10 @@
         (debug "clone done")
         (wait-for-status this "running" [5 :minute])
         (debug "in running state")
-        (wait-for-ssh (.ip this) (domain :user) [5 :minute])
-         this 
-        ))) 
+        (let [ip (.ip this)]
+          (wait-for-ssh ip (domain :user) [5 :minute])
+          (set-hostname (domain :hostname) (domain :name) {:user (domain :user) :host ip} (get-in domain [:image :flavor]))
+          this)))) 
 
   (delete [this]
     (with-connection 
@@ -95,7 +97,9 @@
    (-> machine
      (mappings {:os :image :hostname :name})
      (transform (machine-ts machine))
-     (selections [[:name :user :image :cpu :ram]])))
+     (assoc :hostname (machine :hostname)) 
+     (selections [[:name :user :image :cpu :ram :hostname]])
+     ))
 
 (defmethod vconstruct :kvm [{:keys [kvm machine system-id] :as spec}]
    (let [[domain] (translate spec) {:keys [node]} kvm
