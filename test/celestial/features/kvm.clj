@@ -29,14 +29,18 @@
   (with-conf local-conf
     (with-state-changes [(before :facts (populate-system redis-type redis-kvm))]
       (fact "kvm creation workflows" :integration :kvm :workflow
-           (wf/create (spec)) => nil 
-           (wf/stop (spec)) => nil 
-           (wf/start (spec)) => nil 
-           (wf/destroy (spec)) => nil
-          )
+         (wf/create (spec)) => nil 
+         (wf/stop (spec)) => nil 
+         (wf/start (spec)) => nil 
+         (wf/destroy (spec)) => nil)
 
       (fact "kvm puppetization" :integration :kvm :workflow :puppet
         (wf/create (spec)) => nil
         (wf/provision redis-type (spec)) => nil 
+        (wf/destroy (spec)) => nil)
+
+      (fact "kvm reload" :integration :kvm :workflow :puppet
+        (wf/create (spec)) => nil
+        (wf/reload (spec)) => nil 
         (wf/destroy (spec)) => nil)
       )))
