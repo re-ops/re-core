@@ -109,7 +109,7 @@
    )
   )
 
-(def version "0.13.0")
+(def version "0.13.1")
 
 (defn resolve- 
   "resolve function provided as a symbol with the form of ns/fn"
