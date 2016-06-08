@@ -18,7 +18,8 @@
     java.security.PrivateKey
     java.security.cert.X509Certificate
     java.util.Date
-    sun.security.x509.CertAndKeyGen
+    ;sun.security.x509.CertAndKeyGen
+    sun.security.tools.keytool.CertAndKeyGen
     sun.security.x509.X500Name)
   (:use 
     [clojure.core.strint :only (<<)]))

@@ -92,7 +92,6 @@
      :populate {
         :source-paths ["data"]
         :test-paths ["test"]
-        :jvm-opts ["-XX:MaxPermSize=256m"]
         :dependencies [[org.clojure/test.check "0.7.0"]]
 
      }
@@ -109,7 +108,6 @@
         :resource-paths  ["src/main/resources/" "pkg/etc/celestial/"]
         :source-paths  ["dev"]
         :test-paths  []
-        :jvm-opts ["-XX:MaxPermSize=256m"]
  
      }
 
@@ -129,7 +127,7 @@
                        [org.clojure/tools.trace "0.7.8"]
                        [org.clojure/test.check "0.7.0"]]
         :plugins [[lein-midje "3.1.3"]]
-        :jvm-opts ~(into (vec (map (fn [[p v]] (str "-D" (name p) "=" v)) {:disable-conf "true" })) ["-XX:MaxPermSize=256m"])
+        :jvm-opts ~(vec (map (fn [[p v]] (str "-D" (name p) "=" v)) {:disable-conf "true" }))
         :set-version {
            :updates [ 
              {:path "project.clj" :search-regex #"\"target\/celestial-\d+\.\d+\.\d+\.jar"}
@@ -141,7 +139,6 @@
      :prod {
         :resource-paths  ["src/main/resources/" "pkg/etc/celestial/"] 
 
-        :jvm-opts ["-XX:MaxPermSize=512m"]
 
         :aot [remote.capistrano remote.ruby proxmox.provider vc.provider freenas.provider
               aws.provider docker.provider physical.provider openstack.provider
