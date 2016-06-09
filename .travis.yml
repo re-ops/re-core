@@ -1,6 +1,7 @@
 services:
   - redis-server
+jdk:
+   - oraclejdk8
 language: clojure
 script: 
-  - jdk_switcher use oraclejdk8
   - lein do clean, compile, midje :filter -integration, midje :redis, midje :elasticsearch
