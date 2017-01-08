@@ -1,4 +1,4 @@
-(comment 
+(comment
   Celestial, Copyright 2012 Ronen Narkis, narkisr.com
   Licensed under the Apache License,
   Version 2.0  (the "License") you may not use this file except in compliance with the License.
@@ -10,7 +10,7 @@
   limitations under the License.)
 
 (ns kvm.networking
-  (:require 
+  (:require
     [celestial.provider :refer (wait-for)]
     [slingshot.slingshot :refer [throw+]]
     [taoensso.timbre :as timbre]
@@ -26,14 +26,14 @@
 
 (defn macs [c id]
   (let [root (domain-zip c id)]
-    (map vector 
+    (map vector
       (zx/xml-> root :devices :interface :source (zx/attr :bridge))
       (zx/xml-> root :devices :interface :mac (zx/attr :address)))))
 
-(defn nat-ip 
+(defn nat-ip
    [c id node]
    (let [[nic mac] (first (macs c id)) uuid (gen-uuid)]
-     (execute (<< "arp -i ~{nic}") node :out-fn (collect-log uuid))        
+     (execute (<< "arp -i ~{nic}") node :out-fn (collect-log uuid))
      (when-let [line (first (filter #(.contains % mac) (get-log uuid)))]
        (first (.split line "\\s" ))
        )))
@@ -41,12 +41,12 @@
 (defn wait-for-nat [c id node timeout]
   "Waiting for nat cache to update"
   (wait-for {:timeout timeout} #(not (nil? (nat-ip c id node)))
-    {:type ::kvm:networking :timeout timeout} 
+    {:type ::kvm:networking :timeout timeout}
       "Timed out on waiting for arp cache to update"))
 
 (def ignore-authenticity "-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no")
 
-(defn inet-line 
+(defn inet-line
    [lines]
    (first (filter #(.contains % "inet addr") lines)))
 

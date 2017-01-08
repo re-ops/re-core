@@ -5,7 +5,7 @@
 
   :machine {
     :hostname "red1" :user "celestial" :domain "local"
-    :os :ubuntu-15.04 :cpu 2 :ram 1024
+    :os :ubuntu-16.04 :cpu 2 :ram 1024
   } 
 
   :kvm {

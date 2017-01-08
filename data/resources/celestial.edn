@@ -20,12 +20,12 @@
    ;;    :wait-time 5
    ;;   }
       :workers {
-       :stage 4 :reload 2  
+       :stage 4 :reload 2
       }
    }
 
    :cert {
-     :password "foobar" 
+     :password "foobar"
      :keystore "foo.keystore"
    }
 
@@ -63,7 +63,7 @@
          :used-ips ["192.168.3.230" "192.168.3.231" "192.168.3.232"]
        }
      }
-    
+
     ;;:aws {
     ;;   :access-key ""
     ;;   :secret-key ""
@@ -71,7 +71,7 @@
           ;; :ubuntu-12.04 {:ami "" :flavor :debian}
           ;; :centos-6 {:ami "" :flavor :redhat}
         ;;}
-    ;;} 
+    ;;}
 
      :vcenter {
        :url "https://192.168.3.23/sdk"
@@ -89,7 +89,7 @@
      }
 
      :openstack {
-        :endpoint "http://1.2.3.4:5000/v2.0" 
+        :endpoint "http://1.2.3.4:5000/v2.0"
         :username ""
         :password ""
 
@@ -102,23 +102,23 @@
         }
 
         :networks {
-          "net-2" "1234"            
+          "net-2" "1234"
         }
 
         :managment-interface :network
-     }  
+     }
 
     :gce {
      :ostemplates {
         :ubuntu-15.10 {
-          :image  "projects/ronen-playground/global/images/ubuntu-1510-puppet-382-1451476982" 
+          :image  "projects/ronen-playground/global/images/ubuntu-1510-puppet-382-1451476982"
           :flavor :debian
         }
         :centos-6 {
           :image "projects/ronen-playground/global/images/centos-6-puppet-382-1451221785"
           :flavor :redhat
         }
-      }    
+      }
       :service-file "/home/ronen/compute-playground.json"
     }
 
@@ -135,22 +135,22 @@
           :remote {:username "ronen" :host "somehost" :port 22}
         }
        :ostemplates {
-          :ubuntu-15.04 {:template "ubuntu-15.04" :flavor :debian}
+          :ubuntu-16.04 {:template "ubuntu-16.04" :flavor :debian}
         }
-       
+
      }
 
     :physical { }
    }
  }
-  
+
  :redis {
    :host "localhost"
    :db 3
- } 
+ }
 
  :elasticsearch {
-   :path.data "target/es/data"
+   :path.data "target/es/6ata"
    :path.work "target/es/work"
  }
 
@@ -159,9 +159,6 @@
  }
 
  :hooks {
-   ;; hooks.hubot/notify-hubot {
-   ;;   :hubot-host "http://192.168.5.14:8083" 
-   ;; }
    ;; hooks.dnsmasq/update-dns {
    ;;   :dnsmasq "192.168.20.180" :user "ronen" :domain "local"
    ;; }
@@ -173,7 +170,7 @@
    ;;     :dev {:host "http://192.168.1.10:8500" :dc "local"}
    ;;   }
    ;; }
-   
+
  }
 
  :scheduled {
@@ -181,7 +178,7 @@
      :every [5 :secs]
      :args {
        :tenant "foo" :env :dev :user "admin"
-       :exclude ["1234"] 
+       :exclude ["1234"]
      }
    }
  }

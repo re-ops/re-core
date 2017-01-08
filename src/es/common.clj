@@ -1,6 +1,6 @@
 (ns es.common
   "type mappings index etc.."
-  (:require 
+  (:require
     [celestial.common :refer (envs import-logging)]
     [es.node :as node]
     [clojurewerkz.elastisch.native.index :as idx])
@@ -21,7 +21,7 @@
       :end {:type "long"}
      }
   }
-   
+
   :system {
     :properties {
       :owner {:type "string" }
@@ -37,35 +37,35 @@
     }
    })
 
-(defn initialize 
-  "Creates systems index and types" 
+(defn initialize
+  "Creates systems index and types"
   [& [m & _]]
   (node/start-n-connect [index] m)
   (when-not (idx/exists? index)
     (info "Creating index" index)
     (idx/create index :mappings types)))
 
-(defn clear 
-  "Creates systems index and type" 
+(defn clear
+  "Creates systems index and type"
   []
   (node/start-n-connect [index])
   (when (idx/exists? index)
     (info "Clearing index" index)
     (idx/delete index)))
 
-(defn flush- 
+(defn flush-
   []
   (when (idx/exists? index)
     (debug "Flushing index" index)
     (idx/flush index)))
- 
-(defn env-term 
-   "map a single term env into a non analysed form" 
+
+(defn env-term
+   "map a single term env into a non analysed form"
    [{:keys [term] :as m}]
-    (if (:env term) 
+    (if (:env term)
       (update-in m [:term :env] #(str ":" %)) m))
 
-(defn map-env-terms 
-   "maps should env terms to non-analysed forms" 
+(defn map-env-terms
+   "maps should env terms to non-analysed forms"
    [query]
   (update-in query [:bool :should] (fn [ts] (mapv env-term ts))))

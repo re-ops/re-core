@@ -18,7 +18,7 @@
                  [selmer "0.8.2"]
                  [com.palletops/stevedore "0.8.0-beta.5"]
                  [camel-snake-kebab "0.1.2"]
-                 ; logging 
+                 ; logging
                  [com.narkisr/gelfino-client "0.8.1"]
                  [com.taoensso/timbre "4.1.4"]
                  [ch.qos.logback/logback-classic "1.1.3"]
@@ -38,9 +38,9 @@
                  [ring "1.3.2"]
                  [compojure "1.3.4" :exclusions  [ring/ring-core]]
                  ; ring security
-                 [com.cemerick/friend "0.2.1"] 
+                 [com.cemerick/friend "0.2.1"]
                  [ring/ring-session-timeout "0.1.0"]
-                 [ring/ring-headers "0.1.0"] 
+                 [ring/ring-headers "0.1.0"]
                  ; hypervisors
                  [narkisr/digitalocean "1.3"]
                  [com.vmware/vijava "5.1" :exclusions [xml-apis]]
@@ -57,11 +57,11 @@
                  [org.clojure/data.xml "0.0.8"]
                  [org.clojure/data.zip "0.1.1"]
                  [net.java.dev.jna/jna "4.2.0"]
-                 [org.libvirt/libvirt "0.5.1"] 
+                 [org.libvirt/libvirt "0.5.1"]
                  ; persistency and model
                  [clojurewerkz/elastisch "2.0.0-beta3"]
                  [puny "0.3.0"]
-                 [com.taoensso/carmine "2.11.1"] 
+                 [com.taoensso/carmine "2.11.1"]
                  [commons-codec "1.10"]
                  [substantiation "0.3.1"]
                  [fogus/minderbinder "0.2.0"]
@@ -80,8 +80,8 @@
 
   :exclusions [org.clojure/clojure com.taoensso/timbre commons-codec]
 
-  :plugins  [[jonase/eastwood "0.2.1"] 
-             [lein-ancient "0.6.7" :exclusions [org.clojure/clojure]] 
+  :plugins  [[jonase/eastwood "0.2.1"]
+             [lein-ancient "0.6.7" :exclusions [org.clojure/clojure]]
              [lein-tar "2.0.0" ] [self-build "0.0.9"]
              [lein-tag "0.1.0"] [lein-set-version "0.3.0"]
              [topping "0.0.2"]]
@@ -143,9 +143,9 @@
         :aot [remote.capistrano remote.ruby proxmox.provider vc.provider freenas.provider
               aws.provider docker.provider physical.provider openstack.provider
               celestial.core celestial.puppet-standalone celestial.launch]
- 
+
         :main celestial.launch
-      } 
+      }
     }
 
 
@@ -158,7 +158,7 @@
             "dev-repl" ["with-profile" "refresh" "do" "clean," "repl"] 
             }
 
-  
+
   :repositories  {"bintray"  "http://dl.bintray.com/content/garkisr/narkisr-jars"
                   "sonatype" "http://oss.sonatype.org/content/repositories/releases"
                   "libvirt-org" "http://libvirt.org/maven2"}
@@ -167,7 +167,7 @@
       :service "celestial"
       :app {:app-name "celestial" :src "target/celestial-0.13.3.jar"}
       :env {:roles {:remote #{{:host "celestial" :user "ubuntu" :sudo true}}}}
-   } 
+   }
 
   :resource-paths  ["src/main/resources/"]
   :source-paths  ["src"]
