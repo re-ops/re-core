@@ -2,7 +2,7 @@
   "type mappings index etc.."
   (:require
     [celestial.common :refer (envs import-logging)]
-    [es.node :as node]
+    [es.node :as node :refer (ES)]
     [clojurewerkz.elastisch.native.index :as idx])
  )
 
@@ -40,16 +40,16 @@
 (defn initialize
   "Creates systems index and types"
   [& [m & _]]
-  (node/start-n-connect [index] m)
-  (when-not (idx/exists? index)
+  (node/connect)
+  (when-not (idx/exists? @ES index)
     (info "Creating index" index)
-    (idx/create index :mappings types)))
+    (idx/create @ES index {:mappings types})))
 
 (defn clear
   "Creates systems index and type"
   []
-  (node/start-n-connect [index])
-  (when (idx/exists? index)
+  (node/connect)
+  (when (idx/exists? @ES index)
     (info "Clearing index" index)
     (idx/delete index)))
 

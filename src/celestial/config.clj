@@ -21,11 +21,16 @@
     [clojure.java.io :only (file)]
     [clj-config.core :as conf]))
 
-
-(def base-v 
-  {:redis {:host #{:required :String}}
-   :elasticsearch {:path.data #{:required :String} :path.work #{:required :String}} 
-   :ssh {:private-key-path #{:required :String}}})
+(def base-v {
+   :redis {
+     :host #{:required :String}
+    }
+   :elasticsearch {
+     :host #{:required :String} :port #{:required :Integer} :cluster #{:required :String}
+    } 
+   :ssh {
+     :private-key-path #{:required :String}
+   }})
 
 (def levels #{:trace :debug :info :error})
 

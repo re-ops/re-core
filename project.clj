@@ -59,7 +59,8 @@
                  [net.java.dev.jna/jna "4.2.0"]
                  [org.libvirt/libvirt "0.5.1"]
                  ; persistency and model
-                 [clojurewerkz/elastisch "2.0.0-beta3"]
+                 [com.google.guava/guava "18.0"]
+                 [clojurewerkz/elastisch "3.0.0-beta1"]
                  [puny "0.3.0"]
                  [com.taoensso/carmine "2.11.1"]
                  [commons-codec "1.10"]

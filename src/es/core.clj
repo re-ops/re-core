@@ -14,16 +14,16 @@
   (:require 
     [components.core :refer (Lifecyle)] 
     [es.common :refer (initialize index)]
-    [es.node :refer (start-n-connect stop)]))
+    [es.node :refer (connect stop)]))
 
 (defrecord Elastic 
   [] 
   Lifecyle
   (setup [this]
-    (start-n-connect [index]) 
+    (connect)
     (initialize))
   (start [this]
-    (start-n-connect [index]))
+    (connect))
   (stop [this]
     (stop)))
 

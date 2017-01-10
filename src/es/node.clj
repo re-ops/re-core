@@ -22,62 +22,10 @@
 
 (def ES (atom nil))
 
-(defn build-local-node
-  [settings]
-    (info "Building local ES node" settings)
-    (.build 
-      (doto (NodeBuilder/nodeBuilder)
-      (.settings (cnv/->settings settings)) 
-      (.data true)
-      (.local true))))
-
-
-(defn settings 
-   "embedded ES settings" 
-   [m]
-   (merge m (get! :elasticsearch) 
-    {
-      :node.name "celestial" :cluser.name "celestial-cluster"
-      :http.enabled false 
-      :index.number_of_shards 1
-      :index.number_of_replicas 0
-      :indices.ttl.interval 60
-    }))
-
-(defn wait-for-green-health 
-  "Wait that the local node is ready see bit.ly/1kRUPet" 
-  [indices]
-  (try
-    (-> @ES
-      .client
-      .admin 
-      .cluster 
-      (.prepareHealth (into-array indices))
-      .setWaitForGreenStatus
-      .execute
-      .actionGet)
-     (catch Throwable e 
-       (error e) 
-       (throw e))))
-
-(defn start
-  "launch en embedded ES node" 
-  [m]
-  (info "Starting local elasticsearch node")
-  (reset! ES (es/start-local-node (build-local-node (settings m)))))
-
 (defn connect []
-  (es/connect-to-local-node! @ES))
-
-(defn start-n-connect 
-  "Both starts the node and connects to it (only) if not ready" 
-  [indices & [m & _]]
-  (when-not (and @ES (not (.isClosed @ES))) 
-    (start m)
-    (connect)
-    (info "Waiting for cluster to be green on" indices)
-    (wait-for-green-health indices) 
-    ))
+  (let [{:keys [host port cluster]} (get! :elasticsearch)]
+    (info "Connecting to elasticsearch")
+    (reset! ES  (es/connect  [[host port]] {"cluster.name" cluster}))))
 
 (defn stop
   "stops embedded ES node" 
@@ -87,5 +35,5 @@
   (reset! ES nil))
 
 (defn health [indices]
-  (.name (.getStatus (wait-for-green-health indices))))
+  (.name (.getStatus @ES)))
 
