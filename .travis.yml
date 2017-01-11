@@ -9,6 +9,8 @@ addons:
       - elasticsearch-2.x
     packages:
       elasticsearch
+    services:
+      - elasticsearch
 before_script:
   - sleep 10
   - curl http://127.0.0.1:9200/
