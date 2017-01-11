@@ -8,7 +8,7 @@ addons:
     sources:
       - elasticsearch-2.x
     packages:
-      elasticsearch
+      - elasticsearch
     services:
       - elasticsearch
 before_script:
