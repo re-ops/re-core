@@ -17,7 +17,6 @@ addons:
 install: true
 
 before_script:
-  - elasticsearch -v
   - curl http://127.0.0.1:9200/
 script: 
   - lein do clean, compile, midje :filter -integration, midje :redis, midje :elasticsearch
