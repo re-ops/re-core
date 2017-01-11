@@ -150,9 +150,11 @@
  }
 
  :elasticsearch {
-   :path.data "target/es/6ata"
-   :path.work "target/es/work"
+   :host "192.168.1.201"
+   :port 9300
+   :cluster "elasticsearch"
  }
+
 
  :ssh {
    :private-key-path "/home/ronen/.ssh/id_rsa"

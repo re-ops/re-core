@@ -13,6 +13,7 @@
   "Jobs ES persistency"
   (:refer-clojure :exclude [get])
   (:require
+    [es.node :as node :refer (ES)]
     [es.common :refer (flush- index map-env-terms)]
     [clojurewerkz.elastisch.native.document :as doc]
     [celestial.common :refer (envs import-logging)]))
@@ -28,12 +29,12 @@
 (defn delete
    "delete a system from ES"
    [id]
-  (doc/delete index "jobs" id))
+  (doc/delete @ES index "jobs" id))
 
 (defn get 
    "Grabs a system by an id"
    [id]
-  (doc/get index "jobs" id))
+  (doc/get @ES index "jobs" id))
 
 (defn query-envs 
    "maps envs to query form terms" 
@@ -44,4 +45,7 @@
    "basic query string" 
    [from size envs]
   (let [q {:bool {:minimum_should_match 1 :should (query-envs envs)}}]
-    (-> (doc/search index "jobs" :from from :size size :query q :sort {:end "desc"}) :hits))) 
+    (:hits
+      (doc/search @ES index "jobs" {
+          :from from :size size :query q :sort {:end "desc"}
+        })))) 

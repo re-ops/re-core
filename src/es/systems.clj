@@ -14,6 +14,7 @@
   (:refer-clojure :exclude [get])
   (:require 
     [es.common :refer (flush- index map-env-terms clear initialize)]
+    [es.node :as node :refer (ES)]
     [clojure.set :refer (subset?)]
     [clojure.core.strint :refer (<<)] 
     [slingshot.slingshot :refer  [throw+]] 
@@ -34,24 +35,26 @@
 (defn put
    "Add/Update a system into ES"
    [id system]
-  (doc/put index "system" id system)
+  (doc/put @ES index "system" id system)
   (when flush? (flush-)))
 
 (defn delete
    "delete a system from ES"
    [id & {:keys [flush?]}]
-  (doc/delete index "system" id)
+  (doc/delete @ES index "system" id)
   (when flush? (flush-)))
 
 (defn get 
    "Grabs a system by an id"
    [id]
-  (doc/get index "system" id))
+  (doc/get @ES index "system" id))
 
 (defn query 
    "basic query string" 
    [query & {:keys [from size] :or {size 100 from 0}}]
-  (doc/search index "system" :from from :size size :query query :fields ["owner" "env"]))
+  (doc/search @ES index "system" {
+      :from from :size size :query query :fields ["owner" "env"]
+   }))
 
 (defn query-envs [q]
  (into #{} 
@@ -67,7 +70,7 @@
         (map-env-terms q)
         (throw+ {:type ::non-legal-env :message (<< "~{username} tried to query in ~{es} he has access only to ~{envs}")}))
       (update-in q [:bool :should] 
-        (fn [v] (into v (mapv #(hash-map :term {:env (str %)}) envs)))))))
+        (fn [v] (into v (mapv #(hash-map :term {:env (name %)}) envs)))))))
 
 (defn- query-for [username q]
   (let [{:keys [envs username] :as user} (u/get-user! username)]

@@ -74,7 +74,7 @@
     (info "Reseting admin password")
     (add-user {
       :username "admin" :password (creds/hash-bcrypt "changeme")
-      :roles admin :envs [:dev] :operations m/operations
+      :roles admin :envs [:dev :qa] :operations m/operations
      })))
 
 (defn curr-user []

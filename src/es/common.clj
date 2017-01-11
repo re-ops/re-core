@@ -51,13 +51,13 @@
   (node/connect)
   (when (idx/exists? @ES index)
     (info "Clearing index" index)
-    (idx/delete index)))
+    (idx/delete @ES index)))
 
 (defn flush-
   []
-  (when (idx/exists? index)
+  (when (idx/exists? @ES index)
     (debug "Flushing index" index)
-    (idx/flush index)))
+    (idx/flush @ES index)))
 
 (defn env-term
    "map a single term env into a non analysed form"
