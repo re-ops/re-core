@@ -65,12 +65,6 @@
     }}}
   )
 
-(validation :docker-node*
-   (every-kv {:host #{:required :String} :port #{:required :number}}))
-
-(def ^{:doc "docker section validation"} docker-v
-  {:docker {:nodes #{:required :docker-node*} }})
-
 (def ^{:doc "Base config validation"} celestial-v
   {:celestial
    {:port #{:required :number} :https-port #{:required :number} :session-timeout #{:number} 
@@ -95,11 +89,6 @@
 
 (validation :template*
   (every-kv {:template #{:required :String} :flavor #{:required :Keyword :flavor}}))
-
-(def ^{:doc "proxmox section validation"} proxmox-v 
-  {:proxmox { 
-     :master #{:required :Keyword} :nodes #{:required :node*} 
-     :ostemplates #{:template*} :task-timeout #{:number}}})
 
 (validation :kvm-node*
   (every-kv {:username #{:required :String} :host #{:required :String} :port #{:required :number}}))
@@ -130,16 +119,10 @@
     :endpoint #{:required :String} :managment-interface #{:required :managment}    
   }})
 
-(def ^{:doc "vcenter section validation"} vcenter-v 
-  {:vcenter {
-      :url #{:required :String} :username #{:required :String}
-      :password #{:required :String} :session-count #{:required :number}
-      :ostemplates #{:required :Map} :guest-timeout #{:required :number} }})
-
 (defn hypervisor-validations 
   "find relevant hypervisor validations per env"
   [hypervisor]
-  (let [hvs [proxmox-v kvm-v aws-v openstack-v vcenter-v docker-v digital-v] ks (map (comp first keys) hvs) 
+  (let [hvs [kvm-v aws-v openstack-v digital-v] ks (map (comp first keys) hvs) 
         envs (map (fn [v] (fn [env] {:hypervisor {env v}})) hvs)]
     (first 
       (map (fn [[e hs]] (map #(((zipmap ks envs) %) e) (filter (into #{} ks) (keys hs)))) hypervisor))))

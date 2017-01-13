@@ -36,8 +36,7 @@
   :physical {:type "Physical" :description "A physical machine"}
   :openstack {:type "Openstack" :description "An openstack based instance"}
   :kvm {:type "Kvm" :description "A kvm based instance"}
-  :proxmox {:type "Proxmox" :description "A Proxmox based system"}
-  :vcenter {:type "Vcenter" :description "A vCenter based system"})
+  )
 
 (defmodel provided
   :env :string
@@ -53,8 +52,7 @@
   :physical {:type "Physical" :description "A physical machine"}
   :openstack {:type "Openstack" :description "An openstack based instance"}
   :kvm  {:type "Kvm" :description "A kvm based instance"}
-  :proxmox {:type "Proxmox" :description "A Proxmox based system"}
-  :vcenter {:type "Vcenter" :description "A vCenter based system"})
+  )
 
 (defmodel machine 
   :cpus {:type :int :description "Not relevant in ec2"}
@@ -64,8 +62,7 @@
   :hostname :string 
   :domain {:type :string :description "dns domain"}
   :ip {:type :string :description "Not relevant in ec2"}
-  :netmask {:type :string :description "used in vCenter or proxmox bridge"}
-  :gateway {:type :string :description "used vCenter or proxmox bridge"})
+  )
 
 (defmodel physical :mac :string)
 
@@ -75,15 +72,7 @@
   :flavor :string :key-name :string :tenant :string 
   :security-groups {:type "List"} :networks {:type "List"})
 
-(defmodel vcenter :pool :string :datacenter :string :hostsystem :string :disk-format :string)
-
-(defmodel proxmox :nameserver :string :searchdomain :string :password :string :node :string 
-  :type {:type :string :allowableValues {:valueType "LIST" :values ["ct" "vm"]}}
-  :features {:type "List"})
-
 (defmodel query :must {:type "List"} :should {:type "List"} :must_not {:type "List"})
-
-(defc "/systems" [:proxmox :type] (keyword v))
 
 (defc "/systems" [:kvm :node] (keyword v))
 
@@ -92,8 +81,6 @@
 (defc "/systems" [:env] (keyword v))
  
 (defc "/templates" [:machine :os] (keyword v))
-
-(defc "/templates" [:proxmox :type] (keyword v))
 
 (defn working-username  []
    (let [{:keys [username]} (current-user)] username))

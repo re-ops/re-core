@@ -23,18 +23,15 @@
     [celestial.common :refer (import-logging)]
     [physical.validations :as ph]
     [freenas.validations :as fv]
-    [proxmox.validations :as pv]
     [openstack.validations :as ov]
-    [docker.validations :as dv]
     [aws.validations :as av]
-    [vc.validations :as vc]
     [subs.core :as subs :refer (validate! validation when-not-nil)]
     [puny.core :refer (entity)]
     [slingshot.slingshot :refer  [throw+]]
     [puny.migrations :refer (Migration register)]
     [celestial.model :refer (clone hypervizors figure-virt check-validity)] 
     [clojure.core.strint :refer (<<)]  
-    proxmox.model aws.model))
+     aws.model))
 
 (import-logging)
 

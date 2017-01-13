@@ -28,7 +28,7 @@
 
 
 (def hypervizors 
-  #{:proxmox :aws :vcenter :vagrant :physical :docker :openstack :freenas :digital-ocean :gce :kvm})
+  #{:aws :physical :openstack :freenas :digital-ocean :gce :kvm})
 
 (def operations
  #{:reload :destroy :provision :stage :run-action :create :start :stop :clear :clone})
@@ -52,9 +52,8 @@
     (fn [r k] (if-let [v (get-in m k)] (assoc-in r k v) r)) {} ks))
 
 (def whitelist
-  [[:proxmox :nodes] [:proxmox :ostemplates]
-   [:docker :nodes] [:gce :ostemplates] [:digital-ocean]
-   [:vcenter :ostemplates] [:aws] [:physical] [:openstack] 
+  [[:gce :ostemplates] [:digital-ocean]
+   [:aws] [:physical] [:openstack] 
    [:kvm :ostemplates] [:kvm :nodes]])
 
 (defn sanitized-envs

@@ -59,13 +59,7 @@
     (debug "Flushing index" index)
     (idx/flush @ES index)))
 
-(defn env-term
-   "map a single term env into a non analysed form"
-   [{:keys [term] :as m}]
-    (if (:env term)
-      (update-in m [:term :env] #(str ":" %)) m))
-
 (defn map-env-terms
    "maps should env terms to non-analysed forms"
    [query]
-  (update-in query [:bool :should] (fn [ts] (mapv env-term ts))))
+    (update-in query [:bool :should] (fn [ts] (into [] ts))))
