@@ -5,7 +5,7 @@
        :aws {
           :limits {:count 4} :used {:count 2}
         } 
-       :proxmox {
+       :kvm {
           :limits {:count 2} :used {:count 2}
        }
      }

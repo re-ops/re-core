@@ -2,33 +2,33 @@
   "data population"
   (:gen-class true)
   (:require
-    [celestial.persistency [users :as u] [types :as t]]  
+    [celestial.persistency [users :as u] [types :as t]]
     [es.common :as es]
     [celestial.model :refer (figure-virt)]
     [celestial.security :refer (set-user)]
     [celestial.fixtures.core :refer (with-conf)]
     [clojure.test.check.generators :as g]
-    [celestial.redis :as red]  
-    [celestial.persistency.core :as c]  
+    [celestial.redis :as red]
+    [celestial.persistency.core :as c]
     [celestial.persistency.systems :as s]
     [celestial.persistency.actions :as a]
     [celestial.fixtures.data :refer (admin ronen) :as d]))
 
-(defn add-users 
-  "populates admin and ronen users" 
+(defn add-users
+  "populates admin and ronen users"
   []
   (u/add-user admin)
   (u/add-user ronen))
 
-(defn add-types 
-   "populates types" 
+(defn add-types
+   "populates types"
    []
   (t/add-type d/smokeping-type)
   (t/add-type d/jvm-type)
   (t/add-type d/redis-type))
 
-(defn add-actions 
-   "populates actions" 
+(defn add-actions
+   "populates actions"
    []
   (a/add-action d/redis-deploy)
   ; these actions won't work
@@ -37,48 +37,46 @@
 
 
 
-(def host 
-  (g/fmap (partial apply str) 
+(def host
+  (g/fmap (partial apply str)
     (g/tuple (g/elements ["zeus-" "atlas-" "romulus-" "remus-"]) g/nat)))
 
 (def ip (g/fmap #(str "192.168.1." %) (g/such-that #(<= (.length %) 3) (g/fmap str g/nat))))
 
-(def machines 
+(def machines
   (g/fmap (partial zipmap [:hostname :ip]) (g/tuple host ip)))
 
 (def host-env-gen
   (g/fmap (partial zipmap [:env :type])
-      (g/tuple 
-         (g/elements [:dev :qa :prod]) 
+      (g/tuple
+         (g/elements [:dev :qa :prod])
          (g/elements ["redis" "smokeping"]))))
 
 (defn with-ids [m]
-  (let [virt (figure-virt m) ids {:proxmox :vmid :openstack :instance-id :aws :instance-id}]
-    (g/fmap #(merge-with merge m %) 
-      (g/hash-map virt 
+  (let [virt (figure-virt m) ids {:openstack :instance-id :aws :instance-id}]
+    (g/fmap #(merge-with merge m %)
+      (g/hash-map virt
         (g/hash-map (ids virt) (g/such-that #(> (.length %) 10) g/string-alphanumeric 100))))))
 
-(def systems-gen 
+(def systems-gen
   (g/bind host-env-gen
-    (fn [v] 
-      (g/fmap #(merge % v) 
-        (g/one-of 
-          (into [(g/return d/redis-prox-spec)] (mapv with-ids [d/redis-ec2-spec d/redis-openstack-spec])))))))
-
-(def instance-keys {:openstack [:openstack :instance-id] [:aws :instance-id] [:proxmox :id]})
+    (fn [v]
+      (g/fmap #(merge % v)
+        (g/one-of
+          (into [(g/return d/redis-ec2-spec)] (mapv with-ids [d/redis-ec2-spec d/redis-openstack-spec])))))))
 
 
 (def systems-with-machines
   (g/bind machines
-    (fn [v] 
+    (fn [v]
       (g/fmap #(update-in % [:machine] (fn [m] (merge m v))) systems-gen))))
 
 (defn add-systems []
-  (doseq [s (g/sample systems-with-machines 100)] 
+  (doseq [s (g/sample systems-with-machines 100)]
     (s/add-system s)))
 
-(defn add-templates 
-   "populate templates" 
+(defn add-templates
+   "populate templates"
    []
   (s/add-template d/small-redis)
   (s/add-template d/tiny-jvm))
@@ -97,22 +95,22 @@
   :systems add-systems :templates add-templates
 })
 
-(defn populate-all 
-  "populates all data types" 
+(defn populate-all
+  "populates all data types"
   [& {:keys [skip] :or {skip []}}]
   (re-initlize true)
   (doseq [[_ p] (dissoc populators skip)] (p)))
 
-(defn populate-system 
-  "Adds single type and system" 
+(defn populate-system
+  "Adds single type and system"
   [t s]
   (re-initlize)
   (add-users)
   (t/add-type t)
   (s/add-system s))
 
-(defn -main 
-  "run populate all" 
+(defn -main
+  "run populate all"
   [& args]
   (set-user {:username "admin"}
      (populate-all)

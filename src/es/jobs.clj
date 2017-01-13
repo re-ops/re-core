@@ -14,7 +14,7 @@
   (:refer-clojure :exclude [get])
   (:require
     [es.node :as node :refer (ES)]
-    [es.common :refer (flush- index map-env-terms)]
+    [es.common :refer (flush- index)]
     [clojurewerkz.elastisch.native.document :as doc]
     [celestial.common :refer (envs import-logging)]))
 
@@ -23,7 +23,7 @@
 (defn put
    "Add/Update a jobs into ES"
    [{:keys [tid queue status] :as job} ttl & {:keys [flush?]}]
-  (doc/put index "jobs" tid (merge job {:queue (name queue) :status (name status)}) :ttl ttl)
+  (doc/put @ES index "jobs" tid (merge job {:queue (name queue) :status (name status)}) {:ttl ttl})
   (when flush? (flush-)))
 
 (defn delete
@@ -39,7 +39,7 @@
 (defn query-envs 
    "maps envs to query form terms" 
    [envs]
-   (map (fn [e] {:term {:env (str e)}}) envs))
+   (map (fn [e] {:term {:env (name e)}}) envs))
 
 (defn paginate
    "basic query string" 

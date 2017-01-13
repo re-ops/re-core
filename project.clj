@@ -43,7 +43,6 @@
                  [ring/ring-headers "0.1.0"]
                  ; hypervisors
                  [narkisr/digitalocean "1.3"]
-                 [com.vmware/vijava "5.1" :exclusions [xml-apis]]
                  [org.pacesys/openstack4j "2.0.3"]
                  [amazonica "0.3.13" ]
                  ; gce
@@ -117,8 +116,8 @@
           :timeout 120000
         }
 
-        :aot [remote.capistrano remote.ruby proxmox.provider vc.provider freenas.provider
-              aws.provider docker.provider physical.provider openstack.provider
+        :aot [remote.capistrano remote.ruby freenas.provider
+              aws.provider physical.provider openstack.provider
               celestial.core celestial.puppet-standalone celestial.launch]
  
         :test-paths ["test" "data"]
@@ -141,8 +140,8 @@
         :resource-paths  ["src/main/resources/" "pkg/etc/celestial/"] 
 
 
-        :aot [remote.capistrano remote.ruby proxmox.provider vc.provider freenas.provider
-              aws.provider docker.provider physical.provider openstack.provider
+        :aot [remote.capistrano remote.ruby freenas.provider
+              aws.provider physical.provider openstack.provider
               celestial.core celestial.puppet-standalone celestial.launch]
 
         :main celestial.launch
