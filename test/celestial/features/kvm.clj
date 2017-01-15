@@ -22,7 +22,7 @@
           (just {
             :user "celestial" :name "red1.local" :hostname "red1"
             :image {:flavor :debian :template "ubuntu-16.04"}
-            :cpu 2 :ram 1024
+            :cpu 4 :ram 1024
            })))))
 
 (with-admin

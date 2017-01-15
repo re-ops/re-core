@@ -65,7 +65,6 @@
         (g/one-of
           (into [(g/return d/redis-ec2-spec)] (mapv with-ids [d/redis-ec2-spec d/redis-openstack-spec])))))))
 
-
 (def systems-with-machines
   (g/bind machines
     (fn [v]

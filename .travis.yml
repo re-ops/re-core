@@ -1,21 +1,26 @@
-sudo: true
-services:
-  - redis-server
-jdk:
-  - oraclejdk8
 language: clojure
 
-addons:
-  apt:
-    sources:
-      - elasticsearch-2.x
-    packages:
-      - elasticsearch
-    services:
-      - elasticsearch
+sudo: false
 
-install: true
+services:
+  - redis-server
 
-script: 
+jdk:
+  - oraclejdk8
+env:
+  global:
+    - WAIT_FOR_ES=1
+  matrix:
+    - ES_VERSION=2.3.3
+
+install:
+    - mkdir /tmp/elasticsearch
+    - wget -O - https://download.elasticsearch.org/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/${ES_VERSION}/elasticsearch-${ES_VERSION}.tar.gz | tar xz --directory=/tmp/elasticsearch --strip-components=1
+    - /tmp/elasticsearch/bin/elasticsearch --daemonize --path.data /tmp
+
+before_script:
+  - sleep 10
   - curl http://127.0.0.1:9200/
+
+script:
   - lein do clean, compile, midje :filter -integration, midje :redis, midje :elasticsearch
