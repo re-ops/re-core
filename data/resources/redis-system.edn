@@ -1,22 +1,17 @@
 {
- :env :dev
+  :env :dev
 
- :owner "ronen"
+  :owner "ronen"
 
- :machine {
-  :cpus 4 :memory 4096 :disk 30
-  :hostname "red1" :ip "192.168.3.200" :domain "local"
-  :os :ubuntu-12.04 :user "root"
- }
+  :machine {
+    :hostname "red1" :user "celestial" :domain "local"
+    :os :ubuntu-16.04 :cpu 4 :ram 1024
+  } 
 
- :proxmox {
-   :onboot true
-   :vmid 101
-   :nameserver "8.8.8.8"
-   :password "foobar1" :node "proxmox-a"
-   :type :ct
-   :features [] 
+  :kvm {
+    :node :remote
   }
 
- :type "redis"
+  :type "redis"
 }
+

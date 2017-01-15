@@ -1,4 +1,4 @@
-(defproject celestial "0.13.3"
+(defproject celestial "0.13.4"
   :description "A launching pad for virtualized applications"
   :url "https://github.com/celestial-ops/celestial-core"
   :license  {:name "Apache License, Version 2.0" :url "http://www.apache.org/licenses/LICENSE-2.0.html"}
@@ -43,7 +43,6 @@
                  [ring/ring-headers "0.1.0"]
                  ; hypervisors
                  [narkisr/digitalocean "1.3"]
-                 [com.vmware/vijava "5.1" :exclusions [xml-apis]]
                  [org.pacesys/openstack4j "2.0.3"]
                  [amazonica "0.3.13" ]
                  ; gce
@@ -59,6 +58,7 @@
                  [net.java.dev.jna/jna "4.2.0"]
                  [org.libvirt/libvirt "0.5.1"]
                  ; persistency and model
+                 [com.brunobonacci/safely "0.2.4"]
                  [com.google.guava/guava "18.0"]
                  [clojurewerkz/elastisch "3.0.0-beta1"]
                  [puny "0.3.0"]
@@ -117,8 +117,8 @@
           :timeout 120000
         }
 
-        :aot [remote.capistrano remote.ruby proxmox.provider vc.provider freenas.provider
-              aws.provider docker.provider physical.provider openstack.provider
+        :aot [remote.capistrano remote.ruby freenas.provider
+              aws.provider physical.provider openstack.provider
               celestial.core celestial.puppet-standalone celestial.launch]
  
         :test-paths ["test" "data"]
@@ -141,8 +141,8 @@
         :resource-paths  ["src/main/resources/" "pkg/etc/celestial/"] 
 
 
-        :aot [remote.capistrano remote.ruby proxmox.provider vc.provider freenas.provider
-              aws.provider docker.provider physical.provider openstack.provider
+        :aot [remote.capistrano remote.ruby freenas.provider
+              aws.provider physical.provider openstack.provider
               celestial.core celestial.puppet-standalone celestial.launch]
 
         :main celestial.launch
@@ -166,7 +166,7 @@
 
   :topping {
       :service "celestial"
-      :app {:app-name "celestial" :src "target/celestial-0.13.3.jar"}
+      :app {:app-name "celestial" :src "target/celestial-0.13.4.jar"}
       :env {:roles {:remote #{{:host "celestial" :user "ubuntu" :sudo true}}}}
    }
 

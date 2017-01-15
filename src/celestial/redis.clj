@@ -1,4 +1,4 @@
-(comment 
+(comment
    Celestial, Copyright 2012 Ronen Narkis, narkisr.com
    Licensed under the Apache License,
    Version 2.0  (the "License") you may not use this file except in compliance with the License.
@@ -11,7 +11,7 @@
 
 (ns celestial.redis
   "Redis utilities like a distributed lock, connection managment and ref watcher"
-  (:use  
+  (:use
     [flatland.useful.map :on map-vals]
     [clojure.set :only (difference)]
     [flatland.useful.utils :only (defm)]
@@ -20,20 +20,22 @@
     [slingshot.slingshot :only  [throw+]]
     [taoensso.carmine.locks :only (with-lock)]
     [taoensso.timbre :only (debug trace info error warn)])
-  (:require  
+  (:require
+    [safely.core :refer [safely]]
     [taoensso.carmine.message-queue :as carmine-mq]
     [taoensso.carmine :as car])
   (:import java.util.Date))
 
 (defn server-conn [] {:pool {} :spec (get! :redis)})
 
-(defmacro wcar [& body] 
-   `(try 
+(defmacro wcar [& body]
+    `(safely
        (car/wcar (server-conn) ~@body)
-       (catch Exception e# 
-         (error e#)
-         #_(throw+ {:type ::redis:connection :redis-host (get! :redis :host)} "Redis connection error")
-         )))
+       :on-error
+       :log-errors false
+       :max-retry 5
+       :message "Error while trying to connect to redis"
+       :retry-delay [:random-range :min 2000 :max 5000]))
 
 (defn get- [k] (wcar (car/get k)))
 

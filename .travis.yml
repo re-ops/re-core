@@ -1,4 +1,4 @@
-sudo: false
+sudo: true
 services:
   - redis-server
 jdk:
@@ -16,7 +16,6 @@ addons:
 
 install: true
 
-before_script:
-  - curl http://127.0.0.1:9200/
 script: 
+  - curl http://127.0.0.1:9200/
   - lein do clean, compile, midje :filter -integration, midje :redis, midje :elasticsearch

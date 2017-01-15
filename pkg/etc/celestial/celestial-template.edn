@@ -18,7 +18,7 @@
    ;; }
 
    :cert {
-     :password "foobar" 
+     :password "foobar"
      :keystore "foo.keystore"
    }
 
@@ -29,19 +29,6 @@
 
  :hypervisor {
    :dev {
-   ;;  :proxmox {
-   ;;    :master :proxmox-a
-   ;;    :nodes {
-   ;;       :proxmox-a {:username "root" :password "foobar" :host "localhost" :ssh-port 22222}
-   ;;    }
-   ;;    :ostemplates {
-   ;;       :ubuntu-12.04 {:template "local:vztmpl/ubuntu-12.04-puppet_3-x86_64.tar.gz" :flavor :debian}
-   ;;     }
-   ;;    :generators {
-   ;;      :ip-range []
-   ;;      :used-ips []
-   ;;    }
-   ;; }
    ;; :aws {
    ;;   :access-key ""
    ;;   :secret-key ""
@@ -49,31 +36,19 @@
    ;;        :ubuntu-12.10 {:ami "" :flavor :debian}
    ;;        :centos-6.4 {:ami "" :flavor :redhat}
    ;;   }
-   ;;  } 
-
-   ;; :vcenter {
-   ;;   :url "https://1.2.3.4/sdk"
-   ;;   :username ""
-   ;;   :password ""
-   ;;   :ostemplates {
-   ;;      :ubuntu-13.04 "ubuntu-13.04_puppet-3.2"
-   ;;   }
-   ;;
-   ;;   :guest-timeout 120 ; at least boot time
-   ;;   :session-count 2
-   ;; }
-    
+   ;;  }
    ;; :physical { }
   }
  }
-  
+
  :redis {
    :host "localhost"
- } 
+ }
 
  :elasticsearch {
-   :path.data "/var/lib/es/data/"
-   :path.work "/var/lib/es/work/"
+   :host "localhost"
+   :port 9300
+   :cluster "elasticsearch"
  }
 
  :ssh {
@@ -82,7 +57,7 @@
 
  :hooks {
    ;; hooks.hubot/notify-hubot {
-   ;;      :hubot-host "http://1.2.3.4:8083" 
+   ;;      :hubot-host "http://1.2.3.4:8083"
    ;; }
    ;; hooks.dnsmasq/update-dns {
    ;;      :dnsmasq "1.2.3.4" :user "" :domain ""

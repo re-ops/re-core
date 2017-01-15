@@ -38,9 +38,7 @@
 
 (load-fixtures)
 
-(def redis-prox-spec (read-fixture "redis-system"))
-
-(def redis-bridged-prox (read-fixture "redis-system-bridged"))
+(def redis-kvm-spec (read-fixture "redis-system"))
 
 (def redis-type (read-fixture "redis-type"))
 
@@ -55,14 +53,8 @@
 (def redis-ec2-centos 
   (assoc-in (read-fixture "redis-ec2-centos") [:aws :key-name] host))
 
-(def redis-vc-spec (read-fixture "redis-vc-system"))
-
-(def redis-docker-spec (read-fixture "redis-docker-system"))
-
 (def local-prox (read-fixture "celestial"))
 
-(def clustered-prox (read-fixture "celestial-cluster"))
- 
 (def local-conf 
   (let [path (fs/expand-home "~/.celestial.edn")]
     (when (fs/exists? path) (slurp-edn path))))

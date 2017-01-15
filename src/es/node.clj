@@ -1,4 +1,4 @@
-(comment 
+(comment
    Celestial, Copyright 2012 Ronen Narkis, narkisr.com
    Licensed under the Apache License,
    Version 2.0  (the "License") you may not use this file except in compliance with the License.
@@ -11,9 +11,10 @@
 
 (ns es.node
   "An embedded ES node instance"
-  (:import 
+  (:import
     [org.elasticsearch.node NodeBuilder])
-  (:require 
+  (:require
+    [safely.core :refer [safely]]
     [celestial.common :refer (get! import-logging)]
     [clojurewerkz.elastisch.native.conversion :as cnv]
     [clojurewerkz.elastisch.native :as es]))
@@ -22,16 +23,29 @@
 
 (def ES (atom nil))
 
-(defn connect []
+(defn connect-
+   "Connecting to Elasticsearch"
+   []
   (let [{:keys [host port cluster]} (get! :elasticsearch)]
     (info "Connecting to elasticsearch")
-    (reset! ES  (es/connect  [[host port]] {"cluster.name" cluster}))))
+    (reset! ES (es/connect  [[host port]] {"cluster.name" cluster}))))
+
+(defn connect
+  "Connecting to Elasticsearch with retry support"
+  []
+  (let [{:keys [host port cluster]} (get! :elasticsearch)]
+    (safely (connect-)
+       :on-error
+       :max-retry 5
+       :message "Error while trying to connect to Elasticsearch"
+       :log-errors false
+       :retry-delay [:random-range :min 2000 :max 5000])))
 
 (defn stop
-  "stops embedded ES node" 
+  "stops embedded ES node"
   []
   (info "Stoping local elasticsearch node")
-  (.close @ES) 
+  (.close @ES)
   (reset! ES nil))
 
 (defn health [indices]

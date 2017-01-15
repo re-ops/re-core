@@ -1,10 +1,10 @@
 (ns celestial.test.permissions
   "Testing permission hooks on systems"
   (:import clojure.lang.ExceptionInfo)
-  (:require 
+  (:require
     [celestial.security :refer (current-user)]
     [celestial.fixtures.core :refer  (is-type?)]
-    [celestial.fixtures.data :refer (redis-prox-spec)]
+    [celestial.fixtures.data :refer (redis-kvm-spec)]
     [celestial.persistency.systems :as s :refer (perm)]
     [celestial.persistency.users :as u]
     [celestial.persistency.systems :as s])
@@ -23,26 +23,26 @@
 (def foo {:username "foo" :roles [:celestial.roles/user] :envs [:dev] :operations []})
 
 (tabular "id based access owner interception"
-  (fact 
-   (perm identity ?id) => ?res 
-   (provided 
-    (s/get-system ?id :skip-assert) => redis-prox-spec
+  (fact
+   (perm identity ?id) => ?res
+   (provided
+    (s/get-system ?id :skip-assert) => redis-kvm-spec
     (current-user) =>  ?curr
     (u/get-user! anything) => ?user))
    ?id  ?curr      ?user ?res
    "1" curr-admin  admin "1"
-    1  curr-admin  admin  1 
-    1  curr-ronen  ronen  1 
+    1  curr-admin  admin  1
+    1  curr-ronen  ronen  1
     1  curr-foo    foo    (throws ExceptionInfo  (is-type? :celestial.persistency.systems/persmission-owner-violation))
 )
 
 (tabular "id based access env interception"
-  (fact 
-   (perm identity ?id) => ?res 
-   (provided 
-    (s/get-system ?id :skip-assert) => (assoc redis-prox-spec :env "prod")
-    (current-user) =>  ?curr
-    (u/get-user! anything) => ?user))
+  (fact
+    (perm identity ?id) => ?res
+    (provided
+      (s/get-system ?id :skip-assert) => (assoc redis-kvm-spec :env "prod")
+      (current-user) =>  ?curr
+      (u/get-user! anything) => ?user))
    ?id  ?curr  ?user ?res
    "1" curr-admin  admin (throws ExceptionInfo  (is-type? :celestial.persistency.systems/persmission-env-violation))
     1  curr-ronen (assoc-in ronen [:envs 0] "prod") 1)

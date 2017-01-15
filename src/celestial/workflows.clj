@@ -21,19 +21,14 @@
     gce.provider 
     kvm.provider 
     digital.provider 
-    proxmox.provider 
     freenas.provider 
     aws.provider 
-    vc.provider 
     physical.provider 
-    docker.provider
     openstack.provider
     celestial.puppet_standalone 
     remote.capistrano remote.ruby
     ;cloning
-    docker.model 
     aws.model 
-    proxmox.model
     openstack.model
     [celestial.persistency.systems :as s]
     [clojure.tools.macro :as tm]
