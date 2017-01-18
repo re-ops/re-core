@@ -1,0 +1,13 @@
+version: '2'
+services:
+  redis:
+    ports:
+      - "6379:6379"
+    image: "redis:alpine"
+  elasticsearch:
+    image: "elasticsearch:2.4.4"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    depends_on: 
+      - redis
