@@ -1,4 +1,4 @@
-(comment 
+(comment
   Celestial, Copyright 2012 Ronen Narkis, narkisr.com
   Licensed under the Apache License,
   Version 2.0  (the "License") you may not use this file except in compliance with the License.
@@ -12,16 +12,17 @@
 (ns celestial.persistency.systems
   "systems persistency layer"
   (:refer-clojure :exclude [type])
-  (:require 
+  (:require
     [es.systems :as es]
     [celestial.roles :refer (su? system?)]
     [celestial.security :refer (current-user)]
     [robert.hooke :as h]
-    [celestial.persistency 
+    [celestial.persistency
       [users :as u] [types :as t]]
     [celestial.persistency.quotas :as q]
     [celestial.common :refer (import-logging)]
     [physical.validations :as ph]
+    [kvm.validations :as kv]
     [freenas.validations :as fv]
     [openstack.validations :as ov]
     [aws.validations :as av]
@@ -29,22 +30,22 @@
     [puny.core :refer (entity)]
     [slingshot.slingshot :refer  [throw+]]
     [puny.migrations :refer (Migration register)]
-    [celestial.model :refer (clone hypervizors figure-virt check-validity)] 
-    [clojure.core.strint :refer (<<)]  
+    [celestial.model :refer (clone hypervizors figure-virt check-validity)]
+    [clojure.core.strint :refer (<<)]
      aws.model))
 
 (import-logging)
 
 (declare perm validate-system increase-quota decrease-quota es-put es-delete)
 
-(entity {:version 1} system :indices [type env owner] 
+(entity {:version 1} system :indices [type env owner]
         :intercept {
             :create [perm increase-quota es-put]
             :read [perm] :update [perm es-put]
             :delete [perm decrease-quota es-delete]})
 
-(defn assert-access 
-  "Validates that the current user can access the system, 
+(defn assert-access
+  "Validates that the current user can access the system,
    non super users can only access systems they own.
    All users are limited to certain environments."
   [{:keys [env owner] :as system}]
@@ -54,7 +55,7 @@
       (when (and (not (su? curr-user)) (not= username owner))
         (throw+ {:type ::persmission-owner-violation} (<< "non super user ~{username} attempted to access a system owned by ~{owner}!"))
       )
-     (when (and (not (system? curr-user)) env (not ((into #{} envs) env))) 
+     (when (and (not (system? curr-user)) env (not ((into #{} envs) env)))
       (throw+ {:type ::persmission-env-violation} (<< "~{username} attempted to access system ~{system} in env ~{env}"))))))
 
 (defn is-system? [s]
@@ -63,47 +64,47 @@
 (defn perm
   "A permission interceptor on systems access, we check both env and owner persmissions.
   due to the way robert.hooke works we analyse args and not fn to decide what to verify on.
-  If we have a map we assume its a system if we have a number we assume its an id." 
+  If we have a map we assume its a system if we have a number we assume its an id."
   [f & args]
-  (let [system (first (filter map? args)) 
+  (let [system (first (filter map? args))
         id (first (filter #(or (number? %) (and (string? %) (re-find #"\d+" %))) args))
         skip (first (filter #{:skip-assert} args))]
     (when-not skip
       (trace "perm checking" f args)
-      (if (is-system? system) 
+      (if (is-system? system)
         (assert-access system)
-        (assert-access (get-system id :skip-assert)))) 
+        (assert-access (get-system id :skip-assert))))
     (if skip (apply f (butlast args)) (apply f args))))
 
-(defn decrease-quota 
-   "reducing usage quotas for owning user on delete" 
+(defn decrease-quota
+   "reducing usage quotas for owning user on delete"
    [f & args]
   (let [system (first (filter map? args))]
    (when (is-system? system) (q/decrease-use system)))
    (apply f args))
 
-(defn increase-quota 
-   "reducing usage quotas for owning user on delete" 
+(defn increase-quota
+   "reducing usage quotas for owning user on delete"
    [f & args]
-   (if (map? (first args)) 
-     (let [id (apply f args) spec (first args)]  
+   (if (map? (first args))
+     (let [id (apply f args) spec (first args)]
        (q/quota-assert spec)
        (q/increase-use spec) id)
      (apply f args)))
 
 (defn es-put
-   "runs a specified es function on system fn call" 
+   "runs a specified es function on system fn call"
    [f & args]
-     (if (map? (first args)) 
-      (let [id (apply f args) spec (first args)]  
+     (if (map? (first args))
+      (let [id (apply f args) spec (first args)]
         (es/put (str id) spec) id)
       (apply f args)))
 
 (defn es-delete
-   "reducing usage quotas for owning user on delete" 
+   "reducing usage quotas for owning user on delete"
    [f & args]
   (let [system (first (filter map? args)) id (first (filter number? args))]
-   (when-not (is-system? system) 
+   (when-not (is-system? system)
      (es/delete (str id) :flush? true)))
    (apply f args))
 
@@ -117,7 +118,7 @@
 
 (def system-base {
    :owner #{:required :user-exists}
-   :type #{:required :type-exists} 
+   :type #{:required :type-exists}
    :env #{:required :Keyword}
   })
 
@@ -126,12 +127,12 @@
   (validate! system system-base :error ::non-valid-system)
   (check-validity system))
 
-(defn clone-system 
+(defn clone-system
   "clones an existing system"
   [id {:keys [hostname owner] :as spec}]
-  (add-system 
-    (-> (get-system id) 
-      (assoc :owner owner) 
+  (add-system
+    (-> (get-system id)
+      (assoc :owner owner)
       (assoc-in [:machine :hostname] hostname)
       (clone spec))))
 
@@ -143,7 +144,7 @@
       (flatten (map #(get-system-index :env (keyword %)) envs))
       (get-system-index :owner username))))
 
-(defn re-index 
+(defn re-index
    "Re-indexes all systems available to the current user under elasticsearch."
    [username]
    (es/re-index (map #(vector % (get-system %)) (systems-for username))))
@@ -152,17 +153,17 @@
 (defrecord EnvIndices [identifier]
   Migration
   (apply- [this]
-    (doseq [id (systems-for "admin")]  
-      (update-system id (update-in (get-system id) [:env] keyword))))  
-  (rollback [this])) 
+    (doseq [id (systems-for "admin")]
+      (update-system id (update-in (get-system id) [:env] keyword))))
+  (rollback [this]))
 
 ; triggering owner indexing and setting default to admin
 (defrecord OwnerIndices [identifier]
   Migration
   (apply- [this]
-    (doseq [id (systems-for "admin")]  
+    (doseq [id (systems-for "admin")]
       (when-not ((get-system id) :owner)
-        (update-system id (assoc (get-system id) :owner "admin")))))  
+        (update-system id (assoc (get-system id) :owner "admin")))))
   (rollback [this]))
 
 ; index all existing systems into ES
