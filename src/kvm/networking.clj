@@ -56,7 +56,7 @@
    (let [uuid (gen-uuid) nat (nat-ip c id node)
          cmd (<< "ssh ~{ignore-authenticity} ~{user}@~{nat} -C 'ifconfig ~{public-nic}'")]
      (execute cmd node :out-fn (collect-log uuid))
-     (if-let [ip (second (re-matches #".*addr\:(\d+\.\d+\.\d+\.\d+).*" (inet-line (get-log uuid))))]
+     (if-let [ip (second (re-matches #".*addr\:(\d+\.\d+\.\d+\.\d+).*" (or (inet-line (get-log uuid)) "")))]
         ip
         (throw+ {:type ::kvm:networking} "Failed to grab domain public IP")
         )))
