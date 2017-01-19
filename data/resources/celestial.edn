@@ -95,7 +95,7 @@
 
     :kvm  {
        :nodes {
-          :remote {:username "ronen" :host "somehost" :port 22}
+          :remote {:username "ronen" :host "localhost" :port 22}
         }
        :ostemplates {
           :ubuntu-16.04 {:template "ubuntu-16.04" :flavor :debian}
