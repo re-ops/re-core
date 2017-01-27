@@ -12,7 +12,6 @@
 (ns celestial.redis
   "Redis utilities like a distributed lock, connection managment and ref watcher"
   (:use
-    [flatland.useful.map :on map-vals]
     [clojure.set :only (difference)]
     [flatland.useful.utils :only (defm)]
     [celestial.common :only (get! curr-time gen-uuid half-hour minute)]
