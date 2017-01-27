@@ -2,7 +2,7 @@
 
 Celestial is a provisioning server for reliable automated infra management, it enables you to integrate hypervisors, configuration managments and deployment tools into a chohesive, servicable systems.
 
-For how to get started and more info please check [celestial-ops.com](http://celestial-ops.com)
+For how to get started and more info please check [this](https://celestial-ops.github.io/landing/)
 
 [![Build Status](https://travis-ci.org/celestial-ops/celestial-core.png)](https://travis-ci.org/celestial-ops/celestial-core)
 
@@ -35,7 +35,7 @@ user => (reset)
 
 # Copyright and license
 
-Copyright [2013] [Ronen Narkis]
+Copyright [2017] [Ronen Narkis]
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
