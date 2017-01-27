@@ -38,7 +38,7 @@
        :on-error
        :max-retry 5
        :message "Error while trying to connect to Elasticsearch"
-       :log-errors false
+       :log-errors true
        :retry-delay [:random-range :min 2000 :max 5000])))
 
 (defn stop
