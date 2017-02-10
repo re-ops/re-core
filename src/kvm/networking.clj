@@ -11,6 +11,7 @@
 
 (ns kvm.networking
   (:require
+    [clojure.tools.trace :as t]
     [celestial.provider :refer (wait-for)]
     [slingshot.slingshot :refer [throw+]]
     [taoensso.timbre :as timbre]
@@ -34,8 +35,9 @@
    [c id node]
    (let [[nic mac] (first (macs c id)) uuid (gen-uuid)]
      (execute (<< "arp -i ~{nic}") node :out-fn (collect-log uuid))
-     (when-let [line (first (filter #(.contains % mac) (get-log uuid)))]
+     (if-let [line (first (filter #(.contains % mac) (get-log uuid)))]
        (first (.split line "\\s" ))
+	 (do (debug (<< "no ip found for ~{mac}")) nil)
        )))
 
 (defn wait-for-nat [c id node timeout]
