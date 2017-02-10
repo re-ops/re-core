@@ -11,6 +11,7 @@
 
 (ns kvm.provider
   (:require 
+    [safely.core :refer [safely]]
     [kvm.validations :refer (provider-validation)]
     [clojure.core.strint :refer (<<)] 
     [kvm.clone :refer (clone-domain)]
@@ -29,10 +30,17 @@
 (timbre/refer-timbre)
 
 (defn connection [{:keys [host user port]}] 
-  (connect (<< "qemu+ssh://~{user}@~{host}:~{port}/system")))
+    (safely
+       (connect (<< "qemu+ssh://~{user}@~{host}:~{port}/system"))
+       :on-error
+       :log-errors false
+       :max-retry 5
+       :message "Error while trying to connect to libvirt"
+       :retry-delay [:random-range :min 200 :max 500]))
 
 (defmacro with-connection [& body]
-  `(let [~'connection (connection ~'node)] (do ~@body)))
+  `(let [~'connection (connection ~'node)] 
+      (do ~@body)))
 
 (defn wait-for-status [instance req-stat timeout]
   "Waiting for ec2 machine status timeout is in mili"
