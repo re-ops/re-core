@@ -11,7 +11,6 @@
 
 (ns kvm.networking
   (:require
-    [clojure.tools.trace :as t]
     [celestial.provider :refer (wait-for)]
     [slingshot.slingshot :refer [throw+]]
     [taoensso.timbre :as timbre]
