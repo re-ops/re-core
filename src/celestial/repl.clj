@@ -7,6 +7,7 @@
     [celestial.security :refer (set-user current-user)]
     [taoensso.timbre  :as timbre :refer (set-level!)]
     [io.aviso.columns :refer (format-columns write-rows)]
+    [io.aviso.ansi :refer :all]
     ))
 
 (set-level! :debug)
@@ -44,9 +45,9 @@
 (def systems (Systems.))
 
 (defrecord Types [] Repl 
-  (ls [this])
-  (ls [this & opts]
-   (clojure.pprint/pprint {:types (map t/get-type (t/all-types))}))
+  (ls [this]
+    {:types (map t/get-type (t/all-types))})
+  (ls [this & opts])
   (find [& opts])
   (rm [& opts]))
 
@@ -55,13 +56,28 @@
 (defn select-keys* [m & paths]
   (into {} (map (fn [p] [(last p) (get-in m p)])) paths))
 
-(defn format-systems 
-  [{:keys [meta systems]}]
-  (let [formatter (format-columns  [:right 10] "  "  [:right 5] "  " :none)
-        systems' (map #(select-keys* % [:owner] [:machine :hostname] [:machine :os]) (map second systems))]
-      (write-rows *out* formatter  [:hostname :owner :os] systems')))
+
+
+(defmulti pretty 
+  (fn [m] (clojure.set/intersection (into #{} (keys m)) #{:systems :types})))
+
+(defn render [[id m]]
+ (-> m 
+   (select-keys* [:owner] [:machine :hostname] [:machine :os] [:machine :ip])
+   (assoc :id id)))
+
+(defmethod pretty #{:systems} [{:keys [meta systems]}]
+  (let [formatter (format-columns blue-font [:right 10] "  " reset-font [:right 2] "  "[:right 5] "  " [:right 12] "  " :none)]
+    (write-rows *out* formatter [:hostname :id :owner :os :ip] (map render systems))))
+
+(defmethod pretty #{:systems} [{:keys [meta systems]}]
+  (let [formatter (format-columns blue-font [:right 10] "  " reset-font [:right 2] "  "[:right 5] "  " [:right 12] "  " :none)]
+    (write-rows *out* formatter [:hostname :id :owner :os :ip] (map render systems))))
  
-(ls types :foo 1)
-(format-systems (ls systems))
-;; (ls types)
+(defmethod pretty #{:types} [{:keys [types]}]
+  (let [formatter (format-columns bold-white-font [:right 10] "  " reset-font [:right 10] "  "[:right 20] :none)]
+    (write-rows *out* formatter [:type (comp first keys) :description] types)))
+
+(pretty (ls types))
+(pretty (ls systems))
  
