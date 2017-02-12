@@ -78,6 +78,6 @@
   (let [formatter (format-columns bold-white-font [:right 10] "  " reset-font [:right 10] "  "[:right 20] :none)]
     (write-rows *out* formatter [:type (comp first keys) :description] types)))
 
-(pretty (ls types))
-(pretty (ls systems))
+;; (pretty (ls types))
+;; (pretty (ls systems))
  
