@@ -77,6 +77,8 @@
                  [metrics-clojure-health "2.5.1"]
                  [metrics-clojure-jvm "2.5.1"]
                  [metrics-clojure-ring "2.5.1"]
+                 ; repl
+                 [io.aviso/pretty "0.1.33"]
                ]
 
   :exclusions [org.clojure/clojure com.taoensso/timbre commons-codec]
