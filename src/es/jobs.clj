@@ -1,4 +1,4 @@
-(comment 
+(comment
    Celestial, Copyright 2012 Ronen Narkis, narkisr.com
    Licensed under the Apache License,
    Version 2.0  (the "License") you may not use this file except in compliance with the License.
@@ -31,21 +31,21 @@
    [id]
   (doc/delete @ES index "jobs" id))
 
-(defn get 
+(defn get
    "Grabs a system by an id"
    [id]
   (doc/get @ES index "jobs" id))
 
-(defn query-envs 
-   "maps envs to query form terms" 
+(defn query-envs
+   "maps envs to query form terms"
    [envs]
    (map (fn [e] {:term {:env (name e)}}) envs))
 
 (defn paginate
-   "basic query string" 
+   "basic query string"
    [from size envs]
   (let [q {:bool {:minimum_should_match 1 :should (query-envs envs)}}]
     (:hits
       (doc/search @ES index "jobs" {
           :from from :size size :query q :sort {:end "desc"}
-        })))) 
+        }))))

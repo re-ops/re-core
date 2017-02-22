@@ -79,6 +79,7 @@
                  [metrics-clojure-ring "2.5.1"]
                  ; repl
                  [io.aviso/pretty "0.1.33"]
+                 [progrock "0.1.1"]
                ]
 
   :exclusions [org.clojure/clojure com.taoensso/timbre commons-codec]
