@@ -10,23 +10,23 @@
 
 (ns celestial.jobs
   (:refer-clojure :exclude [identity])
-  (:use   
+  (:use
     [gelfino.timbre :only (set-tid)]
     [clojure.core.strint :only (<<)]
     [celestial.common :only (get* minute import-logging)]
     [taoensso.carmine.locks :as with-lock])
-  (:require  
+  (:require
     [celestial.persistency.systems :as s]
     [es.jobs :as es]
     [flatland.useful.map :refer (map-vals filter-vals)]
     [minderbinder.time :refer (parse-time-unit)]
     [puny.core :refer (entity)]
-    [celestial.workflows :as wf]  
+    [celestial.workflows :as wf]
     [celestial.security :refer (set-user)]
     [celestial.model :refer (set-env operations)]
     [taoensso.carmine :as car]
     [taoensso.carmine.message-queue :as mq]
-    [components.core :refer (Lifecyle)] 
+    [components.core :refer (Lifecyle)]
     [celestial.redis :refer (create-worker wcar server-conn clear-locks)]
     ))
 
@@ -36,16 +36,16 @@
 
 (def defaults {:wait-time 5 :expiry 30})
 
-(defn job* 
+(defn job*
   "Get job conf value"
    [& ks]
    (get-in (get* :celestial :job) ks))
 
 (defn save-status
-   "marks jobs as succesful" 
+   "marks jobs as succesful"
    [spec status]
   (let [status-exp (* 1000 60 (or (job* :status-expiry) (* 24 60)))]
-    (es/put (merge spec {:status status :end (System/currentTimeMillis)}) status-exp :flush? true) 
+    (es/put (merge spec {:status status :end (System/currentTimeMillis)}) status-exp :flush? true)
     (trace "saved status" (merge spec {:status status :end (System/currentTimeMillis)}))
     {:status status}))
 
@@ -54,18 +54,18 @@
   (let [{:keys [identity args tid env user] :as spec} message]
     (set-user user
       (set-env env
-        (set-tid tid 
+        (set-tid tid
            (let [{:keys [wait-time expiry]} (map-vals (or (job* :lock) defaults) #(* minute %))
                  hostname (when identity (get-in (s/get-system identity) [:machine :hostname]))
                  spec' (merge spec (meta f) {:start (System/currentTimeMillis) :hostname hostname})]
-            (try 
+            (try
               (if identity
                 (do (with-lock (server-conn) identity expiry wait-time (apply f args))
-                    (save-status spec' :success)) 
-                (do (apply f args) 
-                    (save-status spec' :success))) 
-              (catch Throwable e 
-                (error e) 
+                    (save-status spec' :success))
+                (do (apply f args)
+                    (save-status spec' :success)))
+              (catch Throwable e
+                (error e)
                 (save-status spec' :error)
                 ))))))))
 
@@ -75,7 +75,7 @@
    :start [wf/start 2] :stop [wf/stop 2] :clear [wf/clear 1] :clone [wf/clone 1]})
 
 (defn apply-config [js]
-  {:post [(= (into #{} (keys %)) operations)]} 
+  {:post [(= (into #{} (keys %)) operations)]}
   (reduce (fn [m [k [f c]]] (assoc m k [f (or (job* :workers k) c)])) {} js))
 
 (defn create-wks [queue f total]
@@ -90,11 +90,11 @@
   (info "Clearing job queues")
   (apply mq/clear-queues (server-conn) (mapv name (keys (jobs)))))
 
-(defn enqueue 
+(defn enqueue
   "Placing job in redis queue"
-  [queue payload] 
+  [queue payload]
   {:pre [(contains? (jobs) (keyword queue))]}
-  (trace "submitting" payload "to" queue) 
+  (trace "submitting" payload "to" queue)
   (wcar (mq/enqueue queue payload)))
 
 (defn status [queue uuid]
@@ -104,58 +104,58 @@
   {:queued :queued :locked :processing :recently-done :done :backoff :backing-off nil :unkown})
 
 (defn- message-desc [type js]
-  (mapv 
-    (fn [[jid {:keys [identity args tid env] :as message}]] 
+  (mapv
+    (fn [[jid {:keys [identity args tid env] :as message}]]
       {:type type :status (readable-status (status type jid))
        :env env :id identity :jid jid :tid tid}) (apply hash-map js)))
 
-(defn queue-status 
-  "The entire queue message statuses" 
+(defn queue-status
+  "The entire queue message statuses"
   [job]
   (let [ks [:messages :locks :backoffs]]
-    (reduce 
+    (reduce
       (fn [r message] (into r (message-desc job message))) []
       (apply merge (vals (select-keys (mq/queue-status (server-conn) job) ks))))))
 
 (defn running-jobs-status
-  "Get all jobs status" 
+  "Get all jobs status"
   []
   (reduce (fn [r t] (into r (queue-status (name t)))) [] (keys (jobs))))
 
-(defn by-env 
-   "filter jobs status by envs" 
+(defn by-env
+   "filter jobs status by envs"
    [envs js]
    (filter (fn [{:keys [env]}] (envs env)) js))
 
 (defn jobs-status [envs]
-  (map-vals  
+  (map-vals
     {:jobs (running-jobs-status)}
     (partial by-env (into #{} envs))))
 
 (defn shutdown-workers []
   (doseq [[k ws] @workers]
     (doseq [w ws]
-      (trace "Shutting down" k w) 
+      (trace "Shutting down" k w)
       (mq/stop w))))
 
 (defrecord Jobs
   []
   Lifecyle
-  (setup [this]) 
-  (start [this] 
+  (setup [this])
+  (start [this]
     (info "Starting job workers")
     (when (= (job* :reset-on) :start)
-      (clear-queues) 
+      (clear-queues)
       (clear-locks))
       (initialize-workers))
   (stop [this]
     (info "Stopping job workers")
     (shutdown-workers)
     (when (= (job* :reset-on) :stop)
-      (clear-queues) 
+      (clear-queues)
       (clear-locks))))
 
-(defn instance 
-   "Creates a jobs instance" 
+(defn instance
+   "Creates a jobs instance"
    []
   (Jobs.))

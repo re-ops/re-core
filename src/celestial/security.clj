@@ -1,4 +1,4 @@
-(comment 
+(comment
    Celestial, Copyright 2012 Ronen Narkis, narkisr.com
    Licensed under the Apache License,
    Version 2.0  (the "License") you may not use this file except in compliance with the License.
@@ -10,11 +10,11 @@
    limitations under the License.)
 
 (ns celestial.security
-  (:use 
+  (:use
     [celestial.common :only (gen-uuid)]
     [gelfino.timbre :only (set-tid)]
     [celestial.common :only (import-logging)])
-  (:require 
+  (:require
     [slingshot.slingshot :refer  [throw+ try+]]
     [celestial.roles :as roles]
     [celestial.persistency.users :as u]
@@ -25,8 +25,8 @@
 
 (import-logging)
 
-(def ^:dynamic current-user 
-   "Grab current user, by default uses friend unless binded differently" 
+(def ^:dynamic current-user
+   "Grab current user, by default uses friend unless binded differently"
    (fn [] (friend/current-authentication)))
 
 (defmacro set-user [u & body] `(binding [current-user (fn [] ~u)] ~@body))
@@ -44,7 +44,7 @@
          param (<< "&login_failed=Y&user=~{user}")]
    (ring.util.response/redirect (<< "/login?~{param}"))))
 
-(defn sign-in-resp 
+(defn sign-in-resp
    [req]
    {:status 401 :body "please sign in first"})
 
@@ -52,23 +52,23 @@
   {:post [(not-empty (% :password ))]}
   (u/get-user! id))
 
-(defn check-creds 
-   "Runs bcrypt password check if user exists" 
+(defn check-creds
+   "Runs bcrypt password check if user exists"
   [creds]
   (if (u/user-exists? (:username creds))
-    (try 
+    (try
       (creds/bcrypt-credential-fn user-with-pass creds)
-      (catch IllegalArgumentException e 
+      (catch IllegalArgumentException e
        (throw+ {} "Please ask admin to reset your password, persisted hashed version has been correupted")))
-   
+
     nil))
 
 (defn secured-app [routes]
-  (friend/authenticate 
-    (friend/wrap-authorize (user-tracking routes) roles/user) 
+  (friend/authenticate
+    (friend/wrap-authorize (user-tracking routes) roles/user)
     {:allow-anon? false
      :credential-fn check-creds
-     :unauthenticated-handler sign-in-resp 
+     :unauthenticated-handler sign-in-resp
      :workflows [
         (workflows/interactive-form :login-failure-handler login-redirect)
         (workflows/http-basic :realm "basic-celestial")]}))

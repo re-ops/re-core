@@ -1,18 +1,17 @@
 {
- :env :dev 
+ :env :dev
 
  :owner "admin"
 
  :machine {
-  :hostname "red1" :user "ubuntu" 
-  :domain "local" :os :ubuntu-14.04
+  :hostname "red1" :user "ubuntu"
+  :domain "local" :os :ubuntu-15.04
  }
 
  :aws {
-  :instance-type "t1.micro" 
-  :key-name "Uranus" 
+  :instance-type "t1.micro"
+  :key-name "enceladus"
   :endpoint "ec2.eu-west-1.amazonaws.com"
-  ;; :availability-zone "eu-west-1a"
   :security-groups ["default"]
   :ebs-optimized false
  }

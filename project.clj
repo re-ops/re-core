@@ -112,7 +112,7 @@
         :resource-paths  ["src/main/resources/" "pkg/etc/celestial/"]
         :source-paths  ["dev"]
         :test-paths  []
- 
+
      }
 
      :dev {
@@ -122,8 +122,9 @@
 
         :aot [remote.capistrano remote.ruby freenas.provider kvm.provider
               aws.provider physical.provider openstack.provider
-              celestial.core celestial.puppet-standalone celestial.launch]
- 
+              celestial.core celestial.puppet-standalone celestial.launch
+              celestial.repl.base]
+
         :test-paths ["test" "data"]
         :source-paths  ["dev"]
         :resource-paths  ["src/main/resources/" "pkg/etc/celestial/"]
@@ -133,7 +134,7 @@
         :plugins [[lein-midje "3.1.3"]]
         :jvm-opts ~(vec (map (fn [[p v]] (str "-D" (name p) "=" v)) {:disable-conf "true" }))
         :set-version {
-           :updates [ 
+           :updates [
              {:path "project.clj" :search-regex #"\"target\/celestial-\d+\.\d+\.\d+\.jar"}
              {:path "src/celestial/common.clj" :search-regex #"\"\d+\.\d+\.\d+\""}]}
 
@@ -141,7 +142,7 @@
       }
 
      :prod {
-        :resource-paths  ["src/main/resources/" "pkg/etc/celestial/"] 
+        :resource-paths  ["src/main/resources/" "pkg/etc/celestial/"]
 
 
         :aot [remote.capistrano remote.ruby freenas.provider kvm.provider
@@ -155,11 +156,11 @@
 
   :aliases {"celestial" ["with-profile" "prod" "do" "compile," "trampoline" "run"]
             "remote-repl" ["repl" ":connect" "celestial:7888"]
-            "autotest" ["midje" ":autotest" ":filter" "-integration"] 
-            "runtest" ["midje" ":filter" "-integration"] 
+            "autotest" ["midje" ":autotest" ":filter" "-integration"]
+            "runtest" ["midje" ":filter" "-integration"]
             "populate" ["with-profile" "populate" "do" "run" "-m" "celestial.fixtures.populate"]
             ; https://github.com/stuartsierra/reloaded workflow
-            "dev-repl" ["with-profile" "refresh" "do" "clean," "repl"] 
+            "dev-repl" ["with-profile" "refresh" "do" "clean," "repl"]
             }
 
 
