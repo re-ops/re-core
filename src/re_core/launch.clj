@@ -28,7 +28,6 @@
     [es.core :as es]
     [re-core.metrics :as met]
     [re-core.jobs :as jobs]
-    [re-core.api.core :as api]
     [re-core.schedule :as sch] 
     ))
 
@@ -59,7 +58,7 @@
 
 (defn build-components []
   {:es (es/instance) :jobs (jobs/instance) 
-   :jetty (api/instance) :metrics (met/instance)
+   :metrics (met/instance)
    :persistency (p/instance) :schedule (sch/instance)})
 
 (defn clean-up 

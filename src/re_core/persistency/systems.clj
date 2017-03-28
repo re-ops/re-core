@@ -24,7 +24,6 @@
     [physical.validations :as ph]
     [kvm.validations :as kv]
     [freenas.validations :as fv]
-    [openstack.validations :as ov]
     [aws.validations :as av]
     [subs.core :as subs :refer (validate! validation when-not-nil)]
     [puny.core :refer (entity)]

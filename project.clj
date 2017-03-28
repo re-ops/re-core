@@ -120,10 +120,8 @@
           :timeout 120000
         }
 
-        :aot [remote.capistrano remote.ruby freenas.provider kvm.provider
-              aws.provider physical.provider openstack.provider
-              re-core.core re-core.puppet-standalone re-core.launch
-              re-core.repl.base]
+        :aot [kvm.provider aws.provider physical.provider digital.provider
+              re-core.core re-core.puppet-standalone re-core.launch re-core.repl.base]
 
         :test-paths ["test" "data"]
         :source-paths  ["dev"]

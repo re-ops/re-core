@@ -24,12 +24,9 @@
     freenas.provider
     aws.provider
     physical.provider
-    openstack.provider
     re-core.puppet_standalone
-    remote.capistrano remote.ruby
     ;cloning
     aws.model
-    openstack.model
     [re-core.persistency.systems :as s]
     [clojure.tools.macro :as tm]
     [metrics.timers :refer  [deftimer time!]])
