@@ -15,7 +15,6 @@
     [cemerick.friend.credentials :as creds]
     [re-core.roles :refer (roles admin)]
     [re-core.common :refer (import-logging)]
-    [cemerick.friend :as friend]
     [subs.core :as subs :refer (validate! combine when-not-nil validation every-v every-kv)]
     [puny.core :refer (entity)]
     [clojure.core.strint :refer (<<)]
@@ -78,7 +77,7 @@
      })))
 
 (defn curr-user []
-  (:username (friend/current-authentication)))
+  (:username "admin"))
 
 (defn op-allowed?
    "Checks if user can perform an operation" 

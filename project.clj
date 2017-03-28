@@ -5,6 +5,7 @@
 
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [clj-config "0.2.0" ]
+
                  ; utils
                  [me.raynes/fs "1.4.6"]
                  [robert/hooke "1.3.0"]
@@ -14,37 +15,32 @@
                  [org.flatland/useful "0.10.3"]
                  [org.clojure/tools.macro "0.1.5"]
                  [org.clojure/java.data "0.1.1"]
+
                  ; templating
                  [selmer "0.8.2"]
                  [com.palletops/stevedore "0.8.0-beta.5"]
                  [camel-snake-kebab "0.1.2"]
+
                  ; logging
                  [com.narkisr/gelfino-client "0.8.1"]
                  [com.taoensso/timbre "4.1.4"]
                  [ch.qos.logback/logback-classic "1.1.3"]
                  [org.codehaus.groovy/groovy "2.4.3"]
+
                  ; hooks/remoting
                  [clj-http "0.7.6"]
                  [http-kit "2.1.18"]
                  [supernal "0.6.1"]
                  [conjul "0.0.2"]
+
                  ;api
-                 [swag "0.2.7"]
                  [clj-yaml "0.4.0"]
                  [org.clojure/data.json "0.2.2" ]
-                 ; ring
-                 [ring-middleware-format "0.5.0"]
-                 [ring/ring-jetty-adapter "1.3.2"]
-                 [ring "1.3.2"]
-                 [compojure "1.3.4" :exclusions  [ring/ring-core]]
-                 ; ring security
-                 [com.cemerick/friend "0.2.1"]
-                 [ring/ring-session-timeout "0.1.0"]
-                 [ring/ring-headers "0.1.0"]
+
                  ; hypervisors
                  [narkisr/digitalocean "1.3"]
-                 [org.pacesys/openstack4j "2.0.3"]
                  [amazonica "0.3.13" ]
+
                  ; gce
                  [com.google.http-client/google-http-client-jackson2 "1.21.0"]
                  [com.google.apis/google-api-services-compute "v1-rev88-1.21.0"]
@@ -52,11 +48,13 @@
                  [com.google.oauth-client/google-oauth-client-java6 "1.21.0"]
                  [com.google.oauth-client/google-oauth-client-jetty "1.21.0"]
                  [com.fasterxml.jackson.core/jackson-core "2.6.4"]
+
                  ; libvirt
                  [org.clojure/data.xml "0.0.8"]
                  [org.clojure/data.zip "0.1.1"]
                  [net.java.dev.jna/jna "4.2.0"]
                  [org.libvirt/libvirt "0.5.1"]
+
                  ; persistency and model
                  [com.brunobonacci/safely "0.2.4"]
                  [com.google.guava/guava "18.0"]
@@ -67,19 +65,22 @@
                  [substantiation "0.3.1"]
                  [fogus/minderbinder "0.2.0"]
                  [org.clojure/core.logic "0.8.10"]
+
                  ; scheduling
                  [jarohen/chime "0.1.6" :exclusions [org.clojure/core.async]]
                  [org.clojure/core.async "0.1.346.0-17112a-alpha"]
-                 ; remote managment
+
+                 ; repl
                  [org.clojure/tools.nrepl "0.2.10"]
+                 [io.aviso/pretty "0.1.33"]
+                 [progrock "0.1.1"]
+
                  ; metrics
                  [metrics-clojure "2.5.1"]
                  [metrics-clojure-health "2.5.1"]
                  [metrics-clojure-jvm "2.5.1"]
                  [metrics-clojure-ring "2.5.1"]
-                 ; repl
-                 [io.aviso/pretty "0.1.33"]
-                 [progrock "0.1.1"]
+
                ]
 
   :exclusions [org.clojure/clojure com.taoensso/timbre commons-codec]
@@ -144,8 +145,8 @@
 
 
         :aot [remote.capistrano remote.ruby freenas.provider kvm.provider
-              aws.provider physical.provider openstack.provider
-              re-core.core re-core.puppet-standalone re-core.launch]
+              aws.provider physical.provider re-core.core re-core.puppet-standalone
+              re-core.launch]
 
         :main re-core.launch
       }

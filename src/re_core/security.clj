@@ -18,10 +18,7 @@
     [slingshot.slingshot :refer  [throw+ try+]]
     [re-core.roles :as roles]
     [re-core.persistency.users :as u]
-    [clojure.core.strint :refer (<<)]
-    [cemerick.friend :as friend]
-    (cemerick.friend [workflows :as workflows]
-                     [credentials :as creds])))
+    [clojure.core.strint :refer (<<)]))
 
 (import-logging)
 
@@ -38,16 +35,6 @@
       (info request-method " on " uri "by" (current-user))
       (app req))))
 
-(defn login-redirect
-  [{:keys [form-params params] :as request}]
-  (let [ user (java.net.URLEncoder/encode (or (get form-params "username") (:username params "")))
-         param (<< "&login_failed=Y&user=~{user}")]
-   (ring.util.response/redirect (<< "/login?~{param}"))))
-
-(defn sign-in-resp
-   [req]
-   {:status 401 :body "please sign in first"})
-
 (defn user-with-pass [id]
   {:post [(not-empty (% :password ))]}
   (u/get-user! id))
@@ -62,14 +49,4 @@
        (throw+ {} "Please ask admin to reset your password, persisted hashed version has been correupted")))
 
     nil))
-
-(defn secured-app [routes]
-  (friend/authenticate
-    (friend/wrap-authorize (user-tracking routes) roles/user)
-    {:allow-anon? false
-     :credential-fn check-creds
-     :unauthenticated-handler sign-in-resp
-     :workflows [
-        (workflows/interactive-form :login-failure-handler login-redirect)
-        (workflows/http-basic :realm "basic-re-core")]}))
 
