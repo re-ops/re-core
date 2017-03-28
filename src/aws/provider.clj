@@ -1,5 +1,5 @@
 (comment 
-  Celestial, Copyright 2012 Ronen Narkis, narkisr.com
+  re-core, Copyright 2012 Ronen Narkis, narkisr.com
   Licensed under the Apache License,
   Version 2.0  (the "License") you may not use this file except in compliance with the License.
   You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -22,11 +22,11 @@
     [flatland.useful.utils :refer (defm)] 
     [flatland.useful.map :refer (dissoc-in*)] 
     [slingshot.slingshot :refer  [throw+ try+]] 
-    [celestial.provider :refer (wait-for wait-for-ssh map-key)] 
-    [celestial.core :refer (Vm)] 
+    [re-core.provider :refer (wait-for wait-for-ssh map-key)] 
+    [re-core.core :refer (Vm)] 
     [taoensso.timbre :as timbre]
-    [celestial.persistency.systems :as s]
-    [celestial.model :refer (translate vconstruct)]))
+    [re-core.persistency.systems :as s]
+    [re-core.model :refer (translate vconstruct)]))
 
 (timbre/refer-timbre)
 

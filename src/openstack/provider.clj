@@ -1,5 +1,5 @@
 (comment 
-   Celestial, Copyright 2012 Ronen Narkis, narkisr.com
+   re-core, Copyright 2012 Ronen Narkis, narkisr.com
    Licensed under the Apache License,
    Version 2.0  (the "License") you may not use this file except in compliance with the License.
    You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -12,17 +12,17 @@
 (ns openstack.provider
   (:require 
     [slingshot.slingshot :refer [throw+]]
-    [celestial.persistency.systems :as s :refer (system-val)]
-    [celestial.common :refer (import-logging)]
+    [re-core.persistency.systems :as s :refer (system-val)]
+    [re-core.common :refer (import-logging)]
     [openstack.networking :refer 
       (first-ip update-ip assoc-floating dissoc-floating allocate-floating update-floating)]
     [clojure.java.data :refer [from-java]]
-    [celestial.provider :refer (wait-for wait-for-ssh wait-for-stop running? wait-for-start)]
+    [re-core.provider :refer (wait-for wait-for-ssh wait-for-stop running? wait-for-start)]
     [openstack.validations :refer (provider-validation)]
-    [celestial.core :refer (Vm)] 
+    [re-core.core :refer (Vm)] 
     [openstack.volumes :as v]
     [openstack.common :refer (openstack servers compute)]
-    [celestial.model :refer (hypervisor translate vconstruct)])
+    [re-core.model :refer (hypervisor translate vconstruct)])
   (:import 
     org.openstack4j.model.compute.Server$Status
     org.openstack4j.model.compute.Action

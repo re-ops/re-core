@@ -1,7 +1,7 @@
 (ns openstack.common
   "common openstack api access"
   (:require 
-    [celestial.model :refer (hypervisor)]
+    [re-core.model :refer (hypervisor)]
     )
   (:import 
     org.openstack4j.openstack.OSFactory

@@ -1,5 +1,5 @@
 (comment 
-  Celestial, Copyright 2012 Ronen Narkis, narkisr.com
+  re-core, Copyright 2012 Ronen Narkis, narkisr.com
   Licensed under the Apache License,
   Version 2.0  (the "License") you may not use this file except in compliance with the License.
   You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -15,11 +15,11 @@
      [slingshot.slingshot :refer (throw+)]
      [digital.validations :refer (provider-validation)]
      [clojure.core.strint :refer (<<)]
-     [celestial.model :refer (translate vconstruct hypervisor*)]
-     [celestial.provider :refer (mappings transform selections os->template wait-for wait-for-ssh wait-for-start wait-for-stop)]
-     [celestial.persistency.systems :as s :refer (system-val)]
-     [celestial.common :refer (import-logging get*)]
-     [celestial.core :refer (Vm)]
+     [re-core.model :refer (translate vconstruct hypervisor*)]
+     [re-core.provider :refer (mappings transform selections os->template wait-for wait-for-ssh wait-for-start wait-for-stop)]
+     [re-core.persistency.systems :as s :refer (system-val)]
+     [re-core.common :refer (import-logging get*)]
+     [re-core.core :refer (Vm)]
      [digitalocean.v2.core :as do]))
 
 (import-logging)

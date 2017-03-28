@@ -1,5 +1,5 @@
 (comment 
-  Celestial, Copyright 2012 Ronen Narkis, narkisr.com
+  re-core, Copyright 2012 Ronen Narkis, narkisr.com
   Licensed under the Apache License,
   Version 2.0  (the "License") you may not use this file except in compliance with the License.
   You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -19,12 +19,12 @@
     [kvm.common :refer (connect get-domain domain-zip state)]
     [kvm.networking :refer (public-ip)]
     [supernal.sshj :refer (ssh-up?)]
-    [celestial.core :refer (Vm)] 
+    [re-core.core :refer (Vm)] 
     [taoensso.timbre :as timbre]
-    [celestial.persistency.systems :as s]
-    [celestial.provider :refer (mappings selections transform os->template wait-for wait-for-ssh)]
+    [re-core.persistency.systems :as s]
+    [re-core.provider :refer (mappings selections transform os->template wait-for wait-for-ssh)]
     [hypervisors.networking :refer (set-hostname)]
-    [celestial.model :refer (translate vconstruct hypervisor*)])
+    [re-core.model :refer (translate vconstruct hypervisor*)])
   (:import org.libvirt.LibvirtException))
 
 (timbre/refer-timbre)

@@ -1,5 +1,5 @@
 (comment 
-   Celestial, Copyright 2012 Ronen Narkis, narkisr.com
+   re-core, Copyright 2012 Ronen Narkis, narkisr.com
    Licensed under the Apache License,
    Version 2.0  (the "License") you may not use this file except in compliance with the License.
    You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -15,15 +15,15 @@
     [supernal.core :refer (ns- lifecycle run execute env)]
     [taoensso.timbre :as timbre]
     [clojure.core.strint :refer (<<)] 
-    [celestial.provider :refer (wait-for-ssh mappings wait-for)]
+    [re-core.provider :refer (wait-for-ssh mappings wait-for)]
     [freenas.remote :refer [call]]
     [freenas.validations :refer [validate-provider jail-mappings]]
     [slingshot.slingshot :refer  [throw+]]
-    [celestial.persistency.systems :as s]
+    [re-core.persistency.systems :as s]
     [org.httpkit.client :as client]
-    [celestial.core :refer (Vm)] 
-    [celestial.common :refer (get*)]
-    [celestial.model :refer (hypervisor* hypervisor translate vconstruct)])
+    [re-core.core :refer (Vm)] 
+    [re-core.common :refer (get*)]
+    [re-core.model :refer (hypervisor* hypervisor translate vconstruct)])
  )
 
 (timbre/refer-timbre)
@@ -60,7 +60,7 @@
       (run (<< "~{jexec} ~{host} sh -c  'pub=\"~{pub}\"; echo \"$pub\" | cat > /root/.ssh/authorized_keys'"))
       (run (<< "~{jexec} ~{host} chmod 700 /root/.ssh && chmod 600 /root/.ssh/authorized_keys")))))
 
-(lifecycle prepare-jail {:doc "preparing jail with ssh and celestial key"}
+(lifecycle prepare-jail {:doc "preparing jail with ssh and re-core key"}
    {jail/add-ssh-key #{} 
     jail/enable-root-ssh #{jail/add-ssh-key}})
 

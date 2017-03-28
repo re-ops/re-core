@@ -1,5 +1,5 @@
 (comment 
-   Celestial, Copyright 2012 Ronen Narkis, narkisr.com
+   re-core, Copyright 2012 Ronen Narkis, narkisr.com
    Licensed under the Apache License,
    Version 2.0  (the "License") you may not use this file except in compliance with the License.
    You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -13,14 +13,14 @@
   "GCing Vm's in openstack"
   (:refer-clojure :exclude [==])
   (:require 
-    [celestial.security :refer (set-user)]
+    [re-core.security :refer (set-user)]
     [clojure.java.data :refer [from-java]]
     [openstack.common :refer (servers)]
-    [celestial.model :refer (set-env)]
-    [celestial.common :refer (import-logging)]
+    [re-core.model :refer (set-env)]
+    [re-core.common :refer (import-logging)]
     [cheshire.core :refer (generate-string)]
     [clojure.core.logic :refer (!= == run* membero fresh featurec run nafc)]
-    [celestial.persistency.systems :as s]))
+    [re-core.persistency.systems :as s]))
 
 (import-logging)
 
@@ -56,7 +56,7 @@
        (== q ?instance-id)))))
 
 (defn cleanup
-  "Clears up instances not managed in Celestial" 
+  "Clears up instances not managed in re-core" 
   [{:keys [tenant env es user]}]
   (set-user {:username user}
     (set-env env

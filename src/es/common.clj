@@ -1,14 +1,14 @@
 (ns es.common
   "type mappings index etc.."
   (:require
-    [celestial.common :refer (envs import-logging)]
+    [re-core.common :refer (envs import-logging)]
     [es.node :as node :refer (ES)]
     [clojurewerkz.elastisch.native.index :as idx])
  )
 
 (import-logging)
 
-(def ^:const index "celestial-systems")
+(def ^:const index "re-core-systems")
 
 (def ^:const types {
   :jobs {

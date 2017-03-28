@@ -1,10 +1,10 @@
 # Intro
 
-Celestial is a provisioning server for reliable automated infra management, it enables you to integrate hypervisors, configuration managments and deployment tools into a chohesive, servicable systems.
+re-core is a provisioning server and live environment for setting up cloud/vms instances in a consistent reliable way.
 
 For how to get started and more info please check [this](https://celestial-ops.github.io/landing/)
 
-[![Build Status](https://travis-ci.org/celestial-ops/celestial-core.png)](https://travis-ci.org/celestial-ops/celestial-core)
+[![Build Status](https://travis-ci.org/re-ops/re-core.png)](https://travis-ci.org/re-ops/re-core)
 
 # Developing
 
@@ -19,7 +19,7 @@ $ ./boot.sh
 Launch a demo instance (create a matching ~/.celestial.edn):
 ```bash
 $ lein populate
-$ lein celestial
+$ lein re-core
 # check https://localhost:8443
 ```
 

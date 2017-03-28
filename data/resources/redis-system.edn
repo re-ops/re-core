@@ -4,7 +4,7 @@
   :owner "ronen"
 
   :machine {
-    :hostname "red1" :user "celestial" :domain "local"
+    :hostname "red1" :user "re-core" :domain "local"
     :os :ubuntu-16.04 :cpu 4 :ram 1024
   } 
 

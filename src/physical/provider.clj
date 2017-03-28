@@ -1,5 +1,5 @@
 (comment 
-   Celestial, Copyright 2012 Ronen Narkis, narkisr.com
+   re-core, Copyright 2012 Ronen Narkis, narkisr.com
    Licensed under the Apache License,
    Version 2.0  (the "License") you may not use this file except in compliance with the License.
    You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -19,14 +19,14 @@
     "
   (:require 
     [physical.validations :refer (validate-provider)]
-    [celestial.provider :refer (wait-for-ssh mappings wait-for)]
-    [celestial.common :refer (import-logging bash-)] 
+    [re-core.provider :refer (wait-for-ssh mappings wait-for)]
+    [re-core.common :refer (import-logging bash-)] 
     [clojure.core.strint :refer (<<)] 
     [supernal.sshj :refer (ssh-up? execute)] 
-    [celestial.core :refer (Vm)] 
+    [re-core.core :refer (Vm)] 
     [slingshot.slingshot :refer  [throw+ try+]] 
     [physical.wol :refer (wol)] 
-    [celestial.model :refer (translate vconstruct)] 
+    [re-core.model :refer (translate vconstruct)] 
     ))
 
 (import-logging)

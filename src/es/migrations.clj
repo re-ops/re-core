@@ -1,8 +1,8 @@
 (ns es.migrations
  (:require 
-  [celestial.common :refer (envs)]
+  [re-core.common :refer (envs)]
   [puny.migrations :refer (Migration register)]
-  [celestial.persistency.systems :as s]
+  [re-core.persistency.systems :as s]
   [es.common :refer (initialize)]
   [es.systems :refer (put)]
    

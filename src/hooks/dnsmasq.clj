@@ -1,5 +1,5 @@
 (comment 
-   Celestial, Copyright 2012 Ronen Narkis, narkisr.com
+   re-core, Copyright 2012 Ronen Narkis, narkisr.com
    Licensed under the Apache License,
    Version 2.0  (the "License") you may not use this file except in compliance with the License.
    You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -15,8 +15,8 @@
    * Uses an agent to make sure that only a single action will be performed concurrently. "
   (:require 
      pallet.stevedore.bash
-    [celestial.persistency.systems :as s] 
-    [celestial.common :refer (import-logging bash-)])
+    [re-core.persistency.systems :as s] 
+    [re-core.common :refer (import-logging bash-)])
   (:use 
     [clojure.core.strint :only (<<)]
     [supernal.sshj :only (execute)]))

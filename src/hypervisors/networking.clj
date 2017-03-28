@@ -1,5 +1,5 @@
 (comment
-   Celestial, Copyright 2012 Ronen Narkis, narkisr.com
+   re-core, Copyright 2012 Ronen Narkis, narkisr.com
    Licensed under the Apache License,
    Version 2.0  (the "License") you may not use this file except in compliance with the License.
    You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -16,10 +16,10 @@
     [selmer.filters :refer (add-filter!)]
     [clojure.core.strint :refer [<<]]
     [selmer.parser :refer (render-file)]
-    [celestial.common :refer [get! import-logging]]
-    [celestial.model :refer [hypervisor get-env! set-env]]
+    [re-core.common :refer [get! import-logging]]
+    [re-core.model :refer [hypervisor get-env! set-env]]
     [slingshot.slingshot :refer [throw+ try+]]
-    [celestial.redis :refer [wcar]]
+    [re-core.redis :refer [wcar]]
     [flatland.useful.utils :refer (defm)]
     [taoensso.carmine :as car]))
 
@@ -56,7 +56,7 @@
   (try+
     (let [[s e] (map ip-to-long (hypervisor hyp :generators :ip-range))]
       [s e])
-    (catch [:type :celestial.common/missing-conf] e nil)))
+    (catch [:type :re-core.common/missing-conf] e nil)))
 
 (defn- ips-key [hyp]
   {:pre [(keyword? hyp)]}

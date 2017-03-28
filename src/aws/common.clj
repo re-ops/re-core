@@ -1,5 +1,5 @@
 (comment 
-  Celestial, Copyright 2012 Ronen Narkis, narkisr.com
+  re-core, Copyright 2012 Ronen Narkis, narkisr.com
   Licensed under the Apache License,
   Version 2.0  (the "License") you may not use this file except in compliance with the License.
   You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -13,7 +13,7 @@
   "Common functionality like connection settings"
   (:require
     [amazonica.aws.ec2 :as ec2]
-    [celestial.model :refer (hypervisor)]  
+    [re-core.model :refer (hypervisor)]  
     ))
 
 (defn creds [] (dissoc (hypervisor :aws) :ostemplates))

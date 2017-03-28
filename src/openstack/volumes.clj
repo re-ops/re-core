@@ -1,5 +1,5 @@
 (comment 
-  Celestial, Copyright 2012 Ronen Narkis, narkisr.com
+  re-core, Copyright 2012 Ronen Narkis, narkisr.com
   Licensed under the Apache License,
   Version 2.0  (the "License") you may not use this file except in compliance with the License.
   You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -13,8 +13,8 @@
   "Volumes creation and manipulation"
   (:require 
     [clojure.java.data :refer [from-java]]
-    [celestial.provider :refer (wait-for)]
-    [celestial.persistency.systems :as s]
+    [re-core.provider :refer (wait-for)]
+    [re-core.persistency.systems :as s]
     [openstack.common :refer (servers block-storage)])
   (:import org.openstack4j.api.Builders))
 

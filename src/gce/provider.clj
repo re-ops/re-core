@@ -3,14 +3,14 @@
    [clojure.core.strint :refer (<<)]
    [clojure.data.json :refer (write-str)]
    [gce.validations :refer (validate-provider)]
-   [celestial.provider :refer (wait-for-ssh mappings wait-for transform os->template)]
+   [re-core.provider :refer (wait-for-ssh mappings wait-for transform os->template)]
    [clojure.java.data :refer (to-java from-java)]
-   [celestial.core :refer (Vm)] 
+   [re-core.core :refer (Vm)] 
    [clojure.walk :refer (keywordize-keys)]
    [taoensso.timbre :as timbre]
    [flatland.useful.map :refer (dissoc-in*)]
-   [celestial.persistency.systems :as s]
-   [celestial.model :refer (translate vconstruct hypervisor clone)])
+   [re-core.persistency.systems :as s]
+   [re-core.model :refer (translate vconstruct hypervisor clone)])
   (:import 
     (com.google.api.services.compute.model Instance)
     (com.google.api.client.googleapis.javanet GoogleNetHttpTransport)
@@ -27,7 +27,7 @@
         json-factory (JacksonFactory/getDefaultInstance)
         scopes [ComputeScopes/COMPUTE]]
        (-> (Compute$Builder. transport json-factory nil)
-         (.setApplicationName "celestial")
+         (.setApplicationName "re-core")
          (.setHttpRequestInitializer (.createScoped auth scopes))
          (.build))))
 

@@ -1,5 +1,5 @@
 (comment
-  Celestial, Copyright 2012 Ronen Narkis, narkisr.com
+  re-core, Copyright 2012 Ronen Narkis, narkisr.com
   Licensed under the Apache License,
   Version 2.0  (the "License") you may not use this file except in compliance with the License.
   You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -11,12 +11,12 @@
 
 (ns kvm.networking
   (:require
-    [celestial.provider :refer (wait-for)]
+    [re-core.provider :refer (wait-for)]
     [slingshot.slingshot :refer [throw+]]
     [taoensso.timbre :as timbre]
     [clojure.core.strint :refer (<<)]
     [supernal.sshj :refer (execute get-log collect-log)]
-    [celestial.common :refer [gen-uuid]]
+    [re-core.common :refer [gen-uuid]]
     [clojure.java.shell :refer [sh]]
     [clojure.data.zip.xml :as zx]
     [kvm.common :refer (connect domain-zip)]))

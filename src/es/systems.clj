@@ -1,5 +1,5 @@
 (comment 
-   Celestial, Copyright 2012 Ronen Narkis, narkisr.com
+   re-core, Copyright 2012 Ronen Narkis, narkisr.com
    Licensed under the Apache License,
    Version 2.0  (the "License") you may not use this file except in compliance with the License.
    You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -18,9 +18,9 @@
     [clojure.set :refer (subset?)]
     [clojure.core.strint :refer (<<)] 
     [slingshot.slingshot :refer  [throw+]] 
-    [celestial.persistency.users :as u]
-    [celestial.common :refer (envs import-logging)]
-    [celestial.roles :refer (su?)]
+    [re-core.persistency.users :as u]
+    [re-core.common :refer (envs import-logging)]
+    [re-core.roles :refer (su?)]
     [clojurewerkz.elastisch.query :as q]
     [clojurewerkz.elastisch.native.document :as doc]))
 

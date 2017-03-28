@@ -1,5 +1,5 @@
 (comment 
-   Celestial, Copyright 2012 Ronen Narkis, narkisr.com
+   re-core, Copyright 2012 Ronen Narkis, narkisr.com
    Licensed under the Apache License,
    Version 2.0  (the "License") you may not use this file except in compliance with the License.
    You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -12,7 +12,7 @@
 (ns physical.validations
   "physical machine validations"
   (:require 
-    [celestial.model :refer (check-validity)] 
+    [re-core.model :refer (check-validity)] 
     [subs.core :refer (validate! combine validation when-not-nil)]
     ))
 

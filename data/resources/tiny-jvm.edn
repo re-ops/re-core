@@ -7,7 +7,7 @@
  :openstack {
   :flavor "m1.small" 
   :tenant "admin"
-  :key-name "celestial"
+  :key-name "re-core"
   :networks ["bar"]
   :security-groups ["default"]
  }

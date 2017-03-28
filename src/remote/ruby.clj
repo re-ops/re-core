@@ -1,5 +1,5 @@
 (comment 
-   Celestial, Copyright 2012 Ronen Narkis, narkisr.com
+   re-core, Copyright 2012 Ronen Narkis, narkisr.com
    Licensed under the Apache License,
    Version 2.0  (the "License") you may not use this file except in compliance with the License.
    You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -16,10 +16,10 @@
     [slingshot.slingshot :refer [throw+]]
     [clojure.java.shell :refer (with-sh-dir)]
     [supernal.sshj :refer (copy sh- dest-path)]
-    [celestial.common :refer (import-logging gen-uuid interpulate)]
+    [re-core.common :refer (import-logging gen-uuid interpulate)]
     [me.raynes.fs :refer (delete-dir exists? mkdirs tmpdir)]
-    [celestial.core :refer (Remoter)]
-    [celestial.model :refer (rconstruct)])
+    [re-core.core :refer (Remoter)]
+    [re-core.model :refer (rconstruct)])
   )
 
 (import-logging)

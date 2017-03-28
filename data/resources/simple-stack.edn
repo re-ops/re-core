@@ -2,7 +2,7 @@
  :shared {
     :owner "ronen"
     :env :dev
-    :machine {:hostname celestial.generators/hostgen :domain "local"}
+    :machine {:hostname re-core.generators/hostgen :domain "local"}
     :openstack {:tenant "skywind" :key-name "foo"}
   } 
  

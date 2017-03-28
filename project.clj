@@ -1,6 +1,6 @@
-(defproject celestial "0.13.5"
+(defproject re-core "0.13.5"
   :description "A launching pad for virtualized applications"
-  :url "https://github.com/celestial-ops/celestial-core"
+  :url "https://github.com/re-core-ops/re-core-core"
   :license  {:name "Apache License, Version 2.0" :url "http://www.apache.org/licenses/LICENSE-2.0.html"}
 
   :dependencies [[org.clojure/clojure "1.8.0"]
@@ -90,7 +90,7 @@
              [lein-tag "0.1.0"] [lein-set-version "0.3.0"]
              [topping "0.0.2"]]
 
-  :bin {:name "celestial"}
+  :bin {:name "re-core"}
 
   :profiles {
      :populate {
@@ -109,7 +109,7 @@
         :dependencies [[org.clojure/tools.namespace "0.2.10"] [midje "1.6.3"]
                        [redl "0.2.4"] [org.clojure/tools.trace "0.7.8"]]
         :injections  [(require '[redl core complete])]
-        :resource-paths  ["src/main/resources/" "pkg/etc/celestial/"]
+        :resource-paths  ["src/main/resources/" "pkg/etc/re-core/"]
         :source-paths  ["dev"]
         :test-paths  []
 
@@ -122,12 +122,12 @@
 
         :aot [remote.capistrano remote.ruby freenas.provider kvm.provider
               aws.provider physical.provider openstack.provider
-              celestial.core celestial.puppet-standalone celestial.launch
-              celestial.repl.base]
+              re-core.core re-core.puppet-standalone re-core.launch
+              re-core.repl.base]
 
         :test-paths ["test" "data"]
         :source-paths  ["dev"]
-        :resource-paths  ["src/main/resources/" "pkg/etc/celestial/"]
+        :resource-paths  ["src/main/resources/" "pkg/etc/re-core/"]
         :dependencies [[ring-mock "0.1.5"] [midje "1.6.3"]
                        [org.clojure/tools.trace "0.7.8"]
                        [org.clojure/test.check "0.7.0"]]
@@ -135,30 +135,30 @@
         :jvm-opts ~(vec (map (fn [[p v]] (str "-D" (name p) "=" v)) {:disable-conf "true" }))
         :set-version {
            :updates [
-             {:path "project.clj" :search-regex #"\"target\/celestial-\d+\.\d+\.\d+\.jar"}
-             {:path "src/celestial/common.clj" :search-regex #"\"\d+\.\d+\.\d+\""}]}
+             {:path "project.clj" :search-regex #"\"target\/re-core-\d+\.\d+\.\d+\.jar"}
+             {:path "src/re-core/common.clj" :search-regex #"\"\d+\.\d+\.\d+\""}]}
 
-        :main celestial.launch
+        :main re-core.launch
       }
 
      :prod {
-        :resource-paths  ["src/main/resources/" "pkg/etc/celestial/"]
+        :resource-paths  ["src/main/resources/" "pkg/etc/re-core/"]
 
 
         :aot [remote.capistrano remote.ruby freenas.provider kvm.provider
               aws.provider physical.provider openstack.provider
-              celestial.core celestial.puppet-standalone celestial.launch]
+              re-core.core re-core.puppet-standalone re-core.launch]
 
-        :main celestial.launch
+        :main re-core.launch
       }
     }
 
 
-  :aliases {"celestial" ["with-profile" "prod" "do" "compile," "trampoline" "run"]
-            "remote-repl" ["repl" ":connect" "celestial:7888"]
+  :aliases {"re-core" ["with-profile" "prod" "do" "compile," "trampoline" "run"]
+            "remote-repl" ["repl" ":connect" "re-core:7888"]
             "autotest" ["midje" ":autotest" ":filter" "-integration"]
             "runtest" ["midje" ":filter" "-integration"]
-            "populate" ["with-profile" "populate" "do" "run" "-m" "celestial.fixtures.populate"]
+            "populate" ["with-profile" "populate" "do" "run" "-m" "re-core.fixtures.populate"]
             ; https://github.com/stuartsierra/reloaded workflow
             "dev-repl" ["with-profile" "refresh" "do" "clean," "repl"]
             }
@@ -169,9 +169,9 @@
                   "libvirt-org" "http://libvirt.org/maven2"}
 
   :topping {
-      :service "celestial"
-      :app {:app-name "celestial" :src "target/celestial-0.13.5.jar"}
-      :env {:roles {:remote #{{:host "celestial" :user "ubuntu" :sudo true}}}}
+      :service "re-core"
+      :app {:app-name "re-core" :src "target/re-core-0.13.5.jar"}
+      :env {:roles {:remote #{{:host "re-core" :user "ubuntu" :sudo true}}}}
    }
 
   :resource-paths  ["src/main/resources/"]
