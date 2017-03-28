@@ -1,8 +1,8 @@
 # Intro
 
-re-core is a provisioning server and live environment for setting up cloud/vms instances in a consistent reliable way.
+re-core is a provisioning server and live environment for setting up cloud/vms instances in a consistent and reliable way.
 
-For how to get started and more info please check [this](https://celestial-ops.github.io/landing/)
+For how to get started and more info please check [this](https://re-ops.github.io/landing/)
 
 [![Build Status](https://travis-ci.org/re-ops/re-core.png)](https://travis-ci.org/re-ops/re-core)
 
@@ -16,7 +16,7 @@ $ cd redis-sandbox
 $ ./boot.sh
 ```
 
-Launch a demo instance (create a matching ~/.celestial.edn):
+Launch a demo instance (create a matching ~/.re-mote.edn):
 ```bash
 $ lein populate
 $ lein re-core
