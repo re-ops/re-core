@@ -2,7 +2,7 @@
   (:require 
     [re-core.persistency.systems :as s]
     [re-core.model :refer (vconstruct)]
-    [re-core.fixtures.core :refer (with-conf with-admin is-type?) :as f]
+    [re-core.fixtures.core :refer (with-conf is-type?) :as f]
     [re-core.fixtures.data :refer (redis-type local-conf redis-gce)]  
     [re-core.fixtures.populate :refer (populate-system)]  
     [re-core.integration.workflows.common :refer (spec)]
@@ -37,8 +37,7 @@
      (provided (build-compute "/home/ronen/compute-playground.json") => nil))))
 
 
-(with-admin
-  (with-conf local-conf
+(with-conf local-conf
     (with-state-changes [(before :facts (populate-system redis-type redis-gce))]
      (fact "gce creation" :integration :gce :workflow
           (wf/create (spec)) => nil 
@@ -74,4 +73,4 @@
      (fact "gce puppetization" :integration :gce :workflow :puppet
         (wf/create (spec)) => nil
         (wf/provision redis-type (spec)) => nil 
-        (wf/destroy (spec)) => nil))))
+        (wf/destroy (spec)) => nil)))

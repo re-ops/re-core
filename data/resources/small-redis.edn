@@ -1,16 +1,17 @@
 {
  :machine {
-  :user "ubuntu" 
+  :user "ubuntu"
   :os :ubuntu-14.10
  }
 
- :openstack {
-  :flavor "m1.small" 
-  :tenant "admin"
-  :key-name "re-core"
+ :aws {
+  :instance-type "t1.micro"
+  :key-name "enceladus"
+  :endpoint "ec2.eu-west-1.amazonaws.com"
   :security-groups ["default"]
-  :networks ["foo"]
+  :ebs-optimized false
  }
+
 
  :defaults {}
  :type "redis"

@@ -21,7 +21,6 @@
     gce.provider
     kvm.provider
     digital.provider
-    freenas.provider
     aws.provider
     physical.provider
     re-core.puppet_standalone

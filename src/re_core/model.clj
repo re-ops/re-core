@@ -28,7 +28,7 @@
 
 
 (def hypervizors 
-  #{:aws :physical :openstack :freenas :digital-ocean :gce :kvm})
+  #{:aws :physical :digital-ocean :gce :kvm})
 
 (def operations
  #{:reload :destroy :provision :stage :run-action :create :start :stop :clear :clone})

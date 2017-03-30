@@ -1,4 +1,4 @@
-(comment 
+(comment
   re-core, Copyright 2012 Ronen Narkis, narkisr.com
   Licensed under the Apache License,
   Version 2.0  (the "License") you may not use this file except in compliance with the License.
@@ -11,9 +11,9 @@
 
 (ns re-core.config
   "Celetial configuration info"
-  (:require 
+  (:require
     [subs.core :refer (validate! combine validation when-not-nil every-kv)])
-  (:use 
+  (:use
     [clojure.pprint :only (pprint)]
     [taoensso.timbre :only (merge-config! debug info error warn trace)]
     [taoensso.timbre.appenders.core :refer (spit-appender)]
@@ -27,7 +27,7 @@
     }
    :elasticsearch {
      :host #{:required :String} :port #{:required :Integer} :cluster #{:required :String}
-    } 
+    }
    :ssh {
      :private-key-path #{:required :String}
    }})
@@ -41,7 +41,7 @@
 
 (validation :central-logging
   (when-not-nil central-logging (<< "type must be either ~{central-logging}")))
- 
+
 (def ^{:doc "gelf logging settings"} gelf-v
   {:re-core
    {:log {
@@ -67,19 +67,19 @@
 
 (def ^{:doc "Base config validation"} re-core-v
   {:re-core
-   {:port #{:required :number} :https-port #{:required :number} :session-timeout #{:number} 
+   {:port #{:required :number} :https-port #{:required :number} :session-timeout #{:number}
     :log {
-       :level #{:required :levels} 
+       :level #{:required :levels}
        :path #{:required :String}
        :gelf {
           :host #{:String} :type #{:central-logging}
         }
-    } 
-    :cert {:password #{:required :String} :keystore #{:required :String}} 
+    }
+    :cert {:password #{:required :String} :keystore #{:required :String}}
     :nrepl {:port #{:number}}}})
 
 (validation :node*
-  (every-kv {:username #{:required :String} :password #{:required :String} 
+  (every-kv {:username #{:required :String} :password #{:required :String}
               :host #{:required :String} :ssh-port #{:required :number}}))
 
 (def flavors #{:redhat :debian})
@@ -94,81 +94,71 @@
   (every-kv {:username #{:required :String} :host #{:required :String} :port #{:required :number}}))
 
 
-(def ^{:doc "kvm validation"} kvm-v 
+(def ^{:doc "kvm validation"} kvm-v
   {:kvm {:nodes #{:required :kvm-node*} :ostemplates #{:template*} }})
 
 (def ^{:doc "digital ocean section validation"} digital-v
-  {:digital-ocean { 
+  {:digital-ocean {
      :token #{:required :String}
      :ssh-key #{:required :String}
      :ostemplates #{:required :Map}
      }})
- 
-(def ^{:doc "aws section validation"} aws-v 
-  {:freenas {:host #{:required :String} :user #{:required :String} :password #{:required :String}}})
 
-(def ^{:doc "aws section validation"} aws-v 
+(def ^{:doc "aws section validation"} aws-v
   {:aws {:access-key #{:required :String} :secret-key #{:required :String}}})
 
 (validation :managment
   (when-not-nil #{:floating :network} "must be either floating or network"))
- 
-(def ^{:doc "openstack section validation"} openstack-v 
-  {:openstack {
-    :username #{:required :String} :password #{:required :String} 
-    :endpoint #{:required :String} :managment-interface #{:required :managment}    
-  }})
 
-(defn hypervisor-validations 
+(defn hypervisor-validations
   "find relevant hypervisor validations per env"
   [hypervisor]
-  (let [hvs [kvm-v aws-v openstack-v digital-v] ks (map (comp first keys) hvs) 
+  (let [hvs [kvm-v aws-v digital-v] ks (map (comp first keys) hvs)
         envs (map (fn [v] (fn [env] {:hypervisor {env v}})) hvs)]
-    (first 
+    (first
       (map (fn [[e hs]] (map #(((zipmap ks envs) %) e) (filter (into #{} ks) (keys hs)))) hypervisor))))
 
 (defn re-core-validations [{:keys [log job] :as re-core}]
    (let [v  (if (contains? log :gelf) (combine re-core-v gelf-v) re-core-v)]
      (if job (combine job-v v) v)))
 
-(defn validate-conf 
+(defn validate-conf
   "applies all validations on a configration map"
   [{:keys [hypervisor re-core] :as c}]
-  (validate! c 
-    (apply combine 
+  (validate! c
+    (apply combine
       (into [base-v (re-core-validations re-core)] (hypervisor-validations hypervisor) ))))
 
 (def config-paths
   ["/etc/re-core/re-core.edn" (<< "~(System/getProperty \"user.home\")/.re-core.edn")])
 
-(def path 
+(def path
   (first (filter #(.exists (file %)) config-paths)))
 
-(defn pretty-error 
+(defn pretty-error
   "A pretty print error log"
   [m c]
   (let [st (java.io.StringWriter.)]
-    (binding [*out* st] 
+    (binding [*out* st]
       (clojure.pprint/pprint m))
     (merge-config!
-      {:appenders  
-        {:spit 
-         (spit-appender {:fname (get-in c [:re-core :log :path] "re-core.log")})}}) 
-    (error "Following configuration errors found:\n" (.toString st)))) 
+      {:appenders
+        {:spit
+         (spit-appender {:fname (get-in c [:re-core :log :path] "re-core.log")})}})
+    (error "Following configuration errors found:\n" (.toString st))))
 
 (defn read-and-validate []
   (let [c (conf/read-config path) es (validate-conf c)]
-    (when-not (empty? es) 
+    (when-not (empty? es)
       (pretty-error es c)
       (System/exit 1))
     c))
 
-
-(def ^{:doc "main configuation"} config 
+(def ^{:doc "main configuation"} config
   (if path
-    (read-and-validate)      
+    (read-and-validate)
     (when-not (System/getProperty "disable-conf") ; enables repl/testing
-      (error 
-        (<< "Missing configuration file, you should configure re-core in either ~{config-paths}"))  
+      (error
+        (<< "Missing configuration file, you should configure re-core in either ~{config-paths}"))
       (System/exit 1))))
 

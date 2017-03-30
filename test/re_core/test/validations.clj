@@ -1,15 +1,12 @@
 (ns re-core.test.validations
  (:require
    [flatland.useful.map :refer (dissoc-in*)]
-   [re-core.roles :refer (admin)]
    [re-core.persistency
-    [types :refer (validate-type)] [users :refer (user-exists? validate-user)]]
-   [re-core.persistency.quotas :refer (validate-quota)]
+    [types :refer (validate-type)]]
    [re-core.model :refer (check-validity)]
    [aws.validations :as awsv]
    [re-core.fixtures.data :refer
-    (redis-type user-quota redis-ec2-spec
-     redis-openstack-spec redis-physical)]
+    (redis-type user-quota redis-ec2-spec redis-physical)]
    [re-core.fixtures.core :refer (is-type? with-m?)])
  (:use midje.sweet)
  (:import clojure.lang.ExceptionInfo))
@@ -34,36 +31,6 @@
 (fact "non puppet type"
   (validate-type {:type "foo"}) => truthy)
 
-(fact "quotas validations"
-     (validate-quota user-quota) => truthy
-     (provided (user-exists? "foo") => true :times 1))
-
-(fact "non int limit quota"
-   (validate-quota (assoc-in user-quota [:quotas :dev :aws :limits :count] "1")) =>
-      (throws ExceptionInfo (with-m? {:quotas {:dev {:aws {:limits {:count  "must be a integer"}}}}}))
-   (provided (user-exists? "foo") => true :times 1))
-
-(fact "user validation"
-   (validate-user {:username "foo" :password "bar" :roles admin :envs [] :operations []})  => truthy
-   (validate-user {:password "bar" :roles admin :envs [] :operations []})  =>
-     (throws ExceptionInfo (with-m? {:username "must be present"}))
-
-   (validate-user {:username "foo" :password "bar" :roles admin :operations []})  =>
-     (throws ExceptionInfo (with-m? {:envs "must be present"}))
-
-   (validate-user {:username "foo" :password "" :roles admin :envs [] :operations []})  =>
-     (throws ExceptionInfo (with-m? {:password "must be a non empty string"}))
-
-   (validate-user {:username "foo" :password "bar" :roles admin :envs [""] :operations []})  =>
-     (throws ExceptionInfo (with-m? {:envs '({0 "must be a keyword"})} ))
-
-   (validate-user {:username "foo" :password "bar" :roles admin :envs [] :operations [:bla]})  =>
-     (throws ExceptionInfo (with-m?  {:operations  '({0 "operation must be either #{:provision :stage :create :start :destroy :stop :clone :reload :run-action :clear}"})}))
-
-     (validate-user {:username "foo" :password "bar" :roles ["foo"] :envs [] :operations []})  =>
-       (throws ExceptionInfo
-          (with-m? {:roles '({0 "role must be either #{:re-core.roles/user :re-core.roles/admin :re-core.roles/anonymous :re-core.roles/super-user :re-core.roles/system}"})}))
-      )
 
 (fact "aws volume validations"
   ; TODO this should fail! seems to be a subs issue
@@ -120,11 +87,3 @@
    (check-validity (assoc-in redis-physical [:physical :broadcast] "a.1.2")) =>
       (throws ExceptionInfo (with-m? {:physical {:broadcast "must be a legal ip address"}})))
 
-(fact "openstack volume validations"
-  (let [spec (merge-with merge redis-openstack-spec {:openstack {:volumes [{:device "do" :size 10}]}})]
-    (check-validity spec) =>
-      (throws ExceptionInfo
-        (with-m?
-          '{:openstack
-            {:volumes
-              ({0 {:clear "must be present" :device "device should match /dev/{id} format"}})}}))))

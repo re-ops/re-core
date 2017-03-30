@@ -1,7 +1,7 @@
 (ns user
   (:use midje.repl)
   (:require
-     [re-core.persistency [users :as u] [types :as t]]
+     [re-core.persistency [types :as t]]
      [re-core.redis :refer (clear-all)]
      [clojure.tools.trace :refer (deftrace trace trace-ns trace-vars)]
      [re-core.persistency.systems :as s]
@@ -42,12 +42,8 @@
   "basic population for dev env"
   []
   (clear-all)
-  (u/add-user
-      {:envs [:dev] :roles #{:re-core.roles/user} :username "ronen" :password "bar"})
-  (u/reset-admin)
-  (with-redefs [re-core.security/current-user (fn [] {:username "admin"})]
-    (t/add-type (slurp-edn "fixtures/redis-type.edn"))
-    (s/add-system (slurp-edn "fixtures/redis-system.edn"))))
+  (t/add-type (slurp-edn "fixtures/redis-type.edn"))
+  (s/add-system (slurp-edn "fixtures/redis-system.edn")))
 
 (defn reset []
   (stop)

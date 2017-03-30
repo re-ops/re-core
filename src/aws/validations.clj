@@ -1,4 +1,4 @@
-(comment 
+(comment
   re-core, Copyright 2012 Ronen Narkis, narkisr.com
   Licensed under the Apache License,
   Version 2.0  (the "License") you may not use this file except in compliance with the License.
@@ -11,15 +11,16 @@
 
 (ns aws.validations
   "AWS based validations"
-  (:require 
+  (:require
     [re-core.model :refer (check-validity)]
+    [aws.model :refer (identifiers)]
     [clojure.core.strint :refer (<<)]
-    [subs.core :as subs :refer (validate! combine every-v every-kv validation when-not-nil)]))
+    [subs.core :as subs :refer (validate! combine every-v every-kv validation when-not-nil subtract)]))
 
 (def machine-entity
   {:machine {
-     :hostname #{:required :String} :domain #{:required :String} 
-     :user #{:required :String} :os #{:required :Keyword} 
+     :hostname #{:required :String} :domain #{:required :String}
+     :user #{:required :String} :os #{:required :Keyword}
   }})
 
 (def ebs-type #{"io1" "standard" "gp2"})
@@ -33,9 +34,9 @@
     :iops #{:Integer}
    })
 
-(validation :iops 
-  (fn [{:keys [volume-type iops]}] 
-    (when (and (= volume-type "io1") (nil? iops)) "iops required if io1 type is used"))) 
+(validation :iops
+  (fn [{:keys [volume-type iops]}]
+    (when (and (= volume-type "io1") (nil? iops)) "iops required if io1 type is used")))
 
 (validation :volume* (every-v #{:volume}))
 
@@ -55,10 +56,14 @@
 (defmethod check-validity [:aws :entity] [aws]
   (validate! aws (combine machine-entity aws-entity) :error ::invalid-system))
 
+(defmethod check-validity [:aws :template] [aws]
+  (validate! aws (subtract (combine machine-entity aws-entity) identifiers) :error ::invalid-system))
+
+
 (def aws-provider
   {:instance-type #{:required :String} :key-name #{:required :String}
    :placement {:availability-zone #{:String}} :security-groups #{:Vector :group*}
-   :min-count #{:required :Integer} :max-count #{:required :Integer} 
+   :min-count #{:required :Integer} :max-count #{:required :Integer}
    :ebs-optimized #{:Boolean}
    })
 

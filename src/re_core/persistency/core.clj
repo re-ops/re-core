@@ -1,4 +1,4 @@
-(comment 
+(comment
    re-core, Copyright 2012 Ronen Narkis, narkisr.com
    Licensed under the Apache License,
    Version 2.0  (the "License") you may not use this file except in compliance with the License.
@@ -11,17 +11,15 @@
 
 (ns re-core.persistency.core
   (:require
-    [re-core.persistency.users :as u]
     [re-core.common :refer (import-logging)]
     [re-core.redis :refer (server-conn)]
-    [re-core.persistency.migrations :as mg]
-    [components.core :refer (Lifecyle)] 
+    [components.core :refer (Lifecyle)]
     [puny.redis :as r]))
 
 (import-logging)
 
-(defn initilize-puny 
-   "Initlizes puny connection" 
+(defn initilize-puny
+   "Initlizes puny connection"
    []
   (info "Initializing puny connection" (server-conn))
   (r/server-conn (server-conn)))
@@ -30,14 +28,12 @@
   []
   Lifecyle
   (setup [this]
-    (initilize-puny)
-    (u/reset-admin)
-    (mg/setup-migrations)) 
+    (initilize-puny))
   (start [this])
   (stop [this])
   )
 
-(defn instance 
-   "creats a jobs instance" 
+(defn instance
+   "creats a jobs instance"
    []
   (Persistency.))

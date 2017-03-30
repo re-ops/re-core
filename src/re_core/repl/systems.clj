@@ -7,8 +7,8 @@
     [taoensso.timbre :refer  (refer-timbre)]
     [clojure.set :refer (difference)]
     [re-core.persistency.systems :as s]
-    [re-core.repl.base :refer [Repl select-keys* with-admin]])
-  (:import [re-core.repl.base Systems]))
+    [re-core.repl.base :refer [Repl select-keys*]])
+  (:import [re_core.repl.base Systems]))
 
 (refer-timbre)
 
@@ -31,9 +31,8 @@
 (extend-type Systems
   Repl
   (ls [this]
-    (with-admin
-      (let [systems (into [] (s/systems-for (re-core.api.systems/working-username)))]
-        [this {:systems (doall (map (juxt identity s/get-system) systems))}])))
+    (let [systems (into [] (s/all-systems))]
+         [this {:systems (doall (map (juxt identity s/get-system) systems))}]))
 
   (find [this exp])
 
@@ -46,7 +45,7 @@
       [this {:systems (filter (partial grep-system k v) (systems :systems))}])
 
   (add [this specs]
-     [this {:systems (map (fn [s] (with-admin (let [id (s/add-system s)] [id (s/get-system id)]))) specs)}]))
+     [this {:systems (map (fn [s] (let [id (s/add-system s)] [id (s/get-system id)])) specs)}]))
 
 (extend-type Systems
   Jobs

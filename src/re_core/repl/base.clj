@@ -11,12 +11,6 @@
   :roles #{:re-core.roles/admin}
   :operations []})
 
-(defmacro with-admin [& body]
-  `(with-redefs [re-core.security/current-user (fn [] {:username "admin"})
-                re-core.persistency.users/get-user! (fn [a#] admin)]
-       ~@body
-       ))
-
 (defprotocol Repl
   "Repl functions on re-core model types"
   (ls [this] [this & opts])
@@ -65,4 +59,4 @@
 (defrecord Types [])
 
 (defn refer-base []
-  (require '[re-core.repl.base :as base :refer (run | ls grep rm add pretty with-admin)]))
+  (require '[re-core.repl.base :as base :refer (run | ls grep rm add pretty)]))

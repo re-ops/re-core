@@ -1,4 +1,4 @@
-(comment 
+(comment
    re-core, Copyright 2012 Ronen Narkis, narkisr.com
    Licensed under the Apache License,
    Version 2.0  (the "License") you may not use this file except in compliance with the License.
@@ -12,15 +12,13 @@
 (ns es.systems
   "Systems indexing/searching"
   (:refer-clojure :exclude [get])
-  (:require 
+  (:require
     [es.common :refer (flush- index map-env-terms clear initialize)]
     [es.node :as node :refer (ES)]
     [clojure.set :refer (subset?)]
-    [clojure.core.strint :refer (<<)] 
-    [slingshot.slingshot :refer  [throw+]] 
-    [re-core.persistency.users :as u]
+    [clojure.core.strint :refer (<<)]
+    [slingshot.slingshot :refer  [throw+]]
     [re-core.common :refer (envs import-logging)]
-    [re-core.roles :refer (su?)]
     [clojurewerkz.elastisch.query :as q]
     [clojurewerkz.elastisch.native.document :as doc]))
 
@@ -44,52 +42,22 @@
   (doc/delete @ES index "system" id)
   (when flush? (flush-)))
 
-(defn get 
+(defn get
    "Grabs a system by an id"
    [id]
   (doc/get @ES index "system" id))
 
-(defn query 
-   "basic query string" 
+(defn query
+   "basic query string"
    [query & {:keys [from size] :or {size 100 from 0}}]
   (doc/search @ES index "system" {
       :from from :size size :query query :fields ["owner" "env"]
    }))
 
 (defn query-envs [q]
- (into #{} 
-   (filter identity 
+ (into #{}
+   (filter identity
       (map #(keyword (get-in % [:term :env])) (get-in q [:bool :should])))))
 
-(defn envs-set 
-  "Set should envs on query" 
-  [q {:keys [envs username]}]
-  (let [es (query-envs q)] 
-    (if-not (empty? es) 
-      (if (subset? es (into #{} envs)) 
-        (map-env-terms q)
-        (throw+ {:type ::non-legal-env :message (<< "~{username} tried to query in ~{es} he has access only to ~{envs}")}))
-      (update-in q [:bool :should] 
-        (fn [v] (into v (mapv #(hash-map :term {:env (name %)}) envs)))))))
 
-(defn- query-for [username q]
-  (let [{:keys [envs username] :as user} (u/get-user! username)]
-    (if (su? user)
-      (-> q (envs-set user) 
-          (assoc-in [:bool :minimum_should_match] 1))
-      (update-in q [:bool :must] (fn [v] (into v {:term {"owner" username}}))))))
 
-(defn systems-for
-  "grabs all the systems ids that this user can manipulate from ES"
-  [username q from size]
-  (info "query for" (query-for username q))
-  (query (query-for username q) :from from :size size))
-
-(defn re-index  
-   "Re-indexes a bulk of systems"
-   [systems]
-  (clear)
-  (initialize)
-  (doseq [[id s] systems] (put id s))
-  (let [[id s] (first systems)] 
-     (put id s)))

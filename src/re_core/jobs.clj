@@ -22,7 +22,6 @@
     [minderbinder.time :refer (parse-time-unit)]
     [puny.core :refer (entity)]
     [re-core.workflows :as wf]
-    [re-core.security :refer (set-user)]
     [re-core.model :refer (set-env operations)]
     [taoensso.carmine :as car]
     [taoensso.carmine.message-queue :as mq]
@@ -51,10 +50,8 @@
 
 (defn job-exec [f  {:keys [message attempt]}]
   "Executes a job function tries to lock identity first (if used)"
-  (let [{:keys [identity args tid env user] :as spec} message]
-    (set-user user
-      (set-env env
-        (set-tid tid
+  (let [{:keys [identity args tid env] :as spec} message]
+      (set-tid tid
            (let [{:keys [wait-time expiry]} (map-vals (or (job* :lock) defaults) #(* minute %))
                  hostname (when identity (get-in (s/get-system identity) [:machine :hostname]))
                  spec' (merge spec (meta f) {:start (System/currentTimeMillis) :hostname hostname})]
@@ -67,7 +64,7 @@
               (catch Throwable e
                 (error e)
                 (save-status spec' :error)
-                ))))))))
+                ))))))
 
 (defn jobs []
   {:reload [wf/reload 2] :destroy [wf/destroy 2] :provision [wf/provision 2]
@@ -105,9 +102,9 @@
 
 (defn- message-desc [type js]
   (mapv
-    (fn [[jid {:keys [identity args tid env] :as message}]]
+    (fn [[jid {:keys [identity args tid] :as message}]]
       {:type type :status (readable-status (status type jid))
-       :env env :id identity :jid jid :tid tid}) (apply hash-map js)))
+       :id identity :jid jid :tid tid}) (apply hash-map js)))
 
 (defn queue-status
   "The entire queue message statuses"
@@ -121,16 +118,6 @@
   "Get all jobs status"
   []
   (reduce (fn [r t] (into r (queue-status (name t)))) [] (keys (jobs))))
-
-(defn by-env
-   "filter jobs status by envs"
-   [envs js]
-   (filter (fn [{:keys [env]}] (envs env)) js))
-
-(defn jobs-status [envs]
-  (map-vals
-    {:jobs (running-jobs-status)}
-    (partial by-env (into #{} envs))))
 
 (defn shutdown-workers []
   (doseq [[k ws] @workers]

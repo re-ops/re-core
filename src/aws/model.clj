@@ -18,3 +18,7 @@
   (-> spec 
       (dissoc-in* [:machine :ip])
       (dissoc-in* [:aws :instance-id])))
+
+(def identifiers 
+    {:machine #{:ip :hostname :domain} :aws #{:instance-id}})
+

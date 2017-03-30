@@ -3,7 +3,7 @@
   (:require
     [re-core.persistency.types :as t]
     [re-core.repl.base :refer [Repl]])
-  (:import [re-core.repl.base Types])
+  (:import [re_core.repl.base Types])
   )
 
 
