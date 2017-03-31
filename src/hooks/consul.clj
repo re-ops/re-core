@@ -1,4 +1,4 @@
-(comment 
+(comment
    re-core, Copyright 2012 Ronen Narkis, narkisr.com
    Licensed under the Apache License,
    Version 2.0  (the "License") you may not use this file except in compliance with the License.
@@ -10,18 +10,18 @@
    limitations under the License.)
 
 (ns hooks.consul
-  (:require 
-    [re-core.persistency.systems :as s] 
+  (:require
+    [re-core.persistency.systems :as s]
     [conjul.catalog :refer (register de-register)]
-    [re-core.common :refer (import-logging)]))
+    [taoensso.timbre :refer (refer-timbre)]))
 
-(import-logging)
+(refer-timbre)
 
 (defn add-node
   [{:keys [system-id consul]:as args}]
   (let [{:keys [machine env]} (s/get-system system-id)
         {:keys [dc host] :as c} (consul env)]
-    (when c 
+    (when c
       (register host (machine :hostname) (machine :ip) dc)
       (debug "registered node in consul host" host "dc" dc))))
 
@@ -32,11 +32,11 @@
     (debug "removed node from consul host" host "dc" dc)))
 
 
-(def actions {:reload {:success add-node} :create {:success add-node} 
+(def actions {:reload {:success add-node} :create {:success add-node}
               :destroy {:success remove-node :error remove-node}
               :stage {:success add-node}})
 
-(defn with-defaults 
+(defn with-defaults
   "Add an empty consul if not defined"
   [args]
   (merge {:consul {}} args))

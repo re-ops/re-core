@@ -11,11 +11,6 @@
 
 (ns re-core.workflows
   "Main workflows"
-  (:use
-    [re-core.common :only (get! import-logging resolve-)]
-    [clojure.core.strint :only (<<)]
-    [slingshot.slingshot :only  [throw+ try+]]
-    [re-core.model :only (vconstruct pconstruct rconstruct)])
   (:require
     ; loading defmethods
     gce.provider
@@ -28,11 +23,15 @@
     aws.model
     [re-core.persistency.systems :as s]
     [clojure.tools.macro :as tm]
-    [metrics.timers :refer  [deftimer time!]])
-  (:import [re_core.puppet_standalone Standalone])
-  )
+    [metrics.timers :refer  [deftimer time!]]
+    [re-core.common :refer (get! resolve-)]
+    [clojure.core.strint :refer (<<)]
+    [slingshot.slingshot :refer  [throw+ try+]]
+    [re-core.model :refer (vconstruct pconstruct rconstruct)]
+    [taoensso.timbre :refer (refer-timbre)])
+  (:import [re_core.puppet_standalone Standalone]))
 
-(import-logging)
+(refer-timbre)
 
 (defn run-hooks
   "Runs hooks"

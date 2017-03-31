@@ -15,7 +15,7 @@
   (:require
     [clojure.tools.nrepl.server :refer (start-server stop-server)]
     [clojure.java.io :refer (resource)]
-    [re-core.common :refer (get! get* import-logging version)]
+    [re-core.common :refer (get! get* version)]
     [clojure.core.strint :refer (<<)]
     [supernal.core :refer [ssh-config]]
     [gelfino.timbre :refer (set-tid get-tid gelf-appender)]
@@ -29,9 +29,9 @@
     [re-core.metrics :as met]
     [re-core.jobs :as jobs]
     [re-core.schedule :as sch]
-    ))
+    [taoensso.timbre :refer (refer-timbre)]))
 
-(import-logging)
+(refer-timbre)
 
 (defn disable-coloring
    "See https://github.com/ptaoussanis/timbre"

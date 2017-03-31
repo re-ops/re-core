@@ -13,7 +13,9 @@
   (:import java.util.Date)
   (:require
      pallet.stevedore.bash
-    [pallet.stevedore :refer  [script with-source-line-comments]])
+    [pallet.stevedore :refer  [script with-source-line-comments]]
+    [taoensso.timbre :refer (refer-timbre)]
+    )
   (:use
     [slingshot.slingshot :only  [throw+ try+]]
     [re-core.config :only (config)]
@@ -26,10 +28,7 @@
  `(with-source-line-comments false
    (script ~@forms)))
 
-(defn import-logging []
-   (use '[taoensso.timbre :only (debug info error warn trace)]))
-
-(import-logging)
+(refer-timbre)
 
 (defn get!
   "Reading a keys path from configuration raises an error of keys not found"

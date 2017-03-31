@@ -16,9 +16,10 @@
     [es.node :as node :refer (ES)]
     [es.common :refer (flush- index)]
     [clojurewerkz.elastisch.native.document :as doc]
-    [re-core.common :refer (envs import-logging)]))
+    [taoensso.timbre :refer (refer-timbre)]
+    [re-core.common :refer (envs)]))
 
-(import-logging)
+(refer-timbre)
 
 (defn put
    "Add/Update a jobs into ES"

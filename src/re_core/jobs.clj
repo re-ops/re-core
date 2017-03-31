@@ -10,12 +10,12 @@
 
 (ns re-core.jobs
   (:refer-clojure :exclude [identity])
-  (:use
-    [gelfino.timbre :only (set-tid)]
-    [clojure.core.strint :only (<<)]
-    [re-core.common :only (get* minute import-logging)]
-    [taoensso.carmine.locks :as with-lock])
   (:require
+    [gelfino.timbre :refer (set-tid)]
+    [re-core.common :refer (get* minute)]
+    [taoensso.carmine.locks :refer (with-lock)]
+    [clojure.core.strint :refer (<<)]
+    [taoensso.timbre :refer (refer-timbre)]
     [re-core.persistency.systems :as s]
     [es.jobs :as es]
     [flatland.useful.map :refer (map-vals filter-vals)]
@@ -27,9 +27,9 @@
     [taoensso.carmine.message-queue :as mq]
     [components.core :refer (Lifecyle)]
     [re-core.redis :refer (create-worker wcar server-conn clear-locks)]
-    ))
+    [taoensso.timbre :refer (refer-timbre)]))
 
-(import-logging)
+(refer-timbre)
 
 (def workers (atom {}))
 

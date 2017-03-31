@@ -1,4 +1,4 @@
-(comment 
+(comment
    re-core, Copyright 2012 Ronen Narkis, narkisr.com
    Licensed under the Apache License,
    Version 2.0  (the "License") you may not use this file except in compliance with the License.
@@ -10,30 +10,30 @@
    limitations under the License.)
 
 (ns physical.provider
-  "Physical machine management, 
+  "Physical machine management,
    * creation is not supported maybe pxe boot in future?
-   * deletion is not supported. 
+   * deletion is not supported.
    * start will use wake on lan)
    * stop will run remote stop command via ssh
-   * status will use ssh to try and see if the machine is running 
+   * status will use ssh to try and see if the machine is running
     "
-  (:require 
+  (:require
     [physical.validations :refer (validate-provider)]
     [re-core.provider :refer (wait-for-ssh mappings wait-for)]
-    [re-core.common :refer (import-logging bash-)] 
-    [clojure.core.strint :refer (<<)] 
-    [supernal.sshj :refer (ssh-up? execute)] 
-    [re-core.core :refer (Vm)] 
-    [slingshot.slingshot :refer  [throw+ try+]] 
-    [physical.wol :refer (wol)] 
-    [re-core.model :refer (translate vconstruct)] 
-    ))
+    [re-core.common :refer (bash-)]
+    [clojure.core.strint :refer (<<)]
+    [supernal.sshj :refer (ssh-up? execute)]
+    [re-core.core :refer (Vm)]
+    [slingshot.slingshot :refer  [throw+ try+]]
+    [physical.wol :refer (wol)]
+    [re-core.model :refer (translate vconstruct)]
+    [taoensso.timbre :refer (refer-timbre)]))
 
-(import-logging)
+(refer-timbre)
 
 (defrecord Machine [remote interface]
   Vm
-  (create [this] 
+  (create [this]
      (throw+ {:type ::not-supported} "cannot create a phaysical machine"))
 
   (delete [this]
@@ -45,21 +45,21 @@
 
   (stop [this]
      (execute (bash- ("sudo" "shutdown" "0" "-P")) remote)
-     (wait-for {:timeout [5 :minute]} 
-        #(try 
+     (wait-for {:timeout [5 :minute]}
+        #(try
            (not (ssh-up? remote))
           (catch java.net.NoRouteToHostException t true))
        {:type ::shutdown-failed} "Timed out while waiting for machine to shutdown"))
 
-  (status [this] 
-     (try 
+  (status [this]
+     (try
        (if (ssh-up? remote) "running" "Nan")
         (catch Throwable t "Nan")))
 
-  (ip [this] 
+  (ip [this]
     (remote :ip)))
 
-(defmethod translate :physical 
+(defmethod translate :physical
   [{:keys [physical machine]}]
   [(mappings  (select-keys machine [:hostname :ip :user]) {:hostname :host})
    (select-keys physical [:mac :broadcast])])

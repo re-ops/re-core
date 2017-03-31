@@ -16,8 +16,8 @@
     [es.systems :as es]
     [robert.hooke :as h]
     [re-core.persistency [types :as t]]
-    [re-core.common :refer (import-logging)]
     [physical.validations :as ph]
+    [taoensso.timbre :refer (refer-timbre)]
     [kvm.validations :as kv]
     [aws.validations :as av]
     [subs.core :as subs :refer (validate! validation when-not-nil)]
@@ -27,7 +27,7 @@
     [clojure.core.strint :refer (<<)]
      aws.model))
 
-(import-logging)
+(refer-timbre)
 
 (declare validate-system es-put es-delete)
 

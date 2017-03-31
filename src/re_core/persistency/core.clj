@@ -11,12 +11,12 @@
 
 (ns re-core.persistency.core
   (:require
-    [re-core.common :refer (import-logging)]
+    [taoensso.timbre :refer (refer-timbre)]
     [re-core.redis :refer (server-conn)]
     [components.core :refer (Lifecyle)]
     [puny.redis :as r]))
 
-(import-logging)
+(refer-timbre)
 
 (defn initilize-puny
    "Initlizes puny connection"

@@ -14,12 +14,13 @@
   (:import
     [org.elasticsearch.node NodeBuilder])
   (:require
+    [taoensso.timbre :refer (refer-timbre)]
     [safely.core :refer [safely]]
-    [re-core.common :refer (get! import-logging)]
+    [re-core.common :refer (get!)]
     [clojurewerkz.elastisch.native.conversion :as cnv]
     [clojurewerkz.elastisch.native :as es]))
 
-(import-logging)
+(refer-timbre)
 
 (def ES (atom nil))
 

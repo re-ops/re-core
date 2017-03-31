@@ -12,18 +12,19 @@
 (ns hypervisors.networking
   "Common hypervizors networking logic"
   (:require
+    [taoensso.timbre :refer (refer-timbre)]
     [supernal.sshj :refer (execute)]
     [selmer.filters :refer (add-filter!)]
     [clojure.core.strint :refer [<<]]
     [selmer.parser :refer (render-file)]
-    [re-core.common :refer [get! import-logging]]
+    [re-core.common :refer [get!]]
     [re-core.model :refer [hypervisor get-env! set-env]]
     [slingshot.slingshot :refer [throw+ try+]]
     [re-core.redis :refer [wcar]]
     [flatland.useful.utils :refer (defm)]
     [taoensso.carmine :as car]))
 
-(import-logging)
+(refer-timbre)
 
 (defn ip-to-long
   "Converts an ip address to long number"

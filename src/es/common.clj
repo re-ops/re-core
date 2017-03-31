@@ -1,12 +1,11 @@
 (ns es.common
   "type mappings index etc.."
   (:require
-    [re-core.common :refer (envs import-logging)]
+    [taoensso.timbre :refer (refer-timbre)]
     [es.node :as node :refer (ES)]
-    [clojurewerkz.elastisch.native.index :as idx])
- )
+    [clojurewerkz.elastisch.native.index :as idx]))
 
-(import-logging)
+(refer-timbre)
 
 (def ^:const index "re-core-systems")
 

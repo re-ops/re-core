@@ -18,11 +18,12 @@
     [clojure.set :refer (subset?)]
     [clojure.core.strint :refer (<<)]
     [slingshot.slingshot :refer  [throw+]]
-    [re-core.common :refer (envs import-logging)]
+    [re-core.common :refer (envs)]
+    [taoensso.timbre :refer (refer-timbre)]
     [clojurewerkz.elastisch.query :as q]
     [clojurewerkz.elastisch.native.document :as doc]))
 
-(import-logging)
+(refer-timbre)
 
 (def ^:dynamic flush? false)
 

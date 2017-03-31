@@ -4,13 +4,11 @@
     [clojure.java.shell :refer (sh)]
     [me.raynes.fs :refer (temp-file)]
     [hooks.dnsmasq :refer (update-dns hosts sudo)]
-    [re-core.common :refer (import-logging)]
     [re-core.persistency.systems :as s]
-    [supernal.sshj :refer (execute)]
-    )
+    [taoensso.timbre :refer (refer-timbre)]
+    [supernal.sshj :refer (execute)])
   (:use midje.sweet))
 
-(import-logging)
 
 (defn stubed-execute [s r]
   (let [run (temp-file "run")]
