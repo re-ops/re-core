@@ -17,10 +17,10 @@
 (def types (Types.))
 
 (defn stop-by-grep [sys]
-  (run (ls sys) | (grep :os :ubuntu-14.04) | (stop) | (watch)))
+  (run (ls sys) | (grep :os :ubuntu-15.04) | (stop) | (watch)))
 
 (defn list-by-grep [sys]
-  (run (ls sys) | (grep :os :ubuntu-14.04) | (pretty)))
+  (run (ls sys) | (grep :os :ubuntu-15.04) | (pretty)))
 
 (defn create-ec2 [sys]
   (let [base (clojure.edn/read-string (slurp "data/resources/redis-ec2-system.edn"))

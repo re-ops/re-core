@@ -25,8 +25,8 @@
     (= v (sub k))))
 
 (defn schedule-job [action [id system]]
-   (let [m {:identity id :tid (gen-uuid) :env (system :env) :user {:username "admin"}}]
-    {:system id :job (enqueue action m)}))
+  (let [m {:identity id :tid (gen-uuid) :args [(assoc system :system-id (Integer. id))]}]
+     {:system id :job (enqueue action m)}))
 
 (extend-type Systems
   Repl

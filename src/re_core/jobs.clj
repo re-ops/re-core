@@ -22,7 +22,7 @@
     [minderbinder.time :refer (parse-time-unit)]
     [puny.core :refer (entity)]
     [re-core.workflows :as wf]
-    [re-core.model :refer (set-env operations)]
+    [re-core.model :refer (operations)]
     [taoensso.carmine :as car]
     [taoensso.carmine.message-queue :as mq]
     [components.core :refer (Lifecyle)]
@@ -44,7 +44,7 @@
    "marks jobs as succesful"
    [spec status]
   (let [status-exp (* 1000 60 (or (job* :status-expiry) (* 24 60)))]
-    (es/put (merge spec {:status status :end (System/currentTimeMillis)}) status-exp :flush? true)
+    (es/put (merge spec {:status status :end (System/currentTimeMillis)}) status-exp)
     (trace "saved status" (merge spec {:status status :end (System/currentTimeMillis)}))
     {:status status}))
 
