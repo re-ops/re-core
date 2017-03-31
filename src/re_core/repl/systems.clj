@@ -16,6 +16,7 @@
   "System jobs"
   (stop [this items])
   (create [this itmes])
+  (reload [this itmes])
   (status [this jobs])
   (watch [this jobs]))
 
@@ -32,7 +33,7 @@
   Repl
   (ls [this]
     (let [systems (into [] (s/all-systems))]
-         [this {:systems (doall (map (juxt identity s/get-system) systems))}]))
+       [this {:systems (doall (map (juxt identity s/get-system) systems))}]))
 
   (find [this exp])
 
@@ -55,6 +56,9 @@
    (create [this {:keys [systems] :as m}]
       [this (merge m {:jobs (map (partial schedule-job "create") systems) :queue "create"})])
 
+   (reload [this {:keys [systems] :as m}]
+      [this (merge m {:jobs (map (partial schedule-job "reload") systems) :queue "reload"})])
+
    (status [this {:keys [jobs queue]}]
       (map (fn [{:keys [job] :as m }] (assoc m :status (jobs/status queue job))) jobs))
 
@@ -70,5 +74,5 @@
 
 
 (defn refer-systems []
-  (require '[re-core.repl.systems :as sys :refer [stop watch create status]]))
+  (require '[re-core.repl.systems :as sys :refer [stop watch create status reload]]))
 

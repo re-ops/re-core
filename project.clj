@@ -40,7 +40,7 @@
                  ; hypervisors
                  [narkisr/digitalocean "1.3"]
                  [potemkin "0.4.2"] ; see http://bit.ly/2mVr1sI
-                 [amazonica "0.3.13" ]
+                 [amazonica "0.3.94" ]
 
                  ; gce
                  [com.google.http-client/google-http-client-jackson2 "1.21.0"]
