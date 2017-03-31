@@ -1,13 +1,15 @@
 (ns re-core.fixtures.core
-  (:refer-clojure :exclude [type]))
+  (:refer-clojure :exclude [type])
+  (:require
+    [slingshot.slingshot :refer (get-thrown-object)]))
 
 (defn is-type? [type]
   (fn [exception]
-    (= type (get-in (.getData exception) [:object :type]))))
+    (= type (-> exception get-thrown-object :type))))
 
 (defn with-m? [m]
   (fn [actual]
-    (= (get-in (.getData actual) [:object :errors]) m)))
+    (= (-> actual get-thrown-object :errors) m)))
 
 (defmacro with-conf
   "Using fixture/re-core.edn conf file"
