@@ -5,7 +5,7 @@
  }
 
  :aws {
-  :instance-type "t1.micro"
+  :instance-type "t2.micro"
   :key-name "enceladus"
   :endpoint "ec2.eu-west-1.amazonaws.com"
   :security-groups ["default"]

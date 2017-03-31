@@ -16,17 +16,18 @@
   (with-state-changes [(before :facts (populate-system redis-type redis-ec2-spec))]
       (fact "aws creation workflows" :integration :ec2 :workflow
           (wf/create (spec)) => nil
-          (wf/create (spec)) => (throws ExceptionInfo  (is-type? :re-core.workflows/machine-exists))
-          (wf/stop (spec)) => nil
-          (wf/create (spec)) => (throws ExceptionInfo  (is-type? :re-core.workflows/machine-exists))
-          (wf/destroy (spec)) => nil)
+          ;; (wf/create (spec)) => (throws ExceptionInfo  (is-type? :re-core.workflows/machine-exists))
+          ;; (wf/stop (spec)) => nil
+          ;; (wf/create (spec)) => (throws ExceptionInfo  (is-type? :re-core.workflows/machine-exists))
+          ;; (wf/destroy (spec)) => nil
+          )
 
-      (fact "aws provisioning workflows" :integration :ec2 :workflow
+      #_(fact "aws provisioning workflows" :integration :ec2 :workflow
           (wf/create (spec)) => nil
           (wf/reload (spec)) => nil
           (wf/destroy (spec)) => nil)
 
-      (fact "vpc private ip" :integration :ec2 :vpc
+      #_(fact "vpc private ip" :integration :ec2 :vpc
         (when-let [{:keys [subnet id]} (clojure.edn/read-string (System/getenv "VPC"))]
           (s/update-system 1
             (spec {
@@ -38,7 +39,7 @@
           (wf/destroy (spec)) => nil))
 
 
-      (fact "vpc public ip" :integration :ec2 :vpc
+      #_(fact "vpc public ip" :integration :ec2 :vpc
         (when-let [{:keys [subnet id]} (clojure.edn/read-string (System/getenv "VPC"))]
           (s/update-system 1
             (spec {
@@ -49,7 +50,7 @@
           (wf/reload (spec)) => nil
           (wf/destroy (spec)) => nil))
 
-      (fact "vpc eip" :integration :ec2 :vpc
+      #_(fact "vpc eip" :integration :ec2 :vpc
         ; will be run only if VPC env var is defined
         (when-let [{:keys [eip id subnet]} (clojure.edn/read-string (System/getenv "VPC"))]
            (s/update-system 1
@@ -63,7 +64,7 @@
               => (contains {:public-ip-address eip})
            (wf/destroy (spec)) => nil))
 
-      (fact "aws eip workflows" :integration :ec2 :workflow
+      #_(fact "aws eip workflows" :integration :ec2 :workflow
         ; will be run only if EIP env var is defined
         (when-let [eip (System/getenv "EIP")]
            (wf/create (spec {:machine {:ip eip}})) => nil
@@ -75,19 +76,19 @@
            (:machine (spec)) => (contains {:ip eip})
            (wf/destroy (spec)) => nil))
 
-      (fact "aws with ebs volumes" :integration :ec2 :workflow
+      #_(fact "aws with ebs volumes" :integration :ec2 :workflow
         (let [with-vol {:aws {:volumes [{:device "/dev/sdn" :size 10 :clear true :volume-type "standard" }]}}]
           (wf/create (spec with-vol)) => nil
           (wf/reload (spec with-vol)) => nil
           (wf/destroy (spec with-vol)) => nil))
 
-      (fact "aws with ephemeral volumes" :integration :ec2 :workflow
+      #_(fact "aws with ephemeral volumes" :integration :ec2 :workflow
         (let [with-vol {:aws {:instance-type "m1.small" :block-devices [{:device-name "/dev/sdb" :virtual-name "ephemeral0" }]}}]
           (wf/create (spec with-vol)) => nil
           (wf/reload (spec with-vol)) => nil
           (wf/destroy (spec with-vol)) => nil))
 
-      (fact "aws with zone and groups" :integration :ec2 :workflow :zone
+      #_(fact "aws with zone and groups" :integration :ec2 :workflow :zone
         (let [with-zone {:aws {:availability-zone "eu-west-1a" :security-groups ["test"]}} ]
           (wf/create (spec with-zone)) => nil
           (let [{:keys [placement security-groups]}
@@ -98,25 +99,25 @@
           (wf/reload (spec with-zone)) => nil
           (wf/destroy (spec with-zone)) => nil))
 
-      (fact "aws puppetization" :integration :ec2 :workflow :puppet :s3
+      #_(fact "aws puppetization" :integration :ec2 :workflow :puppet :s3
           (wf/create (spec)) => nil
           (wf/provision redis-type (spec)) => nil
           (wf/destroy (spec)) => nil)
 
-      (fact "aws puppetization of s3" :integration :ec2 :workflow :puppet
+      #_(fact "aws puppetization of s3" :integration :ec2 :workflow :puppet
           (let [s3-redis (assoc-in redis-type [:puppet-std :dev :module :src]
                             "s3://opsk-sandboxes/redis-sandbox-0.4.1.tar.gz")]
             (wf/create (spec)) => nil
             (wf/provision s3-redis (spec)) => nil
             (wf/destroy (spec)) => nil))
 
-      (fact "aws clone workflows" :integration :ec2 :workflow :clone
+      #_(fact "aws clone workflows" :integration :ec2 :workflow :clone
         (wf/create (spec)) => nil
         (wf/clone {:system-id 1 :hostname "bar" :owner "ronen"}) => nil
         (wf/destroy (assoc (s/get-system 2) :system-id 2)) => nil
         (wf/destroy (spec)) => nil)
 
-      (fact "aws ebs-optimized" :integration :ec2 :workflow
+      #_(fact "aws ebs-optimized" :integration :ec2 :workflow
         (wf/create (-> (spec)
           (assoc-in [:aws :instance-type] "m1.large")
           (assoc-in [:aws :ebs-optimized] true))) => nil

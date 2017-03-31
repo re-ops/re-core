@@ -28,7 +28,7 @@
                  [org.codehaus.groovy/groovy "2.4.10"]
 
                  ; hooks/remoting
-                 [clj-http "0.7.6"]
+                 [clj-http "3.4.1"]
                  [http-kit "2.1.18"]
                  [supernal "0.6.1"]
                  [conjul "0.0.2"]
@@ -40,7 +40,7 @@
                  ; hypervisors
                  [narkisr/digitalocean "1.3"]
                  [potemkin "0.4.2"] ; see http://bit.ly/2mVr1sI
-                 [amazonica "0.3.94" ]
+                 [amazonica "0.3.94" :exclusions [com.taoensso/nippy]]
 
                  ; gce
                  [com.google.http-client/google-http-client-jackson2 "1.21.0"]
