@@ -87,8 +87,7 @@
   "Main components startup (jetty, job workers etc..)"
   [components]
   (start-all components)
-  (info (slurp (resource "main/resources/re-core.txt")))
-  (info (<<  "version ~{version} see http://re-core-ops.com"))
+  (info (<<  "version ~{version} see https://github.com/re-ops/re-core"))
    components
   )
 

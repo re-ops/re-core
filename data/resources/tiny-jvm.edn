@@ -4,21 +4,15 @@
   :os :ubuntu-14.10
  }
 
- :openstack {
-  :flavor "m1.small" 
-  :tenant "admin"
-  :key-name "re-core"
-  :networks ["bar"]
+ :aws {
+  :instance-type "t1.micro"
+  :key-name "enceladus"
+  :endpoint "ec2.eu-west-1.amazonaws.com"
   :security-groups ["default"]
+  :ebs-optimized false
  }
 
  :defaults {
-   :dev {
-     :openstack {
-        :networks ["int-2"]
-        :security-groups ["default"]
-     }
-   }
  }
 
  :type "jvm"
