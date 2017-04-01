@@ -11,9 +11,9 @@ appender('console', ConsoleAppender) {
 
 appender('file', FileAppender) {
   if(new File('/var/log/').canWrite()){
-    file = '/var/log/celestial-third-party.log'
+    file = '/var/log/re-core-third-party.log'
   } else {
-    file = 'celestial-third-party.log'
+    file = 're-core-third-party.log'
   }
   append = true
   encoder(PatternLayoutEncoder) {
