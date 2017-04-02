@@ -26,7 +26,7 @@
     [re-core.core :refer (Vm)]
     [taoensso.timbre :as timbre]
     [re-core.persistency.systems :as s]
-    [re-core.model :refer (translate vconstruct)]))
+    [re-core.model :refer (translate vconstruct hypervisor*)]))
 
 (timbre/refer-timbre)
 
@@ -74,6 +74,7 @@
          (assoc-pub-ip endpoint instance-id spec))
        (update-ip spec endpoint instance-id)
        (wait-for-ssh (instance-ip spec endpoint instance-id) user [ssh-timeout :minute])
+       (info "ssh is up!")
        (set-hostname spec endpoint instance-id user)
         this))
 
@@ -132,8 +133,7 @@
 (defn assign-vpc
    "Attach vpc info"
    [{:keys [aws] :as spec}]
-   {:pre [(not (nil? (:vpc aws))) (every? (:vpc aws) [:vpc-id :subnet-id])]}
-   (let [{:keys [subnet-id assign-public vpc-id]} (:vpc aws)
+   (let [{:keys [subnet-id assign-public vpc-id]} (or (:vpc aws) (hypervisor* :aws :default-vpc))
          groups (find-groups (:endpoint aws) (:security-groups aws) vpc-id)
          public [{:groups groups :device-index 0 :associate-public-ip-address assign-public :subnet-id subnet-id}]]
      (-> spec
@@ -145,12 +145,12 @@
   "Creates an ec2 spec"
   [{:keys [aws machine] :as spec}]
   (let [spec' (merge-with merge (dissoc-in* spec [:aws :endpoint]) defaults)]
-    (cond-> spec'
-      (get-in spec' [:aws :availability-zone])
-        (map-key [:aws :availability-zone] [:aws :placement :availability-zone])
-      (get-in spec' [:aws :block-devices])
-        (map-key [:aws :block-devices] [:aws :block-device-mappings])
-      (get-in spec' [:aws :vpc]) assign-vpc)))
+    (assign-vpc
+      (cond-> spec'
+        (get-in spec' [:aws :availability-zone])
+          (map-key [:aws :availability-zone] [:aws :placement :availability-zone])
+        (get-in spec' [:aws :block-devices])
+          (map-key [:aws :block-devices] [:aws :block-device-mappings])))))
 
 (defmethod translate :aws [{:keys [aws machine] :as spec}]
   [(aws :endpoint) (aws-spec spec) (or (machine :user) "root")])

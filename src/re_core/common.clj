@@ -56,7 +56,6 @@
 
 (def half-hour (* minute 30))
 
-
 (defn gen-uuid [] (.replace (str (java.util.UUID/randomUUID)) "-" ""))
 
 (defn interpulate

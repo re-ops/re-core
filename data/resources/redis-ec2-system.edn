@@ -11,7 +11,7 @@
  :aws {
   :instance-type "t2.micro"
   :key-name "enceladus"
-  :endpoint "ec2.eu-west-1.amazonaws.com"
+  :endpoint "ec2.ap-southeast-2.amazonaws.com"
   :security-groups ["default"]
   :ebs-optimized false
  }

@@ -28,8 +28,9 @@
 (defn reload-by [sys f]
  (run (f sys) | (reload) | (watch)))
 
-(defn create-ec2 [sys]
-  (let [base (clojure.edn/read-string (slurp "data/resources/redis-ec2-system.edn"))
-        specs (map (fn [i] (assoc-in base [:machine :hostname] (str "red" i))) (range 2))]
+(defn instance [] (clojure.edn/read-string (slurp "data/resources/redis-ec2-system.edn")))
+
+(defn create-ec2 [sys base]
+  (let [specs (map (fn [i] (assoc-in base [:machine :hostname] (str "red" i))) (range 2))]
     (run (add sys specs) | (create) | (watch))))
 

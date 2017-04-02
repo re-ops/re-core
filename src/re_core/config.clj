@@ -104,8 +104,13 @@
      :ostemplates #{:required :Map}
      }})
 
-(def ^{:doc "aws section validation"} aws-v
-  {:aws {:access-key #{:required :String} :secret-key #{:required :String}}})
+(def ^{:doc "aws section validation"} aws-v {
+  :aws {
+    :access-key #{:required :String} :secret-key #{:required :String}
+    :default-vpc {
+      :vpc-id #{:required :String} :subnet-id #{:required :String}
+    } 
+    }})
 
 (validation :managment
   (when-not-nil #{:floating :network} "must be either floating or network"))

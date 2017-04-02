@@ -12,16 +12,9 @@
   (:import clojure.lang.ExceptionInfo)
   (:use midje.sweet))
 
-(defn add-vpc []
-  (when-let [{:keys [subnet id]} (clojure.edn/read-string (System/getenv "VPC"))]
-     (s/update-system 1
-       (spec {
-         :machine {:os :ubuntu-15.04}
-         :aws {:vpc {:assign-public true :subnet-id subnet :vpc-id id}}}))))
-
 (with-conf local-conf
-  (with-state-changes [(before :facts (do (populate-system redis-type redis-ec2-spec) (add-vpc)))]
-      (fact "aws creation workflows" :integration :ec2 :workflow
+  (with-state-changes [(before :facts (populate-system redis-type redis-ec2-spec))]
+      (fact "aws creation workflows" :integration :ec2 :workflow :1234
            (wf/create (spec)) => nil
            (wf/create (spec)) => (throws ExceptionInfo  (is-type? :re-core.workflows/machine-exists))
            (wf/stop (spec)) => nil
@@ -34,7 +27,7 @@
           (wf/destroy (spec)) => nil)
 
       (fact "vpc eip" :integration :ec2 :vpc
-        (when-let [{:keys [eip id subnet]} (clojure.edn/read-string (System/getenv "VPC"))]
+        (when-let [{:keys [eip]} (clojure.edn/read-string (System/getenv "EIP"))]
            (s/update-system 1 (spec {:machine {:ip eip :os :ubuntu-15.04}}))
            (wf/create (spec)) => nil
            (:machine (spec)) => (contains {:ip eip})
@@ -49,18 +42,18 @@
           (wf/reload (spec with-vol)) => nil
           (wf/destroy (spec with-vol)) => nil))
 
-      (fact "aws with ephemeral volumes" :integration :ec2 :workflow
-        (let [with-vol {:aws {:instance-type "m3.medium" :block-devices [{:device-name "/dev/sdb" :virtual-name "ephemeral0" }]}}]
+      #_(fact "aws with ephemeral volumes" :integration :ec2 :workflow :ephemeral
+        (let [with-vol {:aws {:instance-type "c3.large" :block-devices [{:device-name "/dev/sdb" :virtual-name "ephemeral0" }]}}]
           (wf/create (spec with-vol)) => nil
           (wf/reload (spec with-vol)) => nil
           (wf/destroy (spec with-vol)) => nil))
 
-      (fact "aws with zone and groups" :integration :ec2 :workflow :zone
-        (let [with-zone {:aws {:availability-zone "eu-west-1a" :security-groups ["test"]}} ]
+      (fact "aws with zone and security groups" :integration :ec2 :workflow :zone
+        (let [with-zone {:aws {:availability-zone "ap-southeast-2c" :security-groups ["test"]}} ]
           (wf/create (spec with-zone)) => nil
           (let [{:keys [placement security-groups]}
                 (instance-desc (get-spec :aws :endpoint) (get-spec :aws :instance-id))]
-            placement => (contains {:availability-zone "eu-west-1a"})
+            placement => (contains {:availability-zone "ap-southeast-2a"})
             (first security-groups) => (contains {:group-name "Test"}))
           (wf/reload (spec with-zone)) => nil
           (wf/destroy (spec with-zone)) => nil))
@@ -77,9 +70,9 @@
           (assoc-in [:aws :ebs-optimized] true))) => nil
         (wf/destroy (spec)) => nil))
 
-  (comment 
-    "The following are deprecated or require special environment to run" 
-    
+  (comment
+    "The following are deprecated or require special environment to run"
+
     ; will be re-moted
     (fact "aws puppetization" :integration :ec2 :workflow :puppet :s3
           (wf/create (spec)) => nil
