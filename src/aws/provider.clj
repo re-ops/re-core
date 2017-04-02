@@ -60,6 +60,8 @@
          {:keys [reservation]} (with-ctx ec2/run-instances inst)]
      (get-in reservation [:instances 0 :instance-id])))
 
+(def ssh-timeout 10)
+
 (defrecord Instance [endpoint spec user]
   Vm
   (create [this]
@@ -71,7 +73,7 @@
          (debug (<<  "Associating existing ip to ~{instance-id}"))
          (assoc-pub-ip endpoint instance-id spec))
        (update-ip spec endpoint instance-id)
-       (wait-for-ssh (instance-ip spec endpoint instance-id) user [5 :minute])
+       (wait-for-ssh (instance-ip spec endpoint instance-id) user [ssh-timeout :minute])
        (set-hostname spec endpoint instance-id user)
         this))
 
@@ -84,7 +86,7 @@
         (debug (<<  "Associating existing ip to ~{instance-id}"))
         (assoc-pub-ip endpoint instance-id spec))
       (update-ip spec endpoint instance-id)
-      (wait-for-ssh (instance-ip spec endpoint instance-id) user [5 :minute])))
+      (wait-for-ssh (instance-ip spec endpoint instance-id) user [ssh-timeout :minute])))
 
   (delete [this]
     (with-instance-id
