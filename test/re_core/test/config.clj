@@ -15,10 +15,14 @@
       (validate-missing :re-core :https-port) =>  {:re-core {:https-port "must be present"}}
       (validate-missing :re-core :port) => {:re-core {:port "must be present"}})
 
-
 (fact "missing aws options"
-    (validate-conf (assoc-in local-prox [:hypervisor :dev :aws] {})) =>
-      {:hypervisor {:dev {:aws {:access-key "must be present" :secret-key "must be present"}}}})
+    (validate-conf (assoc-in local-prox [:hypervisor :dev :aws] {})) => {
+       :hypervisor {
+         :dev {
+           :aws {
+             :access-key "must be present" :secret-key "must be present"
+             :default-vpc {
+               :subnet-id "must be present", :vpc-id "must be present" }}}}})
 
 (fact "wrong central logging"
   (validate-conf (assoc-in local-prox [:re-core :log :gelf :type] :foo)) =>

@@ -5,7 +5,7 @@
    :https-port 8443
    :log {
      :level :info
-     :path "/var/log/celestial.log"
+     :path "/var/log/re-core.log"
      ;; :gelf{
      ;;   :host "1.2.3.4"
      ;;   :type :kibana3 ; :kibana4/:gralog2/:logstash

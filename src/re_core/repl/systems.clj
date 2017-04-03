@@ -16,6 +16,7 @@
   "System jobs"
   (stop [this items])
   (create [this itmes])
+  (destroy [this itmes])
   (reload [this itmes])
   (status [this jobs])
   (watch [this jobs]))
@@ -48,6 +49,9 @@
   (add [this specs]
      [this {:systems (map (fn [s] (let [id (s/add-system s)] [id (s/get-system id)])) specs)}]))
 
+(defn filter-done [sts]
+  (into #{} (filter (fn [{:keys [status]}] (or (#{:done :recently-done} status) (nil? status))) sts)))
+
 (extend-type Systems
   Jobs
    (stop [this {:keys [systems] :as m}]
@@ -59,20 +63,21 @@
    (reload [this {:keys [systems] :as m}]
       [this (merge m {:jobs (map (partial schedule-job "reload") systems) :queue "reload"})])
 
+   (destroy [this {:keys [systems] :as m}]
+      [this (merge m {:jobs (map (partial schedule-job "destroy") systems) :queue "destroy"})])
+
    (status [this {:keys [jobs queue]}]
       (map (fn [{:keys [job] :as m }] (assoc m :status (jobs/status queue job))) jobs))
 
    (watch [this {:keys [jobs queue] :as js}]
-     (loop [done (into #{} (filter :status (status this js)))
+     (loop [done (filter-done (status this js))
             bar (pr/progress-bar (count jobs))]
         (if (>= (:progress bar) (:total bar))
           (pr/print (pr/done bar))
           (do (Thread/sleep 100)
             (pr/print bar)
-            (let [done' (into #{} (filter :status (status this js)))]
+            (let [done' (filter-done (status this js))]
                (recur done' (pr/tick bar (count (difference done' done))))))))))
 
-
 (defn refer-systems []
-  (require '[re-core.repl.systems :as sys :refer [stop watch create status reload]]))
-
+  (require '[re-core.repl.systems :as sys :refer [stop watch create status reload destroy]]))

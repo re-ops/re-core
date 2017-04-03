@@ -159,7 +159,8 @@
             "runtest" ["midje" ":filter" "-integration"]
             "populate" ["with-profile" "populate" "do" "run" "-m" "re-core.fixtures.populate"]
             ; https://github.com/stuartsierra/reloaded workflow
-            "reload" ["with-profile" "refresh" "do" "repl"]
+            "reloadable" ["with-profile" "refresh" "do" "repl"]
+            "travis" ["do" "clean," "compile," "midje" ":filter" "-integration," "midje" ":redis," "midje" ":elasticsearch" ]
             }
 
 

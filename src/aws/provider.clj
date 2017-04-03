@@ -74,7 +74,7 @@
          (assoc-pub-ip endpoint instance-id spec))
        (update-ip spec endpoint instance-id)
        (wait-for-ssh (instance-ip spec endpoint instance-id) user [ssh-timeout :minute])
-       (info "ssh is up!")
+       (info "ssh is up for" instance-id)
        (set-hostname spec endpoint instance-id user)
         this))
 
@@ -100,7 +100,7 @@
          (dissoc-in* (s/get-system (spec :system-id)) [:aws :instance-id]))
       ))
 
-  (stop [this]
+ (stop [this]
     (with-instance-id
        (debug "stopping" instance-id)
        (when-not (first (:addresses (describe-eip endpoint instance-id)))
@@ -124,17 +124,19 @@
 (def defaults {:aws {:min-count 1 :max-count 1}})
 
 (defn find-groups
+  "Finding security groups under vpc"
    [endpoint names vpc-id]
+   {:pre [endpoint]}
    (map :group-id
      (filter (fn [{:keys [group-id group-name]}] ((into #{} names) group-name))
-      (:security-groups
-        (with-ctx ec2/describe-security-groups {:filters [{:name "vpc-id" :values [vpc-id]}]})))))
+       (:security-groups
+         (with-ctx ec2/describe-security-groups {:filters [{:name "vpc-id" :values [vpc-id]}]})))))
 
 (defn assign-vpc
    "Attach vpc info"
-   [{:keys [aws] :as spec}]
+   [endpoint {:keys [aws] :as spec}]
    (let [{:keys [subnet-id assign-public vpc-id]} (or (:vpc aws) (hypervisor* :aws :default-vpc))
-         groups (find-groups (:endpoint aws) (:security-groups aws) vpc-id)
+         groups (find-groups endpoint (:security-groups aws) vpc-id)
          public [{:groups groups :device-index 0 :associate-public-ip-address assign-public :subnet-id subnet-id}]]
      (-> spec
         (assoc-in [:aws :network-interfaces] public)
@@ -145,7 +147,7 @@
   "Creates an ec2 spec"
   [{:keys [aws machine] :as spec}]
   (let [spec' (merge-with merge (dissoc-in* spec [:aws :endpoint]) defaults)]
-    (assign-vpc
+    (assign-vpc (get-in spec [:aws :endpoint])
       (cond-> spec'
         (get-in spec' [:aws :availability-zone])
           (map-key [:aws :availability-zone] [:aws :placement :availability-zone])
@@ -163,3 +165,7 @@
 (defmethod vconstruct :aws [spec]
   (apply ->Instance (validate (translate spec))))
 
+(comment
+   (let [endpoint "ec2.ap-southeast-2.amazonaws.com"] 
+     )
+  )

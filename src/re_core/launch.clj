@@ -47,6 +47,8 @@
         {:appenders {:gelf (gelf-appender {:host (log* :gelf :host)})}}))
     (merge-config!
       {:appenders {:rolling (rolling-appender {:path (log* :path) :pattern :weekly})}})
+    (merge-config!
+      {:appenders {:println {:enabled? false}}})
     (disable-coloring)
     (set-level! (log* :level))))
 

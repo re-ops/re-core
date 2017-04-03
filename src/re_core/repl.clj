@@ -30,7 +30,10 @@
 
 (defn instance [] (clojure.edn/read-string (slurp "data/resources/redis-ec2-system.edn")))
 
-(defn create-ec2 [sys base]
+(defn create-instances [sys base]
   (let [specs (map (fn [i] (assoc-in base [:machine :hostname] (str "red" i))) (range 2))]
     (run (add sys specs) | (create) | (watch))))
 
+(defn destroy-instances
+   [sys]
+   (run (ls sys) | (destroy) | (watch)))

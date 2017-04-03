@@ -84,13 +84,13 @@
   (let [vm (vconstruct spec)]
     (info "setting up" machine)
     (when (.status vm)
-      (info "clearing previous" machine)
+      (debug "clearing previous" machine)
       (.stop vm)
       (.delete vm))
     (let [vm* (.create (vconstruct (updated-system system-id)))]
       (.start vm*)
       (running! vm*)
-      (info "done system setup"))))
+      (debug "done system setup"))))
 
 (deflow stop
   "Stops a vm instance"

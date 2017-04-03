@@ -42,7 +42,7 @@
           (wf/reload (spec with-vol)) => nil
           (wf/destroy (spec with-vol)) => nil))
 
-      #_(fact "aws with ephemeral volumes" :integration :ec2 :workflow :ephemeral
+      (fact "aws with ephemeral volumes" :integration :ec2 :workflow :ephemeral
         (let [with-vol {:aws {:instance-type "c3.large" :block-devices [{:device-name "/dev/sdb" :virtual-name "ephemeral0" }]}}]
           (wf/create (spec with-vol)) => nil
           (wf/reload (spec with-vol)) => nil
@@ -53,8 +53,8 @@
           (wf/create (spec with-zone)) => nil
           (let [{:keys [placement security-groups]}
                 (instance-desc (get-spec :aws :endpoint) (get-spec :aws :instance-id))]
-            placement => (contains {:availability-zone "ap-southeast-2a"})
-            (first security-groups) => (contains {:group-name "Test"}))
+            placement => (contains {:availability-zone "ap-southeast-2c"})
+            (first security-groups) => (contains {:group-name "test"}))
           (wf/reload (spec with-zone)) => nil
           (wf/destroy (spec with-zone)) => nil))
 
@@ -66,7 +66,7 @@
 
       (fact "aws ebs-optimized" :integration :ec2 :workflow
         (wf/create (-> (spec)
-          (assoc-in [:aws :instance-type] "m1.large")
+          (assoc-in [:aws :instance-type] "m4.large")
           (assoc-in [:aws :ebs-optimized] true))) => nil
         (wf/destroy (spec)) => nil))
 

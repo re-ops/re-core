@@ -23,4 +23,4 @@ before_script:
   - curl http://127.0.0.1:9200/
 
 script:
-  - lein do clean, compile, midje :filter -integration, midje :redis, midje :elasticsearch
+  - lein travis
