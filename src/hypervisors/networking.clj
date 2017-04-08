@@ -13,7 +13,7 @@
   "Common hypervizors networking logic"
   (:require
     [taoensso.timbre :refer (refer-timbre)]
-    [supernal.sshj :refer (execute)]
+    [re-mote.sshj :refer (execute)]
     [selmer.filters :refer (add-filter!)]
     [clojure.core.strint :refer [<<]]
     [selmer.parser :refer (render-file)]

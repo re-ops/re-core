@@ -6,7 +6,7 @@
     [hooks.dnsmasq :refer (update-dns hosts sudo)]
     [re-core.persistency.systems :as s]
     [taoensso.timbre :refer (refer-timbre)]
-    [supernal.sshj :refer (execute)])
+    [re-mote.sshj :refer (execute)])
   (:use midje.sweet))
 
 

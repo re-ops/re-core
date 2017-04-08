@@ -22,7 +22,7 @@
     [re-core.provider :refer (wait-for-ssh mappings wait-for)]
     [re-core.common :refer (bash-)]
     [clojure.core.strint :refer (<<)]
-    [supernal.sshj :refer (ssh-up? execute)]
+    [re-mote.sshj :refer (ssh-up? execute)]
     [re-core.core :refer (Vm)]
     [slingshot.slingshot :refer  [throw+ try+]]
     [physical.wol :refer (wol)]

@@ -12,12 +12,13 @@
 (ns kvm.networking
   (:require
     [re-core.provider :refer (wait-for)]
-    [slingshot.slingshot :refer [throw+]]
+    [slingshot.slingshot :refer (throw+)]
     [taoensso.timbre :as timbre]
     [clojure.core.strint :refer (<<)]
-    [supernal.sshj :refer (execute get-log collect-log)]
-    [re-core.common :refer [gen-uuid]]
-    [clojure.java.shell :refer [sh]]
+    [re-mote.sshj :refer (execute)]
+    [re-mote.log :refer (get-log collect-log)]
+    [re-core.common :refer (gen-uuid)]
+    [clojure.java.shell :refer (sh)]
     [clojure.data.zip.xml :as zx]
     [kvm.common :refer (connect domain-zip)]))
 

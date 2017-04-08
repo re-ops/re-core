@@ -20,7 +20,7 @@
     [re-core.common :refer (bash-)])
   (:use
     [clojure.core.strint :only (<<)]
-    [supernal.sshj :only (execute)]))
+    [re-mote.sshj :only (execute)]))
 
 (refer-timbre)
 

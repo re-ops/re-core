@@ -69,8 +69,4 @@
           (wf/stop (spec)) => nil 
           (wf/reload (spec)) => nil 
           (wf/destroy (spec)) => nil))
-
-     (fact "gce puppetization" :integration :gce :workflow :puppet
-        (wf/create (spec)) => nil
-        (wf/provision redis-type (spec)) => nil 
-        (wf/destroy (spec)) => nil)))
+     ))

@@ -29,7 +29,7 @@
 
 
 (defprotocol Remoter
-  "Remote automation (capistrano, fabric and supernal) base api"
+  "Remote automation (capistrano, fabric and re-mote) base api"
   (setup [this] "Sets up this remoter (pulling code, etc..)")
   (run [this ] "executes a task on remote hosts with")
   (cleanup [this] "Cleans up (deletes local source etc..)"))

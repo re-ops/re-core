@@ -17,7 +17,6 @@
     [clojure.java.io :refer (resource)]
     [re-core.common :refer (get! get* version)]
     [clojure.core.strint :refer (<<)]
-    [supernal.core :refer [ssh-config]]
     [gelfino.timbre :refer (set-tid get-tid gelf-appender)]
     [taoensso.timbre  :as timbre :refer (merge-config! set-level!)]
     [taoensso.timbre.appenders.3rd-party.rolling :refer (rolling-appender) ]
@@ -80,7 +79,6 @@
     (initialize-networking)
     (setup-logging)
     (add-shutdown components)
-    (ssh-config {:key (get! :ssh :private-key-path) :user "root"} )
     (start-nrepl)
     (setup-all components)
      components))

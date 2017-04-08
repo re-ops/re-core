@@ -28,9 +28,6 @@
       :args #{:Vector} 
    }))
 
-(def puppet-std-v {:puppet-std #{:required :puppet*}})
-
-(defn validate-type [{:keys [puppet-std] :as t}]
-  (validate! t 
-     (combine (if puppet-std puppet-std-v {}) {:type #{:required :String}}) :error ::non-valid-type ))
+(defn validate-type [t]
+  (validate! t {:type #{:required :String}} :error ::non-valid-type ))
 

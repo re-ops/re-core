@@ -18,7 +18,6 @@
     digital.provider
     aws.provider
     physical.provider
-    re-core.puppet_standalone
     ;cloning
     aws.model
     [re-core.persistency.systems :as s]
@@ -29,7 +28,7 @@
     [slingshot.slingshot :refer  [throw+ try+]]
     [re-core.model :refer (vconstruct pconstruct rconstruct)]
     [taoensso.timbre :refer (refer-timbre)])
-  (:import [re_core.puppet_standalone Standalone]))
+  )
 
 (refer-timbre)
 

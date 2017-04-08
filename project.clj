@@ -30,7 +30,7 @@
                  ; hooks/remoting
                  [clj-http "3.4.1"]
                  [http-kit "2.1.18"]
-                 [supernal "0.6.1"]
+                 [re-mote "0.1.0"]
                  [conjul "0.0.2"]
 
                  ;api
@@ -122,7 +122,7 @@
         }
 
         :aot [kvm.provider aws.provider physical.provider digital.provider
-              re-core.core re-core.puppet-standalone re-core.launch re-core.repl.base]
+              re-core.core re-core.launch re-core.repl.base]
 
         :test-paths ["test" "data"]
         :source-paths  ["dev"]
@@ -145,8 +145,7 @@
 
 
         :aot [remote.capistrano remote.ruby freenas.provider kvm.provider
-              aws.provider physical.provider re-core.core re-core.puppet-standalone
-              re-core.launch]
+              aws.provider physical.provider re-core.core re-core.launch]
 
         :main re-core.launch
       }

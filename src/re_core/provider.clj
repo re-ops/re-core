@@ -14,7 +14,7 @@
     (:require
       [flatland.useful.map :refer (dissoc-in*)]
       [subs.core :refer (validation when-not-nil)]
-      [supernal.sshj :refer (ssh-up?)]
+      [re-mote.sshj :refer (ssh-up?)]
       [re-core.model :refer (hypervisor)]
       [minderbinder.time :refer (parse-time-unit)]
       [re-core.common :refer (get! curr-time)]

@@ -18,7 +18,7 @@
     [kvm.disks :refer (clear-volumes)]
     [kvm.common :refer (connect get-domain domain-zip state)]
     [kvm.networking :refer (public-ip)]
-    [supernal.sshj :refer (ssh-up?)]
+    [re-mote.sshj :refer (ssh-up?)]
     [re-core.core :refer (Vm)] 
     [taoensso.timbre :as timbre]
     [re-core.persistency.systems :as s]

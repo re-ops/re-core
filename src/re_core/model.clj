@@ -78,13 +78,13 @@
 
 (defmulti check-validity (fn [m] [(figure-virt m) (or (:as m) :entity)] ))
 
-(def provisioners #{:chef :puppet :puppet-std})
+(def provisioners #{:chef :puppet})
 
 (defmulti pconstruct
   "Creates a Provisioner instance model from input spec" 
    (fn [type spec] (first (filter provisioners (keys type)))))
 
-(def remoters #{:supernal :capistrano :ruby})
+(def remoters #{:re-mote :capistrano :ruby})
 
 (defn figure-rem [spec] (first (filter remoters (keys spec))))
 

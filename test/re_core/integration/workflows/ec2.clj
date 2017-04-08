@@ -72,20 +72,6 @@
 
   (comment
     "The following are deprecated or require special environment to run"
-
-    ; will be re-moted
-    (fact "aws puppetization" :integration :ec2 :workflow :puppet :s3
-          (wf/create (spec)) => nil
-          (wf/provision redis-type (spec)) => nil
-          (wf/destroy (spec)) => nil)
-
-    ; will be re-moted
-    (fact "aws puppetization of s3" :integration :ec2 :workflow :puppet
-          (let [s3-redis (assoc-in redis-type [:puppet-std :dev :module :src] "s3://opsk-sandboxes/redis-sandbox-0.4.1.tar.gz")]
-            (wf/create (spec)) => nil
-            (wf/provision s3-redis (spec)) => nil
-            (wf/destroy (spec)) => nil))
-
     ; require a vpn
     (fact "vpc private ip" :integration :ec2-vpn :vpc
         (when-let [{:keys [subnet id]} (clojure.edn/read-string (System/getenv "VPC"))]

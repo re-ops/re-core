@@ -11,22 +11,6 @@
  (:use midje.sweet)
  (:import clojure.lang.ExceptionInfo))
 
-(fact "puppet std type validation"
-
-    (validate-type redis-type) => truthy
-
-    (validate-type (assoc-in redis-type [:puppet-std :dev :module :src] nil)) =>
-       (throws ExceptionInfo (is-type? :re-core.persistency.types/non-valid-type))
-
-    (validate-type (assoc-in redis-type [:puppet-std :dev :args] nil)) => truthy
-
-    (validate-type (assoc-in redis-type [:puppet-std :dev :args] [])) => truthy
-
-    (validate-type (assoc-in redis-type [:puppet-std :dev :args] {})) =>
-       (throws ExceptionInfo (is-type? :re-core.persistency.types/non-valid-type))
-
-    (validate-type (dissoc-in* redis-type [:puppet-std :dev :classes])) =>
-       (throws ExceptionInfo (is-type? :re-core.persistency.types/non-valid-type)))
 
 (fact "non puppet type"
   (validate-type {:type "foo"}) => truthy)

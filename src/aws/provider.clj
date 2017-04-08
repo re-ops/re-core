@@ -18,7 +18,7 @@
     [aws.volumes :refer (delete-volumes handle-volumes)]
     [aws.validations :refer (provider-validation)]
     [clojure.core.strint :refer (<<)]
-    [supernal.sshj :refer (ssh-up?)]
+    [re-mote.sshj :refer (ssh-up?)]
     [flatland.useful.utils :refer (defm)]
     [flatland.useful.map :refer (dissoc-in*)]
     [slingshot.slingshot :refer  [throw+ try+]]
