@@ -8,19 +8,26 @@
     [clojure.set :refer (difference)]
     [re-core.persistency.systems :as s]
     [re-core.repl.base :refer [Repl select-keys*]])
-  (:import [re_core.repl.base Systems]))
+  (:import 
+    [re_mote.repl.base Hosts]
+    [re_core.repl.base Systems]))
 
 (refer-timbre)
 
 (defprotocol Jobs
   "System jobs"
   (stop [this items])
-  (create [this itmes])
-  (destroy [this itmes])
-  (reload [this itmes])
+  (create [this items])
+  (destroy [this items])
+  (clear [this items])
+  (reload [this items])
   (status [this jobs])
   (watch [this jobs]))
 
+(defprotocol Host
+  "Hosts" 
+  (hosts [this items ssh])
+  )
 
 (defn grep-system [k v [id system]]
   (let [sub (select-keys* system [:owner] [:machine :hostname] [:machine :os] [:machine :ip])]
@@ -52,19 +59,25 @@
 (defn filter-done [sts]
   (into #{} (filter (fn [{:keys [status]}] (or (#{:done :recently-done} status) (nil? status))) sts)))
 
+(defn run-job [m id systems]
+  (merge m {:jobs (map (partial schedule-job id) systems) :queue id}))
+
 (extend-type Systems
   Jobs
-   (stop [this {:keys [systems] :as m}]
-       [this (merge m {:jobs (map (partial schedule-job "stop") systems) :queue "stop"})])
+   (stop [this {:keys [systems] :as m}] 
+     [this (run-job m "stop" systems)])
 
    (create [this {:keys [systems] :as m}]
-      [this (merge m {:jobs (map (partial schedule-job "create") systems) :queue "create"})])
+     [this (run-job m "create" systems)])
 
    (reload [this {:keys [systems] :as m}]
-      [this (merge m {:jobs (map (partial schedule-job "reload") systems) :queue "reload"})])
+      [this (run-job m "reload" systems)])
 
    (destroy [this {:keys [systems] :as m}]
-      [this (merge m {:jobs (map (partial schedule-job "destroy") systems) :queue "destroy"})])
+      [this (run-job "destroy" systems)])
+
+   (clear [this {:keys [systems] :as m}]
+      [this (run-job m "clear" systems)])
 
    (status [this {:keys [jobs queue]}]
       (map (fn [{:keys [job] :as m }] (assoc m :status (jobs/status queue job))) jobs))
@@ -79,5 +92,12 @@
             (let [done' (filter-done (status this js))]
                (recur done' (pr/tick bar (count (difference done' done))))))))))
 
+(extend-type Systems
+  Host 
+  (hosts [this {:keys [systems]} ssh]
+     [(Hosts. ssh (mapv (fn [[_ system]] (get-in system [:machine :ip])) systems)) {}]    
+    )
+  )
+
 (defn refer-systems []
-  (require '[re-core.repl.systems :as sys :refer [stop watch create status reload destroy]]))
+  (require '[re-core.repl.systems :as sys :refer [stop watch create status reload destroy clear hosts]]))

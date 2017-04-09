@@ -6,6 +6,7 @@
      [re-core.repl.systems :refer (refer-systems)]
      [taoensso.timbre  :as timbre :refer (set-level!)])
    (:import
+     [re_mote.repl.base Hosts]
      [re_core.repl.base Types Systems]))
 
 (refer-base)
@@ -35,3 +36,11 @@
 
 (defn destroy-all []
    (run (ls systems) | (destroy) | (watch)))
+
+(defn clear-all []
+   (run (ls systems) | (clear) | (watch)))
+
+(defn update-all [ssh]
+  (run (ls systems) | (hosts ssh))
+  )
+
