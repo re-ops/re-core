@@ -22,7 +22,8 @@
            :aws {
              :access-key "must be present" :secret-key "must be present"
              :default-vpc {
-               :subnet-id "must be present", :vpc-id "must be present" }}}}})
+               :subnet-id "must be present", :vpc-id "must be present" :assign-public "must be present" 
+               }}}}})
 
 (fact "wrong central logging"
   (validate-conf (assoc-in local-prox [:re-core :log :gelf :type] :foo)) =>
