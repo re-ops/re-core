@@ -108,7 +108,7 @@
   :aws {
     :access-key #{:required :String} :secret-key #{:required :String}
     :default-vpc {
-      :vpc-id #{:required :String} :subnet-id #{:required :String}
+      :vpc-id #{:required :String} :subnet-id #{:required :String} :assign-public #{:required :Boolean}
     } 
     }})
 
