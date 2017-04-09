@@ -8,5 +8,5 @@
 (defn read-fixture [fixture]
   (slurp-edn (<< "data/resources/~{fixture}.edn")))
 
-(defn instance [] 
-  (clojure.edn/read-string (slurp "data/resources/redis-ec2-system.edn")))
+(def redis-ec2
+  (assoc-in (read-fixture "redis-ec2-system") [:aws :key-name] host))

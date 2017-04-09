@@ -11,31 +11,27 @@
 (refer-base)
 (refer-systems)
 
-
 (set-level! :debug)
 
 (def systems (Systems.))
 
 (def types (Types.))
 
-(defn stop-by-grep [sys]
-  (run (ls sys) | (grep :os :ubuntu-15.04) | (stop) | (watch)))
+(defn stop-by-grep []
+  (run (ls systems) | (grep :os :ubuntu-15.04) | (stop) | (watch)))
 
-(defn list-by-grep [sys]
-  (run (ls sys) | (grep :os :ubuntu-15.04) | (pretty)))
+(defn list-by-grep []
+  (run (ls systems) | (grep :os :ubuntu-15.04) | (pretty)))
 
-(defn single [host sys]
-  (run (ls sys) | (grep :hostname host)))
+(defn single [host]
+  (run (ls systems) | (grep :hostname host)))
 
-(defn reload-by [sys f]
- (run (f sys) | (reload) | (watch)))
+(defn reload-by [f]
+ (run (f systems) | (reload) | (watch)))
 
-
-
-(defn create-instances [sys base]
+(defn create-from [base]
   (let [specs (map (fn [i] (assoc-in base [:machine :hostname] (str "red" i))) (range 2))]
-    (run (add sys specs) | (create) | (watch))))
+    (run (add systems specs) | (create) | (watch))))
 
-(defn destroy-instances
-   [sys]
-   (run (ls sys) | (destroy) | (watch)))
+(defn destroy-all []
+   (run (ls systems) | (destroy) | (watch)))
