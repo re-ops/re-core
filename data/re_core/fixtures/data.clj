@@ -4,9 +4,8 @@
     [me.raynes.fs :as fs]
     [clojure.java.io :refer (file)]
     [re-core.model :refer (operations)]
-    [clojure.core.strint :refer  (<<)]
-    [re-core.common :refer (slurp-edn)]
-    [re-core.fixtures.core :refer (host)]))
+    [re-core.repl.fixtures :refer (read-fixture host)]
+    [re-core.common :refer (slurp-edn)]))
 
 (def admin {
   :username "admin" :password "foo"
@@ -27,9 +26,6 @@
   :operations operations
 })
 
-(defn read-fixture [fixture]
-  (slurp-edn (<< "data/resources/~{fixture}.edn")))
-
 (defn load-fixtures
    "load all fixture files"
    []
@@ -40,15 +36,12 @@
 
 (def redis-kvm-spec (read-fixture "redis-system"))
 
+(def redis-ec2-spec
+  (assoc-in (read-fixture "redis-ec2-system") [:aws :key-name] host))
+ 
 (def redis-type (read-fixture "redis-type"))
 
 (def smokeping-type (read-fixture "smokeping-type"))
-
-(def redis-ec2-spec
-  (assoc-in (read-fixture "redis-ec2-system") [:aws :key-name] host))
-
-(def redis-ec2-centos
-  (assoc-in (read-fixture "redis-ec2-centos") [:aws :key-name] host))
 
 (def local-prox (read-fixture "re-core"))
 

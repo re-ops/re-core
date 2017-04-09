@@ -28,4 +28,3 @@
   `(with-admin
     (with-conf ~@args)))
 
-(def host (.getHostName (java.net.InetAddress/getLocalHost)))

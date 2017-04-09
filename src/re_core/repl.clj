@@ -1,6 +1,7 @@
 (ns re-core.repl
-  "Repl Driven re-core "
+  "Repl Driven re-core"
    (:require
+     [re-mote.repl]
      [re-core.repl.base :refer (refer-base)]
      [re-core.repl.systems :refer (refer-systems)]
      [taoensso.timbre  :as timbre :refer (set-level!)])
@@ -9,6 +10,7 @@
 
 (refer-base)
 (refer-systems)
+
 
 (set-level! :debug)
 
@@ -28,7 +30,7 @@
 (defn reload-by [sys f]
  (run (f sys) | (reload) | (watch)))
 
-(defn instance [] (clojure.edn/read-string (slurp "data/resources/redis-ec2-system.edn")))
+
 
 (defn create-instances [sys base]
   (let [specs (map (fn [i] (assoc-in base [:machine :hostname] (str "red" i))) (range 2))]
