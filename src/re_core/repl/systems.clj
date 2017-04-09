@@ -74,7 +74,7 @@
       [this (run-job m "reload" systems)])
 
    (destroy [this {:keys [systems] :as m}]
-      [this (run-job "destroy" systems)])
+      [this (run-job m "destroy" systems)])
 
    (clear [this {:keys [systems] :as m}]
       [this (run-job m "clear" systems)])
