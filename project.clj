@@ -122,7 +122,7 @@
         }
 
         :aot [kvm.provider aws.provider physical.provider digital.provider
-              re-core.core re-core.launch re-core.repl.base]
+              re-core.repl.base re-core.core re-core.launch]
 
         :test-paths ["test" "data"]
         :source-paths  ["dev"]

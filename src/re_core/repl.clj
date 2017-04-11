@@ -1,7 +1,7 @@
 (ns re-core.repl
   "Repl Driven re-core"
    (:require
-     [re-mote.repl]
+     [re-mote.repl :refer :all]
      [re-core.repl.base :refer (refer-base)]
      [re-core.repl.systems :refer (refer-systems)]
      [taoensso.timbre  :as timbre :refer (set-level!)])
@@ -40,7 +40,12 @@
 (defn clear-all []
    (run (ls systems) | (clear) | (watch)))
 
-(defn update-all [ssh]
-  (run (ls systems) | (hosts ssh))
+(defn ip [[_ {:keys [machine] :as m}]] (machine :ip))
+
+(defn clear-by [f]
+  (run (ls systems) | (filter-by f) | (clear) | (watch)))
+
+(defn into-hosts []
+  (run (ls systems) | (filter-by ip) | (hosts))
   )
 

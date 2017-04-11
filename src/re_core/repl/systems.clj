@@ -26,8 +26,7 @@
 
 (defprotocol Host
   "Hosts" 
-  (hosts [this items ssh])
-  )
+  (hosts [this items]))
 
 (defn grep-system [k v [id system]]
   (let [sub (select-keys* system [:owner] [:machine :hostname] [:machine :os] [:machine :ip])]
@@ -43,7 +42,8 @@
     (let [systems (into [] (s/all-systems))]
        [this {:systems (doall (map (juxt identity s/get-system) systems))}]))
 
-  (find [this exp])
+  (filter-by [this {:keys [systems] :as m} f]
+     [this {:systems (filter f systems)}])
 
   (rm [this systems]
      (doseq [id (map first systems)]
@@ -94,8 +94,9 @@
 
 (extend-type Systems
   Host 
-  (hosts [this {:keys [systems]} ssh]
-     [(Hosts. ssh (mapv (fn [[_ system]] (get-in system [:machine :ip])) systems)) {}]    
+  (hosts [this {:keys [systems]}]
+    (let [{:keys [user]} (:machine (second (first systems)))]
+      (Hosts. {:user user} (mapv (fn [[_ system]] (get-in system [:machine :ip])) systems)))
     )
   )
 

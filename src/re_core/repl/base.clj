@@ -14,7 +14,7 @@
 (defprotocol Repl
   "Repl functions on re-core model types"
   (ls [this] [this & opts])
-  (find [this exp])
+  (filter-by [this items f])
   (rm [this items])
   (add [this specs])
   (grep [this items k v]))
@@ -59,4 +59,4 @@
 (defrecord Types [])
 
 (defn refer-base []
-  (require '[re-core.repl.base :as base :refer (run | ls grep rm add pretty)]))
+  (require '[re-core.repl.base :as base :refer (run | ls grep rm add pretty filter-by)]))
