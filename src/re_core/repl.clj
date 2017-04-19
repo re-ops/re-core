@@ -19,8 +19,8 @@
 (defn single [host]
   (run (ls systems) | (grep :hostname host)))
 
-(defn create-from [base]
-  (let [specs (map (fn [i] (assoc-in base [:machine :hostname] (str "red" i))) (range 2))]
+(defn create-from [base t]
+  (let [specs (map (fn [i] (assoc-in base [:machine :hostname] (str "red" i))) (range t))]
     (run (add systems specs) | (create) | (watch))))
 
 (defn ip [[_ {:keys [machine] :as m}]] (machine :ip))
