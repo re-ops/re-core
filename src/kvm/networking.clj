@@ -11,6 +11,7 @@
 
 (ns kvm.networking
   (:require
+    [re-core.persistency.systems :as s]
     [re-core.provider :refer (wait-for)]
     [slingshot.slingshot :refer (throw+)]
     [taoensso.timbre :as timbre]
@@ -31,20 +32,22 @@
       (zx/xml-> root :devices :interface :source (zx/attr :bridge))
       (zx/xml-> root :devices :interface :mac (zx/attr :address)))))
 
-(defn nat-ip
-   [c id node]
-   (let [[nic mac] (first (macs c id)) uuid (gen-uuid)]
-     (execute (<< "arp -i ~{nic}") node :out-fn (collect-log uuid))
-     (if-let [line (first (filter #(.contains % mac) (get-log uuid)))]
-       (first (.split line "\\s" ))
-	 (do (debug (<< "no ip found for ~{mac}")) nil)
-       )))
+(defn grab-nat [c id node]
+  (let [[nic mac] (first (macs c id)) uuid (gen-uuid)]
+    (execute (<< "arp -i ~{nic}") node :out-fn (collect-log uuid))
+    (if-let [line (first (filter #(.contains % mac) (get-log uuid)))]
+      (first (.split line "\\s" ))
+	(do (debug (<< "no nat ip found for ~{mac}")) nil))))
 
 (defn wait-for-nat [c id node timeout]
   "Waiting for nat cache to update"
-  (wait-for {:timeout timeout} #(not (nil? (nat-ip c id node)))
+  (wait-for {:timeout timeout} #(not (nil? (grab-nat c id node)))
     {:type ::kvm:networking :timeout timeout}
       "Timed out on waiting for arp cache to update"))
+
+(defn nat-ip [c id node]
+  (wait-for-nat c id node [5 :minute])
+  (grab-nat c id node))
 
 (def ignore-authenticity "-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no")
 
@@ -54,7 +57,6 @@
 
 (defn public-ip
   [c user node id & {:keys [public-nic] :or {public-nic "eth1"}}]
-   (wait-for-nat c id node [5 :minute])
    (let [uuid (gen-uuid) nat (nat-ip c id node)
          cmd (<< "ssh ~{ignore-authenticity} ~{user}@~{nat} -C 'ifconfig ~{public-nic}'")]
      (execute cmd node :out-fn (collect-log uuid))
@@ -63,5 +65,7 @@
         (throw+ {:type ::kvm:networking} "Failed to grab domain public IP")
         )))
 
-;; (def connection (connect "qemu+ssh://ronen@localhost/system"))
-;; (public-ip connection {:host "localhost" :user "ronen"} "ubuntu-15.04")
+(defn update-ip [system-id ip]
+  "updates public dns in the machine persisted data"
+  (when (s/system-exists? system-id)
+    (s/partial-system system-id {:machine {:ip ip}})))

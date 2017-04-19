@@ -16,16 +16,16 @@
 
 (re-core.model/set-dev)
 
-(defn setup-all [] 
-  (mote/setup) 
+(defn setup-all []
+  (mote/setup)
   (core/setup))
 
-(defn start-all [s] 
-  (mote/start nil) 
+(defn start-all [s]
+  (mote/start nil)
   (core/start s))
 
-(defn stop-all [s] 
-  (mote/stop nil) 
+(defn stop-all [s]
+  (mote/stop nil)
   (core/stop s))
 
 (defn init

@@ -8,7 +8,7 @@
     [clojure.set :refer (difference)]
     [re-core.persistency.systems :as s]
     [re-core.repl.base :refer [Repl select-keys*]])
-  (:import 
+  (:import
     [re_mote.repl.base Hosts]
     [re_core.repl.base Systems]))
 
@@ -25,7 +25,7 @@
   (watch [this jobs]))
 
 (defprotocol Host
-  "Hosts" 
+  "Hosts"
   (hosts [this items]))
 
 (defn grep-system [k v [id system]]
@@ -64,7 +64,7 @@
 
 (extend-type Systems
   Jobs
-   (stop [this {:keys [systems] :as m}] 
+   (stop [this {:keys [systems] :as m}]
      [this (run-job m "stop" systems)])
 
    (create [this {:keys [systems] :as m}]
@@ -93,7 +93,7 @@
                (recur done' (pr/tick bar (count (difference done' done))))))))))
 
 (extend-type Systems
-  Host 
+  Host
   (hosts [this {:keys [systems]}]
     (let [{:keys [user]} (:machine (second (first systems)))]
       (Hosts. {:user user} (mapv (fn [[_ system]] (get-in system [:machine :ip])) systems)))

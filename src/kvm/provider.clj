@@ -1,5 +1,5 @@
-(comment 
-  re-core, Copyright 2012 Ronen Narkis, narkisr.com
+(comment
+  re-core, Copyright 2017 Ronen Narkis, narkisr.com
   Licensed under the Apache License,
   Version 2.0  (the "License") you may not use this file except in compliance with the License.
   You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -10,16 +10,16 @@
   limitations under the License.)
 
 (ns kvm.provider
-  (:require 
+  (:require
     [safely.core :refer [safely]]
     [kvm.validations :refer (provider-validation)]
-    [clojure.core.strint :refer (<<)] 
+    [clojure.core.strint :refer (<<)]
     [kvm.clone :refer (clone-domain)]
     [kvm.disks :refer (clear-volumes)]
     [kvm.common :refer (connect get-domain domain-zip state)]
-    [kvm.networking :refer (public-ip)]
+    [kvm.networking :refer (public-ip nat-ip update-ip)]
     [re-mote.sshj :refer (ssh-up?)]
-    [re-core.core :refer (Vm)] 
+    [re-core.core :refer (Vm)]
     [taoensso.timbre :as timbre]
     [re-core.persistency.systems :as s]
     [re-core.provider :refer (mappings selections transform os->template wait-for wait-for-ssh)]
@@ -29,7 +29,7 @@
 
 (timbre/refer-timbre)
 
-(defn connection [{:keys [host user port]}] 
+(defn connection [{:keys [host user port]}]
     (safely
        (connect (<< "qemu+ssh://~{user}@~{host}:~{port}/system"))
        :on-error
@@ -39,73 +39,72 @@
        :retry-delay [:random-range :min 200 :max 500]))
 
 (defmacro with-connection [& body]
-  `(let [~'connection (connection ~'node)] 
+  `(let [~'connection (connection ~'node)]
       (do ~@body)))
 
 (defn wait-for-status [instance req-stat timeout]
   "Waiting for ec2 machine status timeout is in mili"
   (wait-for {:timeout timeout} #(= req-stat (.status instance))
-    {:type ::kvm:status-failed :status req-stat :timeout timeout} 
+    {:type ::kvm:status-failed :status req-stat :timeout timeout}
       "Timed out on waiting for status"))
 
 
 (defrecord Domain [system-id node domain]
   Vm
   (create [this]
-    (with-connection 
+    (with-connection
       (let [image (get-in domain [:image :template]) target (select-keys domain [:name :cpu :ram])]
         (clone-domain connection image target)
         (debug "clone done")
         (wait-for-status this "running" [5 :minute])
         (debug "in running state")
-        (let [ip (.ip this)]
+        (let [ip (.ip this) flavor (get-in domain [:image :flavor])]
           (wait-for-ssh ip (domain :user) [5 :minute])
-          (set-hostname (domain :hostname) (domain :name) {:user (domain :user) :host ip} (get-in domain [:image :flavor]))
-          this)))) 
+          (set-hostname (domain :hostname) (domain :name) {:user (domain :user) :host ip} flavor)
+          (update-ip system-id ip)
+          this))))
 
   (delete [this]
-    (with-connection 
+    (with-connection
       (clear-volumes connection (domain-zip connection (domain :name)))
-      (.undefine (get-domain connection (domain :name))))
-    )
+      (.undefine (get-domain connection (domain :name)))))
 
   (start [this]
-    (with-connection 
+    (with-connection
       (when-not (= (.status this) "running")
         (.create (get-domain connection (domain :name)))
-        (wait-for-ssh (.ip this) (domain :user) [5 :minute])
-        )))
+        (let [ip (.ip this)]
+          (wait-for-ssh ip (domain :user) [5 :minute])
+          (update-ip system-id ip)))))
 
   (stop [this]
-    (with-connection 
+    (with-connection
       (.destroy (get-domain connection (domain :name)))
-      (wait-for-status this "shutoff" [5 :minute])
-      ))
+      (wait-for-status this "shutoff" [5 :minute])))
 
   (status [this]
-    (with-connection 
-      (try 
+    (with-connection
+      (try
         (state (get-domain connection (domain :name)))
           (catch LibvirtException e (debug (.getMessage e)) false))))
 
   (ip [this]
-    (with-connection 
-      (let [ip  (public-ip connection (domain :user) node (domain :name))]
-        (debug "domain public ip is" ip) ip)))
-  
-  )
+    (with-connection
+      (if (= (:host node) "localhost")
+        (nat-ip connection (domain :name) node)
+        (public-ip connection (domain :user) node (domain :name))))))
 
-(defn machine-ts 
+(defn machine-ts
   "Construcuting machine transformations"
   [{:keys [hostname domain] :as machine}]
-   {:name (fn [hostname] (<< "~{hostname}.~{domain}")) 
+   {:name (fn [hostname] (<< "~{hostname}.~{domain}"))
     :image (fn [os] ((os->template :kvm) os))})
 
-(defmethod translate :kvm [{:keys [machine kvm] :as spec}] 
+(defmethod translate :kvm [{:keys [machine kvm] :as spec}]
    (-> machine
      (mappings {:os :image :hostname :name})
      (transform (machine-ts machine))
-     (assoc :hostname (machine :hostname)) 
+     (assoc :hostname (machine :hostname))
      (selections [[:name :user :image :cpu :ram :hostname]])
      ))
 

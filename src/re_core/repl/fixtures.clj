@@ -1,5 +1,5 @@
 (ns re-core.repl.fixtures
-  (:require 
+  (:require
     [clojure.core.strint :refer (<<)]
     [re-core.common :refer (slurp-edn)]))
 
@@ -10,3 +10,6 @@
 
 (def redis-ec2
   (assoc-in (read-fixture "redis-ec2-system") [:aws :key-name] host))
+
+(def redis-kvm
+  (read-fixture "redis-kvm"))
