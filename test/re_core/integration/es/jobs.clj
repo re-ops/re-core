@@ -22,9 +22,9 @@
    []
   (es/initialize {:indices.ttl.interval 2})
   (jobs/put (-> job (merge {:tid "1" :status :success}) stamp) 2000)
-  (jobs/put (-> job (merge {:tid "2" :status :error :env :prod}) stamp) 2000)
+  (jobs/put (-> job (merge {:tid "2" :status :failure :env :prod}) stamp) 2000)
   (jobs/put (-> job (merge {:tid "3" :status :success :identity 2}) stamp) 2000)
-  (jobs/put (-> job (merge {:tid "4" :status :error}) stamp) 2000 :flush? true))
+  (jobs/put (-> job (merge {:tid "4" :status :failure}) stamp) 2000 :flush? true))
 
 (with-conf
   (against-background [(before :facts (do (re-initlize true) (add-jobs)))]
