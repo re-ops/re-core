@@ -63,8 +63,7 @@
                     (save-status spec' :success)))
               (catch Throwable e
                 (error e)
-                (save-status spec' :error)
-                ))))))
+                (save-status (assoc spec' :message (.getMessage e)) :failure)))))))
 
 (defn jobs []
   {:reload [wf/reload 2] :destroy [wf/destroy 2] :provision [wf/provision 2]

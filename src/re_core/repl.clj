@@ -21,7 +21,7 @@
 
 (defn create-from [base t]
   (let [specs (map (fn [i] (assoc-in base [:machine :hostname] (str "red" i))) (range t))]
-    (run (add systems specs) | (create) | (watch))))
+    (run (add systems specs) | (create) | (watch) | (summary))))
 
 (defn ip [[_ {:keys [machine] :as m}]] (machine :ip))
 

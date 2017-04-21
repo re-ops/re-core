@@ -1,12 +1,14 @@
 (ns re-core.repl.systems
   "Repl systems access"
   (:require
+    [clansi.core :refer  (style)]
     [progrock.core :as pr]
     [re-core.jobs :as jobs :refer (enqueue)]
     [re-core.common :refer (gen-uuid)]
     [taoensso.timbre :refer  (refer-timbre)]
     [clojure.set :refer (difference)]
     [re-core.persistency.systems :as s]
+    [es.jobs :as es]
     [re-core.repl.base :refer [Repl select-keys*]])
   (:import
     [re_mote.repl.base Hosts]
@@ -24,6 +26,9 @@
   (status [this jobs])
   (watch [this jobs]))
 
+(defprotocol Report
+  (summary [this m]))
+
 (defprotocol Host
   "Hosts"
   (hosts [this items]))
@@ -33,8 +38,8 @@
     (= v (sub k))))
 
 (defn schedule-job [action [id system]]
-  (let [m {:identity id :tid (gen-uuid) :args [(assoc system :system-id (Integer. id))]}]
-     {:system id :job (enqueue action m)}))
+  (let [tid (gen-uuid) m {:identity id :tid tid :args [(assoc system :system-id (Integer. id))]}]
+     {:system id :job (enqueue action m) :tid tid}))
 
 (extend-type Systems
   Repl
@@ -61,6 +66,9 @@
 
 (defn run-job [m id systems]
   (merge m {:jobs (map (partial schedule-job id) systems) :queue id}))
+
+(defn result [{:keys [tid] :as job}]
+  (merge ((es/get tid) :_source) job))
 
 (extend-type Systems
   Jobs
@@ -90,15 +98,28 @@
           (do (Thread/sleep 100)
             (pr/print bar)
             (let [done' (filter-done (status this js))]
-               (recur done' (pr/tick bar (count (difference done' done))))))))))
+               (recur done' (pr/tick bar (count (difference done' done))))))))
+      [this (group-by (comp keyword :status) (map result jobs))]
+     ))
 
 (extend-type Systems
   Host
   (hosts [this {:keys [systems]}]
     (let [{:keys [user]} (:machine (second (first systems)))]
       (Hosts. {:user user} (mapv (fn [[_ system]] (get-in system [:machine :ip])) systems)))
-    )
-  )
+    ))
+
+(extend-type Systems 
+  Report
+   (summary [this {:keys [success failure] :as m}]
+     (println "")
+     (println (style "Run summary:" :blue) "\n")
+     (doseq [{:keys [identity queue]} success]
+       (println " " (style "✔" :green) queue identity))
+     (doseq [{:keys [identity queue message]} failure]
+        (println " " (style "x" :red) queue identity "-" message))
+     (println "")
+     [this m]))
 
 (defn refer-systems []
-  (require '[re-core.repl.systems :as sys :refer [stop watch create status reload destroy clear hosts]]))
+  (require '[re-core.repl.systems :as sys :refer [stop watch create status reload destroy clear hosts summary]]))

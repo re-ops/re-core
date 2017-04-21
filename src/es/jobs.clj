@@ -29,11 +29,11 @@
 
 (defn delete
    "delete a system from ES"
-   [id]
-  (doc/delete @ES index "jobs" id))
+   [tid]
+  (doc/delete @ES index "jobs" tid))
 
 (defn get
-   "Grabs a system by an id"
+   "Get job bu tid"
    [id]
   (doc/get @ES index "jobs" id))
 
@@ -44,9 +44,13 @@
 
 (defn paginate
    "basic query string"
-   [from size envs]
-  (let [q {:bool {:minimum_should_match 1 :should (query-envs envs)}}]
+   [from size term]
+  (let [q {:bool {:minimum_should_match 1 :should term}}]
     (:hits
-      (doc/search @ES index "jobs" {
-          :from from :size size :query q :sort {:end "desc"}
-        }))))
+      (doc/search @ES index "jobs" {:from from :size size :sort {:end "desc"}}))))
+
+(comment 
+  (clojure.pprint/pprint (paginate 0 1 {}))
+  (clojure.pprint/pprint (get-in (get "62c7b563542a49a78b190c4dd8bf3b50") [:_source] )) 
+  )
+
