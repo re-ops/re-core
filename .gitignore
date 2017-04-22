@@ -16,6 +16,6 @@ checkouts
 tags
 public/bower_components
 .nrepl-port
-re-core.log
+re-core.log*
 re-core-third-party.log
 re-mote.log
