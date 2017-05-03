@@ -22,10 +22,9 @@
                  [camel-snake-kebab "0.1.2"]
 
                  ; logging
-                 [com.narkisr/gelfino-client "0.8.1"]
                  [com.taoensso/timbre "4.10.0"]
-                 [ch.qos.logback/logback-classic "1.1.3"]
-                 [org.codehaus.groovy/groovy "2.4.10"]
+                 [com.fzakaria/slf4j-timbre "0.3.5"]
+                 [com.narkisr/gelfino-client "0.8.1"]
 
                  ; hooks/remoting
                  [clj-http "3.4.1"]

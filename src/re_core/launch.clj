@@ -47,7 +47,7 @@
     (merge-config!
       {:appenders {:rolling (rolling-appender {:path (log* :path) :pattern :weekly})}})
     (merge-config!
-      {:appenders {:println {:enabled? false}}})
+      {:appenders {:println {:ns-whitelist ["re-core"]}}})
     (disable-coloring)
     (set-level! (log* :level))))
 

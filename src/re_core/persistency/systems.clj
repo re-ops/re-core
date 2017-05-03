@@ -59,10 +59,8 @@
 (defn system-ip [id]
   (get-in (get-system id) [:machine :ip]))
 
-(validation :type-exists (when-not-nil t/type-exists? "type not found, create it first"))
-
 (def system-base {
-   :type #{:required :type-exists}
+   :type #{:required}
    :env #{:required :Keyword}
   })
 
