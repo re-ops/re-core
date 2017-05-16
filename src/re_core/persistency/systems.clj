@@ -85,7 +85,7 @@
 (validation :empty (fn [v] (when-not (nil? v)  "value must be empty")))
 
 (def template-base {
-  :type #{:required :type-exists} :defaults #{:required :Map}
+  :type #{:required} :defaults #{:required :Map}
   :name #{:required :String} :description #{:String}
   :machine {:hostname #{:empty} :domain #{:empty}}
 })

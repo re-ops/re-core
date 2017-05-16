@@ -58,7 +58,7 @@
    }))
 
 (def action-validation
-  {:operates-on #{:required :String :type-exists}
+  {:operates-on #{:required :String}
    :name #{:required :String} :src #{:required :String}})
 
 (defn validate-action [action]
