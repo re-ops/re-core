@@ -8,12 +8,13 @@
 (defn read-fixture [fixture]
   (slurp-edn (<< "data/resources/~{fixture}.edn")))
 
-(def redis-ec2
-  (assoc-in (read-fixture "redis-ec2-system") [:aws :key-name] host))
+(defn ec2-instance [m]
+  (merge-with merge
+    (read-fixture "redis-ec2-system") {:aws {:key-name host}} m))
 
 (defn with-ebs [spec size]
   (merge-with merge spec
     {:aws  {:volumes  [{:device "/dev/sdn" :size size :clear true :volume-type "standard" }]}}))
 
-(def redis-kvm
+(def kvm-instance
   (read-fixture "redis-kvm"))

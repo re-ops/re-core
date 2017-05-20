@@ -1,6 +1,7 @@
 (ns re-core.repl
   "Repl Driven re-core"
    (:require
+     [clojure.core.strint :refer  (<<)]
      [re-mote.repl :refer :all]
      [re-core.repl.base :refer (refer-base)]
      [re-core.repl.systems :refer (refer-systems)]
@@ -33,17 +34,17 @@
   (run (ls systems) | (filter-by f) | (clear) | (watch)))
 
 (defn destroy-by [f]
-   (run (ls systems) | (filter-by f) |  (destroy) | (watch)))
+   (run (ls systems) | (filter-by f) | (ack) | (destroy) | (watch)))
 
 (defn into-hosts []
   (run (ls systems) | (filter-by ip) | (hosts)))
 
 ; greps
 (defn stop-by-grep []
-  (run (ls systems) | (grep :os :ubuntu-15.04) | (stop) | (watch)))
+  (run (ls systems) | (grep :os :ubuntu-16.04) | (stop) | (watch)))
 
 (defn list-by-grep []
-  (run (ls systems) | (grep :os :ubuntu-15.04) | (pretty)))
+  (run (ls systems) | (grep :os :ubuntu-16.04) | (pretty)))
 
 ; alls
 (defn list-all []
@@ -51,3 +52,9 @@
 
 (defn clear-all []
    (run (ls systems) | (clear) | (watch)))
+
+; utils
+(defn ssh-into [{:keys [auth hosts]}]
+  (let [{:keys [user]} auth]
+    (doseq [host hosts]
+      (.exec  (Runtime/getRuntime) (<< "/usr/bin/x-terminal-emulator --disable-factory -e /usr/bin/ssh ~{user}@~{host}")))) )

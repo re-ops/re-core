@@ -50,6 +50,13 @@
   (filter-by [this {:keys [systems] :as m} f]
      [this {:systems (filter f systems)}])
 
+  (ack [this {:keys [systems] :as m}]
+     (println "The following systems will be effected")
+     (doseq [[id s] systems]
+       (println "Processing" id (get-in s [:machine :hostname])))
+     (println "Y/n")
+     (if-not (= (read-line) "Y")  [this {}] [this m]))
+
   (rm [this systems]
      (doseq [id (map first systems)]
        (s/delete-system! (Integer/valueOf id)))

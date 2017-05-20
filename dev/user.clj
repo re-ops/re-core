@@ -47,7 +47,9 @@
   "Initializes the current development system and starts it running."
   []
   (init)
-  (start))
+  (start)
+  (doseq [f (filter #(.isFile %) (file-seq (io/file "scripts")))]
+    (load-file (.getPath f))))
 
 (defn reset []
   (stop)
