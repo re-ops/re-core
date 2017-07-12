@@ -19,7 +19,7 @@ install:
     - /tmp/elasticsearch/bin/elasticsearch --daemonize --path.data /tmp
 
 before_script:
-  - sleep 10
+  - sleep 20
   - curl http://127.0.0.1:9200/
 
 script:
