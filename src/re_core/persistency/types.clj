@@ -1,4 +1,4 @@
-(comment 
+(comment
    re-core, Copyright 2012 Ronen Narkis, narkisr.com
    Licensed under the Apache License,
    Version 2.0  (the "License") you may not use this file except in compliance with the License.
@@ -11,23 +11,18 @@
 
 (ns re-core.persistency.types
   (:refer-clojure :exclude [type])
-  (:require 
+  (:require
     [puny.core :refer (entity)]
     [subs.core :as subs :refer (validate! combine every-kv validation)]))
 
 (entity type :id type)
 
-(validation :puppet* 
-  (every-kv { 
-     :module {
-        :name #{:required :String}
-        :src  #{:required :String}
-        :options #{:Map}
-      }
-      :classes #{:required :Map} 
-      :args #{:Vector} 
-   }))
+(validation :puppet* {
+    :tar #{:required :String}
+    :src  #{:String}
+    :args #{:Vector}
+   })
 
 (defn validate-type [t]
-  (validate! t {:type #{:required :String}} :error ::non-valid-type ))
+  (validate! t {:type #{:required :String} :puppet #{:puppet*}} :error ::non-valid-type ))
 

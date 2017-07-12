@@ -79,7 +79,6 @@
     (initialize-networking)
     (setup-logging)
     (add-shutdown components)
-    (start-nrepl)
     (setup-all components)
      components))
 

@@ -20,8 +20,12 @@
   (add [this specs])
   (grep [this items k v]))
 
+(defprotocol Report
+  (summary [this m]))
+
 (defmulti pretty
-  (fn [_ m] (intersection (into #{} (keys m)) #{:systems :types :jobs})))
+  (fn [_ m]
+    (intersection (into #{} (keys m)) #{:systems :types :jobs})))
 
 (defn select-keys* [m & paths]
   (into {} (map (fn [p] [(last p) (get-in m p)])) paths))
@@ -37,9 +41,13 @@
     (write-rows *out* formatter [:hostname :id :owner :os :ip] (map render systems))
     ))
 
+(defn src-or-tar
+   [t]
+  (get-in t [:puppet :src] (get-in t [:puppet :tar])))
+
 (defmethod pretty #{:types} [_ {:keys [types]}]
-  (let [formatter (format-columns bold-white-font [:right 10] "  " reset-font [:right 10] [:right 20] :none)]
-    (write-rows *out* formatter [:type (comp first keys) :description] types)))
+  (let [formatter (format-columns bold-white-font [:right 10] "  " reset-font [:left 70] [:right 20] :none)]
+    (write-rows *out* formatter [:type src-or-tar :description] types)))
 
 (defmethod pretty #{:jobs} [_ {:keys [jobs]}]
   (let [formatter (format-columns bold-white-font [:right 3] "  " reset-font [:right 10] :none)]
@@ -60,4 +68,4 @@
 (defrecord Types [])
 
 (defn refer-base []
-  (require '[re-core.repl.base :as base :refer (run | ls grep rm add pretty filter-by ack)]))
+  (require '[re-core.repl.base :as base :refer (run | ls grep rm add pretty filter-by ack summary)]))

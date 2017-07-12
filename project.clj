@@ -29,7 +29,7 @@
                  ; hooks/remoting
                  [clj-http "3.4.1"]
                  [http-kit "2.1.18"]
-                 [re-mote "0.1.0"]
+                 [re-mote "0.2.0"]
                  [conjul "0.0.2"]
 
                  ;api
@@ -79,7 +79,6 @@
                  [metrics-clojure "2.9.0"]
                  [metrics-clojure-health "2.9.0"]
                  [metrics-clojure-jvm "2.9.0"]
-
                ]
 
   :exclusions [org.clojure/clojure com.taoensso/timbre commons-codec]
@@ -97,15 +96,9 @@
         :source-paths ["data"]
         :test-paths ["test"]
         :dependencies [[org.clojure/test.check "0.7.0"]]
-
      }
 
      :refresh {
-        :repl-options {
-          :init-ns user
-          :timeout 120000
-        }
-
         :dependencies [[org.clojure/tools.namespace "0.2.10"] [midje "1.8.3"]
                        [redl "0.2.4"] [org.clojure/tools.trace "0.7.9"]]
         :injections  [(require '[redl core complete])]
@@ -115,66 +108,62 @@
 
      }
 
-     :dev {
-        :repl-options {
-          :timeout 120000
-        }
-
-        :aot [kvm.provider aws.provider physical.provider digital.provider
-              re-core.repl.base re-core.core re-core.launch]
-
-        :test-paths ["test" "data"]
-        :source-paths  ["dev"]
-        :resource-paths  ["src/main/resources/" "pkg/etc/re-core/"]
+     :test {
+       :test-paths ["test" "data"]
+       :plugins [[lein-midje "3.1.3"]]
         :dependencies [[ring-mock "0.1.5"] [midje "1.8.3"]
                        [org.clojure/tools.trace "0.7.9"]
                        [org.clojure/test.check "0.7.0"]]
+     }
+
+     :dev {
+        :source-paths  ["dev"]
+
+        :resource-paths  ["src/main/resources/" "pkg/etc/re-core/"]
+
         :plugins [[lein-midje "3.1.3"]]
-        :jvm-opts ~(vec (map (fn [[p v]] (str "-D" (name p) "=" v)) {:disable-conf "true" }))
+
+        :dependencies [[midje "1.8.3"]]
+
         :set-version {
            :updates [
              {:path "project.clj" :search-regex #"\"target\/re-core-\d+\.\d+\.\d+\.jar"}
              {:path "src/re-core/common.clj" :search-regex #"\"\d+\.\d+\.\d+\""}]}
 
-        :main re-core.launch
-      }
-
-     :prod {
-        :resource-paths  ["src/main/resources/" "pkg/etc/re-core/"]
-
-
-        :aot [remote.capistrano remote.ruby freenas.provider kvm.provider
-              aws.provider physical.provider re-core.core re-core.launch]
-
-        :main re-core.launch
       }
     }
 
 
-  :aliases {"re-core" ["with-profile" "prod" "do" "compile," "trampoline" "run"]
-            "remote-repl" ["repl" ":connect" "re-core:7888"]
-            "autotest" ["midje" ":autotest" ":filter" "-integration"]
-            "runtest" ["midje" ":filter" "-integration"]
-            "populate" ["with-profile" "populate" "do" "run" "-m" "re-core.fixtures.populate"]
-            ; https://github.com/stuartsierra/reloaded workflow
-            "reloadable" ["with-profile" "refresh" "do" "clean," "repl"]
-            "travis" ["do" "clean," "compile," "midje" ":filter" "-integration," "midje" ":redis," "midje" ":elasticsearch" ]
+  :jvm-opts ^:replace ["-Djava.library.path=/usr/lib:/usr/local/lib"]
+
+  :aliases {
+      "kvm"  ["with-profile" "test" "do" "midje" ":filter" "kvm"]
+      "runtest" ["midje" ":filter" "-integration"]
+      "populate" ["with-profile" "populate" "do" "run" "-m" "re-core.fixtures.populate"]
+      ; https://github.com/stuartsierra/reloaded workflow
+      "reloadable" ["with-profile" "refresh" "do" "clean," "repl"]
+      "travis" [
+         "do" "clean," "compile," "midje" ":filter" "-integration," "midje" ":redis," "midje" ":elasticsearch" ]
             }
 
 
-  :repositories  {"bintray"  "http://dl.bintray.com/content/garkisr/narkisr-jars"
+  :repositories  {"bintray"  "http://dl.bintray.com/content/narkisr/narkisr-jars"
                   "sonatype" "http://oss.sonatype.org/content/repositories/releases"
                   "libvirt-org" "http://libvirt.org/maven2"}
 
-  :topping {
-      :service "re-core"
-      :app {:app-name "re-core" :src "target/re-core-0.13.5.jar"}
-      :env {:roles {:remote #{{:host "re-core" :user "ubuntu" :sudo true}}}}
-   }
-
   :resource-paths  ["src/main/resources/"]
-  :source-paths  ["src"]
+
+  :source-paths  ["src" "dev"]
+
   :target-path "target/"
+
   :test-paths  []
-  :repl-options { }
+
+  :repl-options {
+    :timeout 120000
+    :init-ns user
+    :prompt (fn [ns] (str "\u001B[35m[\u001B[34m" ns "\u001B[35m]\u001B[33mλ:\u001B[m " ))
+    :welcome (println "Welcome to re-core!" )
+  }
+
 )

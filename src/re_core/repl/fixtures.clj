@@ -1,6 +1,7 @@
 (ns re-core.repl.fixtures
   (:require
     [clojure.core.strint :refer (<<)]
+    [re-core.persistency.types :as t]
     [re-core.common :refer (slurp-edn)]))
 
 (def host (.getHostName (java.net.InetAddress/getLocalHost)))
@@ -18,3 +19,9 @@
 
 (def kvm-instance
   (read-fixture "redis-kvm"))
+
+(defn populae-types []
+  (doseq [id (t/all-types)]
+    (t/delete-type id))
+  (t/add-type (read-fixture "jvm-type"))
+  (t/add-type (read-fixture "redis-type")))

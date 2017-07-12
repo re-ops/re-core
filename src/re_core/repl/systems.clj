@@ -9,7 +9,7 @@
     [clojure.set :refer (difference)]
     [re-core.persistency.systems :as s]
     [es.jobs :as es]
-    [re-core.repl.base :refer [Repl select-keys*]])
+    [re-core.repl.base :refer [Repl Report select-keys*]])
   (:import
     [re_mote.repl.base Hosts]
     [re_core.repl.base Systems]))
@@ -19,6 +19,7 @@
 (defprotocol Jobs
   "System jobs"
   (stop [this items])
+  (start [this items])
   (create [this items])
   (destroy [this items])
   (clear [this items])
@@ -26,12 +27,9 @@
   (status [this jobs])
   (watch [this jobs]))
 
-(defprotocol Report
-  (summary [this m]))
-
 (defprotocol Host
   "Hosts"
-  (hosts [this items]))
+  (into-hosts [this items]))
 
 (defn grep-system [k v [id system]]
   (let [sub (select-keys* system [:owner] [:machine :hostname] [:machine :os] [:machine :ip])]
@@ -66,7 +64,8 @@
       [this {:systems (filter (partial grep-system k v) (systems :systems))}])
 
   (add [this specs]
-     [this {:systems (map (fn [s] (let [id (s/add-system s)] [id (s/get-system id)])) specs)}]))
+    (let [f (fn [s] (let [id (s/add-system s)] [id (assoc (s/get-system id) :system-id id)]))]
+        [this {:systems (map f specs)}])))
 
 (defn filter-done [sts]
   (into #{} (filter (fn [{:keys [status]}] (or (#{:done :recently-done} status) (nil? status))) sts)))
@@ -82,7 +81,11 @@
    (stop [this {:keys [systems] :as m}]
      [this (run-job m "stop" systems)])
 
+   (start [this {:keys [systems] :as m}]
+     [this (run-job m "start" systems)])
+
    (create [this {:keys [systems] :as m}]
+     (println systems)
      [this (run-job m "create" systems)])
 
    (reload [this {:keys [systems] :as m}]
@@ -111,12 +114,12 @@
 
 (extend-type Systems
   Host
-  (hosts [this {:keys [systems]}]
+  (into-hosts [this {:keys [systems]}]
     (let [{:keys [user]} (:machine (second (first systems)))]
       (Hosts. {:user user} (mapv (fn [[_ system]] (get-in system [:machine :ip])) systems)))
     ))
 
-(extend-type Systems 
+(extend-type Systems
   Report
    (summary [this {:keys [success failure] :as m}]
      (println "")
@@ -129,4 +132,4 @@
      [this m]))
 
 (defn refer-systems []
-  (require '[re-core.repl.systems :as sys :refer [stop watch create status reload destroy clear hosts summary]]))
+  (require '[re-core.repl.systems :as sys :refer [watch status into-hosts]]))

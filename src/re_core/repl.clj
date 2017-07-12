@@ -2,9 +2,10 @@
   "Repl Driven re-core"
    (:require
      [clojure.core.strint :refer  (<<)]
-     [re-mote.repl :refer :all]
+     [re-mote.repl :refer (provision)]
      [re-core.repl.base :refer (refer-base)]
      [re-core.repl.systems :refer (refer-systems)]
+     [re-core.repl.types :refer (refer-types)]
      [taoensso.timbre  :as timbre :refer (set-level!)])
    (:import
      [re_mote.repl.base Hosts]
@@ -12,49 +13,84 @@
 
 (refer-base)
 (refer-systems)
+(refer-types)
 
 (set-level! :debug)
 
 (def systems (Systems.))
+(def types (Types.))
 
 (defn single [host]
   (run (ls systems) | (grep :hostname host)))
 
-(defn create-from [base t]
-  (let [specs (map (fn [i] (assoc-in base [:machine :hostname] (str "red" i))) (range t))]
-    (run (add systems specs) | (create) | (watch) | (summary))))
+; filtering
 
-(defn ip [[_ {:keys [machine] :as m}]] (machine :ip))
+(defn typed
+   "get instances by type"
+   [fixture]
+   (fn [{:keys [type]}] (=  (fixture :type))))
 
-; by functions
-(defn reload-by [f]
- (run (ls systems) | (filter-by f) | (reload) | (watch)))
+(defn ip
+  "machine has an ip"
+  [[_ {:keys [machine] :as m}]]
+  (machine :ip))
 
-(defn clear-by [f]
-  (run (ls systems) | (filter-by f) | (clear) | (watch)))
+; management
 
-(defn destroy-by [f]
-   (run (ls systems) | (filter-by f) | (ack) | (destroy) | (watch)))
+(defn up
+  ([base t]
+    (up (map (fn [i] (update-in base [:machine :hostname] (fn [n] (str n "-" i)))) (range t))))
+  ([specs]
+    (let [[_ {:keys [success]}] (run (add systems specs) | (sys/create) | (watch))]
+     (println success)
+      )))
 
-(defn into-hosts []
-  (run (ls systems) | (filter-by ip) | (hosts)))
+(defn reload [f]
+  (run (ls systems) | (filter-by f) | (sys/reload) | (watch)))
 
-; greps
-(defn stop-by-grep []
-  (run (ls systems) | (grep :os :ubuntu-16.04) | (stop) | (watch)))
+(defn clear [f]
+  (run (ls systems) | (filter-by f) | (sys/clear) | (watch)))
 
-(defn list-by-grep []
-  (run (ls systems) | (grep :os :ubuntu-16.04) | (pretty)))
+(defn destroy
+  ([]
+   (destroy identity))
+  ([f]
+    (run (ls systems) | (filter-by f) | (ack) | (sys/destroy) | (watch))))
 
-; alls
-(defn list-all []
-  (run (ls systems) | (pretty)))
+(defn halt
+  ([]
+    (halt identity))
+  ([f]
+    (run (ls systems) | (filter-by f) | (sys/stop) | (watch))))
 
-(defn clear-all []
-   (run (ls systems) | (clear) | (watch)))
+(defn start
+  ([]
+   (start identity))
+  ([f]
+    (run (ls systems) | (filter-by f) | (sys/start) | (watch))))
 
-; utils
-(defn ssh-into [{:keys [auth hosts]}]
-  (let [{:keys [user]} auth]
-    (doseq [host hosts]
-      (.exec  (Runtime/getRuntime) (<< "/usr/bin/x-terminal-emulator --disable-factory -e /usr/bin/ssh ~{user}@~{host}")))) )
+(defn list
+  ([]
+    (list identity))
+  ([f]
+    (run (ls systems) | (filter-by f) | (pretty))))
+
+(defn hosts
+  ([]
+   (hosts ip))
+  ([f]
+    (run (ls systems) | (filter-by f) | (into-hosts))))
+
+(defn ssh
+  ([]
+   (ssh (hosts))
+   )
+  ([{:keys [auth] :as hs}]
+   (let [{:keys [user]} auth]
+    (doseq [host (hs :hosts)]
+      (.exec  (Runtime/getRuntime) (<< "/usr/bin/x-terminal-emulator --disable-factory -e /usr/bin/ssh ~{user}@~{host}"))))) )
+
+
+; Types
+(defn all-types []
+  (run (ls types ) | (pretty)))

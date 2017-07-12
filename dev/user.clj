@@ -33,7 +33,7 @@
   []
   (alter-var-root #'system (constantly (setup-all))))
 
-(defn start
+(defn start-
   "Starts the current development system."
   []
   (alter-var-root #'system start-all))
@@ -47,7 +47,7 @@
   "Initializes the current development system and starts it running."
   []
   (init)
-  (start)
+  (start-)
   (doseq [f (filter #(.isFile %) (file-seq (io/file "scripts")))]
     (load-file (.getPath f))))
 
