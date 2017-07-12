@@ -29,7 +29,7 @@
                  ; hooks/remoting
                  [clj-http "3.4.1"]
                  [http-kit "2.1.18"]
-                 [re-mote "0.2.0"]
+                 [re-mote "0.2.1"]
                  [conjul "0.0.2"]
 
                  ;api

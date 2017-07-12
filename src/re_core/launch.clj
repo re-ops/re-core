@@ -13,7 +13,6 @@
   "re-core lanching ground aka main"
   (:gen-class true)
   (:require
-    [clojure.tools.nrepl.server :refer (start-server stop-server)]
     [clojure.java.io :refer (resource)]
     [re-core.common :refer (get! get* version)]
     [clojure.core.strint :refer (<<)]
@@ -64,13 +63,6 @@
 
 (defn add-shutdown [components]
   (.addShutdownHook (Runtime/getRuntime) (Thread. (fn [] (clean-up components)))))
-
-(defn start-nrepl
-  "Starts nrepl if enabled"
-  []
-  (when-let [port (get* :re-core :nrepl :port)]
-    (info (<< "starting nrepl on port ~{port}"))
-    (defonce server (start-server :port port))))
 
 (defn setup
   "One time setup"
