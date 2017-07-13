@@ -1,5 +1,6 @@
 (ns re-core.repl
   "Repl Driven re-core"
+   (:refer-clojure :exclude [list])
    (:require
      [clojure.core.strint :refer  (<<)]
      [re-mote.repl :refer (provision)]

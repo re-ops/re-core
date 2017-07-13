@@ -1,5 +1,6 @@
 (ns user
   (:use midje.repl)
+  (:refer-clojure :exclude  [list])
   (:require
      [clojure.tools.trace :refer (deftrace trace trace-ns trace-vars)]
      [clojure.java.io :as io]

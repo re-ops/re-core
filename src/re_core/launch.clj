@@ -1,5 +1,5 @@
 (comment
-   re-core, Copyright 2012 Ronen Narkis, narkisr.com
+   re-core, Copyright 2017 Ronen Narkis, narkisr.com
    Licensed under the Apache License,
    Version 2.0  (the "License") you may not use this file except in compliance with the License.
    You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -13,42 +13,20 @@
   "re-core lanching ground aka main"
   (:gen-class true)
   (:require
-    [clojure.java.io :refer (resource)]
+    [re-core.log :refer (setup-logging)]
     [re-core.common :refer (get! get* version)]
-    [clojure.core.strint :refer (<<)]
-    [gelfino.timbre :refer (set-tid get-tid gelf-appender)]
-    [taoensso.timbre  :as timbre :refer (merge-config! set-level!)]
-    [taoensso.timbre.appenders.3rd-party.rolling :refer (rolling-appender) ]
-    [taoensso.timbre.appenders.core :refer (println-appender)]
-    [components.core :refer (start-all stop-all setup-all)]
     [re-core.persistency.core :as p]
-    [hypervisors.networking :refer (initialize-networking)]
-    [es.core :as es]
     [re-core.metrics :as met]
     [re-core.jobs :as jobs]
-    [re-core.schedule :as sch]
+    [re-core.schedule :as sch] 
+    [clojure.core.strint :refer (<<)]
+    [clojure.java.io :refer (resource)]
+    [components.core :refer (start-all stop-all setup-all)]
+    [hypervisors.networking :refer (initialize-networking)]
+    [es.core :as es]
     [taoensso.timbre :refer (refer-timbre)]))
 
 (refer-timbre)
-
-(defn disable-coloring
-   "See https://github.com/ptaoussanis/timbre"
-   []
-  (merge-config! {:output-fn (partial timbre/default-output-fn  {:stacktrace-fonts {}})}))
-
-(defn setup-logging
-  "Sets up logging configuration"
-  []
-  (let [log* (partial get* :re-core :log)]
-    (when (log* :gelf)
-      (merge-config!
-        {:appenders {:gelf (gelf-appender {:host (log* :gelf :host)})}}))
-    (merge-config!
-      {:appenders {:rolling (rolling-appender {:path (log* :path) :pattern :weekly})}})
-    (merge-config!
-      {:appenders {:println {:ns-whitelist ["re-core"]}}})
-    (disable-coloring)
-    (set-level! (log* :level))))
 
 (defn build-components []
   {:es (es/instance) :jobs (jobs/instance)

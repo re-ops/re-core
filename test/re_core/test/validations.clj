@@ -13,7 +13,7 @@
 
 
 (fact "non puppet type"
-  (validate-type {:type "foo"}) => truthy)
+  (validate-type {:type "foo" :puppet {:tar "bla"}}) => truthy)
 
 
 (fact "aws volume validations"

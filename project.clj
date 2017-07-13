@@ -98,31 +98,23 @@
         :dependencies [[org.clojure/test.check "0.7.0"]]
      }
 
-     :refresh {
-        :dependencies [[org.clojure/tools.namespace "0.2.10"] [midje "1.8.3"]
-                       [redl "0.2.4"] [org.clojure/tools.trace "0.7.9"]]
-        :injections  [(require '[redl core complete])]
-        :resource-paths  ["src/main/resources/" "pkg/etc/re-core/"]
-        :source-paths  ["dev"]
-        :test-paths  []
-
-     }
 
      :test {
        :test-paths ["test" "data"]
        :plugins [[lein-midje "3.1.3"]]
-        :dependencies [[ring-mock "0.1.5"] [midje "1.8.3"]
-                       [org.clojure/tools.trace "0.7.9"]
-                       [org.clojure/test.check "0.7.0"]]
+       :dependencies [
+          [midje "1.8.3"]
+          [org.clojure/tools.trace "0.7.9"]
+          [org.clojure/test.check "0.7.0"]
+        ]
+
+        :jvm-opts ["-Ddisable-conf=true"]
      }
 
      :dev {
         :source-paths  ["dev"]
-
         :resource-paths  ["src/main/resources/" "pkg/etc/re-core/"]
-
         :plugins [[lein-midje "3.1.3"]]
-
         :dependencies [[midje "1.8.3"]]
 
         :set-version {
@@ -140,11 +132,11 @@
       "kvm"  ["with-profile" "test" "do" "midje" ":filter" "kvm"]
       "runtest" ["midje" ":filter" "-integration"]
       "populate" ["with-profile" "populate" "do" "run" "-m" "re-core.fixtures.populate"]
-      ; https://github.com/stuartsierra/reloaded workflow
-      "reloadable" ["with-profile" "refresh" "do" "clean," "repl"]
       "travis" [
-         "do" "clean," "compile," "midje" ":filter" "-integration," "midje" ":redis," "midje" ":elasticsearch" ]
-            }
+        "with-profile" "test" "do" "clean," "compile," 
+        "midje" ":filter" "-integration," "midje" ":redis," "midje" ":elasticsearch" 
+      ]
+   }
 
 
   :repositories  {"bintray"  "http://dl.bintray.com/content/narkisr/narkisr-jars"
