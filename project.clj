@@ -108,7 +108,7 @@
           [org.clojure/test.check "0.7.0"]
         ]
 
-        :jvm-opts ["-Ddisable-conf=true"]
+        :jvm-opts ^:replace ["-Ddisable-conf=true"]
      }
 
      :dev {
