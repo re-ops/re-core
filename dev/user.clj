@@ -1,5 +1,4 @@
 (ns user
-  (:use midje.repl)
   (:refer-clojure :exclude  [list])
   (:require
      [clojure.tools.trace :refer (deftrace trace trace-ns trace-vars)]
@@ -10,6 +9,7 @@
      [re-mote.repl :refer :all]
      [re-core.repl :refer :all]
      [re-core.repl.fixtures :refer :all]
+     [me.raynes.fs :refer (extension file?)]
      [re-core.launch :as core]
      [re-mote.launch :as mote]))
 
@@ -49,7 +49,7 @@
   []
   (init)
   (start-)
-  (doseq [f (filter #(.isFile %) (file-seq (io/file "scripts")))]
+  (doseq [f (filter #(and (file? %) (= ".clj" (extension %))) (file-seq (io/file "scripts")))]
     (load-file (.getPath f))))
 
 (defn reset []
