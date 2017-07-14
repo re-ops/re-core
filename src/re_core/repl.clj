@@ -1,13 +1,13 @@
 (ns re-core.repl
   "Repl Driven re-core"
-   (:refer-clojure :exclude [list])
+   (:refer-clojure :exclude [list update])
    (:require
      [clojure.core.strint :refer  (<<)]
      [re-mote.repl :refer (provision)]
      [re-core.repl.base :refer (refer-base)]
      [re-core.repl.systems :refer (refer-systems)]
      [re-core.repl.types :refer (refer-types)]
-     [taoensso.timbre  :as timbre :refer (set-level!)])
+     [taoensso.timbre :as timbre :refer (set-level!)])
    (:import
      [re_mote.repl.base Hosts]
      [re_core.repl.base Types Systems]))
@@ -84,8 +84,7 @@
 
 (defn ssh
   ([]
-   (ssh (hosts))
-   )
+   (ssh (hosts)))
   ([{:keys [auth] :as hs}]
    (let [{:keys [user]} auth]
     (doseq [host (hs :hosts)]

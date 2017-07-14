@@ -13,7 +13,7 @@
   (:require
     [gelfino.timbre :refer (set-tid)]
     [re-core.common :refer (get* minute)]
-    [taoensso.carmine.locks :refer (with-lock)]
+    [taoensso.carmine.locks :refer (with-lock release-lock)]
     [clojure.core.strint :refer (<<)]
     [taoensso.timbre :refer (refer-timbre)]
     [re-core.persistency.systems :as s]
@@ -56,11 +56,8 @@
                  hostname (when identity (get-in (s/get-system identity) [:machine :hostname]))
                  spec' (merge spec (meta f) {:start (System/currentTimeMillis) :hostname hostname})]
             (try
-              (if identity
-                (do (with-lock (server-conn) identity expiry wait-time (apply f args))
-                    (save-status spec' :success))
-                (do (apply f args)
-                    (save-status spec' :success)))
+                (apply f args) 
+                (save-status spec' :success)
               (catch Throwable e
                 (error e)
                 (save-status (assoc spec' :message (.getMessage e)) :failure)))))))
@@ -90,6 +87,8 @@
   "Placing job in redis queue"
   [queue payload]
   {:pre [(contains? (jobs) (keyword queue))]}
+  (when (empty? @workers) 
+    (throw (ex-info "no workers running!" {:queue queue :payload payload})))
   (trace "submitting" payload "to" queue)
   (wcar (mq/enqueue queue payload)))
 
@@ -121,8 +120,9 @@
 (defn shutdown-workers []
   (doseq [[k ws] @workers]
     (doseq [w ws]
-      (trace "Shutting down" k w)
-      (mq/stop w))))
+      (trace "shutting down" k w)
+      (mq/stop w)))
+   (reset! workers {}))
 
 (defrecord Jobs
   []
