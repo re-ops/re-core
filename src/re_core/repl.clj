@@ -39,12 +39,18 @@
 ; management
 
 (defn up
+  "Create VM and provision:
+    (up kvm-instance 5) ; create 5 VM instances
+    (up kvm-instance); create a single VM "
   ([base t]
-    (up (map (fn [i] (update-in base [:machine :hostname] (fn [n] (str n "-" i)))) (range t))))
-  ([specs]
-    (let [[_ {:keys [success]}] (run (add systems specs) | (sys/create) | (watch))]
-     (println success)
-      )))
+    (let [specs (map (fn [i] (update-in base [:machine :hostname] (fn [n] (str n "-" i)))) (range t))
+          [_ {:keys [systems] :as m}] (run (add systems specs) | (sys/create) | (watch))
+          by-type (group-by (fn [s] (get-in s [1 :type])) systems)
+          ]
+      by-type
+      ))
+  ([single]
+    (up single 1)))
 
 (defn reload [f]
   (run (ls systems) | (filter-by f) | (sys/reload) | (watch)))
@@ -54,9 +60,11 @@
 
 (defn destroy
   ([]
-   (destroy identity))
-  ([f]
-    (run (ls systems) | (filter-by f) | (ack) | (sys/destroy) | (watch))))
+   (destroy identity {}))
+  ([opts]
+   (destroy identity opts))
+  ([f opts]
+    (run (ls systems) | (filter-by f) | (ack opts) | (sys/destroy) | (watch))))
 
 (defn halt
   ([]

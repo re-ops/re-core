@@ -39,6 +39,14 @@
   (let [tid (gen-uuid) m {:identity id :tid tid :args [(assoc system :system-id (Integer. id))]}]
      {:system id :job (enqueue action m) :tid tid}))
 
+(defn run-ack [this {:keys [systems] :as m}]
+  (println "The following systems will be effected Y/n (n*):")
+  (doseq [[id s] systems]
+    (println "      " id (get-in s [:machine :hostname])))
+   (if-not (= (read-line) "Y")  
+     [this {}] 
+     [this m]))
+
 (extend-type Systems
   Repl
   (ls [this]
@@ -48,12 +56,10 @@
   (filter-by [this {:keys [systems] :as m} f]
      [this {:systems (filter f systems)}])
 
-  (ack [this {:keys [systems] :as m}]
-     (println "The following systems will be effected")
-     (doseq [[id s] systems]
-       (println "Processing" id (get-in s [:machine :hostname])))
-     (println "Y/n")
-     (if-not (= (read-line) "Y")  [this {}] [this m]))
+  (ack [this {:keys [systems] :as m} opts]
+     (if-not (contains? opts :force)
+       (run-ack this m) 
+       [this m]))
 
   (rm [this systems]
      (doseq [id (map first systems)]
@@ -85,7 +91,6 @@
      [this (run-job m "start" systems)])
 
    (create [this {:keys [systems] :as m}]
-     (println systems)
      [this (run-job m "create" systems)])
 
    (reload [this {:keys [systems] :as m}]
@@ -100,7 +105,7 @@
    (status [this {:keys [jobs queue]}]
       (map (fn [{:keys [job] :as m }] (assoc m :status (jobs/status queue job))) jobs))
 
-   (watch [this {:keys [jobs queue] :as js}]
+   (watch [this {:keys [jobs queue systems] :as js}]
      (loop [done (filter-done (status this js))
             bar (pr/progress-bar (count jobs))]
         (if (>= (:progress bar) (:total bar))
@@ -109,15 +114,16 @@
             (pr/print bar)
             (let [done' (filter-done (status this js))]
                (recur done' (pr/tick bar (count (difference done' done))))))))
-      [this (group-by (comp keyword :status) (map result jobs))]
+      (let [{:keys [success] :as results} (group-by (comp keyword :status) (map result jobs))
+            systems (doall (map (juxt identity s/get-system) (map :identity success)))]
+        [this {:systems systems :results results}])
      ))
 
 (extend-type Systems
   Host
   (into-hosts [this {:keys [systems]}]
     (let [{:keys [user]} (:machine (second (first systems)))]
-      (Hosts. {:user user} (mapv (fn [[_ system]] (get-in system [:machine :ip])) systems)))
-    ))
+      (Hosts. {:user user} (mapv (fn [[_ system]] (get-in system [:machine :ip])) systems)))))
 
 (extend-type Systems
   Report

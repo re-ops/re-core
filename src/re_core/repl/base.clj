@@ -15,7 +15,7 @@
   "Repl functions on re-core model types"
   (ls [this] [this & opts])
   (filter-by [this items f])
-  (ack [this items])
+  (ack [this items opts])
   (rm [this items])
   (add [this specs])
   (grep [this items k v]))
