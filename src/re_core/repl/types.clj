@@ -4,18 +4,21 @@
     [clansi.core :refer  (style)]
     [re-core.persistency.types :as t]
     [re-core.repl.base :refer [Repl Report]])
-  (:import 
+  (:import
     [re_core.repl.base Types]))
 
+(defprotocol Source
+  (source [this t]))
 
 (extend-type Types
   Repl
   (ls [this & opts]
    (ls this))
   (ls [this]
-    [this {:types (map t/get-type (t/all-types))}]) 
+    [this {:types (map t/get-type (t/all-types))}])
   (filter-by [this {:keys [types] :as m} f]
-    [this {:types (filter f types)}]))
+    [this {:types (filter f types)}])
+  )
 
 (extend-type Types
   Report
@@ -25,7 +28,13 @@
      (doseq [t ts]
        (println " " t))
      (println "")
-     [this ts]))
+     [this ts])
+
+  Source
+   (source [this t]
+     (let [{:keys [puppet]} (t/get-type t)
+           {:keys [src tar]} puppet]
+       (or src tar))))
 
 (defn refer-types []
-  (require '[re-core.repl.types :as ts]))
+  (require '[re-core.repl.types :as ts :refer (source)]))

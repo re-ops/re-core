@@ -44,11 +44,11 @@
     (up kvm-instance); create a single VM "
   ([base t]
     (let [specs (map (fn [i] (update-in base [:machine :hostname] (fn [n] (str n "-" i)))) (range t))
-          [_ {:keys [systems] :as m}] (run (add systems specs) | (sys/create) | (watch))
-          by-type (group-by (fn [s] (get-in s [1 :type])) systems)
-          ]
-      by-type
-      ))
+          [_ m] (run (add systems specs) | (sys/create) | (watch))
+          by-type (group-by (fn [s] (get-in s [1 :type])) (:systems m))]
+      (doseq [[t ms] by-type]
+         (provision (into-hosts systems {:systems ms}) (source types t) (<< "/tmp/~{t}"))
+        )))
   ([single]
     (up single 1)))
 
