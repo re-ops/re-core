@@ -25,7 +25,8 @@
   (clear [this items])
   (reload [this items])
   (status [this jobs])
-  (wait-on [this jobs])
+  (block-wait [this jobs])
+  (async-wait [this jobs f])
   (pretty-print [this m])
   (watch [this jobs]))
 
@@ -112,16 +113,26 @@
    (status [this {:keys [jobs queue]}]
       (map (fn [{:keys [job] :as m }] (assoc m :status (jobs/status queue job))) jobs))
 
-   (wait-on [this {:keys [jobs queue systems] :as js}]
+   (block-wait [this {:keys [jobs queue systems] :as js}]
      (loop [done (filter-done (status this js))]
+        (debug done)
         (when (< (count done) (count jobs))
           (Thread/sleep 100)
           (recur (filter-done (status this js)))))
       (add-results this jobs))
 
+   (async-wait [this {:keys [jobs queue systems] :as js} f]
+     (let [out *out*]
+       (future
+         (binding [*out* out]
+           (loop [done (filter-done (status this js))]
+             (when (< (count done) (count jobs))
+               (Thread/sleep 100)
+               (recur (filter-done (status this js)))))
+           (f this (add-results this jobs))))))
+
    (pretty-print [this {:keys [results] :as m}]
       (let [{:keys [success failure]} results]
-        (clojure.pprint/pprint failure)
         (println "")
         (println (style "Run summary:" :blue) "\n")
         (doseq [{:keys [hostname]} success]
@@ -130,17 +141,7 @@
           (println " " (style "x" :red) hostname "-" message))
        (println "")
        [this m]))
-
-   (watch [this {:keys [jobs queue systems] :as js}]
-     (loop [done (filter-done (status this js))
-            bar (pr/progress-bar (count jobs))]
-        (if (>= (:progress bar) (:total bar))
-          (pr/print (pr/done bar))
-          (do (Thread/sleep 100)
-            (pr/print bar)
-            (let [done' (filter-done (status this js))]
-               (recur done' (pr/tick bar (count (difference done' done))))))))
-        (add-results this jobs)))
+   )
 
 (extend-type Systems
   Host
@@ -161,4 +162,4 @@
      [this m]))
 
 (defn refer-systems []
-  (require '[re-core.repl.systems :as sys :refer [watch status into-hosts wait-on pretty-print]]))
+  (require '[re-core.repl.systems :as sys :refer [watch status into-hosts block-wait async-wait pretty-print]]))

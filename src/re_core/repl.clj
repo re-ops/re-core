@@ -44,7 +44,7 @@
     (up kvm-instance); create a single VM "
   ([base t]
     (let [specs (map (fn [i] (update-in base [:machine :hostname] (fn [n] (str n "-" i)))) (range t))
-          [_ m] (run (add systems specs) | (sys/create) | (wait-on) | (pretty-print))
+          [_ m] (run (add systems specs) | (sys/create) | (block-wait) | (pretty-print))
           by-type (group-by (fn [s] (get-in s [1 :type])) (:systems m))]
       (doseq [[t ms] by-type]
          (provision (into-hosts systems {:systems ms}) (source types t) (<< "/tmp/~{t}"))
@@ -53,10 +53,10 @@
     (up single 1)))
 
 (defn reload [f]
-  (run (ls systems) | (filter-by f) | (sys/reload) | (watch)))
+  (run (ls systems) | (filter-by f) | (sys/reload) | (block-wait) | (pretty-print)))
 
 (defn clear [f]
-  (run (ls systems) | (filter-by f) | (sys/clear) | (watch)))
+  (run (ls systems) | (filter-by f) | (sys/clear) | (block-wait) | (pretty-print)))
 
 (defn destroy
   ([]
@@ -64,19 +64,19 @@
   ([opts]
    (destroy identity opts))
   ([f opts]
-    (run (ls systems) | (filter-by f) | (ack opts) | (sys/destroy) | (wait-on) | (pretty-print))))
+    (run (ls systems) | (filter-by f) | (ack opts) | (sys/destroy) | (async-wait pretty-print))))
 
 (defn halt
   ([]
     (halt identity))
   ([f]
-    (run (ls systems) | (filter-by f) | (sys/stop) | (watch))))
+    (run (ls systems) | (filter-by f) | (sys/stop) | (async-wait pretty-print))))
 
 (defn start
   ([]
    (start identity))
   ([f]
-    (run (ls systems) | (filter-by f) | (sys/start) | (watch))))
+   (run (ls systems) | (filter-by f) | (sys/start) | (block-wait) | (pretty-print))))
 
 (defn list
   ([]
