@@ -1,12 +1,12 @@
 {
-  :env :dev 
+  :env :dev
 
   :owner "ronen"
 
   :machine {
     :hostname "red1" :user "celestial" :domain "local"
     :os :ubuntu-16.04 :cpu 2 :ram 1024
-  } 
+  }
 
   :kvm {
     :node :remote

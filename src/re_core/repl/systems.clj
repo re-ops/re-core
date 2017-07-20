@@ -25,6 +25,8 @@
   (clear [this items])
   (reload [this items])
   (status [this jobs])
+  (wait-on [this jobs])
+  (pretty-print [this m])
   (watch [this jobs]))
 
 (defprotocol Host
@@ -43,8 +45,8 @@
   (println "The following systems will be effected Y/n (n*):")
   (doseq [[id s] systems]
     (println "      " id (get-in s [:machine :hostname])))
-   (if-not (= (read-line) "Y")  
-     [this {}] 
+   (if-not (= (read-line) "Y")
+     [this {}]
      [this m]))
 
 (extend-type Systems
@@ -58,7 +60,7 @@
 
   (ack [this {:keys [systems] :as m} opts]
      (if-not (contains? opts :force)
-       (run-ack this m) 
+       (run-ack this m)
        [this m]))
 
   (rm [this systems]
@@ -81,6 +83,11 @@
 
 (defn result [{:keys [tid] :as job}]
   (merge ((es/get tid) :_source) job))
+
+(defn add-results [this jobs]
+  (let [{:keys [success] :as results} (group-by (comp keyword :status) (map result jobs))
+        systems (doall (map (juxt identity s/get-system) (map :identity success)))]
+     [this {:systems systems :results results}]))
 
 (extend-type Systems
   Jobs
@@ -105,6 +112,25 @@
    (status [this {:keys [jobs queue]}]
       (map (fn [{:keys [job] :as m }] (assoc m :status (jobs/status queue job))) jobs))
 
+   (wait-on [this {:keys [jobs queue systems] :as js}]
+     (loop [done (filter-done (status this js))]
+        (when (< (count done) (count jobs))
+          (Thread/sleep 100)
+          (recur (filter-done (status this js)))))
+      (add-results this jobs))
+
+   (pretty-print [this {:keys [results] :as m}]
+      (let [{:keys [success failure]} results]
+        (clojure.pprint/pprint failure)
+        (println "")
+        (println (style "Run summary:" :blue) "\n")
+        (doseq [{:keys [hostname]} success]
+          (println " " (style "✔" :green) hostname))
+        (doseq [{:keys [hostname message]} failure]
+          (println " " (style "x" :red) hostname "-" message))
+       (println "")
+       [this m]))
+
    (watch [this {:keys [jobs queue systems] :as js}]
      (loop [done (filter-done (status this js))
             bar (pr/progress-bar (count jobs))]
@@ -114,10 +140,7 @@
             (pr/print bar)
             (let [done' (filter-done (status this js))]
                (recur done' (pr/tick bar (count (difference done' done))))))))
-      (let [{:keys [success] :as results} (group-by (comp keyword :status) (map result jobs))
-            systems (doall (map (juxt identity s/get-system) (map :identity success)))]
-        [this {:systems systems :results results}])
-     ))
+        (add-results this jobs)))
 
 (extend-type Systems
   Host
@@ -138,4 +161,4 @@
      [this m]))
 
 (defn refer-systems []
-  (require '[re-core.repl.systems :as sys :refer [watch status into-hosts]]))
+  (require '[re-core.repl.systems :as sys :refer [watch status into-hosts wait-on pretty-print]]))
