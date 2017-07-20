@@ -5,7 +5,7 @@
     [clojure.core.strint :refer (<<)]
     [kvm.clone :refer (clone-domain)]
     [kvm.disks :refer (clear-volumes)]
-    [kvm.common :refer (connect get-domain domain-zip state)]
+    [kvm.common :refer (connect get-domain domain-zip state domain-list)]
     [kvm.networking :refer (public-ip nat-ip update-ip)]
     [re-mote.sshj :refer (ssh-up?)]
     [re-core.core :refer (Vm)]
@@ -74,8 +74,10 @@
   (status [this]
     (with-connection
       (try
-        (state (get-domain connection (domain :name)))
-          (catch LibvirtException e (debug (.getMessage e)) false))))
+        (if-not (first (filter #(= % (domain :name)) (domain-list connection)))
+          false
+          (state (get-domain connection (domain :name))))
+      (catch LibvirtException e (debug (.getMessage e)) false))))
 
   (ip [this]
     (with-connection
@@ -103,3 +105,7 @@
      (provider-validation domain node*)
      (->Domain system-id node* domain)))
 
+(comment 
+  (domain-list (connection {:host "localhost" :user "ronen" :port 22})) 
+  (get-domain (connection {:host "localhost" :user "ronen" :port 22}) "red1-.local" )
+  )

@@ -1,13 +1,13 @@
 (ns kvm.common
-  (:require 
+  (:require
     [clojure.data.xml :as xml]
     [clojure.zip :as zip])
-  (:import 
+  (:import
      java.text.SimpleDateFormat
      org.libvirt.Connect))
 
-(defn connect 
-   "Connecting" 
+(defn connect
+   "Connecting"
    [uri]
    (Connect. uri))
 
@@ -26,12 +26,13 @@
             (recur (zip/next new-loc))))
         (recur (zip/next loc))))))
 
-(defn get-domain [c name] 
+(defn get-domain [c name]
    (.domainLookupByName c name))
 
-(defn domain-list
-   [c]
-   (map (partial get-domain c) (.listDefinedDomains c)))
+(defn domain-list [c]
+  (let [defined (into [] (.listDefinedDomains c))
+        active (into []  (map #(.getName (.domainLookupByID c %)) (.listDomains c)))]
+    (into defined active)))
 
 (defn state [domain]
   (let [s (.toString (.state (.getInfo domain)))]
@@ -44,5 +45,5 @@
    (zip/xml-zip (xml/parse (java.io.ByteArrayInputStream. (.getBytes s)))))
 
 (defn domain-zip [c id]
-  (-> (get-domain c id) xml-desc parse))  
- 
+  (-> (get-domain c id) xml-desc parse))
+
