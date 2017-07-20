@@ -156,14 +156,4 @@
     (start (updated-system system-id)))
   (provision type (updated-system system-id)))
 
-(deflow ^{:hook-args :run-info} run-action
-  "Runs an action"
-  [actions run-info]
-  (let [remote (rconstruct actions run-info) {:keys [action]} run-info]
-    (info (<< "setting up task ~{action}"))
-    (.setup remote)
-    (info (<< "running up task ~{action}"))
-    (.run remote)
-    (info (<< "cleanning up task ~{action}"))
-    (.cleanup remote)))
 

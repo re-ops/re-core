@@ -54,8 +54,8 @@
 
 (defn jobs []
   {:reload [wf/reload 4] :destroy [wf/destroy 4] :provision [wf/provision 4]
-   :stage [wf/stage 4] :run-action [wf/run-action 4] :create [wf/create 4]
-   :start [wf/start 4] :stop [wf/stop 4] :clear [wf/clear 2] :clone [wf/clone 2]})
+   :stage [wf/stage 4] :create [wf/create 4] :start [wf/start 4] :stop [wf/stop 4]
+   :clear [wf/clear 2] :clone [wf/clone 2]})
 
 (defn apply-config [js]
   {:post [(= (into #{} (keys %)) operations)]}
