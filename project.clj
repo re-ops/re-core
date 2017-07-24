@@ -21,15 +21,17 @@
                  [com.palletops/stevedore "0.8.0-beta.7"]
                  [camel-snake-kebab "0.1.2"]
 
-                 ; logging
+                 ; logging / profiling
                  [com.taoensso/timbre "4.10.0"]
                  [com.fzakaria/slf4j-timbre "0.3.5"]
                  [com.narkisr/gelfino-client "0.8.1"]
+                 [com.taoensso/tufte "1.1.1"]
+
 
                  ; hooks/remoting
                  [clj-http "3.4.1"]
                  [http-kit "2.1.18"]
-                 [re-mote "0.2.1"]
+                 [re-mote "0.2.3"]
                  [conjul "0.0.2"]
 
                  ;api
@@ -83,10 +85,13 @@
 
   :exclusions [org.clojure/clojure com.taoensso/timbre commons-codec]
 
-  :plugins  [[jonase/eastwood "0.2.1"]
+  :plugins  [[jonase/eastwood "0.2.4"]
+             [lein-cljfmt "0.5.6"]
              [lein-ancient "0.6.7" :exclusions [org.clojure/clojure]]
-             [lein-tar "2.0.0" ] [self-build "0.0.9"]
-             [lein-tag "0.1.0"] [lein-set-version "0.3.0"]
+             [lein-tar "2.0.0" ] 
+             [self-build "0.0.9"]
+             [lein-tag "0.1.0"] 
+             [lein-set-version "0.3.0"]
              [topping "0.0.2"]]
 
   :bin {:name "re-core"}
@@ -151,9 +156,8 @@
   :test-paths  []
 
   :repl-options {
-    :timeout 120000
     :init-ns user
-    :prompt (fn [ns] (str "\u001B[35m[\u001B[34m" ns "\u001B[35m]\u001B[33mλ:\u001B[m " ))
+    :prompt (fn [ns] (str "\u001B[35m[\u001B[34m" "re-core" "\u001B[35m]\u001B[33mλ:\u001B[m " ))
     :welcome (println "Welcome to re-core!" )
   }
 

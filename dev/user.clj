@@ -5,7 +5,7 @@
      [clojure.pprint :refer (pprint)]
      [clojure.repl :refer :all]
      [clojure.tools.namespace.repl :refer (refresh refresh-all)]
-     [re-mote.repl :refer :all]
+     [re-mote.repl :refer :all :exclude (provision)]
      [re-core.repl :refer :all]
      [re-core.repl.fixtures :refer :all]
      [me.raynes.fs :refer (extension file?)]

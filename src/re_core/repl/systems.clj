@@ -88,7 +88,7 @@
 (defn add-results [this jobs]
   (let [{:keys [success] :as results} (group-by (comp keyword :status) (map result jobs))
         systems (doall (map (juxt identity s/get-system) (map :identity success)))]
-     [this {:systems systems :results results}]))
+     {:systems systems :results results}))
 
 (extend-type Systems
   Jobs
@@ -115,11 +115,11 @@
 
    (block-wait [this {:keys [jobs queue systems] :as js}]
      (loop [done (filter-done (status this js))]
-        (debug done)
+        (trace done)
         (when (< (count done) (count jobs))
           (Thread/sleep 100)
           (recur (filter-done (status this js)))))
-      (add-results this jobs))
+      [this (add-results this jobs)])
 
    (async-wait [this {:keys [jobs queue systems] :as js} f]
      (let [out *out*]
@@ -133,7 +133,7 @@
 
    (pretty-print [this {:keys [results] :as m}]
       (let [{:keys [success failure]} results]
-        (println "")
+        (println "\n")
         (println (style "Run summary:" :blue) "\n")
         (doseq [{:keys [hostname]} success]
           (println " " (style "✔" :green) hostname))

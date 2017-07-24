@@ -29,12 +29,10 @@
        (println " " t))
      (println "")
      [this ts])
+  )
 
-  Source
-   (source [this t]
-     (let [{:keys [puppet]} (t/get-type t)
-           {:keys [src tar]} puppet]
-       (or src tar))))
+(defn provision-type [t]
+  (:puppet (t/get-type t)))
 
 (defn refer-types []
-  (require '[re-core.repl.types :as ts :refer (source)]))
+  (require '[re-core.repl.types :as ts :refer (provision-type)]))

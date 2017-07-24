@@ -20,7 +20,7 @@
   #{:aws :physical :digital-ocean :gce :kvm})
 
 (def operations
- #{:reload :destroy :provision :stage :run-action :create :start :stop :clear :clone})
+ #{:reload :destroy :provision :stage :create :start :stop :clear :clone})
 
 (defn figure-virt [spec] (first (filter hypervizors (keys spec))))
 
