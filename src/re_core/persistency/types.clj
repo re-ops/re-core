@@ -6,9 +6,11 @@
 
 (entity type :id type)
 
-(validation :puppet* {:tar #{:required :String}
-                      :src  #{:String}
-                      :args #{:Vector}})
+(validation :puppet* {
+    :tar #{:required :String}
+    :src  #{:String}
+    :args #{:Vector}
+})
 
 (defn validate-type [t]
   (validate! t {:type #{:required :String} :puppet #{:puppet*}} :error ::non-valid-type))

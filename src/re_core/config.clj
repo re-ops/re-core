@@ -1,23 +1,25 @@
 (ns re-core.config
   "Celetial configuration info"
   (:require
-   [subs.core :refer (validate! combine validation when-not-nil every-kv)])
-  (:use
-   [clojure.pprint :only (pprint)]
-   [taoensso.timbre :only (merge-config! debug info error warn trace)]
+   [clj-config.core :as conf]
+   [subs.core :refer (validate! combine validation when-not-nil every-kv)]
+   [clojure.pprint :refer (pprint)]
+   [taoensso.timbre :refer (merge-config! debug info error warn trace)]
    [taoensso.timbre.appenders.core :refer (spit-appender)]
-   [clojure.core.strint :only (<<)]
-   [clojure.java.io :only (file)]
-   [clj-config.core :as conf]))
+   [clojure.core.strint :refer (<<)]
+   [clojure.java.io :refer (file)]))
 
-(def base-v {:redis {:host #{:required :String}}
-             :elasticsearch {:host #{:required :String} :port #{:required :Integer} :cluster #{:required :String}}
-             :ssh {:private-key-path #{:required :String}}})
+(def base-v {
+    :redis {:host #{:required :String}}
+    :elasticsearch {
+        :host #{:required :String} :port #{:required :Integer} :cluster #{:required :String}
+    }
+    :ssh {:private-key-path #{:required :String}}
+})
 
 (def levels #{:trace :debug :info :error})
 
-(validation :levels
-            (when-not-nil levels (<< "level must be either ~{levels}")))
+(validation :levels (when-not-nil levels (<< "level must be either ~{levels}")))
 
 (def central-logging #{:graylog2 :kibana3 :kibana4 :logstash})
 

@@ -13,7 +13,7 @@
 
 (defmacro set-env [e & body] `(binding  [env ~e] ~@body))
 
-(defn get-env! [] {:pre [env]} env)
+(defn get-env! [] {:pre [(not (nil? env))]} env)
 
 (def hypervizors
   #{:aws :physical :digital-ocean :gce :kvm})
@@ -25,12 +25,12 @@
 
 (defn hypervisor
   "obtains current environment hypervisor"
-  [& ks] {:pre [env]}
+  [& ks] {:pre [(not (nil? env))]}
   (apply get! :hypervisor env ks))
 
 (defn hypervisor*
   "obtains current environment hypervisor using get*"
-  [& ks] {:pre [env]}
+  [& ks] {:pre [(not (nil? env))]}
   (apply get* :hypervisor env ks))
 
 (defn- select-sub
