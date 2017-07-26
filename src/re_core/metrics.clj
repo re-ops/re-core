@@ -9,18 +9,22 @@
    [metrics.core :refer (default-registry)]
    [metrics.jvm.core :refer (instrument-jvm)]
    [metrics.health.core :refer [default-healthcheck-registry]]
-   [metrics.health.core :as health :refer (defhealthcheck)]))
+   [metrics.health.core :as health :refer (defhealthcheck)])
+  (:import [java.util Calendar]))
+
+(defn seconds []
+  (.get (Calendar/getInstance) (Calendar/SECOND)))
 
 (defhealthcheck "redis"
   (fn []
-    (let [now (.getSeconds (java.util.Date.))]
+    (let [now (seconds)]
       (if (= (wcar (car/ping)) "PONG")
         (health/healthy "Managed to ping redis" now)
         (health/unhealthy "Failed to ping redis" now)))))
 
 (defhealthcheck "elasticsearch"
   (fn []
-    (let [now (.getSeconds (java.util.Date.)) h (es/health (into-array [index]))]
+    (let [now (seconds) h (es/health (into-array [index]))]
       (if (= h "GREEN")
         (health/healthy "ES index health is GREEN" now)
         (health/unhealthy (str "ES index health is" h)  now)))))

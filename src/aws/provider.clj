@@ -19,8 +19,9 @@
 
 (timbre/refer-timbre)
 
-(defn wait-for-status [instance req-stat timeout]
+(defn wait-for-status
   "Waiting for ec2 machine status timeout is in mili"
+  [instance req-stat timeout]
   (wait-for {:timeout timeout} #(= req-stat (.status instance))
             {:type ::aws:status-failed :status req-stat :timeout timeout}
             "Timed out on waiting for status"))

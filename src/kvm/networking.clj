@@ -52,7 +52,8 @@
       ip
       (throw+ {:type ::kvm:networking} "Failed to grab domain public IP"))))
 
-(defn update-ip [system-id ip]
+(defn update-ip
   "updates public dns in the machine persisted data"
+  [system-id ip]
   (when (s/system-exists? system-id)
     (s/partial-system system-id {:machine {:ip ip}})))

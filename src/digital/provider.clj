@@ -26,8 +26,9 @@
 (defn get-ip [id]
   (get-in (get-droplet id) [:droplet :networks :v4 0 :ip_address]))
 
-(defn wait-for-ip  [id timeout]
+(defn wait-for-ip
   "Wait for an ip to be avilable"
+  [id timeout]
   (wait-for {:timeout timeout} #(not (nil? (get-ip id)))
             {:type ::digital:fail :timeout timeout}
             "Timed out on waiting for ip to be available"))

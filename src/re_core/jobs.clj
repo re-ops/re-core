@@ -38,8 +38,9 @@
     (trace "saved status" (merge spec {:status status :end (System/currentTimeMillis)}))
     {:status status}))
 
-(defn job-exec [f  {:keys [message attempt]}]
+(defn job-exec
   "Executes a job function tries to lock identity first (if used)"
+  [f  {:keys [message attempt]}]
   (let [{:keys [identity args tid env] :as spec} message]
     (set-tid tid
              (let [{:keys [wait-time expiry]} (map-vals (or (job* :lock) defaults) #(* minute %))
@@ -61,8 +62,9 @@
   {:post [(= (into #{} (keys %)) operations)]}
   (reduce (fn [m [k [f c]]] (assoc m k [f (or (job* :workers k) c)])) {} js))
 
-(defn create-wks [queue f total]
+(defn create-wks
   "create a count of workers for queue"
+  [queue f total]
   (mapv (fn [v] (create-worker (name queue) (partial job-exec (with-meta f {:queue queue})))) (range total)))
 
 (defn initialize-workers []

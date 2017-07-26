@@ -108,7 +108,7 @@
   {:image (fn [os] (:image ((os->template :gce) os)))})
 
 (defmethod translate :gce [{:keys [machine gce system-id] :as spec}]
-  "Convert the general model into a gce instance"
+  ; Convert the general model into a gce instance
   (-> (merge machine gce {:system-id system-id})
       (mappings {:os :image :hostname :name})
       (transform machine-ts)
@@ -122,5 +122,5 @@
     (apply (partial ->GCEInstance compute) (validate (translate spec)))))
 
 (defmethod clone :gce [spec clone-spec]
-  "Clones the model replace unique identifiers in the process"
+  ; Clones the model replace unique identifiers in the process
   (-> spec (dissoc-in* [:machine :ip])))

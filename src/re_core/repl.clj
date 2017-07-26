@@ -36,8 +36,9 @@
   [[_ {:keys [machine] :as m}]]
   (machine :ip))
 
-(defn with-ids [ids]
+(defn with-ids
   "instances by id"
+  [ids]
   (fn [[id _]]
     ((into #{} (map str ids)) (str id))))
 

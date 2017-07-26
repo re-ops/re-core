@@ -18,8 +18,9 @@
 (defn remoter [action]
   (get action (figure-rem action)))
 
-(defn add-provided [action]
+(defn add-provided
   "appends action expected arguments derived from args strings"
+  [action]
   (if (:args (remoter action))
     action ; not migrated yet
     (reduce
@@ -41,8 +42,7 @@
   (apply f args))
 
 (validation :git-based*
-            (every-kv {:args #{:required :Vector}
-                       :timeout #{:required :Integer}}))
+  (every-kv {:args #{:required :Vector} :timeout #{:required :Integer}}))
 
 (def action-validation
   {:operates-on #{:required :String}

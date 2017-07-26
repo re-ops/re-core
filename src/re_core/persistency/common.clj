@@ -3,8 +3,9 @@
   (:require
    [clojure.string :refer (escape)]))
 
-(defn args-of [s]
+(defn args-of
   "grab args from string"
+  [s]
   (into #{} (map #(escape % {\~ "" \{ "" \} ""}) (re-seq #"~\{\w+\}" s))))
 
 (defn with-transform [t f & [a1 a2 & r :as args]]
