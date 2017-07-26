@@ -42,7 +42,7 @@
   (apply f args))
 
 (validation :git-based*
-  (every-kv {:args #{:required :Vector} :timeout #{:required :Integer}}))
+            (every-kv {:args #{:required :Vector} :timeout #{:required :Integer}}))
 
 (def action-validation
   {:operates-on #{:required :String}

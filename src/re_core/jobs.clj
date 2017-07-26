@@ -43,15 +43,15 @@
   [f {:keys [message attempt]}]
   (let [{:keys [identity args tid env] :as spec} message]
     (set-tid tid
-       (let [{:keys [wait-time expiry]} (map-vals (or (job* :lock) defaults) #(* minute %))
-             hostname (when identity (get-in (s/get-system identity) [:machine :hostname]))
-             spec' (merge spec (meta f) {:start (System/currentTimeMillis) :hostname hostname})]
-          (try
-            (apply f args)
-            (save-status spec' :success)
-          (catch Throwable e
-             (error e)
-             (save-status (assoc spec' :message (.getMessage e)) :failure)))))))
+             (let [{:keys [wait-time expiry]} (map-vals (or (job* :lock) defaults) #(* minute %))
+                   hostname (when identity (get-in (s/get-system identity) [:machine :hostname]))
+                   spec' (merge spec (meta f) {:start (System/currentTimeMillis) :hostname hostname})]
+               (try
+                 (apply f args)
+                 (save-status spec' :success)
+                 (catch Throwable e
+                   (error e)
+                   (save-status (assoc spec' :message (.getMessage e)) :failure)))))))
 
 (defn jobs []
   {:reload [wf/reload 4] :destroy [wf/destroy 4] :provision [wf/provision 4]
