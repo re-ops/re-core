@@ -1,16 +1,16 @@
 (ns re-core.ssl
   "SSL cert generation"
   (:import
-    java.util.Date
-    java.io.FileOutputStream
-    java.security.KeyStore
-    java.security.PrivateKey
-    java.security.cert.X509Certificate
-    java.util.Date
-    sun.security.tools.keytool.CertAndKeyGen
-    sun.security.x509.X500Name)
+   java.util.Date
+   java.io.FileOutputStream
+   java.security.KeyStore
+   java.security.PrivateKey
+   java.security.cert.X509Certificate
+   java.util.Date
+   sun.security.tools.keytool.CertAndKeyGen
+   sun.security.x509.X500Name)
   (:use
-    [clojure.core.strint :only (<<)]))
+   [clojure.core.strint :only (<<)]))
 
 ; TODO enable more dynamic options here
 (def keysize 1024)
@@ -35,5 +35,4 @@
           chain (.getSelfCertificate keypair x500 (Date.) (long (* validity 24 60 60)))]
       (.setKeyEntry keystore alias- private-key pass-chars  (into-array X509Certificate [chain]))
       (.store keystore (FileOutputStream. ^String output) pass-chars))))
-
 

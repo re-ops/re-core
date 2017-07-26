@@ -1,15 +1,15 @@
 (ns kvm.common
   (:require
-    [clojure.data.xml :as xml]
-    [clojure.zip :as zip])
+   [clojure.data.xml :as xml]
+   [clojure.zip :as zip])
   (:import
-     java.text.SimpleDateFormat
-     org.libvirt.Connect))
+   java.text.SimpleDateFormat
+   org.libvirt.Connect))
 
 (defn connect
-   "Connecting"
-   [uri]
-   (Connect. uri))
+  "Connecting"
+  [uri]
+  (Connect. uri))
 
 (defn tree-edit
   "Take a zipper, a function that matches a pattern in the tree,
@@ -27,7 +27,7 @@
         (recur (zip/next loc))))))
 
 (defn get-domain [c name]
-   (.domainLookupByName c name))
+  (.domainLookupByName c name))
 
 (defn domain-list [c]
   (let [defined (into [] (.listDefinedDomains c))
@@ -41,8 +41,8 @@
 (defn xml-desc [domain]
   (.getXMLDesc domain 0))
 
- (defn parse [s]
-   (zip/xml-zip (xml/parse (java.io.ByteArrayInputStream. (.getBytes s)))))
+(defn parse [s]
+  (zip/xml-zip (xml/parse (java.io.ByteArrayInputStream. (.getBytes s)))))
 
 (defn domain-zip [c id]
   (-> (get-domain c id) xml-desc parse))

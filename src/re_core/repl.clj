@@ -1,16 +1,16 @@
 (ns re-core.repl
   "Repl Driven re-core"
-   (:refer-clojure :exclude [list update])
-   (:require
-     [clojure.core.strint :refer  (<<)]
-     [re-mote.repl :as mote]
-     [re-core.repl.base :refer (refer-base)]
-     [re-core.repl.systems :refer (refer-systems)]
-     [re-core.repl.types :refer (refer-types)]
-     [taoensso.timbre :as timbre :refer (set-level!)])
-   (:import
-     [re_mote.repl.base Hosts]
-     [re_core.repl.base Types Systems]))
+  (:refer-clojure :exclude [list update])
+  (:require
+   [clojure.core.strint :refer  (<<)]
+   [re-mote.repl :as mote]
+   [re-core.repl.base :refer (refer-base)]
+   [re-core.repl.systems :refer (refer-systems)]
+   [re-core.repl.types :refer (refer-types)]
+   [taoensso.timbre :as timbre :refer (set-level!)])
+  (:import
+   [re_mote.repl.base Hosts]
+   [re_core.repl.base Types Systems]))
 
 (refer-base)
 (refer-systems)
@@ -27,9 +27,9 @@
 ; filtering functions
 
 (defn by-type
-   "get instances by type"
-   [t]
-   (fn [[_ {:keys [type]}]] (=  type t)))
+  "get instances by type"
+  [t]
+  (fn [[_ {:keys [type]}]] (=  type t)))
 
 (defn ip
   "machine has an ip (usually means its running)"
@@ -38,8 +38,8 @@
 
 (defn with-ids [ids]
   "instances by id"
-   (fn [[id _]]
-     ((into #{} (map str ids)) (str id))))
+  (fn [[id _]]
+    ((into #{} (map str ids)) (str id))))
 
 ; management
 
@@ -49,9 +49,9 @@
    (reload (by-type :redis)) ; reload all redis instances
   "
   ([]
-    (reload ip))
+   (reload ip))
   ([f]
-    (run (ls systems) | (filter-by f) | (sys/reload) | (block-wait) | (pretty-print))))
+   (run (ls systems) | (filter-by f) | (sys/reload) | (block-wait) | (pretty-print))))
 
 (defn clear
   " Clear model only (VM won't be deleted):
@@ -59,10 +59,9 @@
     (clear (by-type :redis)) ; clear only redis intances 
   "
   ([]
-   (clear identity)
-   )
+   (clear identity))
   ([f]
-    (run (ls systems) | (filter-by f) | (sys/clear) | (block-wait) | (pretty-print))))
+   (run (ls systems) | (filter-by f) | (sys/clear) | (block-wait) | (pretty-print))))
 
 (defn destroy
   " Destroy instances (both clear and remove VM):
@@ -75,7 +74,7 @@
   ([opts]
    (destroy identity opts))
   ([f opts]
-    (run (ls systems) | (filter-by f) | (ack opts) | (sys/destroy) | (async-wait pretty-print))))
+   (run (ls systems) | (filter-by f) | (ack opts) | (sys/destroy) | (async-wait pretty-print))))
 
 (defn halt
   " Halt instances:
@@ -83,9 +82,9 @@
    (halt (single \"foo\")) ; halt host foo
   "
   ([]
-    (halt ip))
+   (halt ip))
   ([f]
-    (run (ls systems) | (filter-by f) | (sys/stop) | (async-wait pretty-print))))
+   (run (ls systems) | (filter-by f) | (sys/stop) | (async-wait pretty-print))))
 
 (defn start
   "Start instances:
@@ -103,9 +102,9 @@
     (list ip) ; list all with ip (running)
   "
   ([]
-    (list identity))
+   (list identity))
   ([f]
-    (run (ls systems) | (filter-by f) | (pretty))))
+   (run (ls systems) | (filter-by f) | (pretty))))
 
 (defn hosts
   "Convert systems into re-mote hosts:
@@ -115,7 +114,7 @@
   ([]
    (hosts ip))
   ([f]
-    (run (ls systems) | (filter-by f) | (into-hosts))))
+   (run (ls systems) | (filter-by f) | (into-hosts))))
 
 (defn provision
   "Provision VM:
@@ -134,14 +133,14 @@
     (up kvm-instance 5) ; create 5 VM instances
     (up kvm-instance); create a single VM "
   ([base t]
-    (let [specs (map (fn [i] (update-in base [:machine :hostname] (fn [n] (str n "-" i)))) (range t))
-          [_ m] (run (add systems specs) | (sys/create) | (block-wait) | (pretty-print))]
-      (provision
-        (with-ids
-          (map (fn [[id _]] id) (:systems m))))))
+   (let [specs (map (fn [i] (update-in base [:machine :hostname] (fn [n] (str n "-" i)))) (range t))
+         [_ m] (run (add systems specs) | (sys/create) | (block-wait) | (pretty-print))]
+     (provision
+      (with-ids
+        (map (fn [[id _]] id) (:systems m))))))
 
   ([single]
-    (up single 1)))
+   (up single 1)))
 
 (defn ssh-into
   "SSH into instances (open a terminal)"
@@ -149,10 +148,9 @@
    (ssh-into (hosts)))
   ([{:keys [auth] :as hs}]
    (let [{:keys [user]} auth]
-    (doseq [host (:hosts hs)]
-      (.exec  (Runtime/getRuntime) (<< "/usr/bin/x-terminal-emulator --disable-factory -e /usr/bin/ssh ~{user}@~{host}"))))) )
-
+     (doseq [host (:hosts hs)]
+       (.exec  (Runtime/getRuntime) (<< "/usr/bin/x-terminal-emulator --disable-factory -e /usr/bin/ssh ~{user}@~{host}"))))))
 
 ; Types
 (defn all-types []
-  (run (ls types ) | (pretty)))
+  (run (ls types) | (pretty)))

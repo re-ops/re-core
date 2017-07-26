@@ -2,18 +2,18 @@
   "re-core lanching ground aka main"
   (:gen-class true)
   (:require
-    [re-core.log :refer (setup-logging)]
-    [re-core.common :refer (get! get* version)]
-    [re-core.persistency.core :as p]
-    [re-core.metrics :as met]
-    [re-core.jobs :as jobs]
-    [re-core.schedule :as sch] 
-    [clojure.core.strint :refer (<<)]
-    [clojure.java.io :refer (resource)]
-    [components.core :refer (start-all stop-all setup-all)]
-    [hypervisors.networking :refer (initialize-networking)]
-    [es.core :as es]
-    [taoensso.timbre :refer (refer-timbre)]))
+   [re-core.log :refer (setup-logging)]
+   [re-core.common :refer (get! get* version)]
+   [re-core.persistency.core :as p]
+   [re-core.metrics :as met]
+   [re-core.jobs :as jobs]
+   [re-core.schedule :as sch]
+   [clojure.core.strint :refer (<<)]
+   [clojure.java.io :refer (resource)]
+   [components.core :refer (start-all stop-all setup-all)]
+   [hypervisors.networking :refer (initialize-networking)]
+   [es.core :as es]
+   [taoensso.timbre :refer (refer-timbre)]))
 
 (refer-timbre)
 
@@ -39,15 +39,14 @@
     (setup-logging)
     (add-shutdown components)
     (setup-all components)
-     components))
+    components))
 
 (defn start
   "Main components startup (jetty, job workers etc..)"
   [components]
   (start-all components)
   (info (<<  "version ~{version} see https://github.com/re-ops/re-core"))
-   components
-  )
+  components)
 
 (defn stop
   "stopping the application"

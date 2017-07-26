@@ -1,15 +1,14 @@
 (ns re-core.repl.base
   "Core repl functions"
   (:require
-    [io.aviso.ansi :refer :all]
-    [io.aviso.columns :refer (format-columns write-rows)]
-    [clojure.set :refer (intersection)]))
+   [io.aviso.ansi :refer :all]
+   [io.aviso.columns :refer (format-columns write-rows)]
+   [clojure.set :refer (intersection)]))
 
-(def admin {
-  :username "admin" :password "foo"
-  :envs [:dev :qa :prod]
-  :roles #{:re-core.roles/admin}
-  :operations []})
+(def admin {:username "admin" :password "foo"
+            :envs [:dev :qa :prod]
+            :roles #{:re-core.roles/admin}
+            :operations []})
 
 (defprotocol Repl
   "Repl functions on re-core model types"
@@ -31,18 +30,17 @@
   (into {} (map (fn [p] [(last p) (get-in m p)])) paths))
 
 (defn render [[id m]]
- (-> m
-   (select-keys* [:owner] [:machine :hostname] [:machine :os] [:machine :ip])
-   (assoc :id id)))
+  (-> m
+      (select-keys* [:owner] [:machine :hostname] [:machine :os] [:machine :ip])
+      (assoc :id id)))
 
 (defmethod pretty #{:systems} [this {:keys [systems] :as m}]
   (let [formatter (format-columns bold-white-font [:right 10] "  " reset-font [:right 2] "  "
-                     [:right 5] "  " [:right 12] "  " :none)]
-    (write-rows *out* formatter [:hostname :id :owner :os :ip] (map render systems))
-    ))
+                                  [:right 5] "  " [:right 12] "  " :none)]
+    (write-rows *out* formatter [:hostname :id :owner :os :ip] (map render systems))))
 
 (defn src-or-tar
-   [t]
+  [t]
   (get-in t [:puppet :src] (get-in t [:puppet :tar])))
 
 (defmethod pretty #{:types} [_ {:keys [types]}]
@@ -55,8 +53,8 @@
 
 (defmacro | [source fun & funs]
   (let [f (first fun) args (rest fun)]
-     `(let [[this# res#] ~source]
-        (~f this# res# ~@args))))
+    `(let [[this# res#] ~source]
+       (~f this# res# ~@args))))
 
 (defmacro run [f p s & fns]
   (if-not (empty? fns)

@@ -1,16 +1,16 @@
 (ns digital.provider
-   "Digital ocean provider"
-   (:require
-     [slingshot.slingshot :refer (throw+)]
-     [digital.validations :refer (provider-validation)]
-     [clojure.core.strint :refer (<<)]
-     [re-core.model :refer (translate vconstruct hypervisor*)]
-     [re-core.provider :refer (mappings transform selections os->template wait-for wait-for-ssh wait-for-start wait-for-stop)]
-     [re-core.persistency.systems :as s :refer (system-val)]
-     [re-core.common :refer (get*)]
-     [taoensso.timbre :refer (refer-timbre)]
-     [re-core.core :refer (Vm)]
-     [digitalocean.v2.core :as do]))
+  "Digital ocean provider"
+  (:require
+   [slingshot.slingshot :refer (throw+)]
+   [digital.validations :refer (provider-validation)]
+   [clojure.core.strint :refer (<<)]
+   [re-core.model :refer (translate vconstruct hypervisor*)]
+   [re-core.provider :refer (mappings transform selections os->template wait-for wait-for-ssh wait-for-start wait-for-stop)]
+   [re-core.persistency.systems :as s :refer (system-val)]
+   [re-core.common :refer (get*)]
+   [taoensso.timbre :refer (refer-timbre)]
+   [re-core.core :refer (Vm)]
+   [digitalocean.v2.core :as do]))
 
 (refer-timbre)
 
@@ -20,38 +20,37 @@
 
 (defn get-droplet
   "get droplet using token"
-   [id]
-   (do/get-droplet (hypervisor* :digital-ocean :token) id))
+  [id]
+  (do/get-droplet (hypervisor* :digital-ocean :token) id))
 
 (defn get-ip [id]
-  (get-in (get-droplet id) [:droplet :networks :v4 0 :ip_address]) )
+  (get-in (get-droplet id) [:droplet :networks :v4 0 :ip_address]))
 
 (defn wait-for-ip  [id timeout]
   "Wait for an ip to be avilable"
   (wait-for {:timeout timeout} #(not (nil? (get-ip id)))
-    {:type ::digital:fail :timeout timeout}
-      "Timed out on waiting for ip to be available"))
+            {:type ::digital:fail :timeout timeout}
+            "Timed out on waiting for ip to be available"))
 
 (defmacro with-id [& body]
- `(if-let [~'id (system-val ~'spec [:digital-ocean :id])]
-    (do ~@body)
-    (throw+ {:type ::digital:missing-id} "Droplet id not found")))
+  `(if-let [~'id (system-val ~'spec [:digital-ocean :id])]
+     (do ~@body)
+     (throw+ {:type ::digital:missing-id} "Droplet id not found")))
 
 (defrecord Droplet [token drp spec]
   Vm
   (create [this]
-     (let [{:keys [droplet message] :as result} (do/create-droplet token nil drp) {:keys [id]} droplet]
-       (when-not droplet
-         (throw+ {:type ::digital:create-fail} message))
-       (wait-for-ip id [5 :minute])
-       (let [ip (get-ip id)]
-         (s/partial-system (spec :system-id) {:machine {:ip ip} :digital-ocean {:id id}}))
-        this
-       ))
+    (let [{:keys [droplet message] :as result} (do/create-droplet token nil drp) {:keys [id]} droplet]
+      (when-not droplet
+        (throw+ {:type ::digital:create-fail} message))
+      (wait-for-ip id [5 :minute])
+      (let [ip (get-ip id)]
+        (s/partial-system (spec :system-id) {:machine {:ip ip} :digital-ocean {:id id}}))
+      this))
 
   (delete [this]
-     (with-id
-       (do/delete-droplet token id)))
+    (with-id
+      (do/delete-droplet token id)))
 
   (start [this]
     (with-id
@@ -61,38 +60,35 @@
         (wait-for-ssh ip (:user spec) [5 :minute]))))
 
   (stop [this]
-     (with-id
-       (run-action "power_off" id)
-       (wait-for-stop this [5 :minute] ::digital:stop-failed)))
+    (with-id
+      (run-action "power_off" id)
+      (wait-for-stop this [5 :minute] ::digital:stop-failed)))
 
   (status [this]
-     (if-let [id (system-val spec [:digital-ocean :id])]
-       (let [status-map {"active" "running" "off" "stop"}
-             droplet-status (get-in (get-droplet id) [:droplet :status])]
-         (or (status-map droplet-status) droplet-status))
-       (do (debug "id not found, instance not created") false)
-       ))
+    (if-let [id (system-val spec [:digital-ocean :id])]
+      (let [status-map {"active" "running" "off" "stop"}
+            droplet-status (get-in (get-droplet id) [:droplet :status])]
+        (or (status-map droplet-status) droplet-status))
+      (do (debug "id not found, instance not created") false)))
   (ip [this]
     (with-id (get-ip id))))
 
 (defn machine-ts
   "Construcuting machine transformations"
   [{:keys [domain]}]
-   {:name (fn [host] (<< "~{host}.~{domain}")) :image (fn [os] (:image ((os->template :digital-ocean) os)))})
+  {:name (fn [host] (<< "~{host}.~{domain}")) :image (fn [os] (:image ((os->template :digital-ocean) os)))})
 
 (def drop-ks [:name :region :size :image :ssh_keys])
 
 (defmethod translate :digital-ocean [{:keys [machine digital-ocean system-id] :as spec}]
-   (-> (merge machine digital-ocean {:system-id system-id})
-     (mappings {:os :image :hostname :name})
-     (transform (machine-ts machine))
-     (assoc :ssh_keys [(hypervisor* :digital-ocean :ssh-key)])
-     (selections [drop-ks [:system-id :user]] )
-     )
-  )
+  (-> (merge machine digital-ocean {:system-id system-id})
+      (mappings {:os :image :hostname :name})
+      (transform (machine-ts machine))
+      (assoc :ssh_keys [(hypervisor* :digital-ocean :ssh-key)])
+      (selections [drop-ks [:system-id :user]])))
 
 (defmethod vconstruct :digital-ocean [{:keys [digital-ocean machine] :as spec}]
   (let [[translated ext] (translate spec)]
-     (provider-validation translated)
-     (->Droplet (hypervisor* :digital-ocean :token) translated ext)))
+    (provider-validation translated)
+    (->Droplet (hypervisor* :digital-ocean :token) translated ext)))
 

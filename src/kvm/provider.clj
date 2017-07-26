@@ -1,42 +1,41 @@
 (ns kvm.provider
   (:require
-    [safely.core :refer [safely]]
-    [kvm.validations :refer (provider-validation)]
-    [clojure.core.strint :refer (<<)]
-    [kvm.clone :refer (clone-domain)]
-    [kvm.disks :refer (clear-volumes)]
-    [kvm.common :refer (connect get-domain domain-zip state domain-list)]
-    [kvm.networking :refer (public-ip nat-ip update-ip)]
-    [re-mote.sshj :refer (ssh-up?)]
-    [re-core.core :refer (Vm)]
-    [taoensso.timbre :as timbre]
-    [re-core.persistency.systems :as s]
-    [re-core.provider :refer (mappings selections transform os->template wait-for wait-for-ssh)]
-    [hypervisors.networking :refer (set-hostname)]
-    [re-core.model :refer (translate vconstruct hypervisor*)])
+   [safely.core :refer [safely]]
+   [kvm.validations :refer (provider-validation)]
+   [clojure.core.strint :refer (<<)]
+   [kvm.clone :refer (clone-domain)]
+   [kvm.disks :refer (clear-volumes)]
+   [kvm.common :refer (connect get-domain domain-zip state domain-list)]
+   [kvm.networking :refer (public-ip nat-ip update-ip)]
+   [re-mote.sshj :refer (ssh-up?)]
+   [re-core.core :refer (Vm)]
+   [taoensso.timbre :as timbre]
+   [re-core.persistency.systems :as s]
+   [re-core.provider :refer (mappings selections transform os->template wait-for wait-for-ssh)]
+   [hypervisors.networking :refer (set-hostname)]
+   [re-core.model :refer (translate vconstruct hypervisor*)])
   (:import org.libvirt.LibvirtException))
 
 (timbre/refer-timbre)
 
 (defn connection [{:keys [host user port]}]
-    (safely
-       (connect (<< "qemu+ssh://~{user}@~{host}:~{port}/system"))
-       :on-error
-       :log-errors false
-       :max-retry 5
-       :message "Error while trying to connect to libvirt"
-       :retry-delay [:random-range :min 200 :max 500]))
+  (safely
+   (connect (<< "qemu+ssh://~{user}@~{host}:~{port}/system"))
+   :on-error
+   :log-errors false
+   :max-retry 5
+   :message "Error while trying to connect to libvirt"
+   :retry-delay [:random-range :min 200 :max 500]))
 
 (defmacro with-connection [& body]
   `(let [~'connection (connection ~'node)]
-      (do ~@body)))
+     (do ~@body)))
 
 (defn wait-for-status [instance req-stat timeout]
   "Waiting for ec2 machine status timeout is in mili"
   (wait-for {:timeout timeout} #(= req-stat (.status instance))
-    {:type ::kvm:status-failed :status req-stat :timeout timeout}
-      "Timed out on waiting for status"))
-
+            {:type ::kvm:status-failed :status req-stat :timeout timeout}
+            "Timed out on waiting for status"))
 
 (defrecord Domain [system-id node domain]
   Vm
@@ -77,7 +76,7 @@
         (if-not (first (filter #(= % (domain :name)) (domain-list connection)))
           false
           (state (get-domain connection (domain :name))))
-      (catch LibvirtException e (debug (.getMessage e)) false))))
+        (catch LibvirtException e (debug (.getMessage e)) false))))
 
   (ip [this]
     (with-connection
@@ -88,24 +87,22 @@
 (defn machine-ts
   "Construcuting machine transformations"
   [{:keys [hostname domain] :as machine}]
-   {:name (fn [hostname] (<< "~{hostname}.~{domain}"))
-    :image (fn [os] ((os->template :kvm) os))})
+  {:name (fn [hostname] (<< "~{hostname}.~{domain}"))
+   :image (fn [os] ((os->template :kvm) os))})
 
 (defmethod translate :kvm [{:keys [machine kvm] :as spec}]
-   (-> machine
-     (mappings {:os :image :hostname :name})
-     (transform (machine-ts machine))
-     (assoc :hostname (machine :hostname))
-     (selections [[:name :user :image :cpu :ram :hostname]])
-     ))
+  (-> machine
+      (mappings {:os :image :hostname :name})
+      (transform (machine-ts machine))
+      (assoc :hostname (machine :hostname))
+      (selections [[:name :user :image :cpu :ram :hostname]])))
 
 (defmethod vconstruct :kvm [{:keys [kvm machine system-id] :as spec}]
-   (let [[domain] (translate spec) {:keys [node]} kvm
-         node* (mappings (hypervisor* :kvm :nodes node) {:username :user})]
-     (provider-validation domain node*)
-     (->Domain system-id node* domain)))
+  (let [[domain] (translate spec) {:keys [node]} kvm
+        node* (mappings (hypervisor* :kvm :nodes node) {:username :user})]
+    (provider-validation domain node*)
+    (->Domain system-id node* domain)))
 
-(comment 
-  (domain-list (connection {:host "localhost" :user "ronen" :port 22})) 
-  (get-domain (connection {:host "localhost" :user "ronen" :port 22}) "red1-.local" )
-  )
+(comment
+  (domain-list (connection {:host "localhost" :user "ronen" :port 22}))
+  (get-domain (connection {:host "localhost" :user "ronen" :port 22}) "red1-.local"))

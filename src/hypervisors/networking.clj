@@ -1,17 +1,17 @@
 (ns hypervisors.networking
   "Common hypervizors networking logic"
   (:require
-    [taoensso.timbre :refer (refer-timbre)]
-    [re-mote.sshj :refer (execute)]
-    [selmer.filters :refer (add-filter!)]
-    [clojure.core.strint :refer [<<]]
-    [selmer.parser :refer (render-file)]
-    [re-core.common :refer [get!]]
-    [re-core.model :refer [hypervisor get-env! set-env]]
-    [slingshot.slingshot :refer [throw+ try+]]
-    [re-core.redis :refer [wcar]]
-    [flatland.useful.utils :refer (defm)]
-    [taoensso.carmine :as car]))
+   [taoensso.timbre :refer (refer-timbre)]
+   [re-mote.sshj :refer (execute)]
+   [selmer.filters :refer (add-filter!)]
+   [clojure.core.strint :refer [<<]]
+   [selmer.parser :refer (render-file)]
+   [re-core.common :refer [get!]]
+   [re-core.model :refer [hypervisor get-env! set-env]]
+   [slingshot.slingshot :refer [throw+ try+]]
+   [re-core.redis :refer [wcar]]
+   [flatland.useful.utils :refer (defm)]
+   [taoensso.carmine :as car]))
 
 (refer-timbre)
 
@@ -44,18 +44,18 @@
   "Configured ip range"
   [hyp]
   (try+
-    (let [[s e] (map ip-to-long (hypervisor hyp :generators :ip-range))]
-      [s e])
-    (catch [:type :re-core.common/missing-conf] e nil)))
+   (let [[s e] (map ip-to-long (hypervisor hyp :generators :ip-range))]
+     [s e])
+   (catch [:type :re-core.common/missing-conf] e nil)))
 
 (defn- ips-key [hyp]
   {:pre [(keyword? hyp)]}
   (<< "~(name (get-env!)):~(name hyp):ips"))
 
 (defn mark
-   "marks a single ip as used"
-   [ip hyp] {:pre [(re-find #"\d+\.\d+\.\d+\.\d+" ip)]}
-   (wcar (car/zadd (ips-key hyp) 1 (ip-to-long ip))) ip)
+  "marks a single ip as used"
+  [ip hyp] {:pre [(re-find #"\d+\.\d+\.\d+\.\d+" ip)]}
+  (wcar (car/zadd (ips-key hyp) 1 (ip-to-long ip))) ip)
 
 (defn mark-conf
   "Marks all used ips in configuration"
@@ -69,20 +69,20 @@
   (when-let [[s e] (ip-range hyp)]
     (let [hk (ips-key hyp)]
       (wcar
-        (when-not (= 1 (car/exists hk))
-          (doseq [ip (range s (+ 1 e))]
-            (car/zadd hk 0 ip)))))))
+       (when-not (= 1 (car/exists hk))
+         (doseq [ip (range s (+ 1 e))]
+           (car/zadd hk 0 ip)))))))
 
 (defn- fetch-ip
   "Redis ip range fetcher"
   [k]
   (some->
-    (wcar
-      (car/lua-script
-        "local next = redis.call('zrangebyscore', _:ips,0,0, 'LIMIT', 0,1) -- next available ip
+   (wcar
+    (car/lua-script
+     "local next = redis.call('zrangebyscore', _:ips,0,0, 'LIMIT', 0,1) -- next available ip
          redis.call('zadd',_:ips,_:used, next[1]) -- mark as used
          return next[1]"
-        {:ips k} {:used "1"})) Long/parseLong long-to-ip))
+     {:ips k} {:used "1"})) Long/parseLong long-to-ip))
 
 (defn initialize-networking
   "intializes all the networking ranges and marks used ones (will not override existing ranges)"
@@ -90,11 +90,11 @@
   (let [envs (flatten (map #(interleave (repeat %) (keys (get! :hypervisor %))) (keys (get! :hypervisor))))]
     (doseq [[e hyp] (partition 2 envs)]
       (set-env e
-          (when (= 0 (wcar (car/exists (ips-key hyp))))
-            (initialize-range hyp))
-          (when (get-in (hypervisor hyp) [:generators :used-ips])
+               (when (= 0 (wcar (car/exists (ips-key hyp))))
+                 (initialize-range hyp))
+               (when (get-in (hypervisor hyp) [:generators :used-ips])
            ; in case somthing was added (does not free ips)
-            (mark-conf hyp))))))
+                 (mark-conf hyp))))))
 
 (defn gen-ip
   "Associates an available ip address (into m -> target) from range, fails if range is exhausted."
@@ -107,25 +107,25 @@
 (defn release-ip
   [ip hyp]
   (wcar
-    (when ip
-      (car/lua-script
-        "if redis.call('zrank', _:ips, _:rel-ip) then
+   (when ip
+     (car/lua-script
+      "if redis.call('zrank', _:ips, _:rel-ip) then
         redis.call('zadd',_:ips, 0, _:rel-ip)
         return _:rel-ip
         end
         return nil "
-        {:ips (ips-key hyp)} {:rel-ip (ip-to-long ip)}))))
+      {:ips (ips-key hyp)} {:rel-ip (ip-to-long ip)}))))
 
 ; debugging fn's
 (defn list-used-ips
   "List used ips in human readable form (mainly for debugging)."
   [hyp]
-  (map #( -> % (Long/parseLong) long-to-ip) (wcar (car/zrangebyscore (ips-key hyp) 1 1))))
+  (map #(-> % (Long/parseLong) long-to-ip) (wcar (car/zrangebyscore (ips-key hyp) 1 1))))
 
 (defn list-free-ips
   "List free ips in human readable form (mainly for debugging)."
   [hyp]
-  (map #( -> % (Long/parseLong) long-to-ip) (wcar (car/zrangebyscore (ips-key hyp) 0 0))))
+  (map #(-> % (Long/parseLong) long-to-ip) (wcar (car/zrangebyscore (ips-key hyp) 0 0))))
 
 (defn clear-range
   "mainly for testing"
@@ -149,29 +149,27 @@
 (defn override-hostname
   "sets hostname and hosts file"
   [hostname fqdn remote]
-  (execute (<< "echo ~{hostname} | sudo tee /etc/hostname") remote )
+  (execute (<< "echo ~{hostname} | sudo tee /etc/hostname") remote)
   (execute (<< "echo 127.0.1.1 ~{fqdn} ~{hostname} | sudo tee -a /etc/hosts") remote))
 
 (defn kernel-hostname
   "Set hosname in kernel for all OSes"
   [hostname fqdn remote]
-  (execute (<< "echo kernel.hostname=~{hostname} | sudo tee -a /etc/sysctl.conf") remote )
-  (execute (<< "echo kernel.domainname=\"~{fqdn}\" | sudo tee -a /etc/sysctl.conf") remote )
+  (execute (<< "echo kernel.hostname=~{hostname} | sudo tee -a /etc/sysctl.conf") remote)
+  (execute (<< "echo kernel.domainname=\"~{fqdn}\" | sudo tee -a /etc/sysctl.conf") remote)
   (execute "sudo sysctl -e -p" remote))
 
 (defn redhat-hostname
   "Sets up hostname under /etc/sysconfig/network in redhat based systems"
   [fqdn remote]
   (execute
-    (<< "grep -q '^HOSTNAME=' /etc/sysconfig/network && sudo sed -i 's/^HOSTNAME=.*/HOSTNAME=~{fqdn}' /etc/sysconfig/network || sudo sed -i '$ a\\HOSTNAME=~{fqdn}' /etc/sysconfig/network") remote )
-  )
+   (<< "grep -q '^HOSTNAME=' /etc/sysconfig/network && sudo sed -i 's/^HOSTNAME=.*/HOSTNAME=~{fqdn}' /etc/sysconfig/network || sudo sed -i '$ a\\HOSTNAME=~{fqdn}' /etc/sysconfig/network") remote))
 
 (defn set-hostname
-   [hostname fqdn remote flavor]
+  [hostname fqdn remote flavor]
   (kernel-hostname hostname fqdn remote)
   (override-hostname hostname fqdn remote)
   (case flavor
     :debian  true ; nothing special todo
     :redhat  (redhat-hostname fqdn remote)
-    (throw+ {:type ::no-matching-flavor} (<< "no os flavor found for ~{flavor}")))
-  )
+    (throw+ {:type ::no-matching-flavor} (<< "no os flavor found for ~{flavor}"))))

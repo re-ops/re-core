@@ -1,16 +1,16 @@
 (ns user
   (:require
-     [clojure.tools.trace :refer (deftrace trace trace-ns trace-vars)]
-     [clojure.java.io :as io]
-     [clojure.pprint :refer (pprint)]
-     [clojure.repl :refer :all]
-     [clojure.tools.namespace.repl :refer (refresh refresh-all)]
-     [re-mote.repl :refer :all :exclude (provision)]
-     [re-core.repl :refer :all]
-     [re-core.repl.fixtures :refer :all]
-     [me.raynes.fs :refer (extension file?)]
-     [re-core.launch :as core]
-     [re-mote.launch :as mote]))
+   [clojure.tools.trace :refer (deftrace trace trace-ns trace-vars)]
+   [clojure.java.io :as io]
+   [clojure.pprint :refer (pprint)]
+   [clojure.repl :refer :all]
+   [clojure.tools.namespace.repl :refer (refresh refresh-all)]
+   [re-mote.repl :refer :all :exclude (provision)]
+   [re-core.repl :refer :all]
+   [re-core.repl.fixtures :refer :all]
+   [me.raynes.fs :refer (extension file?)]
+   [re-core.launch :as core]
+   [re-mote.launch :as mote]))
 
 (def system nil)
 

@@ -1,12 +1,12 @@
 (ns es.core
   "Core elasticsearch module"
-  (:require 
-    [components.core :refer (Lifecyle)] 
-    [es.common :refer (initialize index)]
-    [es.node :refer (connect stop)]))
+  (:require
+   [components.core :refer (Lifecyle)]
+   [es.common :refer (initialize index)]
+   [es.node :refer (connect stop)]))
 
-(defrecord Elastic 
-  [] 
+(defrecord Elastic
+           []
   Lifecyle
   (setup [this]
     (connect)
@@ -16,7 +16,7 @@
   (stop [this]
     (stop)))
 
-(defn instance 
-   "creates a Elastic components" 
-   []
+(defn instance
+  "creates a Elastic components"
+  []
   (Elastic.))

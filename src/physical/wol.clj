@@ -1,7 +1,7 @@
 (ns physical.wol
   "Wake on lan"
-  (:import 
-    (java.net DatagramSocket DatagramPacket InetAddress))
+  (:import
+   (java.net DatagramSocket DatagramPacket InetAddress))
   (:require [clojure.string :refer (split)]))
 
 (defn- ++
@@ -11,22 +11,21 @@
         res (byte-array (+ f-l s-l))]
     (System/arraycopy f 0 res 0 f-l)
     (System/arraycopy s 0 res f-l s-l)
-    res
-    ))
+    res))
 
-(defn mac-bytes 
-  "convert mac into byte array" 
+(defn mac-bytes
+  "convert mac into byte array"
   [mac]
   {:pre [(= 6 (count (split mac #"\:|\-")))]}
-  (bytes (byte-array 
-    (map #(unchecked-byte (Integer/parseInt % 16)) (split mac #"\:")))))
+  (bytes (byte-array
+          (map #(unchecked-byte (Integer/parseInt % 16)) (split mac #"\:")))))
 
 (defn payload [mac]
   (let [^bytes bs (mac-bytes mac) rep-bs (reduce ++ (byte-array 0) (repeat 16 bs))]
-   (byte-array (concat (repeat 6 (unchecked-byte 0xff)) rep-bs))))
+    (byte-array (concat (repeat 6 (unchecked-byte 0xff)) rep-bs))))
 
 (defn wol [{:keys [mac broadcast]}]
-  (let [bs (payload mac) ]
+  (let [bs (payload mac)]
     (.send (DatagramSocket.)
            (DatagramPacket. bs (alength bs) (InetAddress/getByName broadcast) 9))))
 

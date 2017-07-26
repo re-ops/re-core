@@ -1,7 +1,7 @@
 (ns re-core.persistency.common
   "common persistency layer functions"
-  (:require 
-    [clojure.string :refer (escape)]))
+  (:require
+   [clojure.string :refer (escape)]))
 
 (defn args-of [s]
   "grab args from string"
