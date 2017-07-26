@@ -20,31 +20,16 @@
 
 (refer-timbre)
 
-(defn run-hooks
-  "Runs hooks"
-  [args workflow event]
-  (doseq [[f conf] (get! :hooks)]
-    (debug "running hook" f (resolve- f))
-    (try
-      ((resolve- f) (merge args conf {:workflow workflow :event event}))
-      (catch Throwable t (error t)))))
-
 (defmacro deflow
-  "Defines a basic flow functions with post-success and post-error hooks"
+  "Defines a basic flow functions"
   [fname & args]
   (let [[name* attrs] (tm/name-with-attributes fname args)
         timer (symbol (str name* "-time"))
-        meta-map (meta name*)
-        hook-args (or (some-> (meta-map :hook-args) name symbol) 'spec)]
+        meta-map (meta name*) ]
     `(do
        (deftimer ~timer)
        (defn ~name* ~@(when (seq meta-map) [meta-map]) ~(first attrs)
-         (time! ~timer
-                (try ~@(next attrs)
-                     (run-hooks ~hook-args ~(keyword name*) :success)
-                     (catch Throwable t#
-                       (run-hooks ~hook-args ~(keyword name*) :error)
-                       (throw t#))))))))
+         (time! ~timer ~@(next attrs))))))
 
 (defn updated-system
   "grabs system and associates system id"
@@ -117,7 +102,7 @@
     (s/delete-system system-id)
     (info "system destruction done")))
 
-(deflow ^{:hook-args :spec} clone
+(deflow clone
   "Clones a system model and creates it"
   [{:keys [system-id] :as spec}]
   (when-not (s/system-exists? system-id)
