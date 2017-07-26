@@ -22,14 +22,17 @@
       public-ip
       (when (and (aws :network-interfaces) private-ip) private-ip))))
 
-(defn update-ip [{:keys [aws] :as spec} endpoint instance-id]
+(defn update-ip
   "updates public dns in the machine persisted data"
+  [{:keys [aws] :as spec} endpoint instance-id]
   (when (s/system-exists? (spec :system-id))
     (s/partial-system (spec :system-id) {:machine {:ip (instance-ip spec endpoint instance-id)}})))
 
-(defn set-hostname [{:keys [machine] :as spec} endpoint instance-id user]
-  "Uses a generic method of setting hostname in Linux (see http://www.debianadmin.com/manpages/sysctlmanpage.txt)
-  Note that in ec2 both Centos and Ubuntu use sudo!"
+(defn set-hostname
+  "Uses a generic method of setting hostname in Linux
+    (see http://www.debianadmin.com/manpages/sysctlmanpage.txt)
+    Note that in ec2 both Centos and Ubuntu use sudo!"
+  [{:keys [machine] :as spec} endpoint instance-id user]
   (let [{:keys [hostname domain os]} machine fqdn (<< "~{hostname}.~{domain}")
         remote {:host (instance-ip spec endpoint instance-id) :user user}
         flavor (hypervisor :aws :ostemplates os :flavor)]
@@ -53,4 +56,3 @@
     (if-not network-interfaces
       (with-ctx ec2/associate-address {:instance-id instance-id :public-ip ip})
       (attach-vpc-ip endpoint instance-id spec))))
-

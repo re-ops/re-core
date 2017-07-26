@@ -138,7 +138,9 @@
       "runtest" ["midje" ":filter" "-integration"]
       "populate" ["with-profile" "populate" "do" "run" "-m" "re-core.fixtures.populate"]
       "travis" [
-        "with-profile" "test" "do" "midje" ":filter" "-integration," "midje" ":redis," "midje" ":elasticsearch" 
+        "with-profile" "test" "do"
+        "midje" ":filter" "-integration," "midje" ":redis," "midje" ":elasticsearch,"
+        "cljfmt" "check"
       ]
    }
 

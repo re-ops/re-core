@@ -16,9 +16,8 @@
   (if (set? k) (interleave k (repeat (count k) v)) [k v]))
 
 (defn mappings
-  {:test #(assert (= {:template :ubuntu :flavor :ubuntu :search "local"}
-                     (mappings {:os :ubuntu :domain "local"} {:os #{:template :flavor} :domain :search})))
-   :doc "Maps raw model keys to specific model keys, single key can fan out to multiple keys using a set"}
+  "Maps raw model keys to specific model keys,
+  single key can fan out to multiple keys using a set"
   [res ms]
   (let [mapped ((key-select ms) res)]
     (merge
@@ -73,27 +72,26 @@
   (dissoc-in* (assoc-in m to (get-in m from)) from))
 
 ; common validations
-(validation :ip
-            (when-not-nil (partial re-find #"\d+\.\d+\.\d+\.\d+") "must be a legal ip address"))
+(validation :ip (when-not-nil (partial re-find #"\d+\.\d+\.\d+\.\d+") "must be a legal ip address"))
 
-(validation :mac
-            (when-not-nil (partial re-find #"^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$") "must be a legal mac address"))
+(validation :mac (when-not-nil (partial re-find #"^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$") "must be a legal mac address"))
 
-(validation :device
-            #(when-not (re-find (re-matcher #"\/dev\/\w+" %)) "device should match /dev/{id} format"))
+(validation :device #(when-not (re-find (re-matcher #"\/dev\/\w+" %)) "device should match /dev/{id} format"))
 
 (test #'mappings)
 
 (defn running? [this] (= (.status this) "running"))
 
-(defn wait-for-stop [this timeout ex]
+(defn wait-for-stop
   "Wait for an ip to be avilable"
+  [this timeout ex]
   (wait-for {:timeout timeout} #(not (running? this))
             {:type ex :timeout timeout}
             "Timed out on waiting for ip to be available"))
 
-(defn wait-for-start [this timeout ex]
+(defn wait-for-start
   "Wait for an ip to be avilable"
+  [this timeout ex]
   (wait-for {:timeout timeout} #(running? this)
             {:type ex :timeout timeout}
             "Timed out on waiting for ip to be available"))

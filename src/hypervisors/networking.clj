@@ -32,9 +32,9 @@
   sb)
 
 (defn long-to-ip
+  [ip]
   {:test #(assert (= "172.168.10.60" (long-to-ip (ip-to-long "172.168.10.60"))))
    :doc "Converting long to ip address"}
-  [ip]
   (loop [i 0 sb (StringBuilder. 15) ip* ip]
     (if (< i 4)
       (recur (+ i 1) (add-segment sb ip* i) (bit-shift-right ip* 8))

@@ -27,8 +27,9 @@
       (first (.split line "\\s"))
       (do (debug (<< "no nat ip found for ~{mac}")) nil))))
 
-(defn wait-for-nat [c id node timeout]
+(defn wait-for-nat
   "Waiting for nat cache to update"
+  [c id node timeout]
   (wait-for {:timeout timeout} #(not (nil? (grab-nat c id node)))
             {:type ::kvm:networking :timeout timeout}
             "Timed out on waiting for arp cache to update"))
