@@ -1,8 +1,8 @@
 (ns re-core.test.provider
-  (:require 
-    [midje.sweet :reffer :all] 
-    [re-core.provider :refer mappgins]))
+  (:require
+   [re-core.provider :refer (mappings)])
+  (:use midje.sweet))
 
-(fact "mappgins"
-  (mappings {:os :ubuntu :domain "local"} {:os #{:template :flavor} :domain :search}) => 
-    {:template :ubuntu :flavor :ubuntu :search "local"})
+(fact "mappings"
+      (mappings {:os :ubuntu :domain "local"} {:os #{:template :flavor} :domain :search}) =>
+      {:template :ubuntu :flavor :ubuntu :search "local"})

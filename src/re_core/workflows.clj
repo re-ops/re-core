@@ -25,7 +25,7 @@
   [fname & args]
   (let [[name* attrs] (tm/name-with-attributes fname args)
         timer (symbol (str name* "-time"))
-        meta-map (meta name*) ]
+        meta-map (meta name*)]
     `(do
        (deftimer ~timer)
        (defn ~name* ~@(when (seq meta-map) [meta-map]) ~(first attrs)

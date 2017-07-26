@@ -1,9 +1,8 @@
 (ns re-core.fixtures.clipboard
   "clipboard utilities"
-  (:import 
-    java.awt.datatransfer.StringSelection
-    java.awt.Toolkit)
-  )
+  (:import
+   java.awt.datatransfer.StringSelection
+   java.awt.Toolkit))
 
 (defn clipboard-copy [s]
   (let [clp (.getSystemClipboard (Toolkit/getDefaultToolkit))]
