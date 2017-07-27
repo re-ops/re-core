@@ -1,7 +1,5 @@
 language: clojure
 
-sudo: false
-
 services:
   - redis-server
 
