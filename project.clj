@@ -87,6 +87,7 @@
 
   :plugins  [[jonase/eastwood "0.2.4"]
              [lein-cljfmt "0.5.6"]
+             [lein-kibit "0.1.5"]
              [lein-ancient "0.6.7" :exclusions [org.clojure/clojure]]
              [lein-tar "2.0.0" ]
              [self-build "0.0.9"]
@@ -106,10 +107,6 @@
 
      :test {
        :test-paths ["test" "data"]
-       :plugins [
-          [lein-midje "3.1.3"]
-          [lein-cljfmt "0.5.6"]
-          ]
        :dependencies [
           [midje "1.8.3"]
           [org.clojure/tools.trace "0.7.9"]
