@@ -22,5 +22,7 @@ before_script:
   - sleep 20
   - curl http://127.0.0.1:9200/
 
+before_script:
+  - echo y | sudo lein upgrade
 lein: lein2
 script: lein2 travis
