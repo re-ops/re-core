@@ -14,14 +14,15 @@
               (read-fixture "redis-ec2-system") {:aws {:key-name host}} m))
 
 (defn with-ebs [spec size]
-  (merge-with merge spec
-              {:aws  {:volumes  [{:device "/dev/sdn" :size size :clear true :volume-type "standard"}]}}))
+  (merge-with 
+    merge spec {:aws  {:volumes  [{:device "/dev/sdn" :size size :clear true :volume-type "standard"}]}}))
 
-(def kvm-instance
-  (read-fixture "redis-kvm"))
+(defn kvm-instance [t]
+  (read-fixture (name t)))
 
 (defn populae-types []
   (doseq [id (t/all-types)]
     (t/delete-type id))
-  (t/add-type (read-fixture "jvm-type"))
-  (t/add-type (read-fixture "redis-type")))
+  (doseq [t ["jvm-type" "redis-type" "reops-type"]]
+    (let [r (t/add-type (read-fixture t))]
+      (println (<< "added type ~{t} resulting in ~{r}")))))

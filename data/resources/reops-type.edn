@@ -1,0 +1,10 @@
+{
+ :puppet {
+   :src "/home/ronen/code/boxes/re-ops-sandbox/"
+   :tar ""
+   :args []
+  }
+
+ :description "reops agent target"
+ :type "reops"
+}
