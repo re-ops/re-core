@@ -52,7 +52,7 @@
   ([]
    (reload ip))
   ([f]
-   (run (ls systems) | (filter-by f) | (sys/reload) | (block-wait) | (pretty-print))))
+   (run (ls systems) | (filter-by f) | (sys/reload) | (block-wait) | (pretty-print "reload"))))
 
 (defn clear
   " Clear model only (VM won't be deleted):
@@ -62,7 +62,7 @@
   ([]
    (clear identity))
   ([f]
-   (run (ls systems) | (filter-by f) | (sys/clear) | (block-wait) | (pretty-print))))
+   (run (ls systems) | (filter-by f) | (sys/clear) | (block-wait) | (pretty-print "clearing"))))
 
 (defn destroy
   " Destroy instances (both clear and remove VM):
@@ -75,7 +75,7 @@
   ([opts]
    (destroy identity opts))
   ([f opts]
-   (run (ls systems) | (filter-by f) | (ack opts) | (sys/destroy) | (async-wait pretty-print))))
+   (run (ls systems) | (filter-by f) | (ack opts) | (sys/destroy) | (async-wait pretty-print "destroy"))))
 
 (defn halt
   " Halt instances:
@@ -85,7 +85,7 @@
   ([]
    (halt ip))
   ([f]
-   (run (ls systems) | (filter-by f) | (sys/stop) | (async-wait pretty-print))))
+   (run (ls systems) | (filter-by f) | (sys/stop) | (async-wait pretty-print "halt"))))
 
 (defn start
   "Start instances:
@@ -95,7 +95,7 @@
   ([]
    (start (comp not ip)))
   ([f]
-   (run (ls systems) | (filter-by f) | (sys/start) | (block-wait) | (pretty-print))))
+   (run (ls systems) | (filter-by f) | (sys/start) | (block-wait) | (pretty-print "start"))))
 
 (defn list
   "List available instances:
@@ -135,7 +135,7 @@
     (up kvm-instance); create a single VM "
   ([base t]
    (let [specs (map (fn [i] (update-in base [:machine :hostname] (fn [n] (str n "-" i)))) (range t))
-         [_ m] (run (add systems specs) | (sys/create) | (block-wait) | (pretty-print))]
+         [_ m] (run (add systems specs) | (sys/create) | (block-wait) | (pretty-print "up"))]
      (provision
       (with-ids
         (map (fn [[id _]] id) (:systems m))))))

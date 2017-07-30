@@ -1,6 +1,7 @@
 (ns re-core.repl.systems
   "Repl systems access"
   (:require
+   [clojure.core.strint :refer  (<<)]
    [clansi.core :refer  (style)]
    [progrock.core :as pr]
    [re-core.jobs :as jobs :refer (enqueue)]
@@ -26,8 +27,8 @@
   (reload [this items])
   (status [this jobs])
   (block-wait [this jobs])
-  (async-wait [this jobs f])
-  (pretty-print [this m])
+  (async-wait [this jobs f args])
+  (pretty-print [this m message])
   (watch [this jobs]))
 
 (defprotocol Host
@@ -121,7 +122,7 @@
         (recur (filter-done (status this js)))))
     [this (add-results this jobs)])
 
-  (async-wait [this {:keys [jobs queue systems] :as js} f]
+  (async-wait [this {:keys [jobs queue systems] :as js} f & args]
     (let [out *out*]
       (future
         (binding [*out* out]
@@ -129,12 +130,12 @@
             (when (< (count done) (count jobs))
               (Thread/sleep 100)
               (recur (filter-done (status this js)))))
-          (f this (add-results this jobs))))))
+          (apply f (into [this (add-results this jobs)] args))))))
 
-  (pretty-print [this {:keys [results] :as m}]
+  (pretty-print [this {:keys [results chain] :as m} message]
     (let [{:keys [success failure]} results]
       (println "\n")
-      (println (style "Run summary:" :blue) "\n")
+      (println (style (<< "Running ~{message} summary:") :blue) "\n")
       (doseq [{:keys [hostname]} success]
         (println " " (style "✔" :green) hostname))
       (doseq [{:keys [hostname message]} failure]
