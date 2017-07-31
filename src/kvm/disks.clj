@@ -21,17 +21,24 @@
 (defn into-volume [c [dev file type]]
   {:device dev :file file :type type :volume (find-volume c file)})
 
-(defn clone-volume-xml [{:keys [volume type file]} name]
+(defn volume-xml
+  "A libvirt volume XML"
+  [capacity type file name]
   (element :volume {}
            (element :name {} name)
            (element :allocation {} "0")
-           (element :capacity {} (.capacity (.getInfo volume)))
+           (element :capacity {} capacity)
            (element :target {}
                     (element :format {:type type} nil)
                     (element :compat {} "1.1"))
            (element :backingStore {}
                     (element :path {} file)
                     (element :format {:type type} nil))))
+
+(defn clone-volume-xml
+  "A cloned volume XML"
+  [{:keys [volume type file]} name]
+  (volume-xml (.capacity (.getInfo volume)) type file name))
 
 (defn clone-name [name idx]
   (str name "-" (str idx) ".qcow2"))
@@ -45,6 +52,17 @@
     (doall
      (for [[idx {:keys [volume] :as v}] volumes :let [pool (.storagePoolLookupByVolume volume) new-name (clone-name name idx)]]
        (assoc v :volume (.storageVolCreateXML pool (xml/emit-str (clone-volume-xml v new-name)) 0))))))
+
+(defn create-volume
+  "Create a volume on pool with given capacity"
+  [c pool capacity path name]
+  (let [volume (xml/emit-str (volume-xml capacity "qcow2" path name))]
+    (.storageVolCreateXML (.storagePoolLookupByName c pool) volume 0)))
+
+(defn delete-volume
+  "Delete a volume by name from pool"
+  [c pool name]
+  (.delete (.storageVolLookupByName (.storagePoolLookupByName c pool) name) 0))
 
 (defn disk? [loc]
   (= :disk (:tag (zip/node loc))))

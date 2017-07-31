@@ -4,7 +4,7 @@
    [kvm.validations :refer (provider-validation)]
    [clojure.core.strint :refer (<<)]
    [kvm.clone :refer (clone-domain)]
-   [kvm.disks :refer (clear-volumes)]
+   [kvm.disks :refer (clear-volumes create-volume delete-volume)]
    [kvm.common :refer (connect get-domain domain-zip state domain-list)]
    [kvm.networking :refer (public-ip nat-ip update-ip)]
    [re-mote.sshj :refer (ssh-up?)]
@@ -105,5 +105,7 @@
     (->Domain system-id node* domain)))
 
 (comment
+  (create-volume (connection {:host "localhost" :user "ronen" :port 22}) "daemon" 100 "/media/daemon/" "foo")
+  (delete-volume (connection {:host "localhost" :user "ronen" :port 22}) "daemon" "foo")
   (domain-list (connection {:host "localhost" :user "ronen" :port 22}))
   (get-domain (connection {:host "localhost" :user "ronen" :port 22}) "red1-.local"))
