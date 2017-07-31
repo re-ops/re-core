@@ -14,8 +14,8 @@
               (read-fixture "redis-ec2-system") {:aws {:key-name host}} m))
 
 (defn with-ebs [spec size]
-  (merge-with 
-    merge spec {:aws  {:volumes  [{:device "/dev/sdn" :size size :clear true :volume-type "standard"}]}}))
+  (merge-with
+   merge spec {:aws  {:volumes  [{:device "/dev/sdn" :size size :clear true :volume-type "standard"}]}}))
 
 (defn kvm-instance [t]
   (read-fixture (name t)))
