@@ -133,12 +133,13 @@
   "Create VM and provision:
     (up kvm-instance 5) ; create 5 VM instances
     (up kvm-instance); create a single VM "
-  ([base t]
+  ([base t & {:keys [skip-provision] :or {skip-provision false}}]
    (let [specs (map (fn [i] (update-in base [:machine :hostname] (fn [n] (str n "-" i)))) (range t))
          [_ m] (run (add systems specs) | (sys/create) | (block-wait) | (pretty-print "up"))]
-     (provision
-      (with-ids
-        (map (fn [[id _]] id) (:systems m))))))
+     (when-not skip-provision
+       (provision
+        (with-ids
+          (map (fn [[id _]] id) (:systems m)))))))
 
   ([single]
    (up single 1)))

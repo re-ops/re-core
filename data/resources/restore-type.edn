@@ -1,0 +1,10 @@
+{
+ :puppet {
+   :src "/home/ronen/code/boxes/restore-sandbox/"
+   :tar ""
+   :args []
+  }
+
+ :description "Restoration"
+ :type "restore"
+}

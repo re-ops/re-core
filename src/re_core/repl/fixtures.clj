@@ -23,6 +23,6 @@
 (defn populae-types []
   (doseq [id (t/all-types)]
     (t/delete-type id))
-  (doseq [t ["jvm-type" "redis-type" "reops-type"]]
+  (doseq [t ["jvm-type" "redis-type" "reops-type" "restore-type"]]
     (let [r (t/add-type (read-fixture t))]
       (println (<< "added type ~{t} resulting in ~{r}")))))
