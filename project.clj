@@ -31,8 +31,11 @@
                  ; hooks/remoting
                  [clj-http "3.4.1"]
                  [http-kit "2.1.18"]
-                 [re-mote "0.2.3"]
                  [conjul "0.0.2"]
+
+                 ; re-ops
+                 [re-mote "0.2.3"]
+                 [re-share "0.1.2"]
 
                  ;api
                  [clj-yaml "0.4.0"]
@@ -65,8 +68,10 @@
                  [com.taoensso/carmine "2.11.1"]
                  [commons-codec "1.10"]
                  [substantiation "0.3.1"]
-                 [fogus/minderbinder "0.2.0"]
                  [org.clojure/core.logic "0.8.10"]
+
+                 ; timeunits
+                 [fogus/minderbinder "0.2.0"]
 
                  ; scheduling
                  [jarohen/chime "0.2.0" :exclusions [org.clojure/core.async]]
