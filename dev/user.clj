@@ -7,6 +7,7 @@
    [clojure.tools.namespace.repl :refer (refresh refresh-all)]
    [re-mote.repl :refer :all :exclude (provision)]
    [re-core.repl :refer :all]
+   [re-core.log :refer (debug-on debug-off)]
    [re-core.repl.fixtures :refer :all]
    [me.raynes.fs :refer (extension file?)]
    [re-core.launch :as core]
