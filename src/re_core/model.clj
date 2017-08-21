@@ -16,7 +16,7 @@
 (defn get-env! [] {:pre [(not (nil? env))]} env)
 
 (def hypervizors
-  #{:aws :physical :digital-ocean :gce :kvm})
+  #{:aws :physical :digital-ocean :kvm})
 
 (def operations
   #{:reload :destroy :provision :stage :create :start :stop :clear :clone})
@@ -40,7 +40,7 @@
    (fn [r k] (if-let [v (get-in m k)] (assoc-in r k v) r)) {} ks))
 
 (def whitelist
-  [[:gce :ostemplates] [:digital-ocean]
+  [[:digital-ocean]
    [:aws] [:physical] [:openstack]
    [:kvm :ostemplates] [:kvm :nodes]])
 

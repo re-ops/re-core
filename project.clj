@@ -46,15 +46,7 @@
                  [potemkin "0.4.2"] ; see http://bit.ly/2mVr1sI
                  [amazonica "0.3.94" :exclusions [com.taoensso/nippy]]
 
-                 ; gce
-                 [com.google.http-client/google-http-client-jackson2 "1.21.0"]
-                 [com.google.apis/google-api-services-compute "v1-rev88-1.21.0"]
-                 [com.google.api-client/google-api-client "1.21.0" :exclusions [com.google.guava/guava-jdk5]]
-                 [com.google.oauth-client/google-oauth-client-java6 "1.21.0"]
-                 [com.google.oauth-client/google-oauth-client-jetty "1.21.0"]
-                 [com.fasterxml.jackson.core/jackson-core "2.6.4"]
-
-                 ; libvirt
+                ; libvirt
                  [org.clojure/data.xml "0.0.8"]
                  [org.clojure/data.zip "0.1.1"]
                  [net.java.dev.jna/jna "4.2.0"]

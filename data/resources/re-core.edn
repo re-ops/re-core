@@ -46,20 +46,6 @@
         ;;}
     ;;}
 
-    :gce {
-     :ostemplates {
-        :ubuntu-15.10 {
-          :image  "projects/ronen-playground/global/images/ubuntu-1510-puppet-382-1451476982"
-          :flavor :debian
-        }
-        :centos-6 {
-          :image "projects/ronen-playground/global/images/centos-6-puppet-382-1451221785"
-          :flavor :redhat
-        }
-      }
-      :service-file "/home/ronen/compute-playground.json"
-    }
-
     :digital-ocean {
       :token ""
       :ssh-key ""

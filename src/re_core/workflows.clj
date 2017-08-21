@@ -2,7 +2,6 @@
   "Main workflows"
   (:require
     ; loading defmethods
-   gce.provider
    kvm.provider
    digital.provider
    aws.provider
