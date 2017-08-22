@@ -23,15 +23,9 @@
 
                  ; logging / profiling
                  [com.taoensso/timbre "4.10.0"]
-                 [com.fzakaria/slf4j-timbre "0.3.5"]
+                 [com.fzakaria/slf4j-timbre "0.3.7"]
                  [com.narkisr/gelfino-client "0.8.1"]
                  [com.taoensso/tufte "1.1.1"]
-
-
-                 ; hooks/remoting
-                 [clj-http "3.4.1"]
-                 [http-kit "2.1.18"]
-                 [conjul "0.0.2"]
 
                  ; re-ops
                  [re-mote "0.2.3"]
@@ -39,16 +33,16 @@
 
                  ;api
                  [clj-yaml "0.4.0"]
-                 [org.clojure/data.json "0.2.2" ]
+                 [org.clojure/data.json "0.2.6" ]
 
                  ; hypervisors
                  [narkisr/digitalocean "1.3"]
                  [potemkin "0.4.2"] ; see http://bit.ly/2mVr1sI
                  [amazonica "0.3.94" :exclusions [com.taoensso/nippy]]
 
-                ; libvirt
+                 ; libvirt
                  [org.clojure/data.xml "0.0.8"]
-                 [org.clojure/data.zip "0.1.1"]
+                 [org.clojure/data.zip "0.1.2"]
                  [net.java.dev.jna/jna "4.2.0"]
                  [org.libvirt/libvirt "0.5.1"]
 
@@ -60,7 +54,7 @@
                  [com.taoensso/carmine "2.11.1"]
                  [commons-codec "1.10"]
                  [substantiation "0.3.1"]
-                 [org.clojure/core.logic "0.8.10"]
+                 [com.fasterxml.jackson.core/jackson-core "2.6.4"]
 
                  ; timeunits
                  [fogus/minderbinder "0.2.0"]
