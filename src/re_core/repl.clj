@@ -57,7 +57,7 @@
 (defn clear
   " Clear model only (VM won't be deleted):
     (clear) ; clear all (both runnging and non running)
-    (clear (by-type :redis)) ; clear only redis intances 
+    (clear (by-type :redis)) ; clear only redis intances
   "
   ([]
    (clear identity))
@@ -72,8 +72,8 @@
   "
   ([]
    (destroy identity {}))
-  ([opts]
-   (destroy identity opts))
+  ([f]
+   (destroy f {}))
   ([f opts]
    (run (ls systems) | (filter-by f) | (ack opts) | (sys/destroy) | (async-wait pretty-print "destroy"))))
 
@@ -109,13 +109,13 @@
 
 (defn hosts
   "Convert systems into re-mote hosts:
-    (into-hosts) ; convert all systems
-    (into-hosts (by-type :redis)) ; convert all redis instances
+    (hosts) ; convert all systems
+    (hosts (by-type :redis)) ; convert all redis instances
   "
   ([]
-   (hosts ip))
-  ([f]
-   (run (ls systems) | (filter-by f) | (into-hosts))))
+   (hosts ip :ip))
+  ([f k]
+   (run (ls systems) | (filter-by f) | (into-hosts k))))
 
 (defn provision
   "Provision VM:

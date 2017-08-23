@@ -33,7 +33,9 @@
 
 (defprotocol Host
   "Hosts"
-  (into-hosts [this items]))
+  (into-hosts
+    [this items]
+    [this items k]))
 
 (defn grep-system [k v [id system]]
   (let [sub (select-keys* system [:owner] [:machine :hostname] [:machine :os] [:machine :ip])]
@@ -145,9 +147,11 @@
 
 (extend-type Systems
   Host
-  (into-hosts [this {:keys [systems]}]
+  (into-hosts [this m]
+    (into-hosts this m :ip))
+  (into-hosts [this {:keys [systems]} k]
     (let [{:keys [user]} (:machine (second (first systems)))]
-      (Hosts. {:user user} (mapv (fn [[_ system]] (get-in system [:machine :ip])) systems)))))
+      (Hosts. {:user user} (mapv (fn [[_ system]] (get-in system [:machine k])) systems)))))
 
 (extend-type Systems
   Report

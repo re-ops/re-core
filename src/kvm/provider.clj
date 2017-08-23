@@ -1,5 +1,6 @@
 (ns kvm.provider
   (:require
+   [flatland.useful.map :refer (dissoc-in*)]
    [safely.core :refer [safely]]
    [kvm.validations :refer (provider-validation)]
    [clojure.core.strint :refer (<<)]
@@ -68,6 +69,8 @@
 
   (stop [this]
     (with-connection
+      (s/update-system system-id
+         (dissoc-in* (s/get-system system-id) [:machine :ip]))
       (.destroy (get-domain connection (domain :name)))
       (wait-for-status this "shutoff" [5 :minute])))
 

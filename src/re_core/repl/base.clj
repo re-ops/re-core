@@ -35,7 +35,7 @@
       (assoc :id id)))
 
 (defmethod pretty #{:systems} [this {:keys [systems] :as m}]
-  (let [formatter (format-columns bold-white-font [:right 10] "  " reset-font [:right 2] "  "
+  (let [formatter (format-columns bold-white-font [:right 10] "  " reset-font [:right 5] "  "
                                   [:right 5] "  " [:right 15] "  " :none)]
     (write-rows *out* formatter [:hostname :id :owner (comp name :os) :ip] (map render systems))))
 

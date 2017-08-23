@@ -5,12 +5,16 @@
    [clojure.pprint :refer (pprint)]
    [clojure.repl :refer :all]
    [clojure.tools.namespace.repl :refer (refresh refresh-all)]
-   [re-mote.repl :refer :all :exclude (provision)]
    [re-core.repl :refer :all]
    [re-core.log :refer (debug-on debug-off)]
    [re-core.repl.fixtures :refer :all]
    [me.raynes.fs :refer (extension file?)]
    [re-core.launch :as core]
+   ; re-mote
+   [re-mote.repl :refer :all :exclude (provision)]
+   [re-mote.zero.base :refer (call)]
+   [re-mote.zero.management :refer (pretty-result results registered-hosts)]
+   [re-mote.zero.functions :refer (plus-one)]
    [re-mote.launch :as mote]))
 
 (def system nil)
@@ -56,3 +60,8 @@
   (stop)
   (refresh :after 'user/go))
 
+(defn clrs
+  "clean repl"
+  []
+  (print (str (char 27) "[2J"))
+  (print (str (char 27) "[;H")))
