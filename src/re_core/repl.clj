@@ -109,8 +109,8 @@
 
 (defn hosts
   "Convert systems into re-mote hosts:
-    (hosts) ; convert all systems
-    (hosts (by-type :redis)) ; convert all redis instances
+    (hosts) ; all systems using ip address
+    (hosts (by-type :redis) :hostname) ; all redis instances using hostname
   "
   ([]
    (hosts ip :ip))
@@ -127,7 +127,7 @@
    (let [[_ m] (run (ls systems) | (filter-by f))
          by-type (group-by (comp :type second) (:systems m))]
      (doseq [[t ms] by-type]
-       (mote/provision (into-hosts systems {:systems ms}) (provision-type t))))))
+       (mote/provision (into-hosts systems {:systems ms} :ip) (provision-type t))))))
 
 (defn up
   "Create VM and provision:
