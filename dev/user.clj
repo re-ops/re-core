@@ -65,3 +65,6 @@
   []
   (print (str (char 27) "[2J"))
   (print (str (char 27) "[;H")))
+
+(defn history []
+  (println  (slurp ".lein-repl-history")))
