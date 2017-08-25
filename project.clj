@@ -77,6 +77,7 @@
   :exclusions [org.clojure/clojure com.taoensso/timbre commons-codec]
 
   :plugins  [[jonase/eastwood "0.2.4"]
+              [mvxcvi/whidbey "1.3.1"]
              [lein-cljfmt "0.5.6"]
              [lein-kibit "0.1.5"]
              [lein-ancient "0.6.7" :exclusions [org.clojure/clojure]]
@@ -148,6 +149,16 @@
 
   :test-paths  []
 
+  :whidbey {
+    :width 180
+    :map-delimiter ""
+    :extend-notation true
+    :print-meta true
+    :color-scheme {
+      :delimiter [:blue]
+       :tag [:bold :red]
+    }
+  }
   :repl-options {
     :init-ns user
     :prompt (fn [ns] (str "\u001B[35m[\u001B[34m" "re-core" "\u001B[35m]\u001B[33mλ:\u001B[m " ))
