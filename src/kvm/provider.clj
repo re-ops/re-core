@@ -70,7 +70,7 @@
   (stop [this]
     (with-connection
       (s/update-system system-id
-         (dissoc-in* (s/get-system system-id) [:machine :ip]))
+                       (dissoc-in* (s/get-system system-id) [:machine :ip]))
       (.destroy (get-domain connection (domain :name)))
       (wait-for-status this "shutoff" [5 :minute])))
 
