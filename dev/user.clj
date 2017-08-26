@@ -5,6 +5,7 @@
    [clojure.pprint :refer (pprint)]
    [clojure.repl :refer :all]
    [clojure.tools.namespace.repl :refer (refresh refresh-all)]
+   ; re-core
    [re-core.repl :refer :all]
    [re-core.log :refer (debug-on debug-off)]
    [re-core.repl.fixtures :refer :all]
@@ -13,9 +14,12 @@
    ; re-mote
    [re-mote.repl :refer :all :exclude (provision)]
    [re-mote.zero.base :refer (call)]
-   [re-mote.zero.management :refer (pretty-result results registered-hosts)]
+   [re-mote.zero.management :refer (refer-zero-manage)]
+   [re-mote.log :refer (log-hosts redirect-output)]
    [re-mote.zero.functions :refer (plus-one ls)]
    [re-mote.launch :as mote]))
+
+(refer-zero-manage)
 
 (def system nil)
 
