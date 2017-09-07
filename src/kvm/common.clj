@@ -1,15 +1,23 @@
 (ns kvm.common
   (:require
+   [taoensso.timbre :refer (refer-timbre)]
    [clojure.data.xml :as xml]
    [clojure.zip :as zip])
   (:import
    java.text.SimpleDateFormat
    org.libvirt.Connect))
 
+(refer-timbre)
+
 (defn connect
   "Connecting"
-  [uri]
-  (Connect. uri))
+  ([uri]
+   (try
+     (Connect. uri)
+    (catch Exception e
+      (warn "Failed to connect")
+      (Thread/sleep 1000)
+      (connect)))))
 
 (defn tree-edit
   "Take a zipper, a function that matches a pattern in the tree,
