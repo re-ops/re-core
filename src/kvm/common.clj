@@ -14,10 +14,10 @@
   ([uri]
    (try
      (Connect. uri)
-    (catch Exception e
-      (warn "Failed to connect")
-      (Thread/sleep 1000)
-      (connect)))))
+     (catch Exception e
+       (warn "Failed to connect")
+       (Thread/sleep 1000)
+       (connect)))))
 
 (defn tree-edit
   "Take a zipper, a function that matches a pattern in the tree,
