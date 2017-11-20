@@ -28,8 +28,8 @@
                  [com.taoensso/tufte "1.1.1"]
 
                  ; re-ops
-                 [re-mote "0.4.0"]
-                 [re-share "0.1.2"]
+                 [re-mote "0.7.0"]
+                 [re-share "0.3.0"]
 
                  ;api
                  [clj-yaml "0.4.0"]
@@ -61,7 +61,7 @@
 
                  ; scheduling
                  [jarohen/chime "0.2.0" :exclusions [org.clojure/core.async]]
-                 [org.clojure/core.async "0.1.346.0-17112a-alpha"]
+                 [org.clojure/core.async "0.3.443"]
 
                  ; repl
                  [org.clojure/tools.nrepl "0.2.10"]
