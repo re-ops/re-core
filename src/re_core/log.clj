@@ -39,6 +39,6 @@
   (set-level! :trace))
 
 (defn sshj-debug
-   []
+  []
   (merge-config! {:ns-blacklist ["org.elasticsearch.indices.*"]})
   (debug-on))

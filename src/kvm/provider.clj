@@ -109,8 +109,8 @@
 
 (comment
   (create-volume
-    (connection {:host "localhost" :user "ronen" :port 22})
-     "default" 10 "/var/lib/libvirt/images/" "foo.img")
+   (connection {:host "localhost" :user "ronen" :port 22})
+   "default" 10 "/var/lib/libvirt/images/" "foo.img")
 
   (def d
     (get-domain (connection {:host "localhost" :user "ronen" :port 22}) "reops-0.local"))

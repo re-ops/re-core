@@ -36,9 +36,9 @@
   "A libvirt disk volume XML"
   [file]
   (element :disk {:type "file" :device "disk"}
-	     (element :driver {:name "qemu" :type "qcow2"})
-	     (element :source {:file file})
-	     (element :target {:dev "vdb" :bus "virtio"})))
+           (element :driver {:name "qemu" :type "qcow2"})
+           (element :source {:file file})
+           (element :target {:dev "vdb" :bus "virtio"})))
 
 (defn clone-volume-xml
   "A cloned volume XML"
@@ -55,8 +55,8 @@
 (defn clone-disks [c name root]
   (let [volumes  (map-indexed vector (map (partial into-volume c) (get-disks root)))]
     (doall
-	(for [[idx {:keys [volume] :as v}] volumes :let [pool (.storagePoolLookupByVolume volume) new-name (clone-name name idx)]]
-	  (assoc v :volume (.storageVolCreateXML pool (xml/emit-str (clone-volume-xml v new-name)) 0))))))
+     (for [[idx {:keys [volume] :as v}] volumes :let [pool (.storagePoolLookupByVolume volume) new-name (clone-name name idx)]]
+       (assoc v :volume (.storageVolCreateXML pool (xml/emit-str (clone-volume-xml v new-name)) 0))))))
 
 (defn create-volume
   "Create a volume on pool with given capacity"
@@ -74,11 +74,11 @@
 
 (defn update-file [volumes node]
   (let [target (first (filter (fn [element] (= :target (:tag element))) (:content node)))
-	  {:keys [volume]} (first (filter (fn [{:keys [device]}] (= (get-in target [:attrs :dev]) device)) volumes))]
+        {:keys [volume]} (first (filter (fn [{:keys [device]}] (= (get-in target [:attrs :dev]) device)) volumes))]
     (assoc node :content
-	     (map
-		 (fn [{:keys [tag attrs] :as element}]
-		   (if (= tag :source) (assoc element :attrs (assoc attrs :file (.getPath volume)))  element)) (:content node)))))
+           (map
+            (fn [{:keys [tag attrs] :as element}]
+              (if (= tag :source) (assoc element :attrs (assoc attrs :file (.getPath volume)))  element)) (:content node)))))
 
 (defn attach [domain file]
   (.attachDevice domain (xml/emit-str (volume-disk-xml file))))
