@@ -5,7 +5,7 @@
    [slingshot.slingshot :refer (throw+)]
    [taoensso.timbre :as timbre]
    [clojure.core.strint :refer (<<)]
-   [re-mote.sshj :refer (execute)]
+   [re-mote.ssh.transport :refer (execute)]
    [re-mote.log :refer (get-log collect-log)]
    [re-core.common :refer (gen-uuid)]
    [clojure.java.shell :refer (sh)]

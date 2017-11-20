@@ -23,22 +23,27 @@
 
 (defn volume-xml
   "A libvirt volume XML"
-  [capacity type file name]
+  [size unit type file name]
   (element :volume {}
            (element :name {} name)
-           (element :allocation {} "0")
-           (element :capacity {} capacity)
+           (element :allocation {:unit unit} 0)
+           (element :capacity {:unit unit} size)
            (element :target {}
                     (element :format {:type type} nil)
-                    (element :compat {} "1.1"))
-           (element :backingStore {}
-                    (element :path {} file)
-                    (element :format {:type type} nil))))
+                    (element :compat {} "1.1"))))
+
+(defn volume-disk-xml
+  "A libvirt disk volume XML"
+  [file]
+  (element :disk {:type "file" :device "disk"}
+	     (element :driver {:name "qemu" :type "qcow2"})
+	     (element :source {:file file})
+	     (element :target {:dev "vdb" :bus "virtio"})))
 
 (defn clone-volume-xml
   "A cloned volume XML"
   [{:keys [volume type file]} name]
-  (volume-xml (.capacity (.getInfo volume)) type file name))
+  (volume-xml (.capacity (.getInfo volume)) "B" type file name))
 
 (defn clone-name [name idx]
   (str name "-" (str idx) ".qcow2"))
@@ -50,13 +55,13 @@
 (defn clone-disks [c name root]
   (let [volumes  (map-indexed vector (map (partial into-volume c) (get-disks root)))]
     (doall
-     (for [[idx {:keys [volume] :as v}] volumes :let [pool (.storagePoolLookupByVolume volume) new-name (clone-name name idx)]]
-       (assoc v :volume (.storageVolCreateXML pool (xml/emit-str (clone-volume-xml v new-name)) 0))))))
+	(for [[idx {:keys [volume] :as v}] volumes :let [pool (.storagePoolLookupByVolume volume) new-name (clone-name name idx)]]
+	  (assoc v :volume (.storageVolCreateXML pool (xml/emit-str (clone-volume-xml v new-name)) 0))))))
 
 (defn create-volume
   "Create a volume on pool with given capacity"
   [c pool capacity path name]
-  (let [volume (xml/emit-str (volume-xml capacity "qcow2" path name))]
+  (let [volume (xml/emit-str (volume-xml capacity "G" "qcow2" path name))]
     (.storageVolCreateXML (.storagePoolLookupByName c pool) volume 0)))
 
 (defn delete-volume
@@ -69,11 +74,14 @@
 
 (defn update-file [volumes node]
   (let [target (first (filter (fn [element] (= :target (:tag element))) (:content node)))
-        {:keys [volume]} (first (filter (fn [{:keys [device]}] (= (get-in target [:attrs :dev]) device)) volumes))]
+	  {:keys [volume]} (first (filter (fn [{:keys [device]}] (= (get-in target [:attrs :dev]) device)) volumes))]
     (assoc node :content
-           (map
-            (fn [{:keys [tag attrs] :as element}]
-              (if (= tag :source) (assoc element :attrs (assoc attrs :file (.getPath volume)))  element)) (:content node)))))
+	     (map
+		 (fn [{:keys [tag attrs] :as element}]
+		   (if (= tag :source) (assoc element :attrs (assoc attrs :file (.getPath volume)))  element)) (:content node)))))
+
+(defn attach [domain file]
+  (.attachDevice domain (xml/emit-str (volume-disk-xml file))))
 
 (defn update-disks [root volumes]
   (zip/xml-zip (tree-edit root disk? (partial update-file volumes))))
