@@ -41,7 +41,7 @@
   [f & args]
   (let [system (first (filter map? args)) id (first (filter number? args))]
     (when-not (is-system? system)
-      (es/delete (str id) :flush? true)))
+      (es/delete (str id))))
   (apply f args))
 
 (defn system-ip [id]
