@@ -43,7 +43,6 @@
     :log {:level #{:required :levels}
           :path #{:required :String}
           :gelf {:host #{:String} :type #{:central-logging}}}
-    :cert {:password #{:required :String} :keystore #{:required :String}}
     :nrepl {:port #{:number}}}})
 
 (validation :node*

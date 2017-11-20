@@ -3,7 +3,7 @@
    :port 8082
    :https-port 8443
    :log {
-     :level :trace
+     :level :info
      :path "re-core.log"
      :gelf {
         :host "192.168.1.10"
@@ -23,15 +23,6 @@
        :stage 4 :reload 2
       }
    }
-
-   :cert {
-     :password "foobar"
-     :keystore "foo.keystore"
-   }
-
-   ;; :nrepl {
-   ;;    :port 7888
-   ;;  }
  }
 
  :hypervisor {
