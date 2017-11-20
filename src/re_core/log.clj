@@ -32,5 +32,13 @@
 (defn debug-on []
   (set-level! :debug))
 
-(defn debug-off []
+(defn info-on []
   (set-level! :info))
+
+(defn trace-on []
+  (set-level! :trace))
+
+(defn sshj-debug
+   []
+  (merge-config! {:ns-blacklist ["org.elasticsearch.indices.*"]})
+  (debug-on))
