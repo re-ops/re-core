@@ -118,7 +118,6 @@
 
   (block-wait [this {:keys [jobs queue systems] :as js}]
     (loop [done (filter-done (status this js))]
-      (trace done)
       (when (< (count done) (count jobs))
         (Thread/sleep 100)
         (recur (filter-done (status this js)))))
