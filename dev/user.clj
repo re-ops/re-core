@@ -7,16 +7,16 @@
    [clojure.tools.namespace.repl :refer (refresh refresh-all)]
    ; re-core
    [re-core.repl :refer :all]
-   [re-core.log :refer (debug-on debug-off)]
+   [re-core.log :refer (debug-on info-on trace-on)]
    [re-core.repl.fixtures :refer :all]
    [me.raynes.fs :refer (extension file?)]
    [re-core.launch :as core]
    ; re-mote
-   [re-mote.repl :refer :all :exclude (provision)]
-   [re-mote.zero.base :refer (call)]
+   [re-mote.repl :refer :all :exclude (provision single)]
+   [re-mote.zero.functions :refer (call)]
    [re-mote.zero.management :refer (refer-zero-manage)]
    [re-mote.log :refer (log-hosts redirect-output)]
-   [re-mote.zero.functions :refer (plus-one ls)]
+   [re-mote.zero.functions :refer (plus-one listdir)]
    [re-mote.launch :as mote]))
 
 (refer-zero-manage)

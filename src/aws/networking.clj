@@ -7,7 +7,7 @@
    [amazonica.aws.ec2 :as ec2]
    [slingshot.slingshot :refer  [throw+]]
    [re-core.model :refer (hypervisor)]
-   [re-mote.sshj :refer (execute)]
+   [re-mote.ssh.transport :refer (execute)]
    [clojure.core.strint :refer (<<)]
    [clojure.string :refer (join)]
    [aws.common :refer (with-ctx instance-desc)]
