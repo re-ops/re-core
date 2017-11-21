@@ -28,6 +28,9 @@
            (element :name {} name)
            (element :allocation {:unit unit} 0)
            (element :capacity {:unit unit} size)
+           (element :backingStore {}
+                    (element :path {} file)
+                    (element :format {:type type} nil))
            (element :target {}
                     (element :format {:type type} nil)
                     (element :compat {} "1.1"))))
