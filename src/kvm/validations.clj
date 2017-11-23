@@ -10,8 +10,17 @@
              :user #{:required :String} :os #{:required :Keyword}
              :cpu #{:required :number} :ram #{:required :number}}})
 
+
+(validation :volume {:device #{:required :device} :size #{:required :Integer}
+                     :clear #{:required :Boolean} :type #{:required :image-type} })
+
+(validation :volume* (every-v #{:volume}))
+
 (def kvm-entity
-  {:kvm {:node #{:required :Keyword}}})
+  {:kvm
+   {:node #{:required :Keyword}
+    :volumes #{:volume* :io-volume*}
+    }})
 
 (def domain-provider
   {:name #{:required :String} :user #{:required :String}
@@ -21,6 +30,8 @@
 (def node-provider
   {:user #{:required :String} :host #{:required :String}
    :port #{:required :number}})
+
+(def ebs-type #{"qcow2" "raw"})
 
 (defmethod check-validity [:kvm :entity] [domain]
   (validate! domain (combine machine-entity kvm-entity) :error ::invalid-system))

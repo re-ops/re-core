@@ -102,7 +102,7 @@
       (selections [[:name :user :image :cpu :ram :hostname]])))
 
 (defmethod vconstruct :kvm [{:keys [kvm machine system-id] :as spec}]
-  (let [[domain] (translate spec) {:keys [node]} kvm
+  (let [[domain] (translate spec) {:keys [node volumes]} kvm
         node* (mappings (hypervisor* :kvm :nodes node) {:username :user})]
     (provider-validation domain node*)
     (->Domain system-id node* domain)))
