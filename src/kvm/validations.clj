@@ -10,15 +10,23 @@
              :user #{:required :String} :os #{:required :Keyword}
              :cpu #{:required :number} :ram #{:required :number}}})
 
-(validation :volume {:device #{:required :device} :size #{:required :Integer}
-                     :clear #{:required :Boolean} :type #{:required :image-type}})
+(def image-type #{"qcow2" "raw"})
 
-(validation :volume* (every-v #{:volume}))
+(validation :image-type
+            (when-not-nil image-type (<< "Image type must be either ~{image-type}")))
+
+(validation :kvm-volume {
+            :device #{:required :device} :size #{:required :Integer}
+            :clear #{:required :Boolean} :type #{:required :image-type}
+            :pool #{:required :Keyword} 
+            })
+
+(validation :kvm-volume* (every-v #{:kvm-volume}))
 
 (def kvm-entity
   {:kvm
    {:node #{:required :Keyword}
-    :volumes #{:volume* :io-volume*}}})
+    :volumes #{:kvm-volume*}}})
 
 (def domain-provider
   {:name #{:required :String} :user #{:required :String}

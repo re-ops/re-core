@@ -10,7 +10,9 @@
 
   :kvm {
     :node :remote
-    :volumes [{:device "vdb" :type "qcow2" :size 100 :clear true}]
+    :volumes [
+       {:device "/dev/vdb" :type "qcow2" :size 100 :pool :default :clear true}
+    ]
   }
 
   :type "reops"

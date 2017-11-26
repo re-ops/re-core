@@ -65,9 +65,13 @@
 
 (defn create-volume
   "Create a volume on pool with given capacity"
-  [c pool capacity path name]
-  (let [volume (xml/emit-str (volume-xml capacity "G" "qcow2" path name))]
+  [c {:keys [pool path]} type capacity name]
+  (let [volume (xml/emit-str (volume-xml capacity "G" type path name))]
     (.storageVolCreateXML (.storagePoolLookupByName c pool) volume 0)))
+
+(defn create-volumes [c volumes]
+  (doseq [{:keys [device type size pool name]} volumes]
+    (create-volume c pool type size name)))
 
 (defn delete-volume
   "Delete a volume by name from pool"
@@ -90,4 +94,5 @@
 
 (defn update-disks [root volumes]
   (zip/xml-zip (tree-edit root disk? (partial update-file volumes))))
+
 
