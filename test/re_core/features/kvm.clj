@@ -39,8 +39,7 @@
           (wf/destroy (spec)) => nil)
 
     (fact "kvm with volume" :integration :kvm :kvolume
-          (let [with-vol {:kvm {:volumes [{:device "vdb" :type "qcow2" :size 100 :clear true}]
-}}]
+          (let [with-vol {:kvm {:volumes [{:device "vdb" :type "qcow2" :size 100 :clear true}]}}]
             (wf/create (spec with-vol)) => nil
             (wf/reload (spec)) => nil
             (wf/destroy (spec with-vol)) => nil))))

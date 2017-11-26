@@ -24,15 +24,15 @@
 (defn volume-xml
   "A libvirt volume XML"
   ([size file name]
-     (volume-xml size "B" file name false))
+   (volume-xml size "B" file name false))
   ([size unit type file name & block?]
    (element :volume {}
             (element :name {} name)
             (element :allocation {:unit unit} 0)
             (element :capacity {:unit unit} size)
             (when (first block?) (element :backingStore {}
-                                  (element :path {} file)
-                                  (element :format {:type type} nil)))
+                                          (element :path {} file)
+                                          (element :format {:type type} nil)))
             (element :target {}
                      (element :format {:type type} nil)
                      (element :compat {} "1.1")))))
@@ -60,8 +60,8 @@
 (defn clone-disks [c name root]
   (let [volumes  (map-indexed vector (map (partial into-volume c) (get-disks root)))]
     (doall
-      (for [[idx {:keys [volume] :as v}] volumes :let [pool (.storagePoolLookupByVolume volume) new-name (clone-name name idx)]]
-        (assoc v :volume (.storageVolCreateXML pool (xml/emit-str (clone-volume-xml v new-name)) 0))))))
+     (for [[idx {:keys [volume] :as v}] volumes :let [pool (.storagePoolLookupByVolume volume) new-name (clone-name name idx)]]
+       (assoc v :volume (.storageVolCreateXML pool (xml/emit-str (clone-volume-xml v new-name)) 0))))))
 
 (defn create-volume
   "Create a volume on pool with given capacity"
@@ -82,8 +82,8 @@
         {:keys [volume]} (first (filter (fn [{:keys [device]}] (= (get-in target [:attrs :dev]) device)) volumes))]
     (assoc node :content
            (map
-             (fn [{:keys [tag attrs] :as element}]
-               (if (= tag :source) (assoc element :attrs (assoc attrs :file (.getPath volume)))  element)) (:content node)))))
+            (fn [{:keys [tag attrs] :as element}]
+              (if (= tag :source) (assoc element :attrs (assoc attrs :file (.getPath volume)))  element)) (:content node)))))
 
 (defn attach [domain file device]
   (.attachDevice domain (xml/emit-str (volume-disk-xml file))))

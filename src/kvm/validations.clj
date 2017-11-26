@@ -10,17 +10,15 @@
              :user #{:required :String} :os #{:required :Keyword}
              :cpu #{:required :number} :ram #{:required :number}}})
 
-
 (validation :volume {:device #{:required :device} :size #{:required :Integer}
-                     :clear #{:required :Boolean} :type #{:required :image-type} })
+                     :clear #{:required :Boolean} :type #{:required :image-type}})
 
 (validation :volume* (every-v #{:volume}))
 
 (def kvm-entity
   {:kvm
    {:node #{:required :Keyword}
-    :volumes #{:volume* :io-volume*}
-    }})
+    :volumes #{:volume* :io-volume*}}})
 
 (def domain-provider
   {:name #{:required :String} :user #{:required :String}
