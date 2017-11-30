@@ -11,7 +11,7 @@
   :kvm {
     :node :remote
     :volumes [
-       {:device "/dev/vdb" :type "qcow2" :size 100 :pool :default :clear true}
+       {:device "/dev/vdb" :type "qcow2" :size 100 :pool :default :clear true :name "foo.img"}
     ]
   }
 

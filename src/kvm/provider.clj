@@ -1,11 +1,12 @@
 (ns kvm.provider
   (:require
+   [com.rpl.specter :as spec :refer  (MAP-VALS ALL ATOM keypath)]
    [flatland.useful.map :refer (dissoc-in*)]
    [safely.core :refer [safely]]
    [kvm.validations :refer (provider-validation)]
    [clojure.core.strint :refer (<<)]
    [kvm.clone :refer (clone-domain)]
-   [kvm.disks :refer (clear-volumes create-volume delete-volume attach)]
+   [kvm.disks :refer (clear-volumes create-volumes delete-volume attach)]
    [kvm.common :refer (connect get-domain domain-zip state domain-list)]
    [kvm.networking :refer (public-ip nat-ip update-ip)]
    [re-mote.ssh.transport :refer (ssh-up?)]
@@ -39,12 +40,13 @@
             {:type ::kvm:status-failed :status req-stat :timeout timeout}
             "Timed out on waiting for status"))
 
-(defrecord Domain [system-id node domain]
+(defrecord Domain [system-id node volumes domain]
   Vm
   (create [this]
     (with-connection
       (let [image (get-in domain [:image :template]) target (select-keys domain [:name :cpu :ram])]
         (clone-domain connection image target)
+        (create-volumes connection volumes)
         (debug "clone done")
         (wait-for-status this "running" [5 :minute])
         (debug "in running state")
@@ -101,16 +103,23 @@
       (assoc :hostname (machine :hostname))
       (selections [[:name :user :image :cpu :ram :hostname]])))
 
+(defn node-m [node]
+  (hypervisor* :kvm :nodes node))
+
+(defn pools [node]
+  ((node-m node) :pools))
+
 (defmethod vconstruct :kvm [{:keys [kvm machine system-id] :as spec}]
   (let [[domain] (translate spec) {:keys [node volumes]} kvm
-        node* (mappings (hypervisor* :kvm :nodes node) {:username :user})]
+        node* (dissoc (mappings (node-m node) {:username :user}) :pools)
+        volumes* (spec/transform [ALL (keypath :pool)] (fn [pool] (select-keys (pools node) [pool])) volumes)]
     (provider-validation domain node*)
-    (->Domain system-id node* domain)))
+    (->Domain system-id node* volumes* domain)))
 
 (comment
   (create-volume
    (connection {:host "localhost" :user "ronen" :port 22})
-      "default" 10 "/var/lib/libvirt/images/" "foo.img")
+   "default" 10 "/var/lib/libvirt/images/" "foo.img")
 
   (def d
     (get-domain (connection {:host "localhost" :user "ronen" :port 22}) "reops-0.local"))

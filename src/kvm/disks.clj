@@ -23,18 +23,18 @@
 
 (defn volume-xml
   "A libvirt volume XML"
-  ([size file name]
-   (volume-xml size "B" file name false))
-  ([size unit type file name & block?]
+  ([size file name']
+   (volume-xml size "B" file name' false))
+  ([size unit type' file name' & block?]
    (element :volume {}
-            (element :name {} name)
+            (element :name {} name')
             (element :allocation {:unit unit} 0)
             (element :capacity {:unit unit} size)
             (when (first block?) (element :backingStore {}
                                           (element :path {} file)
-                                          (element :format {:type type} nil)))
+                                          (element :format {:type type'} nil)))
             (element :target {}
-                     (element :format {:type type} nil)
+                     (element :format {:type type'} nil)
                      (element :compat {} "1.1")))))
 
 (defn volume-disk-xml
@@ -47,36 +47,36 @@
 
 (defn clone-volume-xml
   "A cloned volume XML"
-  [{:keys [volume type file]} name]
-  (volume-xml (.capacity (.getInfo volume)) "B" type file name true))
+  [{:keys [volume type file]} name']
+  (volume-xml (.capacity (.getInfo volume)) "B" type file name' true))
 
-(defn clone-name [name idx]
-  (str name "-" (str idx) ".qcow2"))
+(defn clone-name [name' idx]
+  (str name' "-" (str idx) ".qcow2"))
 
 (defn clear-volumes [c root]
   (doseq [{:keys [volume]} (map (partial into-volume c) (get-disks root))]
     (.delete volume 0)))
 
-(defn clone-disks [c name root]
+(defn clone-disks [c name' root]
   (let [volumes  (map-indexed vector (map (partial into-volume c) (get-disks root)))]
     (doall
-     (for [[idx {:keys [volume] :as v}] volumes :let [pool (.storagePoolLookupByVolume volume) new-name (clone-name name idx)]]
+     (for [[idx {:keys [volume] :as v}] volumes :let [pool (.storagePoolLookupByVolume volume) new-name (clone-name name' idx)]]
        (assoc v :volume (.storageVolCreateXML pool (xml/emit-str (clone-volume-xml v new-name)) 0))))))
 
 (defn create-volume
   "Create a volume on pool with given capacity"
-  [c {:keys [pool path]} type capacity name]
-  (let [volume (xml/emit-str (volume-xml capacity "G" type path name))]
-    (.storageVolCreateXML (.storagePoolLookupByName c pool) volume 0)))
+  [c [pool path] type' capacity name']
+  (let [volume (xml/emit-str (volume-xml capacity "G" type' path name'))]
+    (.storageVolCreateXML (.storagePoolLookupByName c (name pool)) volume 0)))
 
 (defn create-volumes [c volumes]
-  (doseq [{:keys [device type size pool name]} volumes]
-    (create-volume c pool type size name)))
+  (doseq [{:keys [device type size pool name] :as v} volumes]
+    (create-volume c (-> pool vec first) type size name)))
 
 (defn delete-volume
   "Delete a volume by name from pool"
-  [c pool name]
-  (.delete (.storageVolLookupByName (.storagePoolLookupByName c pool) name) 0))
+  [c pool name']
+  (.delete (.storageVolLookupByName (.storagePoolLookupByName c pool) name') 0))
 
 (defn disk? [loc]
   (= :disk (:tag (zip/node loc))))
@@ -94,5 +94,4 @@
 
 (defn update-disks [root volumes]
   (zip/xml-zip (tree-edit root disk? (partial update-file volumes))))
-
 

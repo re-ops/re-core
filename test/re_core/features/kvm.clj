@@ -12,7 +12,7 @@
   (:use midje.sweet)
   (:import clojure.lang.ExceptionInfo))
 
-(setup-logging)
+(def volume {:device "vdb" :type "qcow2" :size 100 :clear true :pool :default :name "foo.img"})
 
 (with-conf
   (let [{:keys [machine kvm]} redis-gce]
@@ -23,7 +23,14 @@
             (:domain domain) =>
             (just {:user "re-ops" :name "red1.local" :hostname "red1"
                    :image {:flavor :debian :template "ubuntu-16.04"}
-                   :cpu 2 :ram 1024})))))
+                   :cpu 2 :ram 1024})))
+    (fact "volume pool" :kvm
+          (let [with-vol (assoc-in redis-kvm [:kvm :volumes] [volume])
+                domain (vconstruct (assoc with-vol :system-id 1))]
+            (first (:volumes domain)) =>
+               (just (assoc volume :pool {:default "/var/lib/libvirt/images/"}))
+            ))))
+
 
 (with-conf local-conf
   (with-state-changes [(before :facts (populate-system redis-type redis-kvm))]
@@ -38,8 +45,8 @@
           (wf/reload (spec)) => nil
           (wf/destroy (spec)) => nil)
 
-    (fact "kvm with volume" :integration :kvm :kvolume
-          (let [with-vol {:kvm {:volumes [{:device "vdb" :type "qcow2" :size 100 :clear true}]}}]
+    (fact "kvm with volume" :integration :kvm :volume
+          (let [with-vol {:kvm {:volumes [volume]}}]
             (wf/create (spec with-vol)) => nil
             (wf/reload (spec)) => nil
             (wf/destroy (spec with-vol)) => nil))))
