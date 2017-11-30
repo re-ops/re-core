@@ -28,9 +28,7 @@
           (let [with-vol (assoc-in redis-kvm [:kvm :volumes] [volume])
                 domain (vconstruct (assoc with-vol :system-id 1))]
             (first (:volumes domain)) =>
-               (just (assoc volume :pool {:default "/var/lib/libvirt/images/"}))
-            ))))
-
+            (just (assoc volume :pool {:default "/var/lib/libvirt/images/"}))))))
 
 (with-conf local-conf
   (with-state-changes [(before :facts (populate-system redis-type redis-kvm))]
