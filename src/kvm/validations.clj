@@ -15,7 +15,7 @@
 (validation :image-type
             (when-not-nil image-type (<< "Image type must be either ~{image-type}")))
 
-(validation :kvm-volume {:device #{:required :device} :size #{:required :Integer}
+(validation :kvm-volume {:device #{:required :String} :size #{:required :Integer}
                          :clear #{:required :Boolean} :type #{:required :image-type}
                          :pool #{:required :Keyword}})
 

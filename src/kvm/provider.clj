@@ -6,8 +6,8 @@
    [kvm.validations :refer (provider-validation)]
    [clojure.core.strint :refer (<<)]
    [kvm.clone :refer (clone-domain)]
-   [kvm.disks :refer (clear-volumes create-volumes delete-volume attach)]
-   [kvm.common :refer (connect get-domain domain-zip state domain-list)]
+   [kvm.volumes :refer (clear-volumes create-volumes)]
+   [kvm.common :refer (connect get-domain state domain-list)]
    [kvm.networking :refer (public-ip nat-ip update-ip)]
    [re-mote.ssh.transport :refer (ssh-up?)]
    [re-core.core :refer (Vm)]
@@ -30,7 +30,7 @@
    :retry-delay [:random-range :min 200 :max 500]))
 
 (defmacro with-connection [& body]
-  `(let [~'connection (connection ~'node)]
+  `(let [~'c (connection ~'node)]
      (do ~@body)))
 
 (defn wait-for-status
@@ -45,9 +45,10 @@
   (create [this]
     (with-connection
       (let [image (get-in domain [:image :template]) target (select-keys domain [:name :cpu :ram])]
-        (clone-domain connection image target)
-        (create-volumes connection volumes)
+        (clone-domain c image target)
         (debug "clone done")
+        (create-volumes c (domain :name) volumes)
+        (debug "volumes created")
         (wait-for-status this "running" [5 :minute])
         (debug "in running state")
         (let [ip (.ip this) flavor (get-in domain [:image :flavor])]
@@ -58,13 +59,13 @@
 
   (delete [this]
     (with-connection
-      (clear-volumes connection (domain-zip connection (domain :name)))
-      (.undefine (get-domain connection (domain :name)))))
+      (clear-volumes c (domain :name) volumes)
+      (.undefine (get-domain c (domain :name)))))
 
   (start [this]
     (with-connection
       (when-not (= (.status this) "running")
-        (.create (get-domain connection (domain :name)))
+        (.create (get-domain c (domain :name)))
         (let [ip (.ip this)]
           (wait-for-ssh ip (domain :user) [5 :minute])
           (update-ip system-id ip)))))
@@ -73,22 +74,22 @@
     (with-connection
       (s/update-system system-id
                        (dissoc-in* (s/get-system system-id) [:machine :ip]))
-      (.destroy (get-domain connection (domain :name)))
+      (.destroy (get-domain c (domain :name)))
       (wait-for-status this "shutoff" [5 :minute])))
 
   (status [this]
     (with-connection
       (try
-        (if-not (first (filter #(= % (domain :name)) (domain-list connection)))
+        (if-not (first (filter #(= % (domain :name)) (domain-list c)))
           false
-          (state (get-domain connection (domain :name))))
+          (state (get-domain c (domain :name))))
         (catch LibvirtException e (debug (.getMessage e)) false))))
 
   (ip [this]
     (with-connection
       (if (= (:host node) "localhost")
-        (nat-ip connection (domain :name) node)
-        (public-ip connection (domain :user) node (domain :name))))))
+        (nat-ip c (domain :name) node)
+        (public-ip c (domain :user) node (domain :name))))))
 
 (defn machine-ts
   "Construcuting machine transformations"
@@ -106,27 +107,31 @@
 (defn node-m [node]
   (hypervisor* :kvm :nodes node))
 
-(defn pools [node]
-  ((node-m node) :pools))
+(defn pool-m [node pool]
+  (merge {:id (name pool)} (((node-m node) :pools) pool)))
 
 (defmethod vconstruct :kvm [{:keys [kvm machine system-id] :as spec}]
   (let [[domain] (translate spec) {:keys [node volumes]} kvm
         node* (dissoc (mappings (node-m node) {:username :user}) :pools)
-        volumes* (spec/transform [ALL (keypath :pool)] (fn [pool] (select-keys (pools node) [pool])) volumes)]
+        volumes* (spec/transform [ALL (keypath :pool)] (partial pool-m node) volumes)]
     (provider-validation domain node*)
     (->Domain system-id node* volumes* domain)))
 
 (comment
-  (create-volume
-   (connection {:host "localhost" :user "ronen" :port 22})
-   "default" 10 "/var/lib/libvirt/images/" "foo.img")
+  (def c (connection {:host "localhost" :user "ronen" :port 22}))
+
+  (create-volume c "default" 10 "/var/lib/libvirt/images/" "foo.img")
+
+  (clojure.pprint/pprint
+   (.delete (:volume (second (kvm.volumes/list-volumes c "reops-0.local"))) 0))
 
   (def d
-    (get-domain (connection {:host "localhost" :user "ronen" :port 22}) "reops-0.local"))
+    (get-domain c "reops-0.local"))
 
   (attach d "/var/lib/libvirt/images/foo.img")
 
-  (delete-volume (connection {:host "localhost" :user "ronen" :port 22}) "default" "foo.img")
+  (delete-volume c "default" "foo.img")
 
-  (domain-list (connection {:host "localhost" :user "ronen" :port 22}))
-  (get-domain (connection {:host "localhost" :user "ronen" :port 22}) "red1-.local"))
+  (domain-list c)
+
+  (get-domain c "red1.local"))

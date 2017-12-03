@@ -14,6 +14,8 @@
 
 (def volume {:device "vdb" :type "qcow2" :size 100 :clear true :pool :default :name "foo.img"})
 
+(setup-logging)
+
 (with-conf
   (let [{:keys [machine kvm]} redis-gce]
     (fact "legal instance spec" :kvm
@@ -28,11 +30,11 @@
           (let [with-vol (assoc-in redis-kvm [:kvm :volumes] [volume])
                 domain (vconstruct (assoc with-vol :system-id 1))]
             (first (:volumes domain)) =>
-            (just (assoc volume :pool {:default "/var/lib/libvirt/images/"}))))))
+            (just (assoc volume :pool {:id "default" :path "/var/lib/libvirt/images/"}))))))
 
 (with-conf local-conf
   (with-state-changes [(before :facts (populate-system redis-type redis-kvm))]
-    (fact "kvm creation workflows" :integration :kvm :workflow
+     (fact "kvm creation workflows" :integration :kvm :workflow
           (wf/create (spec)) => nil
           (wf/stop (spec)) => nil
           (wf/start (spec)) => nil
@@ -46,7 +48,7 @@
     (fact "kvm with volume" :integration :kvm :volume
           (let [with-vol {:kvm {:volumes [volume]}}]
             (wf/create (spec with-vol)) => nil
-            (wf/reload (spec)) => nil
+            (wf/reload (spec with-vol)) => nil
             (wf/destroy (spec with-vol)) => nil))))
 
 (comment

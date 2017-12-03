@@ -1,15 +1,14 @@
-; see clone https://github.com/xebialabs/overcast/blob/master/src/main/java/com/xebialabs/overcast/support/libvirt/DomainWrapper.java
-
 (ns kvm.clone
-  (:import
-   java.text.SimpleDateFormat
-   org.libvirt.Connect)
+  "see clone https://github.com/xebialabs/overcast/blob/master/src/main/java/com/xebialabs/overcast/support/libvirt/DomainWrapper.java"
   (:require
-   [kvm.disks :refer (get-disks find-volume clone-disks update-disks)]
+   [kvm.volumes :refer (volume-xml into-volume get-disks update-disks)]
    [kvm.common :refer (connect tree-edit domain-zip state)]
    [clojure.zip :as zip]
    [clojure.data.zip.xml :as zx]
-   [clojure.data.xml :as xml]))
+   [clojure.data.xml :as xml])
+  (:import
+   java.text.SimpleDateFormat
+   org.libvirt.Connect))
 
 (defn version
   [c]
@@ -48,6 +47,20 @@
 (defn clone-root [root name cpu ram]
   (-> root
       (set-name name) clear-uuid clear-all-macs (set-cpu cpu) (set-ram ram)))
+
+(defn clone-volume-xml
+  "A cloned volume XML"
+  [{:keys [volume type file]} name']
+  (volume-xml (.capacity (.getInfo volume)) "B" type file name' true))
+
+(defn clone-name [name' idx]
+  (str name' "-" (str idx) ".qcow2"))
+
+(defn clone-disks [c name' root]
+  (let [volumes (map-indexed vector (map (partial into-volume c) (get-disks root)))]
+    (doall
+     (for [[idx {:keys [volume] :as v}] volumes :let [pool (.storagePoolLookupByVolume volume) new-name (clone-name name' idx)]]
+       (assoc v :volume (.storageVolCreateXML pool (xml/emit-str (clone-volume-xml v new-name)) 0))))))
 
 (defn clone-domain [c id {:keys [name cpu ram] :as target}]
   (let [root (domain-zip c id) volumes (clone-disks c name root)

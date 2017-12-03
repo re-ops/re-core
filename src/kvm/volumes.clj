@@ -1,16 +1,20 @@
-(ns kvm.disks
+(ns kvm.volumes
   (:require
+   [clojure.core.strint :refer (<<)]
    [clojure.zip :as zip]
-   [kvm.common :refer (tree-edit)]
+   [kvm.common :refer (tree-edit domain-zip get-domain)]
    [clojure.data.xml :as xml :refer (element)]
    [clojure.data.zip.xml :as zx]))
 
 (defn volumes [c pool path]
   (map (fn [v] (.storageVolLookupByName pool v)) (.listVolumes pool)))
 
+(defn pool-lookup [c id]
+  (.storagePoolLookupByName c id))
+
 (defn find-volume [c path]
-  (let [pools (map #(.storagePoolLookupByName c %) (.listStoragePools c))]
-    (first (filter #(= (.getPath %) path) (mapcat (fn [pool] (volumes c pool path))  pools)))))
+  (let [pools (map (partial pool-lookup c) (.listStoragePools c))]
+    (first (filter #(= (.getPath %) path) (mapcat (fn [pool] (volumes c pool path)) pools)))))
 
 (defn get-disks [root]
   (map vector
@@ -45,38 +49,38 @@
            (element :source {:file file})
            (element :target {:dev device :bus "virtio"})))
 
-(defn clone-volume-xml
-  "A cloned volume XML"
-  [{:keys [volume type file]} name']
-  (volume-xml (.capacity (.getInfo volume)) "B" type file name' true))
+(defn attach
+  "Attach a image file to domain using device"
+  [domain image device]
+  (.attachDevice domain (xml/emit-str (volume-disk-xml image device))))
 
-(defn clone-name [name' idx]
-  (str name' "-" (str idx) ".qcow2"))
+(defn list-volumes
+  [c domain]
+  (reverse (map (partial into-volume c) (get-disks (domain-zip c domain)))))
 
-(defn clear-volumes [c root]
-  (doseq [{:keys [volume]} (map (partial into-volume c) (get-disks root))]
-    (.delete volume 0)))
-
-(defn clone-disks [c name' root]
-  (let [volumes  (map-indexed vector (map (partial into-volume c) (get-disks root)))]
-    (doall
-     (for [[idx {:keys [volume] :as v}] volumes :let [pool (.storagePoolLookupByVolume volume) new-name (clone-name name' idx)]]
-       (assoc v :volume (.storageVolCreateXML pool (xml/emit-str (clone-volume-xml v new-name)) 0))))))
+(defn exists? [c domain image]
+  (let [existing (list-volumes c domain)
+        found (first (filter (fn [{:keys [file]}] (= file image)) existing))]
+    (when found true)))
 
 (defn create-volume
   "Create a volume on pool with given capacity"
-  [c [pool path] type' capacity name']
-  (let [volume (xml/emit-str (volume-xml capacity "G" type' path name'))]
-    (.storageVolCreateXML (.storagePoolLookupByName c (name pool)) volume 0)))
+  [c domain {:keys [id path]} type capacity image device]
+  (let [volume (xml/emit-str (volume-xml capacity "G" type path image))]
+    (when (not (exists? c domain image))
+      (.storageVolCreateXML (pool-lookup c id) volume 0)
+      (attach (get-domain c domain) (<< "~{path}~{image}") device))))
 
-(defn create-volumes [c volumes]
+(defn create-volumes [c domain volumes]
   (doseq [{:keys [device type size pool name] :as v} volumes]
-    (create-volume c (-> pool vec first) type size name)))
+    (create-volume c domain pool type size name device)))
 
-(defn delete-volume
-  "Delete a volume by name from pool"
-  [c pool name']
-  (.delete (.storageVolLookupByName (.storagePoolLookupByName c pool) name') 0))
+(defn clear-volumes [c domain volumes]
+  (doseq [{:keys [volume file]} (list-volumes c domain)]
+    (.delete volume 0))
+  (doseq [{:keys [pool name]} volumes]
+    (when-let [volume (find-volume c (<< "~(:path pool)~{name}"))]
+      (.delete volume 0))))
 
 (defn disk? [loc]
   (= :disk (:tag (zip/node loc))))
@@ -88,9 +92,6 @@
            (map
             (fn [{:keys [tag attrs] :as element}]
               (if (= tag :source) (assoc element :attrs (assoc attrs :file (.getPath volume)))  element)) (:content node)))))
-
-(defn attach [domain file device]
-  (.attachDevice domain (xml/emit-str (volume-disk-xml file))))
 
 (defn update-disks [root volumes]
   (zip/xml-zip (tree-edit root disk? (partial update-file volumes))))

@@ -48,9 +48,9 @@
     :kvm  {
        :nodes {
           :remote {
-            :username "ronen" :host "localhost" :port 22 
+            :username "ronen" :host "localhost" :port 22
             :pools  {
-               :default "/var/lib/libvirt/images/"
+               :default {:path "/var/lib/libvirt/images/"}
             }
           }
         }

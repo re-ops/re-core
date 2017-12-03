@@ -132,7 +132,9 @@
 (defn up
   "Create VM and provision:
     (up (kvm-instance \"repos-kvm\")  5) ; create 5 VM instances
-    (up (kvm-instance \"repos-kvm\")); create a single VM "
+    (up (kvm-instance \"repos-kvm\")); create a single VM
+    (up (kvm-instance \"repos-kvm\") 1 :skip-provision true); create a single VM
+  "
   ([base t & {:keys [skip-provision] :or {skip-provision false}}]
    (let [specs (map (fn [i] (update-in base [:machine :hostname] (fn [n] (str n "-" i)))) (range t))
          [_ m] (run (add systems specs) | (sys/create) | (block-wait) | (pretty-print "up"))]
