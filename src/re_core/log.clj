@@ -16,7 +16,7 @@
 (defn setup-logging
   "Sets up logging configuration"
   []
-  (let [log* (partial get* :re-core :log)]
+  (let [log* (or (partial get* :re-core :log) :debug)]
     (when (log* :gelf)
       (merge-config!
        {:appenders {:gelf (gelf-appender {:host (log* :gelf :host)})}}))
