@@ -34,7 +34,7 @@
 
 (with-conf local-conf
   (with-state-changes [(before :facts (populate-system redis-type redis-kvm))]
-     (fact "kvm creation workflows" :integration :kvm :workflow
+    (fact "kvm creation workflows" :integration :kvm :workflow
           (wf/create (spec)) => nil
           (wf/stop (spec)) => nil
           (wf/start (spec)) => nil

@@ -16,7 +16,7 @@
 (defn setup-logging
   "Sets up logging configuration"
   []
-  (let [log* (or (partial get* :re-core :log) :debug)]
+  (let [log* (partial get* :re-core :log)]
     (when (log* :gelf)
       (merge-config!
        {:appenders {:gelf (gelf-appender {:host (log* :gelf :host)})}}))
@@ -27,7 +27,7 @@
     (merge-config!
      {:appenders {:println {:ns-whitelist ["re-core"]}}})
     (disable-coloring)
-    (set-level! (log* :level))))
+    (set-level! (or (log* :level) :debug))))
 
 (defn debug-on []
   (set-level! :debug))
