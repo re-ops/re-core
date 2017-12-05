@@ -1,4 +1,5 @@
 (ns user
+  (:refer-clojure :exclude  [update list])
   (:require
    [clojure.tools.trace :refer (deftrace trace trace-ns trace-vars)]
    [clojure.java.io :as io]
