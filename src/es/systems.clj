@@ -42,8 +42,3 @@
   [query & {:keys [from size] :or {size 100 from 0}}]
   (doc/search @ES index "system" {:from from :size size :query query :fields ["owner" "env"]}))
 
-(defn query-envs [q]
-  (into #{}
-        (filter identity
-                (map #(keyword (get-in % [:term :env])) (get-in q [:bool :should])))))
-

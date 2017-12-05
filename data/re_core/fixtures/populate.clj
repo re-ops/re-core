@@ -56,12 +56,6 @@
   (doseq [s (g/sample systems-with-machines 100)]
     (s/add-system s)))
 
-(defn add-templates
-  "populate templates"
-  []
-  (s/add-template d/small-redis)
-  (s/add-template d/tiny-jvm))
-
 (defn re-initlize
   "Re-init datastores"
   ([] (re-initlize false))
@@ -71,7 +65,7 @@
    (es/initialize)
    (red/clear-all)))
 
-(def populators {:types add-types :systems add-systems :templates add-templates})
+(def populators {:types add-types :systems add-systems})
 
 (defn populate-all
   "populates all data types"

@@ -31,10 +31,3 @@
   [envs]
   (map (fn [e] {:term {:env (name e)}}) envs))
 
-(defn paginate
-  "basic query string"
-  [from size envs]
-  (let [q {:bool {:minimum_should_match 1 :should (query-envs envs)}}]
-    (:hits
-     (doc/search @ES index "jobs" {:from from :size size :query q :sort {:end "desc"}}))))
-

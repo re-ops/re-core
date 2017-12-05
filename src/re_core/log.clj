@@ -27,7 +27,7 @@
     (merge-config!
      {:appenders {:println {:ns-whitelist ["re-core"]}}})
     (disable-coloring)
-    (set-level! (or (log* :level) :debug))))
+    (set-level! (or (log* :level) :info))))
 
 (defn debug-on []
   (set-level! :debug))

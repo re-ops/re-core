@@ -32,11 +32,6 @@
                             (get-in (jobs/get "2") [:source :env]) => "prod"
                             (get-in (jobs/get "3") [:source :identity]) => 2)
 
-                      (fact "jobs pagination" :integration :elasticsearch
-                            (:total (jobs/paginate 0 5 [:dev])) => 3
-                            (:total (jobs/paginate 0 5 [:prod])) => 1
-                            (:total (jobs/paginate 0 5 [:prod :dev])) => 4)
-
                       (fact "expiry (ttl)" :integration :ttl
                             (jobs/put (-> job (merge {:tid "foo" :status :success}) stamp) 100 :flush? true)
                             (Thread/sleep 2000)

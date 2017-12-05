@@ -63,27 +63,7 @@
        (assoc-in [:machine :hostname] hostname)
        (clone spec))))
 
-(declare validate-template)
-
-(entity {:version 1} template :id name :indices [type])
-
 (validation :empty (fn [v] (when-not (nil? v)  "value must be empty")))
-
-(def template-base {:type #{:required} :defaults #{:required :Map}
-                    :name #{:required :String} :description #{:String}
-                    :machine {:hostname #{:empty} :domain #{:empty}}})
-
-(defn validate-template
-  [template]
-  (validate! template template-base :error ::non-valid-template)
-  (check-validity (assoc template :as :template)))
-
-(defn templatize
-  "Create a system from a template"
-  [name {:keys [env machine] :as provided}]
-  {:pre [machine (machine :hostname) (machine :domain)]}
-  (let [{:keys [defaults] :as t} (get-template! name)]
-    (add-system (merge-with merge t (defaults env) provided))))
 
 (defn system-val
   "grabbing instance id of spec"
