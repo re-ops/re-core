@@ -51,35 +51,6 @@
   (clojure.string/replace text #"~\{\w+\}"
                           (fn [^String groups] ((keyword (subs groups 2 (dec (.length groups)))) m))))
 
-(def query {:kibana3
-            "query=tid:~{tid}&fields=@timestamp,message,tid,"
-            :kibana4
-            "query:(query_string:(analyze_wildcard:!t,query:'tid:~{tid}')),columns:!(message)"})
-
-(defn link
-  "Returns a link for a given query and args matching current central logging system"
-  [args]
-  (when-let [{:keys [host type port]} (get* :re-core :log :gelf)]
-    (case type
-      :kibana3
-      (<< "http://~{host}:~{port}/index.html#/dashboard/script/logstash.js?~(interpulate (query type) args)")
-      :kibana4
-      (<< "http://~{host}:~{port}/#/discover?_g=(time:(from:now-24h,mode:quick,to:now))&_a=(~(interpulate (query type) args),index:'logstash-*',sort:!('@timestamp',desc))")
-      :gralog2 "TBD"
-      :logstash "NaN"
-      (warn (<< "no matching link found for ~{type}")))))
-
-(defmacro wrap-errors
-  "Wraps validation error responses in the API layer"
-  [& body]
-  `(try+ ~@body
-         (catch (map? ~'%) e#
-           (info e#)
-           (bad-req (select-keys ~'&throw-context [:message :object])))
-         (catch Object e#
-           (error e#)
-           (bad-req {:message "Error happend, please contact admin"}))))
-
 (def version "0.13.5")
 
 (defn resolve-
