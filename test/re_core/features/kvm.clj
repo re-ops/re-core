@@ -51,5 +51,3 @@
             (wf/reload (spec with-vol)) => nil
             (wf/destroy (spec with-vol)) => nil))))
 
-(comment
-  (with-conf local-conf (wf/destroy (s/get-system 1))))
