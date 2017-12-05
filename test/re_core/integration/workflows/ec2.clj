@@ -3,7 +3,7 @@
   (:require
    [aws.common :refer (with-ctx instance-desc)]
    [re-core.fixtures.core :refer (with-defaults is-type? with-conf)]
-   [re-core.persistency.systems :as s]
+   [es.systems :as s]
    [re-core.fixtures.data :refer
     (redis-type redis-ec2-spec local-conf redis-ec2-centos)]
    [re-core.fixtures.populate :refer (populate-system)]
@@ -28,7 +28,7 @@
 
     (fact "vpc eip" :integration :ec2 :vpc
           (when-let [{:keys [eip]} (clojure.edn/read-string (System/getenv "EIP"))]
-            (s/update-system 1 (spec {:machine {:ip eip :os :ubuntu-15.04}}))
+            (s/put 1 (spec {:machine {:ip eip :os :ubuntu-15.04}}))
             (wf/create (spec)) => nil
             (:machine (spec)) => (contains {:ip eip})
             (wf/stop (spec)) => nil
@@ -61,7 +61,7 @@
     (fact "aws clone workflows" :integration :ec2 :workflow :clone
           (wf/create (spec)) => nil
           (wf/clone {:system-id 1 :hostname "bar" :owner "ronen"}) => nil
-          (wf/destroy (assoc (s/get-system 2) :system-id 2)) => nil
+          (wf/destroy (assoc (s/get 2) :system-id 2)) => nil
           (wf/destroy (spec)) => nil)
 
     (fact "aws ebs-optimized" :integration :ec2 :workflow
@@ -75,9 +75,9 @@
     ; require a vpn
     (fact "vpc private ip" :integration :ec2-vpn :vpc
           (when-let [{:keys [subnet id]} (clojure.edn/read-string (System/getenv "VPC"))]
-            (s/update-system 1
-                             (spec {:machine {:os :ubuntu-15.04}
-                                    :aws {:vpc {:assign-public false :subnet-id subnet :vpc-id id}}}))
+            (s/put 1
+                   (spec {:machine {:os :ubuntu-15.04}
+                          :aws {:vpc {:assign-public false :subnet-id subnet :vpc-id id}}}))
             (wf/create (spec)) => nil
             (wf/stop (spec)) => nil
             (wf/reload (spec)) => nil

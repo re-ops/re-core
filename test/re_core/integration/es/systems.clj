@@ -1,7 +1,7 @@
 (ns re-core.integration.es.systems
   "Testing system searching"
   (:require
-   [es.systems :refer (set-flush)]
+   [re-core.log :refer (setup-logging)]
    [es.common :as es]
    [es.systems :as sys]
    [clojurewerkz.elastisch.query :as q]
@@ -10,19 +10,21 @@
    [re-core.fixtures.populate :refer (re-initlize)])
   (:use midje.sweet))
 
-(defn add-systems
+(setup-logging)
+
+(defn puts
   "adds a list of systems into ES" []
   (es/initialize)
   (sys/put "1" (assoc redis-kvm-spec :owner "admin"))
   (sys/put "2" (assoc-in redis-ec2-spec [:machine :hostname] "foo-1"))
   (sys/put "3" (assoc redis-ec2-spec :env :prod-1))
-  (set-flush true
-             (sys/put "4" redis-kvm-spec)))
+  (sys/put "4" redis-kvm-spec)
+  (Thread/sleep 1000))
 
 (defn total [res] (get-in res [:hits :total]))
 
 (with-conf
-  (against-background [(before :facts (do (re-initlize true) (add-systems)))]
+  (against-background [(before :facts (do (re-initlize true) (puts)))]
                       (fact "basic system put and get" :integration :elasticsearch
                             (get-in (sys/get "1") [:source :env]) => "dev")
 

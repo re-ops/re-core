@@ -1,6 +1,6 @@
 (ns kvm.networking
   (:require
-   [re-core.persistency.systems :as s]
+   [es.systems :as s]
    [re-core.provider :refer (wait-for)]
    [slingshot.slingshot :refer (throw+)]
    [taoensso.timbre :as timbre]
@@ -56,5 +56,5 @@
 (defn update-ip
   "updates public dns in the machine persisted data"
   [system-id ip]
-  (when (s/system-exists? system-id)
-    (s/partial-system system-id {:machine {:ip ip}})))
+  (when (s/exists? system-id)
+    (s/partial system-id {:machine {:ip ip}})))

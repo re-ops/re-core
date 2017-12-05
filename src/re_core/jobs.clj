@@ -6,7 +6,7 @@
    [taoensso.carmine.locks :refer (with-lock release-lock)]
    [clojure.core.strint :refer (<<)]
    [taoensso.timbre :refer (refer-timbre)]
-   [re-core.persistency.systems :as s]
+   [es.systems :as s]
    [es.jobs :as es]
    [flatland.useful.map :refer (map-vals filter-vals)]
    [minderbinder.time :refer (parse-time-unit)]
@@ -44,7 +44,7 @@
   (let [{:keys [identity args tid env] :as spec} message]
     (set-tid tid
              (let [{:keys [wait-time expiry]} (map-vals (or (job* :lock) defaults) #(* minute %))
-                   hostname (when identity (get-in (s/get-system identity) [:machine :hostname]))
+                   hostname (when identity (get-in (s/get identity) [:machine :hostname]))
                    spec' (merge spec (meta f) {:start (System/currentTimeMillis) :hostname hostname})]
                (try
                  (apply f args)

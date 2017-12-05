@@ -14,7 +14,7 @@
    [re-core.provider :refer (wait-for wait-for-ssh map-key)]
    [re-core.core :refer (Vm)]
    [taoensso.timbre :as timbre]
-   [re-core.persistency.systems :as s]
+   [es.systems :as s]
    [re-core.model :refer (translate vconstruct hypervisor*)]))
 
 (timbre/refer-timbre)
@@ -29,7 +29,7 @@
 (defn instance-id*
   "grabbing instance id of spec"
   [spec]
-  (get-in (s/get-system (spec :system-id)) [:aws :instance-id]))
+  (get-in (s/get (spec :system-id)) [:aws :instance-id]))
 
 (defmacro with-instance-id [& body]
   `(if-let [~'instance-id (instance-id* ~'spec)]
@@ -56,7 +56,7 @@
   Vm
   (create [this]
     (let [instance-id (create-instance spec endpoint)]
-      (s/partial-system (spec :system-id) {:aws {:instance-id instance-id}})
+      (s/partial (spec :system-id) {:aws {:instance-id instance-id}})
       (debug "created" instance-id)
       (handle-volumes spec endpoint instance-id)
       (when (get-in spec [:machine :ip])
@@ -86,16 +86,16 @@
       (with-ctx ec2/terminate-instances {:instance-ids [instance-id]})
       (wait-for-status this "terminated" [5 :minute])
       ; for reload support
-      (s/update-system (spec :system-id)
-                       (dissoc-in* (s/get-system (spec :system-id)) [:aws :instance-id]))))
+      (s/put (spec :system-id)
+             (dissoc-in* (s/get (spec :system-id)) [:aws :instance-id]))))
 
   (stop [this]
     (with-instance-id
       (debug "stopping" instance-id)
       (when-not (first (:addresses (describe-eip endpoint instance-id)))
         (debug "clearing dynamic public ip from system")
-        (s/update-system (spec :system-id)
-                         (dissoc-in* (s/get-system (spec :system-id)) [:machine :ip])))
+        (s/put (spec :system-id)
+               (dissoc-in* (s/get (spec :system-id)) [:machine :ip])))
       (with-ctx ec2/stop-instances {:instance-ids [instance-id]})
       (wait-for-status this "stopped" [5 :minute])))
 

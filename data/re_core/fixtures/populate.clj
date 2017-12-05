@@ -9,7 +9,7 @@
    [clojure.test.check.generators :as g]
    [re-core.redis :as red]
    [re-core.persistency.core :as c]
-   [re-core.persistency.systems :as s]
+   [es.systems :as s]
    [re-core.fixtures.data :refer (admin ronen) :as d]))
 
 (defn add-types
@@ -52,9 +52,9 @@
           (fn [v]
             (g/fmap #(update-in % [:machine] (fn [m] (merge m v))) systems-gen))))
 
-(defn add-systems []
+(defn puts []
   (doseq [s (g/sample systems-with-machines 100)]
-    (s/add-system s)))
+    (s/put s)))
 
 (defn re-initlize
   "Re-init datastores"
@@ -65,7 +65,7 @@
    (es/initialize)
    (red/clear-all)))
 
-(def populators {:types add-types :systems add-systems})
+(def populators {:types add-types :systems puts})
 
 (defn populate-all
   "populates all data types"
@@ -78,7 +78,7 @@
   [t s]
   (re-initlize)
   (t/add-type t)
-  (s/add-system s))
+  (s/put s))
 
 (defn -main
   "run populate all"

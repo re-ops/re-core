@@ -12,7 +12,7 @@
    [re-mote.ssh.transport :refer (ssh-up?)]
    [re-core.core :refer (Vm)]
    [taoensso.timbre :as timbre]
-   [re-core.persistency.systems :as s]
+   [es.systems :as s]
    [re-core.provider :refer (mappings selections transform os->template wait-for wait-for-ssh)]
    [hypervisors.networking :refer (set-hostname)]
    [re-core.model :refer (translate vconstruct hypervisor*)])
@@ -72,8 +72,8 @@
 
   (stop [this]
     (with-connection
-      (s/update-system system-id
-                       (dissoc-in* (s/get-system system-id) [:machine :ip]))
+      (s/put system-id
+             (dissoc-in* (s/get system-id) [:machine :ip]))
       (.destroy (get-domain c (domain :name)))
       (wait-for-status this "shutoff" [5 :minute])))
 

@@ -2,7 +2,7 @@
   "digital ocean support"
   (:require
    [re-core.fixtures.core :refer (with-defaults is-type? with-conf)]
-   [re-core.persistency.systems :as s]
+   [es.systems :as s]
    [re-core.fixtures.data :refer (redis-type local-conf)]
    [re-core.fixtures.populate :refer (populate-system)]
    [re-core.integration.workflows.common :refer (spec get-spec)]

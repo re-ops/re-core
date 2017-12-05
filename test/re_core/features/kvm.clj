@@ -1,7 +1,7 @@
 (ns re-core.features.kvm
   (:require
-   [re-core.log :refer (setup-logging debug-on)]
-   [re-core.persistency.systems :as s]
+   [re-core.log :refer (setup-logging)]
+   [es.systems :as s]
    [re-core.model :refer (vconstruct)]
    [re-core.fixtures.core :refer (with-conf is-type?) :as f]
    [re-core.fixtures.data :refer (redis-type local-conf redis-gce)]

@@ -6,7 +6,7 @@
    [clojure.core.strint :refer (<<)]
    [re-core.model :refer (translate vconstruct hypervisor*)]
    [re-core.provider :refer (mappings transform selections os->template wait-for wait-for-ssh wait-for-start wait-for-stop)]
-   [re-core.persistency.systems :as s :refer (system-val)]
+   [es.systems :as s :refer (system-val)]
    [re-core.common :refer (get*)]
    [taoensso.timbre :refer (refer-timbre)]
    [re-core.core :refer (Vm)]
@@ -46,7 +46,7 @@
         (throw+ {:type ::digital:create-fail} message))
       (wait-for-ip id [5 :minute])
       (let [ip (get-ip id)]
-        (s/partial-system (spec :system-id) {:machine {:ip ip} :digital-ocean {:id id}}))
+        (s/partial (spec :system-id) {:machine {:ip ip} :digital-ocean {:id id}}))
       this))
 
   (delete [this]

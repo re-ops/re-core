@@ -11,7 +11,7 @@
    [clojure.core.strint :refer (<<)]
    [clojure.string :refer (join)]
    [aws.common :refer (with-ctx instance-desc)]
-   [re-core.persistency.systems :as s]))
+   [es.systems :as s]))
 
 (timbre/refer-timbre)
 
@@ -25,8 +25,8 @@
 (defn update-ip
   "updates public dns in the machine persisted data"
   [{:keys [aws] :as spec} endpoint instance-id]
-  (when (s/system-exists? (spec :system-id))
-    (s/partial-system (spec :system-id) {:machine {:ip (instance-ip spec endpoint instance-id)}})))
+  (when (s/exists? (spec :system-id))
+    (s/partial (spec :system-id) {:machine {:ip (instance-ip spec endpoint instance-id)}})))
 
 (defn set-hostname
   "Uses a generic method of setting hostname in Linux

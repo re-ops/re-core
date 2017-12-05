@@ -7,7 +7,7 @@
    [re-core.common :refer (gen-uuid)]
    [taoensso.timbre :refer  (refer-timbre)]
    [clojure.set :refer (difference)]
-   [re-core.persistency.systems :as s]
+   [es.systems :as s]
    [es.jobs :as es]
    [re-core.repl.base :refer [Repl Report select-keys*]])
   (:import
@@ -55,8 +55,9 @@
 (extend-type Systems
   Repl
   (ls [this]
-    (let [systems (into [] (s/all-systems))]
-      [this {:systems (doall (map (juxt identity s/get-system) systems))}]))
+    ; fix this using a scroll query in ES!
+    #_(let [systems (into [] (s/all-systems))]
+        [this {:systems (doall (map (juxt identity s/get) systems))}]))
 
   (filter-by [this {:keys [systems] :as m} f]
     [this {:systems (filter f systems)}])
@@ -68,14 +69,14 @@
 
   (rm [this systems]
     (doseq [id (map first systems)]
-      (s/delete-system! (Integer/valueOf id)))
+      (s/delete (Integer/valueOf id)))
     [this {:systems []}])
 
   (grep [this systems k v]
     [this {:systems (filter (partial grep-system k v) (systems :systems))}])
 
   (add [this specs]
-    (let [f (fn [s] (let [id (s/add-system s)] [id (assoc (s/get-system id) :system-id id)]))]
+    (let [f (fn [s] (let [id (s/put s)] [id (assoc (s/get id) :system-id id)]))]
       [this {:systems (map f specs)}])))
 
 (defn filter-done [sts]
@@ -89,7 +90,7 @@
 
 (defn add-results [this jobs]
   (let [{:keys [success] :as results} (group-by (comp keyword :status) (map result jobs))
-        systems (doall (map (juxt identity s/get-system) (map :identity success)))]
+        systems (doall (map (juxt identity s/get) (map :identity success)))]
     {:systems systems :results results}))
 
 (extend-type Systems

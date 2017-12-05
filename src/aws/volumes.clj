@@ -2,7 +2,7 @@
   (:require
    [re-core.provider :refer (wait-for)]
    [amazonica.aws.ec2 :as ec2]
-   [re-core.persistency.systems :as s]
+   [es.systems :as s]
    [aws.common :refer (with-ctx instance-desc creds image-id)]
    [taoensso.timbre :refer (refer-timbre)]))
 
@@ -52,7 +52,7 @@
 (defn clear?
   "is this ebs clearable"
   [device-name system-id]
-  (let [{:keys [volumes]} ((s/get-system system-id) :aws)]
+  (let [{:keys [volumes]} ((s/get system-id) :aws)]
     (if-let [e (first (filter (fn [{:keys [device]}] (= device device-name)) volumes))]
       (e :clear)
       false)))

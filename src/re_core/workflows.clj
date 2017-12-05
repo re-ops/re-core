@@ -8,7 +8,7 @@
    physical.provider
     ;cloning
    aws.model
-   [re-core.persistency.systems :as s]
+   [es.systems :as s]
    [clojure.tools.macro :as tm]
    [metrics.timers :refer  [deftimer time!]]
    [re-core.common :refer (get! resolve-)]
@@ -34,7 +34,7 @@
   "grabs system and associates system id"
   [system-id]
   {:pre [system-id]}
-  (assoc (s/get-system! system-id) :system-id system-id))
+  (assoc (s/get! system-id) :system-id system-id))
 
 (defn running!
   "Asserts that a VM is running"
@@ -98,22 +98,22 @@
     (when (.status vm)
       (when (= (.status vm) "running") (.stop vm))
       (.delete vm))
-    (s/delete-system system-id)
+    (s/delete system-id)
     (info "system destruction done")))
 
 (deflow clone
   "Clones a system model and creates it"
   [{:keys [system-id] :as spec}]
-  (when-not (s/system-exists? system-id)
+  (when-not (s/exists? system-id)
     (throw+ {:type ::system-missing} (<< "Could not clone missing system ~{system-id}")))
-  (let [id (s/clone-system system-id spec)]
-    (create (assoc (s/get-system id) :system-id id))
+  (let [id (s/clone system-id spec)]
+    (create (assoc (s/get id) :system-id id))
     (info "system cloned into" id)))
 
 (deflow clear
   "Clear system model (no machine destruction)"
   [{:keys [system-id] :as spec}]
-  (s/delete-system system-id)
+  (s/delete system-id)
   (info "system deleted"))
 
 (deflow provision
