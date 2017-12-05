@@ -66,7 +66,6 @@
                  ; repl
                  [org.clojure/tools.nrepl "0.2.10"]
                  [io.aviso/pretty "0.1.33"]
-                 [progrock "0.1.1"]
 
                  ; metrics
                  [metrics-clojure "2.10.0"]

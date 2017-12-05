@@ -3,7 +3,6 @@
   (:require
    [clojure.core.strint :refer  (<<)]
    [clansi.core :refer  (style)]
-   [progrock.core :as pr]
    [re-core.jobs :as jobs :refer (enqueue)]
    [re-core.common :refer (gen-uuid)]
    [taoensso.timbre :refer  (refer-timbre)]
