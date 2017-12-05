@@ -69,9 +69,9 @@
                  [progrock "0.1.1"]
 
                  ; metrics
-                 [metrics-clojure "2.9.0"]
-                 [metrics-clojure-health "2.9.0"]
-                 [metrics-clojure-jvm "2.9.0"]
+                 [metrics-clojure "2.10.0"]
+                 [metrics-clojure-health "2.10.0"]
+                 [metrics-clojure-jvm "2.10.0"]
                ]
 
   :exclusions [org.clojure/clojure com.taoensso/timbre commons-codec]
