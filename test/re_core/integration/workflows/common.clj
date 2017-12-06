@@ -5,7 +5,7 @@
 
 (defn spec
   ([] (spec {}))
-  ([m] (assoc (merge-with merge (s/get 1) m) :system-id 1)))
+  ([m] (assoc (merge-with merge (s/get "1") m) :system-id "1")))
 
 (defn get-spec [& ks]
   (get-in (spec) ks))

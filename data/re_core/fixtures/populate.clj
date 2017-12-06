@@ -54,7 +54,7 @@
 
 (defn puts []
   (doseq [s (g/sample systems-with-machines 100)]
-    (s/put s)))
+    (s/create s)))
 
 (defn re-initlize
   "Re-init datastores"
@@ -73,12 +73,14 @@
   (re-initlize true)
   (doseq [[_ p] (dissoc populators skip)] (p)))
 
+
 (defn populate-system
   "Adds single type and system"
-  [t s]
+  [t s id]
   (re-initlize)
   (t/add-type t)
-  (s/put s))
+  (s/create s id)
+  )
 
 (defn -main
   "run populate all"

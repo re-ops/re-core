@@ -18,8 +18,15 @@
 (defn exists? [id]
   (doc/present? @ES index "system" id))
 
+(defn create
+  "create a system returning its id"
+  ([system]
+     (:id (doc/create @ES index "system" system)))
+  ([system id]
+     (:id (doc/create @ES index "system" system {:id id}))))
+
 (defn put
-  "Add/Update a system into ES"
+  "Update a system"
   [id system]
   (doc/put @ES index "system" id system))
 
@@ -31,13 +38,13 @@
 (defn get
   "Grabs a system by an id"
   [id]
-  (doc/get @ES index "system" id))
+  (:source (doc/get @ES index "system" id)))
 
 (defn get!
   "Grabs a system by an id"
   [id]
-  (if-let [result (doc/get @ES index "system" id)]
-    result
+  (if-let [result (get id)]
+     result
     (throw (ex-info "Missing system" {:id id}))))
 
 (defn partial
