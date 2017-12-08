@@ -7,7 +7,7 @@
 
 (with-conf
   (with-state-changes [(before :facts (reset! workers {}))]
-    (fact "workers creation" :integration :redis
+    (fact "workers creation" :integration :elasticsearch
           (initialize-workers) => nil
           (provided
            (jobs) => {:stage [identity 2]}

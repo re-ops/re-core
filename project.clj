@@ -130,7 +130,7 @@
       "populate" ["with-profile" "populate" "do" "run" "-m" "re-core.fixtures.populate"]
       "travis" [
         "with-profile" "test" "do"
-        "midje" ":filter" "-integration," "midje" ":redis," "midje" ":elasticsearch,"
+        "midje" ":filter" "-integration," "midje" ":elasticsearch,"
         "cljfmt" "check"
       ]
    }

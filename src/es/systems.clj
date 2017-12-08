@@ -21,9 +21,9 @@
 (defn create
   "create a system returning its id"
   ([system]
-     (:id (doc/create @ES index "system" system)))
+   (:id (doc/create @ES index "system" system)))
   ([system id]
-     (:id (doc/create @ES index "system" system {:id id}))))
+   (:id (doc/create @ES index "system" system {:id id}))))
 
 (defn put
   "Update a system"
@@ -44,7 +44,7 @@
   "Grabs a system by an id"
   [id]
   (if-let [result (get id)]
-     result
+    result
     (throw (ex-info "Missing system" {:id id}))))
 
 (defn partial

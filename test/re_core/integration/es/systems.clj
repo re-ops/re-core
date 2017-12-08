@@ -26,7 +26,7 @@
 (with-conf
   (against-background [(before :facts (do (re-initlize true) (puts)))]
                       (fact "basic system put and get" :integration :elasticsearch
-                            (get-in (sys/get "1") [:source :env]) => "dev")
+                            (get (sys/get "1") :env) => "dev")
 
                       (fact "term searching" :integration :elasticsearch
                             (total (sys/query {:bool {:must {:term {:machine.cpu 4}}}})) => 2)
