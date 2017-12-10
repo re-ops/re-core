@@ -2,7 +2,7 @@
   "Types repl functions"
   (:require
    [clansi.core :refer  (style)]
-   [re-core.persistency.types :as t]
+   [es.types :as t]
    [re-core.repl.base :refer [Repl Report]])
   (:import
    [re_core.repl.base Types]))
@@ -15,7 +15,7 @@
   (ls [this & opts]
     (ls this))
   (ls [this]
-    [this {:types (map t/get-type (t/all-types))}])
+    [this {:types (t/all)}])
   (filter-by [this {:keys [types] :as m} f]
     [this {:types (filter f types)}]))
 
@@ -30,7 +30,7 @@
     [this ts]))
 
 (defn provision-type [t]
-  (:puppet (t/get-type t)))
+  (:puppet (t/get t)))
 
 (defn refer-types []
   (require '[re-core.repl.types :as ts :refer (provision-type)]))

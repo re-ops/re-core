@@ -2,12 +2,10 @@
   "Systems indexing/searching"
   (:refer-clojure :exclude [get partial])
   (:require
-   [es.common :refer (flush- index map-env-terms clear initialize)]
+   [com.rpl.specter :as s :refer [select transform ALL multi-path]]
+   [es.common :refer (index)]
    [es.node :as node :refer (ES)]
-   [clojure.set :refer (subset?)]
    [clojure.core.strint :refer (<<)]
-   [slingshot.slingshot :refer  [throw+]]
-   [re-core.common :refer (envs)]
    [taoensso.timbre :refer (refer-timbre)]
    [clojurewerkz.elastisch.query :as q]
    [clojurewerkz.elastisch.native.document :as doc]
@@ -35,10 +33,16 @@
   [id]
   (doc/delete @ES index "system" id))
 
+(defn keywordize
+  "converting ES values back into keywords"
+  [m]
+  (transform
+   [(multi-path [:machine :os] [:env] [:kvm :node] [:kvm :volumes ALL :pool])] keyword  m))
+
 (defn get
   "Grabs a system by an id"
   [id]
-  (:source (doc/get @ES index "system" id)))
+  (keywordize (:source (doc/get @ES index "system" id))))
 
 (defn get!
   "Grabs a system by an id"
@@ -70,3 +74,9 @@
   "grabbing instance id of spec"
   [spec ks]
   (get-in (get (spec :system-id)) ks))
+
+(comment
+  (println @ES)
+  (clojure.pprint/pprint (keywordize (get! "1")))
+  (delete "1")
+  (es.node/connect))

@@ -3,7 +3,6 @@
   (:require
    [es.jobs :as jobs]
    [es.common :as es]
-   [clojurewerkz.elastisch.query :as q]
    [re-core.fixtures.data :refer (redis-ec2-spec)]
    [re-core.fixtures.core :refer (with-conf)]
    [re-core.fixtures.populate :refer (re-initlize)])

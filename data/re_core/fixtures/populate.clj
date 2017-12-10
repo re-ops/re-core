@@ -2,7 +2,7 @@
   "data population"
   (:gen-class true)
   (:require
-   [re-core.persistency [types :as t]]
+   [es.types :as t]
    [es.common :as es]
    [re-core.model :refer (figure-virt)]
    [re-core.fixtures.core :refer (with-conf)]
@@ -15,9 +15,9 @@
 (defn add-types
   "populates types"
   []
-  (t/add-type d/smokeping-type)
-  (t/add-type d/jvm-type)
-  (t/add-type d/redis-type))
+  (t/create d/smokeping-type)
+  (t/create d/jvm-type)
+  (t/create d/redis-type))
 
 (def host
   (g/fmap (partial apply str)
@@ -73,14 +73,13 @@
   (re-initlize true)
   (doseq [[_ p] (dissoc populators skip)] (p)))
 
-
 (defn populate-system
   "Adds single type and system"
-  [t s id]
+  [typ sys id]
   (re-initlize)
-  (t/add-type t)
-  (s/create s id)
-  )
+  (t/create typ)
+  (when-not (s/exists? id)
+    (s/create sys id)))
 
 (defn -main
   "run populate all"

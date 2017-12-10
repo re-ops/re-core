@@ -4,7 +4,6 @@
    [re-core.log :refer (setup-logging)]
    [es.common :as es]
    [es.systems :as sys]
-   [clojurewerkz.elastisch.query :as q]
    [re-core.fixtures.data :refer (redis-kvm-spec redis-ec2-spec)]
    [re-core.fixtures.core :refer (with-conf)]
    [re-core.fixtures.populate :refer (re-initlize)])
@@ -26,7 +25,7 @@
 (with-conf
   (against-background [(before :facts (do (re-initlize true) (puts)))]
                       (fact "basic system put and get" :integration :elasticsearch
-                            (get (sys/get "1") :env) => "dev")
+                            (get (sys/get "1") :env) => :dev)
 
                       (fact "term searching" :integration :elasticsearch
                             (total (sys/query {:bool {:must {:term {:machine.cpu 4}}}})) => 2)

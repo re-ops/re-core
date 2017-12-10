@@ -10,7 +10,6 @@
    [es.jobs :as es]
    [flatland.useful.map :refer (map-vals filter-vals)]
    [minderbinder.time :refer (parse-time-unit)]
-   [puny.core :refer (entity)]
    [re-core.workflows :as wf]
    [re-core.model :refer (operations)]
    [taoensso.carmine :as car]

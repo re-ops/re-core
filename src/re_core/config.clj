@@ -57,9 +57,6 @@
 (validation :template*
             (every-kv {:template #{:required :String} :flavor #{:required :Keyword :flavor}}))
 
-(validation :pool*
-            (every-kv {:name #{:required :String} :path #{:required :flavor}}))
-
 (validation :kvm-node*
             (every-kv {:username #{:required :String} :host #{:required :String}
                        :port #{:required :number} :pools #{:Map}}))

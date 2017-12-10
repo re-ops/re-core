@@ -47,14 +47,20 @@
                  [org.libvirt/libvirt "0.5.1"]
 
                  ; persistency and model
+                 [com.rpl/specter "1.0.3"]
                  [com.brunobonacci/safely "0.2.4"]
                  [com.google.guava/guava "18.0"]
-                 [clojurewerkz/elastisch "3.0.0-beta1"]
-                 [puny "0.3.1"]
-                 [com.taoensso/carmine "2.11.1"]
                  [commons-codec "1.10"]
                  [substantiation "0.3.1"]
                  [com.fasterxml.jackson.core/jackson-core "2.6.4"]
+                 ; redis
+                 [puny "0.3.1"]
+                 [com.taoensso/carmine "2.11.1"]
+                 ; es
+                 ;[clojurewerkz/elastisch "3.0.0-beta1"]
+                 [cc.qbits/spandex "0.5.2" :exclusions [org.clojure/clojure]]
+                 [org.apache.httpcomponents/httpclient "4.5.2"]
+
 
                  ; timeunits
                  [fogus/minderbinder "0.2.0"]

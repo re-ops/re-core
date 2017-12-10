@@ -1,7 +1,7 @@
 (ns re-core.repl.fixtures
   (:require
    [clojure.core.strint :refer (<<)]
-   [re-core.persistency.types :as t]
+   [es.types :as t]
    [re-core.common :refer (slurp-edn)]))
 
 (def host (.getHostName (java.net.InetAddress/getLocalHost)))
@@ -21,8 +21,8 @@
   (read-fixture (name t)))
 
 (defn populae-types []
-  (doseq [id (t/all-types)]
-    (t/delete-type id))
+  (doseq [id (t/all)]
+    (t/delete id))
   (doseq [t ["jvm-type" "redis-type" "reops-type" "restore-type"]]
-    (let [r (t/add-type (read-fixture t))]
+    (let [r (t/create (read-fixture t))]
       (println (<< "added type ~{t} resulting in ~{r}")))))

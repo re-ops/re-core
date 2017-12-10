@@ -2,12 +2,13 @@
   "type mappings index etc.."
   (:require
    [taoensso.timbre :refer (refer-timbre)]
+   [qbits.spandex :as s]
    [es.node :as node :refer (ES)]
    [clojurewerkz.elastisch.native.index :as idx]))
 
 (refer-timbre)
 
-(def ^:const index "re-core-systems")
+(def ^:const index "re-core")
 
 (def ^:const types {:jobs {:_ttl {:enabled true}
                            :properties {:env {:type "string" :index "not_analyzed"}
@@ -37,12 +38,6 @@
   (when (idx/exists? @ES index)
     (info "Clearing index" index)
     (idx/delete @ES index)))
-
-(defn flush-
-  []
-  (when (idx/exists? @ES index)
-    (trace "Flushing index" index)
-    (idx/flush @ES index)))
 
 (defn map-env-terms
   "maps should env terms to non-analysed forms"

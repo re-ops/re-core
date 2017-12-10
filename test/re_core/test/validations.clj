@@ -1,18 +1,13 @@
 (ns re-core.test.validations
   (:require
    [flatland.useful.map :refer (dissoc-in*)]
-   [re-core.persistency
-    [types :refer (validate-type)]]
    [re-core.model :refer (check-validity)]
    [aws.validations :as awsv]
    [re-core.fixtures.data :refer
-    (redis-type user-quota redis-ec2-spec redis-physical)]
+    (redis-type redis-ec2-spec redis-physical)]
    [re-core.fixtures.core :refer (is-type? with-m?)])
   (:use midje.sweet)
   (:import clojure.lang.ExceptionInfo))
-
-(fact "non puppet type"
-      (validate-type {:type "foo" :puppet {:tar "bla"}}) => truthy)
 
 (fact "aws volume validations"
   ; TODO this should fail! seems to be a subs issue

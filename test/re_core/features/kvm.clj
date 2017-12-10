@@ -33,23 +33,23 @@
             (just (assoc volume :pool {:id "default" :path "/var/lib/libvirt/images/"}))))))
 
 (with-conf local-conf
-   (fact "kvm creation workflows" :integration :kvm :workflow
-          (populate-system redis-type redis-kvm "1")
-          (wf/create (spec)) => nil
-          ;; (wf/stop (spec)) => nil
-          ;; (wf/start (spec)) => nil
-          ;; (wf/destroy (spec)) => nil
-          
-          )
+  (fact "kvm creation workflows" :integration :kvm :workflow
+        (populate-system redis-type redis-kvm "1")
+        (wf/create (spec)) => nil
+        (wf/stop (spec)) => nil
+        (wf/start (spec)) => nil
+        (wf/destroy (spec)) => nil)
 
-    #_(fact "kvm reload" :integration :kvm :workflow
-          (wf/create (spec)) => nil
-          (wf/reload (spec)) => nil
-          (wf/destroy (spec)) => nil)
+  (fact "kvm reload" :integration :kvm :workflow
+        (populate-system redis-type redis-kvm "1")
+        (wf/create (spec)) => nil
+        (wf/reload (spec)) => nil
+        (wf/destroy (spec)) => nil)
 
-    #_(fact "kvm with volume" :integration :kvm :volume
-          (let [with-vol {:kvm {:volumes [volume]}}]
-            (wf/create (spec with-vol)) => nil
-            (wf/reload (spec with-vol)) => nil
-            (wf/destroy (spec with-vol)) => nil)))
+  (fact "kvm with volume" :integration :kvm :volume
+        (populate-system redis-type redis-kvm "1")
+        (let [with-vol {:kvm {:volumes [volume]}}]
+          (wf/create (spec with-vol)) => nil
+          (wf/reload (spec with-vol)) => nil
+          (wf/destroy (spec with-vol)) => nil)))
 
