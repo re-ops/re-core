@@ -2,7 +2,7 @@
   "Jobs ES persistency"
   (:refer-clojure :exclude [get])
   (:require
-   [es.node :as node :refer (ES)]
+   [es.node :as node :refer (c)]
    [es.common :refer (index)]
    [clojurewerkz.elastisch.native.document :as doc]
    [taoensso.timbre :refer (refer-timbre)]
@@ -11,12 +11,13 @@
 (refer-timbre)
 
 (defn put
-  "Add/Update a jobs into ES"
+  "Update a job"
   [{:keys [tid queue status] :as job} ttl]
-  (doc/put @ES index "jobs" tid (merge job {:queue (name queue) :status (name status)}) {:ttl ttl}))
+  (let [body (merge job {:queue (name queue) :status (name status)})]
+    (= (:status (s/request @c {:url [:job tid] :method :put :body body})) 200)))
 
 (defn delete
-  "delete a system from ES"
+  "delete a job from ES"
   [tid]
   (doc/delete @ES index "jobs" tid))
 

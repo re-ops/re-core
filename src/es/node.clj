@@ -1,24 +1,25 @@
 (ns es.node
-  "An embedded ES node instance"
-  (:import
-   [org.elasticsearch.node NodeBuilder])
+  "ES connection"
   (:require
+   [qbits.spandex :as s]
    [taoensso.timbre :refer (refer-timbre)]
    [safely.core :refer [safely]]
    [re-core.common :refer (get!)]
-   [clojurewerkz.elastisch.native.conversion :as cnv]
-   [clojurewerkz.elastisch.native :as es]))
+   ))
 
 (refer-timbre)
 
-(def ES (atom nil))
+(def c (atom nil))
 
 (defn connect-
   "Connecting to Elasticsearch"
   []
-  (let [{:keys [host port cluster]} (get! :elasticsearch)]
+  (let [{:keys [host port]} (get! :elasticsearch)]
     (info "Connecting to elasticsearch")
-    (reset! ES (es/connect  [[host port]] {"cluster.name" cluster}))))
+    (reset! ES 
+      (s/client {
+          :hosts [(<< "http://~{host}:~{port}")] 
+          :basic-auth {:user "elastic" :password "changeme"}}))))
 
 (defn connect
   "Connecting to Elasticsearch with retry support"
@@ -35,9 +36,4 @@
   "stops embedded ES node"
   []
   (info "Stoping local elasticsearch node")
-  (.close @ES)
   (reset! ES nil))
-
-(defn health [indices]
-  (.name (.getStatus @ES)))
-

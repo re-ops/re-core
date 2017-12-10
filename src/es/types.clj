@@ -12,32 +12,37 @@
 
 (refer-timbre)
 
-(def es-type "type")
-
-(defn exists? [id]
-  (doc/present? @ES index es-type id))
+(defn exists?
+  [id]
+  (= (:status (s/request @c {:url [:type id] :method :head})) 200))
 
 (defn create
-  "create a system returning its id"
+  "create a type returning its id"
   ([type]
-   (:id (doc/create @ES index es-type type)))
+   (= (:status (s/request @c {:url [:type] :method :post :body type})) 200))
   ([type id]
-   (:id (doc/create @ES index es-type type {:id id}))))
+   (= (:status (s/request @c {:url [:type id] :method :post :body type})) 200)))
 
 (defn put
   "Update a type"
   [id type]
-  (doc/put @ES index es-type id type))
+  (= (:status (s/request @c {:url [:type id] :method :put :body type})) 200))
 
 (defn delete
   "delete a type from ES"
   [id]
-  (doc/delete @ES index es-type id))
+  (= (:status (s/request @c {:url [:type id] :method :delete})) 200))
+
+(defn keywordize
+  "converting ES values back into keywords"
+  [m]
+  (transform
+   [(multi-path [:machine :os] [:env] [:kvm :node] [:kvm :volumes ALL :pool])] keyword  m))
 
 (defn get
   "Grabs a type by an id"
   [id]
-  (:source (doc/get @ES index es-type id)))
+  (keywordize (:_source (s/request @c {:url [:type id] :method :get}))))
 
 (defn get!
   "Grabs a type by an id"
@@ -50,7 +55,9 @@
   "partial update of a type into ES"
   [id part]
   (let [type (get id)]
-    (doc/put @ES index es-type id (merge-with merge type part))))
+    (= (:status (s/request @c {:url [:type id] :method :put :body (merge-with merge type part)})) 200)))
+
+
 
 (defn all
   "return all existing types"
