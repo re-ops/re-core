@@ -10,17 +10,16 @@
 
 (def ^:const index "re-core")
 
-(def ^:const types {
-      :jobs {:properties {:env {:type "string" :index "not_analyzed"}
-             :status {:type "string"}
-             :queue {:type "string"}
-             :start {:type "long"}
-             :end {:type "long"}}}
-       :system {:properties {:owner {:type "string"}
-             :env {:type "string" :index "not_analyzed"}
-             :machine {:properties {:hostname {:type "string" :index "not_analyzed"}
-             :cpus {:type "integer"}}}
-             :type {:type "string"}}}})
+(def ^:const types {:jobs {:properties {:env {:type "string" :index "not_analyzed"}
+                                        :status {:type "string"}
+                                        :queue {:type "string"}
+                                        :start {:type "long"}
+                                        :end {:type "long"}}}
+                    :system {:properties {:owner {:type "string"}
+                                          :env {:type "string" :index "not_analyzed"}
+                                          :machine {:properties {:hostname {:type "string" :index "not_analyzed"}
+                                                                 :cpus {:type "integer"}}}
+                                          :type {:type "string"}}}})
 
 (def ^:const settings {:number_of_shards 1})
 

@@ -4,8 +4,7 @@
    [qbits.spandex :as s]
    [taoensso.timbre :refer (refer-timbre)]
    [safely.core :refer [safely]]
-   [re-core.common :refer (get!)]
-   ))
+   [re-core.common :refer (get!)]))
 
 (refer-timbre)
 
@@ -16,10 +15,9 @@
   []
   (let [{:keys [host port]} (get! :elasticsearch)]
     (info "Connecting to elasticsearch")
-    (reset! ES 
-      (s/client {
-          :hosts [(<< "http://~{host}:~{port}")] 
-          :basic-auth {:user "elastic" :password "changeme"}}))))
+    (reset! ES
+            (s/client {:hosts [(<< "http://~{host}:~{port}")]
+                       :basic-auth {:user "elastic" :password "changeme"}}))))
 
 (defn connect
   "Connecting to Elasticsearch with retry support"

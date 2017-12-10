@@ -57,8 +57,6 @@
   (let [type (get id)]
     (= (:status (s/request @c {:url [:type id] :method :put :body (merge-with merge type part)})) 200)))
 
-
-
 (defn all
   "return all existing types"
   []

@@ -68,10 +68,8 @@
 (defn query
   "basic query string"
   [query & {:keys [from size] :or {size 100 from 0}}]
-  (s/request @c {
-      :url [index :_search] :method :get 
-      :body {:from from :size size :query query :fields ["owner" "env"]}
-   }))
+  (s/request @c {:url [index :_search] :method :get
+                 :body {:from from :size size :query query :fields ["owner" "env"]}}))
 
 (defn system-val
   "grabbing instance id of spec"
