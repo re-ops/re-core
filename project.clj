@@ -57,7 +57,6 @@
                  [puny "0.3.1"]
                  [com.taoensso/carmine "2.11.1"]
                  ; es
-                 ;[clojurewerkz/elastisch "3.0.0-beta1"]
                  [cc.qbits/spandex "0.5.2" :exclusions [org.clojure/clojure]]
                  [org.apache.httpcomponents/httpclient "4.5.2"]
 

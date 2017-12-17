@@ -5,7 +5,6 @@
    [re-core.log :refer (setup-logging)]
    [re-core.common :refer (get! get* version)]
    [re-core.persistency.core :as p]
-   [re-core.metrics :as met]
    [re-core.jobs :as jobs]
    [re-core.schedule :as sch]
    [clojure.core.strint :refer (<<)]
@@ -19,7 +18,6 @@
 
 (defn build-components []
   {:es (es/instance) :jobs (jobs/instance)
-   :metrics (met/instance)
    :persistency (p/instance) :schedule (sch/instance)})
 
 (defn clean-up

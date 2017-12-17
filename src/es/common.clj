@@ -3,8 +3,7 @@
   (:require
    [taoensso.timbre :refer (refer-timbre)]
    [qbits.spandex :as s]
-   [es.node :as node :refer (c)]
-   [clojurewerkz.elastisch.native.index :as idx]))
+   [es.node :as node :refer (c)]))
 
 (refer-timbre)
 

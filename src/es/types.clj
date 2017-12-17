@@ -2,12 +2,12 @@
   "Types persistency"
   (:refer-clojure :exclude [get partial type])
   (:require
+   [com.rpl.specter :refer [select transform ALL multi-path]]
+   [qbits.spandex :as s]
    [es.common :refer (index)]
-   [es.node :as node :refer (ES)]
+   [es.node :as node :refer (c)]
    [clojure.core.strint :refer (<<)]
    [taoensso.timbre :refer (refer-timbre)]
-   [clojurewerkz.elastisch.query :as q]
-   [clojurewerkz.elastisch.native.document :as doc]
    [re-core.model :as model]))
 
 (refer-timbre)
@@ -29,12 +29,12 @@
   (= (:status (s/request @c {:url [:type id] :method :put :body type})) 200))
 
 (defn delete
-  "delete a type from ES"
+  "delete a type from Elasticsearch"
   [id]
   (= (:status (s/request @c {:url [:type id] :method :delete})) 200))
 
 (defn keywordize
-  "converting ES values back into keywords"
+  "converting Elasticsearch values back into keywords"
   [m]
   (transform
    [(multi-path [:machine :os] [:env] [:kvm :node] [:kvm :volumes ALL :pool])] keyword  m))
@@ -52,7 +52,7 @@
     (throw (ex-info "Missing type" {:id id}))))
 
 (defn partial
-  "partial update of a type into ES"
+  "partial update of a type into Elasticsearch"
   [id part]
   (let [type (get id)]
     (= (:status (s/request @c {:url [:type id] :method :put :body (merge-with merge type part)})) 200)))

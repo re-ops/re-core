@@ -1,10 +1,10 @@
 (ns es.jobs
-  "Jobs ES persistency"
+  "Jobs Elasticsearch persistency"
   (:refer-clojure :exclude [get])
   (:require
+   [qbits.spandex :as s]
    [es.node :as node :refer (c)]
    [es.common :refer (index)]
-   [clojurewerkz.elastisch.native.document :as doc]
    [taoensso.timbre :refer (refer-timbre)]
    [re-core.common :refer (envs)]))
 
@@ -17,12 +17,12 @@
     (= (:status (s/request @c {:url [:job tid] :method :put :body body})) 200)))
 
 (defn delete
-  "delete a job from ES"
+  "delete a job from Elasticsearch"
   [tid]
-  (doc/delete @ES index "jobs" tid))
+  (= (:status (s/request @c {:url [:jobs tid] :method :delete})) 200))
 
 (defn get
   "Get job bu tid"
   [id]
-  (doc/get @ES index "jobs" id))
+  (:_source (s/request @c {:url [:jobs id] :method :get})))
 

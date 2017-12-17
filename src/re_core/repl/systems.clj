@@ -55,7 +55,7 @@
 (extend-type Systems
   Repl
   (ls [this]
-    ; fix this using a scroll query in ES!
+    ; fix this using a scroll query in Elasticsearch!
     #_(let [systems (into [] (s/all-systems))]
         [this {:systems (doall (map (juxt identity s/get) systems))}]))
 

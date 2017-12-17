@@ -85,5 +85,4 @@
   "run populate all"
   [& args]
   (populate-all)
-  (es/flush-)
   (println "populate done!"))

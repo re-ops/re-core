@@ -2,7 +2,7 @@
   "Systems indexing/searching"
   (:refer-clojure :exclude [get partial])
   (:require
-   [com.rpl.specter :as s :refer [select transform ALL multi-path]]
+   [com.rpl.specter :refer [select transform ALL multi-path]]
    [es.common :refer (index)]
    [es.node :as node :refer (c)]
    [qbits.spandex :as s]

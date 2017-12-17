@@ -1,6 +1,7 @@
 (ns es.node
-  "ES connection"
+  "Elasticsearch connection"
   (:require
+   [clojure.core.strint :refer (<<)]
    [qbits.spandex :as s]
    [taoensso.timbre :refer (refer-timbre)]
    [safely.core :refer [safely]]
@@ -15,7 +16,7 @@
   []
   (let [{:keys [host port]} (get! :elasticsearch)]
     (info "Connecting to elasticsearch")
-    (reset! ES
+    (reset! c
             (s/client {:hosts [(<< "http://~{host}:~{port}")]
                        :basic-auth {:user "elastic" :password "changeme"}}))))
 
@@ -31,7 +32,7 @@
             :retry-delay [:random-range :min 2000 :max 5000])))
 
 (defn stop
-  "stops embedded ES node"
+  "Reset connection atom"
   []
-  (info "Stoping local elasticsearch node")
-  (reset! ES nil))
+  (info "Reset elasticsearch connection atom")
+  (reset! c nil))
