@@ -14,24 +14,24 @@
 
 (defn exists?
   [id]
-  (= (:status (s/request @c {:url [:system id] :method :head})) 200))
+  (= (:status (s/request @c {:url [index :system id] :method :head :exception-handler #(error %)})) 200))
 
 (defn create
   "create a system returning its id"
   ([system]
-   (= (:status (s/request @c {:url [:system] :method :post :body system})) 200))
+   (= (:status (s/request @c {:url [index :system] :method :post :body system})) 200))
   ([system id]
-   (= (:status (s/request @c {:url [:system id] :method :post :body system})) 200)))
+   (= (:status (s/request @c {:url [index :system id] :method :post :body system})) 200)))
 
 (defn put
   "Update a system"
   [id system]
-  (= (:status (s/request @c {:url [:system id] :method :put :body system})) 200))
+  (= (:status (s/request @c {:url [index :system id] :method :put :body system})) 200))
 
 (defn delete
   "delete a system from ES"
   [id]
-  (= (:status (s/request @c {:url [:system id] :method :delete})) 200))
+  (= (:status (s/request @c {:url [index :system id] :method :delete})) 200))
 
 (defn keywordize
   "converting ES values back into keywords"
@@ -42,7 +42,7 @@
 (defn get
   "Grabs a system by an id"
   [id]
-  (keywordize (:_source (s/request @c {:url [:system id] :method :get}))))
+  (keywordize (:_source (s/request @c {:url [index :system id] :method :get}))))
 
 (defn get!
   "Grabs a system by an id"
@@ -55,7 +55,7 @@
   "partial update of a system into ES"
   [id part]
   (let [system (get id)]
-    (= (:status (s/request @c {:url [:system id] :method :put :body (merge-with merge system part)})) 200)))
+    (= (:status (s/request @c {:url [index :system id] :method :put :body (merge-with merge system part)})) 200)))
 
 (defn clone
   "clones an existing system"

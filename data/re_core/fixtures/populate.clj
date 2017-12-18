@@ -2,8 +2,10 @@
   "data population"
   (:gen-class true)
   (:require
+   [re-core.log :refer (setup-logging)]
    [es.types :as t]
    [es.common :as es]
+   [es.node :refer (stop)]
    [re-core.model :refer (figure-virt)]
    [re-core.fixtures.core :refer (with-conf)]
    [clojure.test.check.generators :as g]
@@ -12,12 +14,14 @@
    [es.systems :as s]
    [re-core.fixtures.data :refer (admin ronen) :as d]))
 
+(setup-logging)
+
 (defn add-types
   "populates types"
   []
-  (t/create d/smokeping-type)
-  (t/create d/jvm-type)
-  (t/create d/redis-type))
+  (t/create d/smokeping-type (:type d/smokeping-type))
+  (t/create d/jvm-type (:type d/jvm-type))
+  (t/create d/redis-type (:type d/redis-type)))
 
 (def host
   (g/fmap (partial apply str)
@@ -71,18 +75,21 @@
   "populates all data types"
   [& {:keys [skip] :or {skip []}}]
   (re-initlize true)
-  (doseq [[_ p] (dissoc populators skip)] (p)))
+  (doseq [[_ p] (dissoc populators skip)] (p))
+  )
 
 (defn populate-system
   "Adds single type and system"
-  [typ sys id]
+  [type system id]
   (re-initlize)
-  (t/create typ)
+  (when-not (t/exists? (:type type))
+    (t/create type (:type type)))
   (when-not (s/exists? id)
-    (s/create sys id)))
+    (s/create system id)))
 
 (defn -main
   "run populate all"
   [& args]
   (populate-all)
+  (stop)
   (println "populate done!"))

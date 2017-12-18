@@ -19,7 +19,7 @@
           (:drp (vconstruct redis-digital)) => (contains {:name "red1.local"}))))
 
 (with-conf local-conf
-  (with-state-changes [(before :facts (populate-system redis-type redis-digital))]
+  (with-state-changes [(before :facts (populate-system redis-type redis-digital "1"))]
     (fact "digital-ocean creation workflows" :integration :digital-ocean :workflow
           (wf/create (spec)) => nil
           (wf/stop (spec)) => nil

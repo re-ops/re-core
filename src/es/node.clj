@@ -35,4 +35,5 @@
   "Reset connection atom"
   []
   (info "Reset elasticsearch connection atom")
+  (s/close! @c)
   (reset! c nil))

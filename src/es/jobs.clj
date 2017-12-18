@@ -14,15 +14,15 @@
   "Update a job"
   [{:keys [tid queue status] :as job} ttl]
   (let [body (merge job {:queue (name queue) :status (name status)})]
-    (= (:status (s/request @c {:url [:job tid] :method :put :body body})) 200)))
+    (= (:status (s/request @c {:url [index :jobs tid] :method :put :body body})) 200)))
 
 (defn delete
   "delete a job from Elasticsearch"
   [tid]
-  (= (:status (s/request @c {:url [:jobs tid] :method :delete})) 200))
+  (= (:status (s/request @c {:url [index :jobs tid] :method :delete})) 200))
 
 (defn get
   "Get job bu tid"
   [id]
-  (:_source (s/request @c {:url [:jobs id] :method :get})))
+  (:_source (s/request @c {:url [index :jobs id] :method :get})))
 

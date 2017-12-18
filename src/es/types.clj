@@ -14,24 +14,28 @@
 
 (defn exists?
   [id]
-  (= (:status (s/request @c {:url [:type id] :method :head})) 200))
+  (= (:status (s/request @c {:url [index :type id] :method :head})) 200))
 
 (defn create
   "create a type returning its id"
   ([type]
-   (= (:status (s/request @c {:url [:type] :method :post :body type})) 200))
+   (try
+     (s/request @c {:url [index :type] :method :post :body type}) 200
+     (catch Exception e
+       (error e (ex-data e)
+       (throw e)))))
   ([type id]
-   (= (:status (s/request @c {:url [:type id] :method :post :body type})) 200)))
+   (= (:status (s/request @c {:url [index :type id] :method :post :body type})) 200)))
 
 (defn put
   "Update a type"
   [id type]
-  (= (:status (s/request @c {:url [:type id] :method :put :body type})) 200))
+  (= (:status (s/request @c {:url [index :type id] :method :put :body type})) 200))
 
 (defn delete
   "delete a type from Elasticsearch"
   [id]
-  (= (:status (s/request @c {:url [:type id] :method :delete})) 200))
+  (= (:status (s/request @c {:url [index :type id] :method :delete})) 200))
 
 (defn keywordize
   "converting Elasticsearch values back into keywords"
@@ -42,7 +46,7 @@
 (defn get
   "Grabs a type by an id"
   [id]
-  (keywordize (:_source (s/request @c {:url [:type id] :method :get}))))
+  (keywordize (:_source (s/request @c {:url [index :type id] :method :get}))))
 
 (defn get!
   "Grabs a type by an id"
@@ -55,7 +59,7 @@
   "partial update of a type into Elasticsearch"
   [id part]
   (let [type (get id)]
-    (= (:status (s/request @c {:url [:type id] :method :put :body (merge-with merge type part)})) 200)))
+    (= (:status (s/request @c {:url [index :type id] :method :put :body (merge-with merge type part)})) 200)))
 
 (defn all
   "return all existing types"

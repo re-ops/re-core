@@ -13,7 +13,7 @@
   (:use midje.sweet))
 
 (with-conf local-conf
-  (with-state-changes [(before :facts (populate-system redis-type redis-ec2-spec))]
+  (with-state-changes [(before :facts (populate-system redis-type redis-ec2-spec "1"))]
     (fact "aws creation workflows" :integration :ec2 :workflow :1234
           (wf/create (spec)) => nil
           (wf/create (spec)) => (throws ExceptionInfo  (is-type? :re-core.workflows/machine-exists))
@@ -82,7 +82,7 @@
             (wf/stop (spec)) => nil
             (wf/reload (spec)) => nil
             (wf/destroy (spec)) => nil))
-    (with-state-changes [(before :facts (populate-system redis-type redis-ec2-centos))]
+    (with-state-changes [(before :facts (populate-system redis-type redis-ec2-centos "1"))]
       (fact "aws centos provisioning" :integration :ec2 :workflow
             (wf/create (spec)) => nil
             (wf/stop (spec)) => nil

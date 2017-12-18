@@ -9,22 +9,29 @@
 
 (def ^:const index "re-core")
 
-(def ^:const types {:jobs {:properties {:env {:type "string" :index "not_analyzed"}
-                                        :status {:type "string"}
-                                        :queue {:type "string"}
+(def ^:const types {:jobs {:properties {:env {:type "keyword"}
+                                        :status {:type "text"}
+                                        :queue {:type "text"}
                                         :start {:type "long"}
                                         :end {:type "long"}}}
                     :system {:properties {:owner {:type "string"}
-                                          :env {:type "string" :index "not_analyzed"}
-                                          :machine {:properties {:hostname {:type "string" :index "not_analyzed"}
-                                                                 :cpus {:type "integer"}}}
-                                          :type {:type "string"}}}})
+                                          :env {:type "keyword"}
+                                          :machine {
+                                             :properties {
+                                                 :hostname {:type "keyword" :index "not_analyzed"}
+                                                 :cpus {:type "integer"}}}
+                                          :type {:type "keyword"}}}})
 
 (def ^:const settings {:number_of_shards 1})
 
 (defn- exists?
   [index]
-  (= (:status (s/request @c {:url [index] :method :head})) 200))
+  (try
+    (= (:status (s/request @c {:url [index] :method :head})) 200)
+    (catch Exception e
+      (info (ex-data e))
+      false
+      )))
 
 (defn- create
   [index mappings]

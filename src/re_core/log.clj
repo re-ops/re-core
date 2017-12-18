@@ -23,7 +23,7 @@
     (merge-config!
      {:appenders {:rolling (rolling-appender {:path (log* :path) :pattern :weekly})}})
     (merge-config!
-     {:ns-blacklist ["net.schmizz.*" "org.elasticsearch.indices.*"]})
+     {:ns-blacklist ["net.schmizz.*" "org.elasticsearch.indices.*" "org.apache.http.*"]})
     (merge-config!
      {:appenders {:println {:ns-whitelist ["re-core"]}}})
     (disable-coloring)
