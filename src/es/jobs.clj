@@ -12,7 +12,7 @@
 
 (defn put
   "Update a job"
-  [{:keys [tid queue status] :as job} ttl]
+  [{:keys [tid queue status] :as job}]
   (let [body (merge job {:queue (name queue) :status (name status)})]
     (= (:status (s/request @c {:url [index :jobs tid] :method :put :body body})) 200)))
 
@@ -23,6 +23,7 @@
 
 (defn get
   "Get job bu tid"
-  [id]
-  (:_source (s/request @c {:url [index :jobs id] :method :get})))
+  [tid]
+  (get-in
+    (s/request @c {:url [index :jobs tid] :method :get :keywordize? true}) [:body :_source]))
 

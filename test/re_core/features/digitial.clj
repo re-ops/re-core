@@ -3,6 +3,7 @@
   (:require
    [re-core.fixtures.core :refer (with-defaults is-type? with-conf)]
    [es.systems :as s]
+   [es.node :refer (stop)]
    [re-core.fixtures.data :refer (redis-type local-conf)]
    [re-core.fixtures.populate :refer (populate-system)]
    [re-core.integration.workflows.common :refer (spec get-spec)]
@@ -19,7 +20,7 @@
           (:drp (vconstruct redis-digital)) => (contains {:name "red1.local"}))))
 
 (with-conf local-conf
-  (with-state-changes [(before :facts (populate-system redis-type redis-digital "1"))]
+  (with-state-changes [(before :facts (populate-system redis-type redis-digital "1")) (after :facts (stop))]
     (fact "digital-ocean creation workflows" :integration :digital-ocean :workflow
           (wf/create (spec)) => nil
           (wf/stop (spec)) => nil

@@ -65,8 +65,9 @@
   ([] (re-initlize false))
   ([clear-es]
    (c/initilize-puny)
+   (connect)
    (when clear-es (es/clear))
-    (es/initialize)
+   (es/initialize)
    (red/clear-all)))
 
 (def populators {:types add-types :systems puts})
@@ -75,11 +76,13 @@
   "populates all data types"
   [& {:keys [skip] :or {skip []}}]
   (re-initlize true)
-  (doseq [[_ p] (dissoc populators skip)] (p)))
+  (doseq [[_ p]
+    (dissoc populators skip)] (p)))
 
 (defn populate-system
   "Adds single type and system"
   [type system id]
+  (connect)
   (re-initlize)
   (when-not (t/exists? (:type type))
     (t/create type (:type type)))
@@ -89,7 +92,6 @@
 (defn -main
   "run populate all"
   [& args]
-  (connect)
   (populate-all)
   (stop)
   (println "populate done!"))

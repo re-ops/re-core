@@ -3,6 +3,7 @@
   (:require
    [es.jobs :as jobs]
    [es.common :as es]
+   [es.node :refer (stop)]
    [re-core.fixtures.data :refer (redis-ec2-spec)]
    [re-core.fixtures.core :refer (with-conf)]
    [re-core.fixtures.populate :refer (re-initlize)])
@@ -19,19 +20,14 @@
   "adds a list of systems into ES"
   []
   (es/initialize {:indices.ttl.interval 2})
-  (jobs/put (-> job (merge {:tid "1" :status :success}) stamp) 2000)
-  (jobs/put (-> job (merge {:tid "2" :status :failure :env :prod}) stamp) 2000)
-  (jobs/put (-> job (merge {:tid "3" :status :success :identity 2}) stamp) 2000)
-  (jobs/put (-> job (merge {:tid "4" :status :failure}) stamp) 2000 :flush? true))
+  (jobs/put (-> job (merge {:tid "1" :status :success}) stamp))
+  (jobs/put (-> job (merge {:tid "2" :status :failure :env :prod}) stamp))
+  (jobs/put (-> job (merge {:tid "3" :status :success :identity 2}) stamp))
+  (jobs/put (-> job (merge {:tid "4" :status :failure}) stamp)))
 
 (with-conf
-  (against-background [(before :facts (do (re-initlize true) (add-jobs)))]
-                      (fact "basic job get" :integration :elasticsearch
-                            (get-in (jobs/get "1") [:source :status]) => "success"
-                            (get-in (jobs/get "2") [:source :env]) => "prod"
-                            (get-in (jobs/get "3") [:source :identity]) => 2)
-
-                      (fact "expiry (ttl)" :integration :ttl
-                            (jobs/put (-> job (merge {:tid "foo" :status :success}) stamp) 100 :flush? true)
-                            (Thread/sleep 2000)
-                            (jobs/get "foo") => nil)))
+  (against-background [(before :facts (do (re-initlize true) (add-jobs))) (after :facts (stop))]
+      (fact "basic job get" :integration :elasticsearch
+         (get-in (jobs/get "1") [:source :status]) => "success"
+         (get-in (jobs/get "2") [:source :env]) => "prod"
+         (get-in (jobs/get "3") [:source :identity]) => 2)))
