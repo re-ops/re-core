@@ -5,7 +5,7 @@
    [re-core.log :refer (setup-logging)]
    [es.types :as t]
    [es.common :as es]
-   [es.node :refer (stop)]
+   [es.node :refer (stop connect)]
    [re-core.model :refer (figure-virt)]
    [re-core.fixtures.core :refer (with-conf)]
    [clojure.test.check.generators :as g]
@@ -66,7 +66,7 @@
   ([clear-es]
    (c/initilize-puny)
    (when clear-es (es/clear))
-   (es/initialize)
+    (es/initialize)
    (red/clear-all)))
 
 (def populators {:types add-types :systems puts})
@@ -75,8 +75,7 @@
   "populates all data types"
   [& {:keys [skip] :or {skip []}}]
   (re-initlize true)
-  (doseq [[_ p] (dissoc populators skip)] (p))
-  )
+  (doseq [[_ p] (dissoc populators skip)] (p)))
 
 (defn populate-system
   "Adds single type and system"
@@ -90,6 +89,7 @@
 (defn -main
   "run populate all"
   [& args]
+  (connect)
   (populate-all)
   (stop)
   (println "populate done!"))

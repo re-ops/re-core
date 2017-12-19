@@ -23,7 +23,7 @@
      (s/request @c {:url [index :type] :method :post :body type}) 200
      (catch Exception e
        (error e (ex-data e)
-       (throw e)))))
+              (throw e)))))
   ([type id]
    (= (:status (s/request @c {:url [index :type id] :method :post :body type})) 200)))
 

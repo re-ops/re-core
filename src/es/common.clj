@@ -16,10 +16,8 @@
                                         :end {:type "long"}}}
                     :system {:properties {:owner {:type "string"}
                                           :env {:type "keyword"}
-                                          :machine {
-                                             :properties {
-                                                 :hostname {:type "keyword" :index "not_analyzed"}
-                                                 :cpus {:type "integer"}}}
+                                          :machine {:properties {:hostname {:type "keyword" :index "not_analyzed"}
+                                                                 :cpus {:type "integer"}}}
                                           :type {:type "keyword"}}}})
 
 (def ^:const settings {:number_of_shards 1})
@@ -30,8 +28,7 @@
     (= (:status (s/request @c {:url [index] :method :head})) 200)
     (catch Exception e
       (info (ex-data e))
-      false
-      )))
+      false)))
 
 (defn- create
   [index mappings]
@@ -44,7 +41,6 @@
 (defn initialize
   "Creates systems index and types"
   [& [m & _]]
-  (node/connect)
   (when-not (exists? index)
     (info "Creating index" index)
     (create index {:mappings types})))
@@ -52,7 +48,6 @@
 (defn clear
   "Creates systems index and type"
   []
-  (node/connect)
   (when (exists? index)
     (info "Clearing index" index)
     (delete index)))
