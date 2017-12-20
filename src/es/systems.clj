@@ -14,7 +14,7 @@
 
 (defn exists?
   [id]
-  (= (:status (s/request @c {:url [index :system id] :method :head :exception-handler #(error %)})) 200))
+  (= (:status (s/request @c {:url [index :system id] :method :head})) 200))
 
 (defn create
   "create a system returning its id"
