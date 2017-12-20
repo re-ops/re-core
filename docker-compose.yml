@@ -13,5 +13,16 @@ services:
       - xpack.security.enabled=false
       - xpack.monitoring.enabled=false
       - xpack.watcher.enabled=false
-    depends_on: 
+      - http.port=9200
+      - http.cors.allow-origin=http://localhost:1358
+      - http.cors.enabled=true
+      - http.cors.allow-headers=X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization
+      - http.cors.allow-credentials=true
+    depends_on:
       - redis
+  dejavu:
+    image: "appbaseio/dejavu"
+    ports:
+      - "1358:1358"
+    depends_on:
+      - elasticsearch
