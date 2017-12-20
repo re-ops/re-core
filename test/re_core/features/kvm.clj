@@ -17,19 +17,19 @@
 (setup-logging)
 
 (with-conf
-    (fact "legal instance spec" :kvm
-          (let [domain (vconstruct (assoc redis-kvm :system-id "1"))]
-            (:system-id domain) => "1"
-            (:node domain)  => (just {:user "ronen" :host "localhost" :port 22})
-            (:domain domain) =>
-            (just {:user "re-ops" :name "red1.local" :hostname "red1"
-                   :image {:flavor :debian :template "ubuntu-16.04"}
-                   :cpu 2 :ram 1024})))
-    (fact "volume pool" :kvm
-          (let [with-vol (assoc-in redis-kvm [:kvm :volumes] [volume])
-                domain (vconstruct (assoc with-vol :system-id "1"))]
-            (first (:volumes domain)) =>
-            (just (assoc volume :pool {:id "default" :path "/var/lib/libvirt/images/"})))))
+  (fact "legal instance spec" :kvm
+        (let [domain (vconstruct (assoc redis-kvm :system-id "1"))]
+          (:system-id domain) => "1"
+          (:node domain)  => (just {:user "ronen" :host "localhost" :port 22})
+          (:domain domain) =>
+          (just {:user "re-ops" :name "red1.local" :hostname "red1"
+                 :image {:flavor :debian :template "ubuntu-16.04"}
+                 :cpu 2 :ram 1024})))
+  (fact "volume pool" :kvm
+        (let [with-vol (assoc-in redis-kvm [:kvm :volumes] [volume])
+              domain (vconstruct (assoc with-vol :system-id "1"))]
+          (first (:volumes domain)) =>
+          (just (assoc volume :pool {:id "default" :path "/var/lib/libvirt/images/"})))))
 
 (with-conf local-conf
   (fact "kvm creation workflows" :integration :kvm :workflow
