@@ -14,7 +14,7 @@
                                         :queue {:type "text"}
                                         :start {:type "long"}
                                         :end {:type "long"}}}
-                    :system {:properties {:owner {:type "string"}
+                    :system {:properties {:owner {:type "text"}
                                           :env {:type "keyword"}
                                           :machine {:properties {:hostname {:type "keyword" :index "not_analyzed"}
                                                                  :cpus {:type "integer"}}}
