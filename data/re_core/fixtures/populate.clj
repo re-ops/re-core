@@ -84,10 +84,8 @@
   [type system id]
   (connect)
   (re-initlize)
-  (when-not (t/exists? (:type type))
-    (t/create type (:type type)))
-  (when-not (s/exists? id)
-    (s/create system id)))
+  (t/create type (:type type))
+  (s/create system id))
 
 (defn -main
   "run populate all"
