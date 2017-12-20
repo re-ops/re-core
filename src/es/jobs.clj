@@ -25,5 +25,5 @@
   "Get job bu tid"
   [tid]
   (get-in
-    (s/request @c {:url [index :jobs tid] :method :get :keywordize? true}) [:body :_source]))
+   (s/request @c {:url [index :jobs tid] :method :get :keywordize? true}) [:body :_source]))
 

@@ -27,7 +27,7 @@
 
 (with-conf
   (against-background [(before :facts (do (re-initlize true) (add-jobs))) (after :facts (stop))]
-      (fact "basic job get" :integration :elasticsearch
-         (get-in (jobs/get "1") [:source :status]) => "success"
-         (get-in (jobs/get "2") [:source :env]) => "prod"
-         (get-in (jobs/get "3") [:source :identity]) => 2)))
+                      (fact "basic job get" :integration :elasticsearch
+                            (:status (jobs/get "1")) => "success"
+                            (:env (jobs/get "2")) => "prod"
+                            (:identity (jobs/get "3")) => 2)))

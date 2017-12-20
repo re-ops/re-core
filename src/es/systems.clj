@@ -42,7 +42,8 @@
 (defn get
   "Grabs a system by an id"
   [id]
-  (keywordize (:_source (s/request @c {:url [index :system id] :method :get}))))
+  (keywordize
+   (get-in (s/request @c {:url [index :system id] :method :get :keywordize? true}) [:body :_source])))
 
 (defn get!
   "Grabs a system by an id"
@@ -68,8 +69,9 @@
 (defn query
   "basic query string"
   [query & {:keys [from size] :or {size 100 from 0}}]
-  (s/request @c {:url [index :_search] :method :get
-                 :body {:from from :size size :query query :fields ["owner" "env"]}}))
+  (:body
+   (s/request @c {:url [index :_search] :method :get :exception-handler #(println %)
+                  :body {:from from :size size :query query}})))
 
 (defn system-val
   "grabbing instance id of spec"

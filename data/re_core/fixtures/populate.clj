@@ -77,7 +77,7 @@
   [& {:keys [skip] :or {skip []}}]
   (re-initlize true)
   (doseq [[_ p]
-    (dissoc populators skip)] (p)))
+          (dissoc populators skip)] (p)))
 
 (defn populate-system
   "Adds single type and system"
