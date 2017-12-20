@@ -1,4 +1,4 @@
-(ns re-core.integration.workflows.ec2
+(ns re-core.features.ec2
   "ec2 workflows"
   (:require
    [aws.common :refer (with-ctx instance-desc)]
@@ -7,21 +7,21 @@
    [re-core.fixtures.data :refer
     (redis-type redis-ec2-spec local-conf redis-ec2-centos)]
    [re-core.fixtures.populate :refer (populate-system)]
-   [re-core.integration.workflows.common :refer (spec get-spec)]
+   [re-core.features.common :refer (spec get-spec)]
    [re-core.workflows :as wf])
   (:import clojure.lang.ExceptionInfo)
   (:use midje.sweet))
 
 (with-conf local-conf
   (with-state-changes [(before :facts (populate-system redis-type redis-ec2-spec "1"))]
-    (fact "aws creation workflows" :integration :ec2 :workflow :1234
+    (fact "aws creation" :integration :ec2 :workflow
           (wf/create (spec)) => nil
           (wf/create (spec)) => (throws ExceptionInfo  (is-type? :re-core.workflows/machine-exists))
           (wf/stop (spec)) => nil
           (wf/create (spec)) => (throws ExceptionInfo  (is-type? :re-core.workflows/machine-exists))
           (wf/destroy (spec)) => nil)
 
-    (fact "aws provisioning workflows" :integration :ec2 :workflow
+    (fact "aws provisioning" :integration :ec2 :workflow
           (wf/create (spec)) => nil
           (wf/reload (spec)) => nil
           (wf/destroy (spec)) => nil)

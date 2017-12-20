@@ -1,4 +1,4 @@
-(ns re-core.integration.workflows.common
+(ns re-core.features.common
   "Common testing workflows fns"
   (:require
    [es.systems :as s]))

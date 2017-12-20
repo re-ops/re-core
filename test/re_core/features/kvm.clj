@@ -6,7 +6,7 @@
    [re-core.fixtures.core :refer (with-conf is-type?) :as f]
    [re-core.fixtures.data :refer (redis-type local-conf redis-gce)]
    [re-core.fixtures.populate :refer (populate-system)]
-   [re-core.integration.workflows.common :refer (spec)]
+   [re-core.features.common :refer (spec)]
    [re-core.workflows :as wf]
    [re-core.fixtures.data :refer [redis-kvm]])
   (:use midje.sweet)
@@ -17,7 +17,6 @@
 (setup-logging)
 
 (with-conf
-  (let [{:keys [machine kvm]} redis-gce]
     (fact "legal instance spec" :kvm
           (let [domain (vconstruct (assoc redis-kvm :system-id "1"))]
             (:system-id domain) => "1"
@@ -30,7 +29,7 @@
           (let [with-vol (assoc-in redis-kvm [:kvm :volumes] [volume])
                 domain (vconstruct (assoc with-vol :system-id "1"))]
             (first (:volumes domain)) =>
-            (just (assoc volume :pool {:id "default" :path "/var/lib/libvirt/images/"}))))))
+            (just (assoc volume :pool {:id "default" :path "/var/lib/libvirt/images/"})))))
 
 (with-conf local-conf
   (fact "kvm creation workflows" :integration :kvm :workflow

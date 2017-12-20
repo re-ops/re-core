@@ -6,7 +6,7 @@
    [es.node :refer (stop)]
    [re-core.fixtures.data :refer (redis-type local-conf)]
    [re-core.fixtures.populate :refer (populate-system)]
-   [re-core.integration.workflows.common :refer (spec get-spec)]
+   [re-core.features.common :refer (spec get-spec)]
    [re-core.workflows :as wf]
    [re-core.model :refer (vconstruct)]
    [re-core.fixtures.core :refer (with-conf) :as f]
