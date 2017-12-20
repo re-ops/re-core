@@ -13,8 +13,8 @@ env:
 
 install:
     - mkdir /tmp/elasticsearch
-    - wget -O - https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${ES_VERSION}.tar.gz | tar xz --directory=/tmp/elasticsearch --strip-components=1
-    - /tmp/elasticsearch/bin/elasticsearch --daemonize --path.data /tmp
+    - wget -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${ES_VERSION}.tar.gz | tar xz --directory=/tmp/ --strip-components=1
+    - /tmp/bin/elasticsearch --daemonize --path.data /tmp
 
 before_script:
   - sleep 20
