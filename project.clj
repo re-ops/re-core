@@ -57,7 +57,7 @@
                  [puny "0.3.1"]
                  [com.taoensso/carmine "2.11.1"]
                  ; es
-                 [cc.qbits/spandex "0.5.2" :exclusions [org.clojure/clojure]]
+                 [cc.qbits/spandex "0.5.5" :exclusions [org.clojure/clojure]]
                  [org.apache.httpcomponents/httpclient "4.5.2"]
 
 
@@ -88,8 +88,7 @@
              [lein-tar "2.0.0" ]
              [self-build "0.0.9"]
              [lein-tag "0.1.0"]
-             [lein-set-version "0.3.0"]
-             [topping "0.0.2"]]
+             [lein-set-version "0.3.0"]]
 
   :bin {:name "re-core"}
 
@@ -141,9 +140,9 @@
    }
 
 
-  :repositories  {"bintray"  "http://dl.bintray.com/content/narkisr/narkisr-jars"
-                  "sonatype" "http://oss.sonatype.org/content/repositories/releases"
-                  "libvirt-org" "http://libvirt.org/maven2"}
+  :repositories  {"bintray"  "https://dl.bintray.com/content/narkisr/narkisr-jars"
+                  "sonatype" "https://oss.sonatype.org/content/repositories/releases"
+                  "libvirt-org" "https://libvirt.org/maven2"}
 
   :resource-paths  ["src/main/resources/"]
 
