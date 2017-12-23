@@ -4,21 +4,18 @@
   (:require
    [re-core.log :refer (setup-logging)]
    [re-core.common :refer (get! get* version)]
-   [re-core.persistency.core :as p]
    [re-core.jobs :as jobs]
    [re-core.schedule :as sch]
    [clojure.core.strint :refer (<<)]
    [clojure.java.io :refer (resource)]
    [components.core :refer (start-all stop-all setup-all)]
-   [hypervisors.networking :refer (initialize-networking)]
    [es.core :as es]
    [taoensso.timbre :refer (refer-timbre)]))
 
 (refer-timbre)
 
 (defn build-components []
-  {:es (es/instance) :jobs (jobs/instance)
-   :persistency (p/instance) :schedule (sch/instance)})
+  {:es (es/instance) :jobs (jobs/instance) :schedule (sch/instance)})
 
 (defn clean-up
   "Clean/release resources, used also as a shutdown hook"
@@ -33,7 +30,6 @@
   "One time setup"
   []
   (let [components (build-components)]
-    (initialize-networking)
     (setup-logging)
     (add-shutdown components)
     (setup-all components)

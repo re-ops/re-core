@@ -54,7 +54,6 @@
                  [substantiation "0.3.1"]
                  [com.fasterxml.jackson.core/jackson-core "2.6.4"]
                  ; redis
-                 [puny "0.3.1"]
                  [com.taoensso/carmine "2.11.1"]
                  ; es
                  [cc.qbits/spandex "0.5.5" :exclusions [org.clojure/clojure]]

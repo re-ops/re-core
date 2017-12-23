@@ -4,7 +4,7 @@
   (:require
    [com.rpl.specter :refer [select transform ALL multi-path]]
    [qbits.spandex :as s]
-   [es.common :refer (index)]
+   [es.common :refer (index) :as common]
    [es.node :as node :refer (c)]
    [clojure.core.strint :refer (<<)]
    [taoensso.timbre :refer (refer-timbre)]
@@ -64,5 +64,5 @@
 (defn all
   "return all existing types"
   []
-  [])
+  (common/all :type))
 

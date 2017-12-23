@@ -114,7 +114,7 @@
   "Clear system model (no machine destruction)"
   [{:keys [system-id] :as spec}]
   (s/delete system-id)
-  (info "system deleted"))
+  (info "deleted system with id" system-id))
 
 (deflow provision
   "Provisions an instance"

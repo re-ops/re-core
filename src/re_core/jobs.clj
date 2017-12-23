@@ -32,10 +32,9 @@
 (defn save-status
   "marks jobs as succesful"
   [spec status]
-  (let [status-exp (* 1000 60 (or (job* :status-expiry) (* 24 60)))]
-    (es/put (merge spec {:status status :end (System/currentTimeMillis)}) status-exp)
-    (trace "saved status" (merge spec {:status status :end (System/currentTimeMillis)}))
-    {:status status}))
+  (es/put (merge spec {:status status :end (System/currentTimeMillis)}))
+  (trace "saved status" (merge spec {:status status :end (System/currentTimeMillis)}))
+  {:status status})
 
 (defn job-exec
   "Executes a job function tries to lock identity first (if used)"

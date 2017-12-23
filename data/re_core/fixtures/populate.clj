@@ -10,7 +10,6 @@
    [re-core.fixtures.core :refer (with-conf)]
    [clojure.test.check.generators :as g]
    [re-core.redis :as red]
-   [re-core.persistency.core :as c]
    [es.systems :as s]
    [re-core.fixtures.data :refer (admin ronen) :as d]))
 
@@ -64,7 +63,6 @@
   "Re-init datastores"
   ([] (re-initlize false))
   ([clear-es]
-   (c/initilize-puny)
    (connect)
    (when clear-es (es/clear))
    (es/initialize)

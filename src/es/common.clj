@@ -51,3 +51,10 @@
   (when (exists? index)
     (info "Clearing index" index)
     (delete index)))
+
+(defn all
+  "An all query using match all on provided type, this should use scrolling for 10K systems"
+  [type]
+  (let [query {:size 10000 :query {:match_all {}}}
+        {:keys [body]} (s/request @c {:url [index type :_search] :method :get :body query})]
+    (mapv (juxt :_id :_source) (get-in body [:hits :hits]))))

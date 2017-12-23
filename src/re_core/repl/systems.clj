@@ -41,7 +41,7 @@
     (= v (sub k))))
 
 (defn schedule-job [action [id system]]
-  (let [tid (gen-uuid) m {:identity id :tid tid :args [(assoc system :system-id (Integer. id))]}]
+  (let [tid (gen-uuid) m {:identity id :tid tid :args [(assoc system :system-id id)]}]
     {:system id :job (enqueue action m) :tid tid}))
 
 (defn run-ack [this {:keys [systems] :as m}]
@@ -55,9 +55,7 @@
 (extend-type Systems
   Repl
   (ls [this]
-    ; fix this using a scroll query in Elasticsearch!
-    #_(let [systems (into [] (s/all-systems))]
-        [this {:systems (doall (map (juxt identity s/get) systems))}]))
+    [this {:systems (s/all)}])
 
   (filter-by [this {:keys [systems] :as m} f]
     [this {:systems (filter f systems)}])
@@ -69,7 +67,7 @@
 
   (rm [this systems]
     (doseq [id (map first systems)]
-      (s/delete (Integer/valueOf id)))
+      (s/delete id))
     [this {:systems []}])
 
   (grep [this systems k v]
@@ -86,11 +84,12 @@
   (merge m {:jobs (map (partial schedule-job id) systems) :queue id}))
 
 (defn result [{:keys [tid] :as job}]
-  (merge ((es/get tid) :_source) job))
+  (merge (es/get tid) job))
 
 (defn add-results [this jobs]
   (let [{:keys [success] :as results} (group-by (comp keyword :status) (map result jobs))
         systems (doall (map (juxt identity s/get) (map :identity success)))]
+    (println results)
     {:systems systems :results results}))
 
 (extend-type Systems
