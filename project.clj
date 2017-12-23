@@ -46,19 +46,21 @@
                  [net.java.dev.jna/jna "4.2.0"]
                  [org.libvirt/libvirt "0.5.1"]
 
-                 ; persistency and model
+                 ; model
                  [com.rpl/specter "1.0.3"]
                  [com.brunobonacci/safely "0.2.4"]
                  [com.google.guava/guava "18.0"]
                  [commons-codec "1.10"]
                  [substantiation "0.3.1"]
                  [com.fasterxml.jackson.core/jackson-core "2.6.4"]
+
                  ; redis
                  [com.taoensso/carmine "2.11.1"]
                  ; es
                  [cc.qbits/spandex "0.5.5" :exclusions [org.clojure/clojure]]
                  [org.apache.httpcomponents/httpclient "4.5.2"]
-
+                 ; queue
+                 [factual/durable-queue "0.1.5"]
 
                  ; timeunits
                  [fogus/minderbinder "0.2.0"]
@@ -100,7 +102,8 @@
 
 
      :test {
-       :test-paths ["test" "data"]
+       :source-paths ["data"]
+       :test-paths ["test"]
        :dependencies [
           [midje "1.8.3"]
           [org.clojure/tools.trace "0.7.9"]
