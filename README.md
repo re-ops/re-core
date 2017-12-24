@@ -1,37 +1,22 @@
 # Intro
 
-re-core is a provisioning server and live environment for setting up cloud/vms instances in a consistent and reliable way.
+re-core is a live environment for setting up cloud/vms instances in a consistent and reliable way.
 
-For how to get started and more info please check [this](https://re-ops.github.io/landing/)
+It is a part of the [re-ops](https://github.com/re-ops) project that offers a live coding environment for configuration management.
 
 [![Build Status](https://travis-ci.org/re-ops/re-core.png)](https://travis-ci.org/re-ops/re-core)
 
-# Developing
+# Get running
 
-First set a local redis instance:
-
-```bash
-$ git clone git://github.com/opskeleton/redis-sandbox.git
-$ cd redis-sandbox
-$ ./boot.sh
+```clojure
+$ git clone git@github.com:re-ops/re-mote.git
+$ cd re-mote
+$ lein repl
+[re-core]λ: (go)
+nil
+[re-core]λ: (list)
 ```
 
-Launch a demo instance (create a matching ~/.re-mote.edn):
-```bash
-$ lein populate
-$ lein re-core
-# check https://localhost:8443
-```
-
-For interactive development:
-
-```bash
-$ lein clean
-$ lein dev-repl
-user=> (go)
-; in order to reload the entire app
-user => (reset)
-```
 
 # Copyright and license
 
