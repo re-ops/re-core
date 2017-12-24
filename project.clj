@@ -1,4 +1,4 @@
-(defproject re-core "0.13.5"
+(defproject re-core "0.2.0"
   :description "A launching pad for virtualized applications"
   :url "https://github.com/re-core-ops/re-core-core"
   :license  {:name "Apache License, Version 2.0" :url "http://www.apache.org/licenses/LICENSE-2.0.html"}
@@ -82,7 +82,7 @@
   :exclusions [org.clojure/clojure com.taoensso/timbre commons-codec]
 
   :plugins  [[jonase/eastwood "0.2.4"]
-              [mvxcvi/whidbey "1.3.1"]
+             [mvxcvi/whidbey "1.3.1"]
              [lein-cljfmt "0.5.6"]
              [lein-kibit "0.1.5"]
              [lein-ancient "0.6.7" :exclusions [org.clojure/clojure]]
@@ -102,8 +102,7 @@
 
 
      :test {
-       :source-paths ["data"]
-       :test-paths ["test"]
+       :test-paths ["data" "test"]
        :dependencies [
           [midje "1.8.3"]
           [org.clojure/tools.trace "0.7.9"]
