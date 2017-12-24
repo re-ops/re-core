@@ -5,21 +5,15 @@ services:
 
 jdk:
   - oraclejdk8
-env:
-  global:
-    - WAIT_FOR_ES=1
-  matrix:
-    - ES_VERSION=5.6.3
 
 install:
     - mkdir /tmp/elasticsearch
     - wget -O - https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.6.3.tar.gz | tar xz --directory=/tmp/elasticsearch --strip-components=1
-    - /tmp/elasticsearch/bin/elasticsearch --daemonize --path.data /tmp
+    - /tmp/elasticsearch/bin/elasticsearch --daemonize
 
 before_script:
   - sleep 20
   - curl http://127.0.0.1:9200/
-
-before_script:
   - echo y | sudo lein upgrade
+
 script: lein travis
