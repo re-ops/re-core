@@ -1,3 +1,0 @@
-[submodule "public/elm-ui"]
-	path = public/elm-ui
-	url = git://github.com/celestial-ops/elm-ui.git
