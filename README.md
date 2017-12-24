@@ -1,6 +1,6 @@
 # Intro
 
-re-core is a live environment for setting up cloud/vms instances in a consistent and reliable way.
+Re-core is a live environment for setting up VM instances in a consistent and reliable way across multiple providers (AWS, DigitalOcean and Native KVM).
 
 It is a part of the [re-ops](https://github.com/re-ops) project that offers a live coding environment for configuration management.
 
@@ -9,8 +9,11 @@ It is a part of the [re-ops](https://github.com/re-ops) project that offers a li
 # Get running
 
 ```clojure
+# get ES running
+$ sudo docker-compose up
 $ git clone git@github.com:re-ops/re-mote.git
 $ cd re-mote
+# Now start the REPL environment
 $ lein repl
 [re-core]λ: (go)
 nil
