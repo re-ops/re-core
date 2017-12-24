@@ -76,7 +76,6 @@
  :elasticsearch {
    :host "localhost"
    :port 9200
-   :cluster "elasticsearch"
  }
 
 

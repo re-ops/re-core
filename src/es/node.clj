@@ -26,7 +26,7 @@
 (defn connect
   "Connecting to Elasticsearch with retry support"
   []
-  (let [{:keys [host port cluster]} (get! :elasticsearch)]
+  (let [{:keys [host port]} (get! :elasticsearch)]
     (safely (connect-)
             :on-error
             :max-retry 5
