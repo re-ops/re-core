@@ -9,7 +9,6 @@
    [re-core.model :refer (figure-virt)]
    [re-core.fixtures.core :refer (with-conf)]
    [clojure.test.check.generators :as g]
-   [re-core.redis :as red]
    [es.systems :as s]
    [re-core.fixtures.data :refer (admin ronen) :as d]))
 
@@ -64,9 +63,9 @@
   ([] (re-initlize false))
   ([clear-es]
    (connect)
-   (when clear-es (es/clear))
-   (es/initialize)
-   (red/clear-all)))
+   (when clear-es
+     (es/clear))
+   (es/initialize)))
 
 (def populators {:types add-types :systems puts})
 

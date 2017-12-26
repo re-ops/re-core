@@ -3,18 +3,18 @@
   (:require
    [components.core :refer (Lifecyle)]
    [es.common :refer (initialize index)]
-   [es.node :refer (connect stop)]))
+   [es.node :as node]))
 
 (defrecord Elastic
            []
   Lifecyle
   (setup [this]
-    (connect)
+    (node/connect)
     (initialize))
   (start [this]
-    (connect))
+    (node/connect))
   (stop [this]
-    (stop)))
+    (node/stop)))
 
 (defn instance
   "creates a Elastic components"

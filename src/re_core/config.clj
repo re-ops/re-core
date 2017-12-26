@@ -9,8 +9,7 @@
    [clojure.core.strint :refer (<<)]
    [clojure.java.io :refer (file)]))
 
-(def base-v {:redis {:host #{:required :String}}
-             :elasticsearch {:host #{:required :String} :port #{:required :Integer}}
+(def base-v {:elasticsearch {:host #{:required :String} :port #{:required :Integer}}
              :ssh {:private-key-path #{:required :String}}})
 
 (def levels #{:trace :debug :info :error})

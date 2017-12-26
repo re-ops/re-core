@@ -27,7 +27,7 @@
   (try
     (= (:status (s/request @c {:url [index] :method :head})) 200)
     (catch Exception e
-      (info (ex-data e))
+      (error e (ex-data e))
       false)))
 
 (defn- create

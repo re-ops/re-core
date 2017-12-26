@@ -33,7 +33,6 @@
     ;;   :secret-key ""
          ;;:ostemplates {
           ;; :ubuntu-12.04 {:ami "" :flavor :debian}
-          ;; :centos-6 {:ami "" :flavor :redhat}
         ;;}
     ;;}
 

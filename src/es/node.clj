@@ -37,8 +37,10 @@
 (defn stop
   "Reset connection atom"
   []
-  (info "Reset elasticsearch connection atom")
-  (s/close! @c)
-  (s/close! @snif)
-  (reset! snif nil)
-  (reset! c nil))
+  (info "Closing elasticsearch connection")
+  (when @c
+    (s/close! @c)
+    (reset! c nil))
+  (when @snif
+    (s/close! @snif)
+    (reset! snif nil)))

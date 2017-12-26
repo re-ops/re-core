@@ -3,7 +3,7 @@
   (:require
    [clojure.core.strint :refer  (<<)]
    [clansi.core :refer  (style)]
-   [re-core.jobs :as jobs :refer (enqueue)]
+   [re-core.queue :as q]
    [re-core.common :refer (gen-uuid)]
    [taoensso.timbre :refer  (refer-timbre)]
    [clojure.set :refer (difference)]
@@ -40,9 +40,10 @@
   (let [sub (select-keys* system [:owner] [:machine :hostname] [:machine :os] [:machine :ip])]
     (= v (sub k))))
 
-(defn schedule-job [action [id system]]
-  (let [tid (gen-uuid) m {:identity id :tid tid :args [(assoc system :system-id id)]}]
-    {:system id :job (enqueue action m) :tid tid}))
+(defn schedule-job [topic [id system]]
+  (let [tid (gen-uuid) job {:identity id :tid tid :args [(assoc system :system-id id)]}]
+    (q/enqueue topic job)
+    {:system id :job job}))
 
 (defn run-ack [this {:keys [systems] :as m}]
   (println "The following systems will be effected Y/n (n*):")
@@ -78,19 +79,20 @@
       [this {:systems (map f specs)}])))
 
 (defn filter-done [sts]
-  (into #{} (filter (fn [{:keys [status]}] (or (#{:done :recently-done} status) (nil? status))) sts)))
+  (into #{} (filter (fn [{:keys [status]}] (not (nil? status))) sts)))
 
-(defn run-job [m id systems]
-  (merge m {:jobs (map (partial schedule-job id) systems) :queue id}))
+(defn run-job [m topic systems]
+  (merge m {:jobs (map (partial schedule-job topic) systems) :topic topic}))
 
-(defn result [{:keys [tid] :as job}]
-  (merge (es/get tid) job))
+(defn result [{:keys [job]}]
+  (merge (es/get (job :tid)) job))
 
 (defn add-results [this jobs]
   (let [{:keys [success] :as results} (group-by (comp keyword :status) (map result jobs))
         systems (doall (map (juxt identity s/get) (map :identity success)))]
-    (println results)
     {:systems systems :results results}))
+
+(defn job-host [{:keys [args]}])
 
 (extend-type Systems
   Jobs
@@ -112,17 +114,17 @@
   (clear [this {:keys [systems] :as m}]
     [this (run-job m "clear" systems)])
 
-  (status [this {:keys [jobs queue]}]
-    (map (fn [{:keys [job] :as m}] (assoc m :status (jobs/status queue job))) jobs))
+  (status [this {:keys [jobs]}]
+    (map (fn [{:keys [job]}] (assoc job :status (q/status job))) jobs))
 
-  (block-wait [this {:keys [jobs queue systems] :as js}]
+  (block-wait [this {:keys [jobs systems] :as js}]
     (loop [done (filter-done (status this js))]
       (when (< (count done) (count jobs))
         (Thread/sleep 100)
         (recur (filter-done (status this js)))))
     [this (add-results this jobs)])
 
-  (async-wait [this {:keys [jobs queue systems] :as js} f & args]
+  (async-wait [this {:keys [jobs systems] :as js} f & args]
     (let [out *out*]
       (future
         (binding [*out* out]
@@ -134,11 +136,12 @@
 
   (pretty-print [this {:keys [results chain] :as m} message]
     (let [{:keys [success failure]} results]
+      (println success)
       (println "\n")
       (println (style (<< "Running ~{message} summary:") :blue) "\n")
-      (doseq [{:keys [hostname]} success]
+      (doseq [{:keys [message args]} success :let [hostname (get-in args [0 :machine :hostname])]]
         (println " " (style "✔" :green) hostname))
-      (doseq [{:keys [hostname message]} failure]
+      (doseq [{:keys [message args]} failure :let [hostname (get-in args [0 :machine :hostname])]]
         (println " " (style "x" :red) hostname "-" message))
       (println "")
       [this m])))
@@ -156,10 +159,10 @@
   (summary [this {:keys [success failure] :as m}]
     (println "")
     (println (style "Run summary:" :blue) "\n")
-    (doseq [{:keys [identity queue]} success]
-      (println " " (style "✔" :green) queue identity))
-    (doseq [{:keys [identity queue message]} failure]
-      (println " " (style "x" :red) queue identity "-" message))
+    (doseq [{:keys [identity topic]} success]
+      (println " " (style "✔" :green) topic identity))
+    (doseq [{:keys [identity topic message]} failure]
+      (println " " (style "x" :red) topic identity "-" message))
     (println "")
     [this m]))
 

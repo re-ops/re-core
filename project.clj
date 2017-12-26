@@ -54,13 +54,13 @@
                  [substantiation "0.3.1"]
                  [com.fasterxml.jackson.core/jackson-core "2.6.4"]
 
-                 ; redis
-                 [com.taoensso/carmine "2.11.1"]
                  ; es
                  [cc.qbits/spandex "0.5.5" :exclusions [org.clojure/clojure]]
                  [org.apache.httpcomponents/httpclient "4.5.2"]
+
                  ; queue
                  [factual/durable-queue "0.1.5"]
+                 [cc.qbits/knit "0.3.1"]
 
                  ; timeunits
                  [fogus/minderbinder "0.2.0"]

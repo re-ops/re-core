@@ -12,9 +12,8 @@
 
 (defn put
   "Update a job"
-  [{:keys [tid queue status] :as job}]
-  (let [body (merge job {:queue (name queue) :status (name status)})]
-    (= (:status (s/request @c {:url [index :jobs tid] :method :put :body body})) 200)))
+  [{:keys [tid] :as job}]
+  (= (:status (s/request @c {:url [index :jobs tid] :method :put :body job})) 200))
 
 (defn delete
   "delete a job from Elasticsearch"
@@ -24,6 +23,10 @@
 (defn get
   "Get job bu tid"
   [tid]
-  (get-in
-   (s/request @c {:url [index :jobs tid] :method :get}) [:body :_source]))
+  (try
+    (let [result (s/request @c {:url [index :jobs tid] :method :get})]
+      (get-in result [:body :_source]))
+    (catch Exception e
+      (when-not (= 404 (:status (ex-data e)))
+        (throw e)))))
 

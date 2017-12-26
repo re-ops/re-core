@@ -9,7 +9,7 @@
    [re-core.fixtures.populate :refer (re-initlize)])
   (:use midje.sweet))
 
-(def job {:tid "" :status :success :identity 1 :args [] :env :dev :queue :stop})
+(def job {:tid "" :status :success :identity 1 :args [] :env :dev :topic :stop})
 
 (defn stamp
   "add time start end timestamps"
