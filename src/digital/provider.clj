@@ -10,18 +10,18 @@
    [re-core.common :refer (get*)]
    [taoensso.timbre :refer (refer-timbre)]
    [re-core.core :refer (Vm)]
-   [digitalocean.v2.core :as do]))
+   [digitalocean.v2.core :as d]))
 
 (refer-timbre)
 
 (defn run-action [type* id]
-  (let [post-action (do/generic :post (<< "droplets/~{id}/actions"))]
+  (let [post-action (d/generic :post (<< "droplets/~{id}/actions"))]
     (post-action (hypervisor* :digital-ocean :token) nil  {:type (name type*)})))
 
 (defn get-droplet
   "get droplet using token"
   [id]
-  (do/get-droplet (hypervisor* :digital-ocean :token) id))
+  (d/get-droplet (hypervisor* :digital-ocean :token) id))
 
 (defn get-ip [id]
   (get-in (get-droplet id) [:droplet :networks :v4 0 :ip_address]))
@@ -41,7 +41,7 @@
 (defrecord Droplet [token drp spec]
   Vm
   (create [this]
-    (let [{:keys [droplet message] :as result} (do/create-droplet token nil drp) {:keys [id]} droplet]
+    (let [{:keys [droplet message] :as result} (d/create-droplet token nil drp) {:keys [id]} droplet]
       (when-not droplet
         (throw+ {:type ::digital:create-fail} message))
       (wait-for-ip id [5 :minute])
@@ -51,7 +51,7 @@
 
   (delete [this]
     (with-id
-      (do/delete-droplet token id)))
+      (d/delete-droplet token id)))
 
   (start [this]
     (with-id

@@ -1,12 +1,12 @@
 {
-  :env :dev 
+  :env :dev
 
   :owner "admin"
 
   :machine {
-    :hostname "red1" :user "root" 
-    :domain "local" :os :ubuntu-14.04
-  } 
+    :hostname "red1" :user "root"
+    :domain "local" :os :ubuntu-16.04
+  }
 
   :digital-ocean {
     :region "lon1" :size "512mb"

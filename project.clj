@@ -104,7 +104,7 @@
      :test {
        :test-paths ["data" "test"]
        :dependencies [
-          [midje "1.8.3"]
+          [midje "1.9.0"]
           [org.clojure/tools.trace "0.7.9"]
           [org.clojure/test.check "0.7.0"]
         ]
@@ -115,8 +115,8 @@
      :dev {
         :source-paths  ["dev"]
         :resource-paths  ["src/main/resources/" "pkg/etc/re-core/"]
-        :plugins [[lein-midje "3.1.3"]]
-        :dependencies [[midje "1.8.3"]]
+        :plugins [[lein-midje "3.2.1"]]
+        :dependencies [[midje "1.9.0"]]
 
         :set-version {
            :updates [
