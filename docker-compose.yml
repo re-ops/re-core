@@ -2,6 +2,7 @@ version: '2'
 services:
   elasticsearch:
     image: "docker.elastic.co/elasticsearch/elasticsearch:5.6.3"
+    container_name: re-core_elasticsearch
     volumes:
        - data:/usr/share/elasticsearch/data
     ports:
@@ -9,22 +10,29 @@ services:
       - "9300:9300"
     environment:
       - ES_JAVA_OPTS=-Xms512m -Xmx512m
-      - cluster.name=docker-cluster
+      - cluster.name=re-ops
       - xpack.security.enabled=false
       - xpack.monitoring.enabled=false
       - xpack.watcher.enabled=false
-      - http.port=9200
-      - http.cors.allow-origin=http://localhost:1358
-      - http.cors.enabled=true
-      - http.cors.allow-headers=X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization
-      - http.cors.allow-credentials=true
-  dejavu:
-    image: "appbaseio/dejavu"
+    networks: ['stack']
+
+
+  kibana:
+    image: "docker.elastic.co/kibana/kibana:5.6.3"
+    container_name: re-core_kibana
+    environment: ['ELASTICSEARCH_PASSWORD=${ELASTIC_PASSWORD}']
     ports:
-      - "1358:1358"
-    depends_on:
-      - elasticsearch
+      - "5607:5601"
+    networks: ['stack']
+    depends_on: ['elasticsearch']
+    environment:
+      - XPACK_GRAPH_ENABLED=false
+      - XPACK_MONITORING_ENABLED=false
+      - XPACK_REPORTING_ENABLED=false
+      - XPACK_SECURITY_ENABLED=false
 
 volumes:
     data:
       driver: local
+
+networks: {stack: {}}
