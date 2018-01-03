@@ -14,7 +14,7 @@
 
 (defn exists?
   [id]
-  (= (:status (s/request @c {:url [index :type id] :method :head})) 200))
+  (common/exists? index :type id))
 
 (defn create
   "create a type returning its id"
@@ -30,23 +30,24 @@
 (defn put
   "Update a type"
   [id type]
-  (= (:status (s/request @c {:url [index :type id] :method :put :body type})) 200))
+  (common/put index :type id type))
 
 (defn delete
-  "delete a type from Elasticsearch"
+  "delete a type  from ES"
   [id]
-  (= (:status (s/request @c {:url [index :type id] :method :delete})) 200))
+  (common/delete index :type id))
 
 (defn keywordize
   "converting Elasticsearch values back into keywords"
   [m]
-  (transform
-   [(multi-path [:machine :os] [:env] [:kvm :node] [:kvm :volumes ALL :pool])] keyword  m))
+  (when m
+    (transform
+     [(multi-path [:machine :os] [:env] [:kvm :node] [:kvm :volumes ALL :pool])] keyword  m)))
 
 (defn get
   "Grabs a type by an id"
   [id]
-  (keywordize (:_source (s/request @c {:url [index :type id] :method :get}))))
+  (keywordize (common/get index :system id)))
 
 (defn get!
   "Grabs a type by an id"

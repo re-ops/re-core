@@ -4,7 +4,7 @@
   (:require
    [qbits.spandex :as s]
    [es.node :as node :refer (c)]
-   [es.common :refer (index)]
+   [es.common :refer (index) :as common]
    [taoensso.timbre :refer (refer-timbre)]
    [re-core.common :refer (envs)]))
 
@@ -13,20 +13,20 @@
 (defn put
   "Update a job"
   [{:keys [tid] :as job}]
-  (= (:status (s/request @c {:url [index :jobs tid] :method :put :body job})) 200))
+  (common/put index :jobs tid job))
 
 (defn delete
-  "delete a job from Elasticsearch"
+  "delete a system from ES"
   [tid]
-  (= (:status (s/request @c {:url [index :jobs tid] :method :delete})) 200))
+  (common/delete index :jobs tid))
+
+(defn get
+  "Grabs a job by a tid, return nil if missing"
+  [id]
+  (common/get index :system id))
 
 (defn get
   "Get job bu tid"
   [tid]
-  (try
-    (let [result (s/request @c {:url [index :jobs tid] :method :get})]
-      (get-in result [:body :_source]))
-    (catch Exception e
-      (when-not (= 404 (:status (ex-data e)))
-        (throw e)))))
+  (common/get index :jobs tid))
 

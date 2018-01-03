@@ -7,6 +7,54 @@
 
 (refer-timbre)
 
+; Common ES functions
+
+(defn exists-call
+  [target]
+  (try
+    (= (:status (s/request @c {:url target :method :head})) 200)
+    (catch Exception e
+      (error e (ex-data e))
+      false)))
+
+(defn exists?
+  ([index]
+   (exists-call [index]))
+  ([index t id]
+   (exists-call [index t id])))
+
+(defn delete-call
+  [target]
+  (try
+    (= (:status (s/request @c {:url target :method :delete})) 200)
+    (catch Exception e
+      (error e (ex-data e))
+      false)))
+
+(defn delete
+  ([index]
+   (delete-call [index]))
+  ([index t id]
+   (delete-call [index t id])))
+
+(defn put-call
+  [target m]
+  (try
+    (= (:status (s/request @c {:url target :method :put :body m})) 200)
+    (catch Exception e
+      (error e (ex-data e))
+      false)))
+
+(defn put [index t id m]
+  (put-call [index t id] m))
+
+(defn get [index t id]
+  (try
+    (get-in (s/request @c {:url [index t id] :method :get}) [:body :_source])
+    (catch Exception e
+      (when-not (= 404 (:status (ex-data e)))
+        (throw e)))))
+
 (def ^:const index "re-core")
 
 (def ^:const types {:jobs {:properties {:env {:type "keyword"}
@@ -22,21 +70,9 @@
 
 (def ^:const settings {:number_of_shards 1})
 
-(defn- exists?
-  [index]
-  (try
-    (= (:status (s/request @c {:url [index] :method :head})) 200)
-    (catch Exception e
-      (error e (ex-data e))
-      false)))
-
 (defn- create
   [index mappings]
   (= (:status (s/request @c {:url [index] :method :put :body mappings})) 200))
-
-(defn- delete
-  [index]
-  (= (:status (s/request @c {:url [index] :method :delete})) 200))
 
 (defn initialize
   "Creates systems index and types"

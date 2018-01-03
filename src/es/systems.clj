@@ -14,7 +14,7 @@
 
 (defn exists?
   [id]
-  (= (:status (s/request @c {:url [index :system id] :method :head})) 200))
+  (common/exists? index :system id))
 
 (defn create
   "create a system returning its id"
@@ -28,28 +28,24 @@
 (defn put
   "Update a system"
   [id system]
-  (= (:status (s/request @c {:url [index :system id] :method :put :body system})) 200))
+  (common/put index :system id system))
 
 (defn delete
   "delete a system from ES"
   [id]
-  (= (:status (s/request @c {:url [index :system id] :method :delete})) 200))
+  (common/delete index :system id))
 
 (defn keywordize
   "converting ES values back into keywords"
   [m]
-  (transform
-   [(multi-path [:machine :os] [:env] [:kvm :node] [:kvm :volumes ALL :pool])] keyword m))
+  (when m
+    (transform
+     [(multi-path [:machine :os] [:env] [:kvm :node] [:kvm :volumes ALL :pool])] keyword m)))
 
 (defn get
   "Grabs a system by an id, return nil if missing"
   [id]
-  (try
-    (keywordize
-     (get-in (s/request @c {:url [index :system id] :method :get}) [:body :_source]))
-    (catch Exception e
-      (when-not (= 404 (:status (ex-data e)))
-        (throw e)))))
+  (keywordize (common/get index :system id)))
 
 (defn get!
   "Grabs a system by an id"
