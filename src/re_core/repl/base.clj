@@ -31,13 +31,13 @@
 
 (defn render [[id m]]
   (-> m
-      (select-keys* [:owner] [:machine :hostname] [:machine :os] [:machine :ip])
+      (select-keys* [:type] [:machine :hostname] [:machine :os] [:machine :ip])
       (assoc :id id)))
 
 (defmethod pretty #{:systems} [this {:keys [systems] :as m}]
   (let [formatter (format-columns bold-white-font [:right 10] "  " reset-font [:right 20] "  "
                                   [:right 5] "  " [:right 15] "  " :none)]
-    (write-rows *out* formatter [:hostname :id :owner (comp name :os) :ip] (map render systems))))
+    (write-rows *out* formatter [:hostname :id :type (comp name :os) :ip] (map render systems))))
 
 (defn src-or-tar
   [t]
