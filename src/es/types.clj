@@ -65,5 +65,5 @@
 (defn all
   "return all existing types"
   []
-  (common/all :type))
+  (map second (common/all :type)))
 
