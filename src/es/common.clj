@@ -37,6 +37,14 @@
   ([index t id]
    (delete-call [index t id])))
 
+(defn delete-all
+  [index t]
+  (try
+    (= (:status (s/request @c {:url [index t :_delete_by_query] :method :post :body {:query {:match_all {}}}})) 200)
+    (catch Exception e
+      (error e (ex-data e))
+      false)))
+
 (defn put-call
   [target m]
   (try
@@ -66,7 +74,11 @@
                                           :env {:type "keyword"}
                                           :machine {:properties {:hostname {:type "keyword" :index "not_analyzed"}
                                                                  :cpus {:type "integer"}}}
-                                          :type {:type "keyword"}}}})
+                                          :type {:type "keyword"}}}
+                    :type {:properties {:puppet {:properties {:src {:type "text"}
+                                                              :tar {:type "text"}}}
+                                        :description {:type "text"}
+                                        :type {:type "keyword"}}}})
 
 (def ^:const settings {:number_of_shards 1})
 

@@ -47,7 +47,7 @@
 (defn get
   "Grabs a type by an id"
   [id]
-  (keywordize (common/get index :system id)))
+  (keywordize (common/get index :type id)))
 
 (defn get!
   "Grabs a type by an id"
@@ -67,3 +67,5 @@
   []
   (map second (common/all :type)))
 
+(defn clear []
+  (common/delete-all index :type))
