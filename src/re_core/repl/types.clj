@@ -14,10 +14,17 @@
   Repl
   (ls [this & opts]
     (ls this))
+
   (ls [this]
     [this {:types (t/all)}])
+
   (filter-by [this {:keys [types] :as m} f]
-    [this {:types (filter f types)}]))
+    [this {:types (filter f types)}])
+
+  (rm [this {:keys [types] :as m}]
+    (doseq [[id _] types]
+      (t/delete id))
+    [this {:types []}]))
 
 (extend-type Types
   Report

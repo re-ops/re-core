@@ -65,7 +65,7 @@
 (defn all
   "return all existing types"
   []
-  (map second (common/all :type)))
+  (common/all :type))
 
 (defn clear []
   (common/delete-all index :type))

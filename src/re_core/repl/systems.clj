@@ -22,7 +22,6 @@
   (start [this items])
   (create [this items])
   (destroy [this items])
-  (clear [this items])
   (reload [this items])
   (status [this jobs])
   (block-wait [this jobs])
@@ -110,9 +109,6 @@
 
   (destroy [this {:keys [systems] :as m}]
     [this (run-job m "destroy" systems)])
-
-  (clear [this {:keys [systems] :as m}]
-    [this (run-job m "clear" systems)])
 
   (status [this {:keys [jobs]}]
     (map (fn [{:keys [job]}] (assoc job :status (q/status job))) jobs))

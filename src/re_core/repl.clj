@@ -56,13 +56,20 @@
 
 (defn clear
   " Clear model only (VM won't be deleted):
-    (clear) ; clear all (both runnging and non running)
-    (clear (by-type :redis)) ; clear only redis intances
+    (clear) ; clear all systems (both runnging and non running)
+    (clear (by-type :redis)) ; clear systems with redis type
+    (clear identity :types) ; clear all types
   "
   ([]
    (clear identity))
   ([f]
-   (run (ls systems) | (filter-by f) | (sys/clear) | (block-wait) | (pretty-print "clearing"))))
+   (clear f :systems))
+  ([f on]
+   (case on
+    :systems (run (ls systems) | (filter-by f) | (rm) | (pretty))
+    :types (run (ls types) | (filter-by f) | (rm) | (pretty))
+    )
+   ))
 
 (defn destroy
   " Destroy instances (both clear and remove VM):
@@ -99,13 +106,19 @@
 
 (defn list
   "List available instances:
-    (list) ; list all
-    (list ip) ; list all with ip (running)
+    (list) ; list all systems
+    (list ip) ; list all systems that have an ip (running)
+    (list identity :types) ; list all types
   "
   ([]
-   (list identity))
+   (list identity :systems))
   ([f]
-   (run (ls systems) | (filter-by f) | (pretty))))
+   (list f :systems))
+  ([f on]
+   (case on
+     :systems (run (ls systems) | (filter-by f) | (pretty))
+     :types (run (ls types) | (pretty))
+     )))
 
 (defn hosts
   "Convert systems into re-mote hosts:
@@ -155,6 +168,3 @@
      (doseq [host (:hosts hs)]
        (.exec  (Runtime/getRuntime) (<< "/usr/bin/x-terminal-emulator --disable-factory -e /usr/bin/ssh ~{user}@~{host}"))))))
 
-; Types
-(defn all-types []
-  (run (ls types) | (pretty)))
