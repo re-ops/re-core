@@ -3,7 +3,7 @@
   (:require [re-core.common :refer (gen-uuid)]))
 
 (defn with-host [h]
-  (fn [{:keys [type] :as instance}] 
+  (fn [{:keys [type] :as instance}]
     (assoc-in instance [:machine :hostname] (or h (name type)))))
 
 (defn with-type [t]
@@ -12,12 +12,12 @@
 (defn name-gen
   "Generating a unique hostname from host/type + uuid"
   [instance]
-  (update-in instance [:machine :hostname] 
-     (fn [hostname] (str hostname "-" (.substring (gen-uuid) 0 10)))))
+  (update-in instance [:machine :hostname]
+             (fn [hostname] (str hostname "-" (.substring (gen-uuid) 0 10)))))
 
 (defn machine [user domain os] {:user user :domain domain :os os})
 
-(defn kvm [machine node] 
+(defn kvm [machine node]
   {:machine machine :kvm {:node node}})
 
 (defn kvm-machine [cpu ram]

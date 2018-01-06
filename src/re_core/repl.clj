@@ -150,8 +150,8 @@
    (let [{:keys [fns total type hostname]} (into-spec {} args)
          transforms [(with-type type) (with-host hostname) name-gen]
          all (apply conj transforms fns)
-         specs (map  (fn [_] (reduce (fn [m f] (f m)) base all)) (range (or total 1))) ]
-    (run (add systems specs) | (sys/create) | (async-wait pretty-print "create")))))
+         specs (map  (fn [_] (reduce (fn [m f] (f m)) base all)) (range (or total 1)))]
+     (run (add systems specs) | (sys/create) | (async-wait pretty-print "create")))))
 
 (defn ssh-into
   "SSH into instances (open a terminal)"
