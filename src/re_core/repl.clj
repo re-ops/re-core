@@ -159,15 +159,14 @@
    (up s 1)))
 
 (defn create
-   "Create instances
+  "Create instances
      (create kvm.small :redis) ; Create a small kvm instance that run redis
      (create kvm.small :redis \"furry\") ; Create a small kvm instance with a hostname
      (create kvm.small vol-100 :redis 5) ; Create 5 small redis instances with a 100G Volume
      (create kvm.small vol-100 :redis 5 \"blurby\") ; Each with 100 GB volume "
-   ([base & args]
-     (println (into-spec {} args))
-      #_(run (add systems specs) | (sys/create) | (block-wait) | (pretty-print "up"))
-    ))
+  ([base & args]
+   (println (into-spec {} args))
+   #_(run (add systems specs) | (sys/create) | (block-wait) | (pretty-print "up"))))
 
 (defn ssh-into
   "SSH into instances (open a terminal)"
@@ -177,5 +176,4 @@
    (let [{:keys [user]} auth]
      (doseq [host (:hosts hs)]
        (.exec  (Runtime/getRuntime) (<< "/usr/bin/x-terminal-emulator --disable-factory -e /usr/bin/ssh ~{user}@~{host}"))))))
-
 
