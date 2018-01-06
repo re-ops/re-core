@@ -66,10 +66,8 @@
    (clear f :systems))
   ([f on]
    (case on
-    :systems (run (ls systems) | (filter-by f) | (rm) | (pretty))
-    :types (run (ls types) | (filter-by f) | (rm) | (pretty))
-    )
-   ))
+     :systems (run (ls systems) | (filter-by f) | (rm) | (pretty))
+     :types (run (ls types) | (filter-by f) | (rm) | (pretty)))))
 
 (defn destroy
   " Destroy instances (both clear and remove VM):
@@ -117,8 +115,7 @@
   ([f on]
    (case on
      :systems (run (ls systems) | (filter-by f) | (pretty))
-     :types (run (ls types) | (pretty))
-     )))
+     :types (run (ls types) | (pretty)))))
 
 (defn hosts
   "Convert systems into re-mote hosts:
