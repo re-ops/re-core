@@ -6,7 +6,7 @@
    [re-mote.repl :as mote]
    [re-core.repl.base :refer (refer-base)]
    [re-core.repl.systems :refer (refer-systems)]
-   [re-core.preset :refer (into-spec)]
+   [re-core.preset :refer (into-spec with-type with-host name-gen)]
    [re-core.repl.types :refer (refer-types)]
    [taoensso.timbre :as timbre :refer (set-level!)])
   (:import
@@ -140,23 +140,6 @@
      (doseq [[t ms] by-type]
        (mote/provision (into-hosts systems {:systems ms} :ip) (provision-type t))))))
 
-(defn up
-  "Create and provision:
-    (up (kvm-instance \"repos-kvm\")  5) ; create 5 VM instances
-    (up (kvm-instance \"repos-kvm\")); create a single VM
-    (up (kvm-instance \"repos-kvm\") 1 :skip-provision true); create a single VM
-  "
-  ([base t & {:keys [skip-provision] :or {skip-provision false}}]
-   (let [specs (map (fn [i] (update-in base [:machine :hostname] (fn [n] (str n "-" i)))) (range t))
-         [_ m] (run (add systems specs) | (sys/create) | (block-wait) | (pretty-print "up"))]
-     (when-not skip-provision
-       (provision
-        (with-ids
-          (map (fn [[id _]] id) (:systems m)))))))
-
-  ([s]
-   (up s 1)))
-
 (defn create
   "Create instances
      (create kvm.small :redis) ; Create a small kvm instance that run redis
@@ -164,8 +147,11 @@
      (create kvm.small vol-100 :redis 5) ; Create 5 small redis instances with a 100G Volume
      (create kvm.small vol-100 :redis 5 \"blurby\") ; Each with 100 GB volume "
   ([base & args]
-   (println (into-spec {} args))
-   #_(run (add systems specs) | (sys/create) | (block-wait) | (pretty-print "up"))))
+   (let [{:keys [fns total type hostname]} (into-spec {} args)
+         transforms [(with-type type) (with-host hostname) name-gen]
+         all (apply conj transforms fns)
+         specs (map  (fn [_] (reduce (fn [m f] (f m)) base all)) (range (or total 1))) ]
+    (run (add systems specs) | (sys/create) | (async-wait pretty-print "create")))))
 
 (defn ssh-into
   "SSH into instances (open a terminal)"

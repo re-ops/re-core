@@ -2,20 +2,23 @@
   "VM presets"
   (:require [re-core.common :refer (gen-uuid)]))
 
+(defn with-host [h]
+  (fn [{:keys [type] :as instance}] 
+    (assoc-in instance [:machine :hostname] (or h (name type)))))
+
+(defn with-type [t]
+  (fn [instance] (assoc instance :type t)))
+
 (defn name-gen
-  "Generating a unique hostname from type + uuid"
+  "Generating a unique hostname from host/type + uuid"
   [instance]
-  (assoc-in instance [:machine :hostname]
-            (str type "-" (.substring (gen-uuid) 0 10))))
+  (update-in instance [:machine :hostname] 
+     (fn [hostname] (str hostname "-" (.substring (gen-uuid) 0 10)))))
 
 (defn machine [user domain os] {:user user :domain domain :os os})
 
-(defn kvm
-  ([machine node]
-   (kvm machine node []))
-  ([machine node volumes] {:machine machine
-                           :kvm {:node node}
-                           :volumes volumes}))
+(defn kvm [machine node] 
+  {:machine machine :kvm {:node node}})
 
 (defn kvm-machine [cpu ram]
   (merge {:cpu cpu :ram ram} (machine "re-ops" "local" :ubuntu-16.04)))
@@ -65,7 +68,7 @@
     (let [a (first args) {:keys [fns]} m]
       (cond
         (string? a) (into-spec (assoc m :hostname a) (rest args))
-        (number? a) (into-spec (assoc m :count a) (rest args))
+        (number? a) (into-spec (assoc m :total a) (rest args))
         (keyword? a) (into-spec (assoc m :type a) (rest args))
         (fn? a) (into-spec (assoc m :fns (conj fns a)) (rest args))))))
 
