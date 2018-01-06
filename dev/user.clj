@@ -8,6 +8,7 @@
    [clojure.tools.namespace.repl :refer (refresh refresh-all)]
    ; re-core
    [re-core.repl :refer :all]
+   [re-core.preset :refer (into-spec)]
    [re-core.log :refer (debug-on info-on trace-on)]
    [re-core.repl.fixtures :refer :all]
    [me.raynes.fs :refer (extension file?)]

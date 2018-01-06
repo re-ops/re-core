@@ -21,6 +21,10 @@
   (filter-by [this {:keys [types] :as m} f]
     [this {:types (filter f types)}])
 
+  (add [this specs]
+    (let [f (fn [s] (let [id (t/create s)] [id (assoc (t/get id) :id id)]))]
+      [this {:types (map f specs)}]))
+
   (rm [this {:keys [types] :as m}]
     (doseq [[id _] types]
       (t/delete id))
