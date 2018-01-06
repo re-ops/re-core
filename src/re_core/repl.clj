@@ -15,7 +15,6 @@
 
 (refer-base)
 (refer-systems)
-(refer-presets)
 (refer-types)
 
 (set-level! :debug)
