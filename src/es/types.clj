@@ -22,9 +22,9 @@
    (try
      (s/request @c {:url [index :type (type :type)] :method :post :body type}) 200
      (catch Exception e
-       (error e 
-          (ex-data e)
-          (throw e))))))
+       (error e
+              (ex-data e)
+              (throw e))))))
 
 (defn put
   "Update a type"
