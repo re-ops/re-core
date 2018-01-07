@@ -138,7 +138,7 @@
    (let [[_ m] (run (ls systems) | (filter-by f))
          by-type (group-by (comp :type second) (:systems m))]
      (doseq [[t ms] by-type]
-       (mote/provision (into-hosts systems {:systems ms} :ip) (provision-type t))))))
+       (future (mote/provision (into-hosts systems {:systems ms} :ip) (provision-type t)))))))
 
 (defn create
   "Create instances
