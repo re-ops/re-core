@@ -22,7 +22,7 @@
     [this {:types (filter f types)}])
 
   (add [this specs]
-    (let [f (fn [s] (let [id (t/create s)] [id (assoc (t/get id) :id id)]))]
+    (let [f (fn [{:keys [type] :as s}] (when (t/create s) [type s]))]
       [this {:types (map f specs)}]))
 
   (rm [this {:keys [types] :as m}]

@@ -1,6 +1,8 @@
-(ns re-core.preset
-  "VM presets"
-  (:require [re-core.common :refer (gen-uuid)]))
+(ns re-core.presets.system
+  "Systems presets"
+  (:require
+   [clojure.core.strint :refer (<<)]
+   [re-core.common :refer (gen-uuid)]))
 
 (defn with-host [h]
   (fn [{:keys [type] :as instance}]
@@ -72,7 +74,6 @@
         (keyword? a) (into-spec (assoc m :type a) (rest args))
         (fn? a) (into-spec (assoc m :fns (conj fns a)) (rest args))))))
 
-(defn refer-presets []
-  (require '[re-core.preset :as pres :refer [kvm-tiny kvm-small kvm-medium kvm-large kvm-xlarge
-                                             vol-128G vol-256G vol-512G vol-1T]]))
+(defn refer-system-presets []
+  (require '[re-core.presets.system :as sp :refer [kvm-tiny kvm-small kvm-medium kvm-large kvm-xlarge vol-128G vol-256G vol-512G vol-1T]]))
 

@@ -6,7 +6,8 @@
    [re-mote.repl :as mote]
    [re-core.repl.base :refer (refer-base)]
    [re-core.repl.systems :refer (refer-systems)]
-   [re-core.preset :refer (into-spec with-type with-host name-gen)]
+   [re-core.presets.system :as sp]
+   [re-core.presets.type :as tp]
    [re-core.repl.types :refer (refer-types)]
    [taoensso.timbre :as timbre :refer (set-level!)])
   (:import
@@ -140,18 +141,31 @@
      (doseq [[t ms] by-type]
        (future (mote/provision (into-hosts systems {:systems ms} :ip) (provision-type t)))))))
 
+(defn- create-system [base args]
+  (let [{:keys [fns total type hostname]} (sp/into-spec {} args)
+        transforms [(sp/with-type type) (sp/with-host hostname) sp/name-gen]
+        all (apply conj transforms fns)
+        specs (map  (fn [_] (reduce (fn [m f] (f m)) base all)) (range (or total 1)))]
+    (run (add systems specs) | (sys/create) | (async-wait pretty-print "create"))))
+
+(defn- create-type [base args]
+  (let [{:keys [fns type description]} (tp/into-spec {} args)
+        transforms [(tp/with-type type) (tp/with-desc description)]
+        spec (reduce (fn [m f] (f m)) base (apply conj transforms fns))]
+    (run (add types [spec]) | (pretty))))
+
 (defn create
   "Create instances
      (create kvm.small :redis) ; Create a small kvm instance that run redis
      (create kvm.small :redis \"furry\") ; Create a small kvm instance with a hostname
      (create kvm.small vol-100 :redis 5) ; Create 5 small redis instances with a 100G Volume
-     (create kvm.small vol-100 :redis 5 \"blurby\") ; Each with 100 GB volume "
-  ([base & args]
-   (let [{:keys [fns total type hostname]} (into-spec {} args)
-         transforms [(with-type type) (with-host hostname) name-gen]
-         all (apply conj transforms fns)
-         specs (map  (fn [_] (reduce (fn [m f] (f m)) base all)) (range (or total 1)))]
-     (run (add systems specs) | (sys/create) | (async-wait pretty-print "create")))))
+     (create kvm.small vol-100 :redis 5 \"blurby\") ; Each with 100 GB volume
+     (create puppet src :redis \"redis instance type\") ; Puppet based type using local src directory "
+  [base & args]
+  (cond
+    (:machine base) (create-system base args)
+    (:puppet base) (create-type base args)
+    :else (throw (ex-info "creation type not found" {:base base :args args}))))
 
 (defn ssh-into
   "SSH into instances (open a terminal)"

@@ -8,7 +8,8 @@
    [clojure.tools.namespace.repl :refer (refresh refresh-all)]
    ; re-core
    [re-core.repl :refer :all]
-   [re-core.preset :refer (refer-presets)]
+   [re-core.presets.system :refer (refer-system-presets)]
+   [re-core.presets.type :refer (refer-type-presets)]
    [re-core.log :refer (debug-on info-on trace-on)]
    [re-core.repl.fixtures :refer :all]
    [me.raynes.fs :refer (extension file?)]
@@ -22,7 +23,8 @@
    [re-mote.launch :as mote]))
 
 (refer-zero-manage)
-(refer-presets)
+(refer-system-presets)
+(refer-type-presets)
 
 (def system nil)
 

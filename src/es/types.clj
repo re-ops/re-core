@@ -20,7 +20,7 @@
   "create a type with id type"
   ([type]
    (try
-     (s/request @c {:url [index :type (type :type)] :method :post :body type}) 200
+     (= (:status (s/request @c {:url [index :type (type :type)] :method :post :body type})) 200)
      (catch Exception e
        (error e
               (ex-data e)
