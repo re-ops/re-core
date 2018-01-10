@@ -9,7 +9,7 @@
 (def puppet {:puppet {:tar "" :args []}})
 
 (defn src [{:keys [type] :as instance}]
-  (assoc-in instance [:puppet :src] (<< "~{home}/code/boxes/~{type}-sandbox")))
+  (assoc-in instance [:puppet :src] (<< "~{home}/code/boxes/~{type}-sandbox/")))
 
 (defn with-type [t]
   (fn [instance]
