@@ -129,6 +129,9 @@
   ([f k]
    (run (ls systems) | (filter-by f) | (into-hosts k))))
 
+(defn by-id [part]
+  (fn [[id _]] (.contains id part)))
+
 (defn provision
   "Provision VM:
     (provision) ; run provision on all running instances
