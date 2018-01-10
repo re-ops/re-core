@@ -25,7 +25,7 @@
     (merge-config!
      {:ns-blacklist ["net.schmizz.*" "org.elasticsearch.indices.*" "org.apache.http.*"]})
     (merge-config!
-     {:appenders {:println {:ns-whitelist ["re-core"]}}})
+     {:appenders {:println {:ns-whitelist ["re-core" "re-mote"]}}})
     (disable-coloring)
     (set-level! (or (log* :level) :info))))
 
