@@ -8,14 +8,17 @@
    physical.provider
     ;cloning
    aws.model
+   [re-core.repl.systems :as sys]
+   [re-mote.repl :as mote]
    [es.systems :as s]
    [clojure.tools.macro :as tm]
    [metrics.timers :refer  [deftimer time!]]
-   [re-core.common :refer (get! resolve-)]
    [clojure.core.strint :refer (<<)]
-   [slingshot.slingshot :refer  [throw+ try+]]
-   [re-core.model :refer (vconstruct pconstruct rconstruct)]
-   [taoensso.timbre :refer (refer-timbre)]))
+   [re-core.model :refer (vconstruct)]
+   [taoensso.timbre :refer (refer-timbre)])
+  (:import
+   [re_core.repl.base Systems])
+  )
 
 (refer-timbre)
 
@@ -85,7 +88,7 @@
   (let [vm (vconstruct spec)]
     (info "setting up" machine)
     (when (.status vm)
-      (throw+ {:type ::machine-exists} "can't create an existing machine"))
+      (throw (ex-info "can't create an existing machine" {:system spec})))
     (let [vm* (.create vm)]
       (.start vm*)
       (running! vm*)
@@ -105,7 +108,7 @@
   "Clones a system model and creates it"
   [{:keys [system-id] :as spec}]
   (when-not (s/exists? system-id)
-    (throw+ {:type ::system-missing} (<< "Could not clone missing system ~{system-id}")))
+    (throw (ex-info (<< "Could not clone missing system ~{system-id}") {:system spec}) ))
   (let [id (s/clone system-id spec)]
     (create (assoc (s/get id) :system-id id))
     (info "system cloned into" id)))
@@ -117,15 +120,12 @@
   (info "deleted system with id" system-id))
 
 (deflow provision
-  "Provisions an instance"
-  [type {:keys [machine] :as spec}]
-  (info "starting to provision")
-  (trace type spec)
-  (let [vm (vconstruct spec)
-        provisioner (pconstruct type (assoc-in spec [:machine :ip] (.ip vm)))]
-    (running! vm)
-    (.apply- provisioner))
-  (info "done provisioning"))
+  "provision a group of systems"
+  [systems t]
+  (info "starting to provision hosts")
+  (let [hosts (sys/into-hosts (Systems.) {:systems (map (fn [m] [(m :system-id) m]) systems)} :ip)]
+    (mote/provision hosts t)
+  (info "done provisioning hosts")))
 
 (defn stage
   "create and provision"

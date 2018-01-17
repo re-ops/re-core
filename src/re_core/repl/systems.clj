@@ -9,6 +9,8 @@
    [clojure.set :refer (difference)]
    [es.systems :as s]
    [es.jobs :as es]
+   [re-mote.repl.base :as base]
+   [re-core.repl.types :refer (provision-type)]
    [re-core.repl.base :refer [Repl Report select-keys*]])
   (:import
    [re_mote.repl.base Hosts]
@@ -21,6 +23,7 @@
   (stop [this items])
   (start [this items])
   (create [this items])
+  (provision [this items])
   (destroy [this items])
   (reload [this items])
   (status [this jobs])
@@ -38,11 +41,6 @@
 (defn grep-system [k v [id system]]
   (let [sub (select-keys* system [:owner] [:machine :hostname] [:machine :os] [:machine :ip])]
     (= v (sub k))))
-
-(defn schedule-job [topic [id system]]
-  (let [tid (gen-uuid) job {:identity id :tid tid :args [(assoc system :system-id id)]}]
-    (q/enqueue topic job)
-    {:system id :job job}))
 
 (defn run-ack [this {:keys [systems] :as m}]
   (println "The following systems will be effected Y/n (n*):")
@@ -80,35 +78,53 @@
 (defn filter-done [sts]
   (into #{} (filter (fn [{:keys [status]}] (not (nil? status))) sts)))
 
-(defn run-job [m topic systems]
-  (merge m {:jobs (map (partial schedule-job topic) systems) :topic topic}))
+(defn with-id
+   [[id system]]
+   [(assoc system :system-id id)])
+
+(defn- schedule-job [topic args]
+  (let [tid (gen-uuid) job {:tid tid :args args}]
+    (q/enqueue topic job)
+    {:job job}))
+
+(defn with-jobs [m topic js]
+  (merge m {:jobs js :topic topic}))
+
+(defn- schedule
+  ([m topic systems]
+   (schedule m topic systems with-id))
+  ([m topic args f]
+    (with-jobs m topic 
+      (map (fn [a] (schedule-job topic (f a))) args))))
 
 (defn result [{:keys [job]}]
   (merge (es/get (job :tid)) job))
 
 (defn add-results [this jobs]
-  (let [{:keys [success] :as results} (group-by (comp keyword :status) (map result jobs))
-        systems (doall (map (juxt identity s/get) (map :identity success)))]
-    {:systems systems :results results}))
-
-(defn job-host [{:keys [args]}])
+  (let [{:keys [success] :as results} (group-by (comp keyword :status) (map result jobs))]
+    {:systems (map :systems success) :results results}))
 
 (extend-type Systems
   Jobs
   (stop [this {:keys [systems] :as m}]
-    [this (run-job m "stop" systems)])
+    [this (schedule m "stop" systems)])
 
   (start [this {:keys [systems] :as m}]
-    [this (run-job m "start" systems)])
+    [this (schedule m "start" systems)])
 
   (create [this {:keys [systems] :as m}]
-    [this (run-job m "create" systems)])
+    [this (schedule m "create" systems)])
+
+  (provision [this {:keys [systems] :as m}]
+    (let [by-type (group-by (comp :type second) systems)
+          into-args (fn [[t ms]] [(flatten (mapv with-id ms)) (provision-type t)])]
+      [this (schedule m "provision" by-type into-args)]))
 
   (reload [this {:keys [systems] :as m}]
-    [this (run-job m "reload" systems)])
+    [this (schedule m "reload" systems)])
 
   (destroy [this {:keys [systems] :as m}]
-    [this (run-job m "destroy" systems)])
+    [this (schedule m "destroy" systems)])
 
   (status [this {:keys [jobs]}]
     (map (fn [{:keys [job]}] (assoc job :status (q/status job))) jobs))

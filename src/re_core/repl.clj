@@ -3,7 +3,6 @@
   (:refer-clojure :exclude [list update])
   (:require
    [clojure.core.strint :refer  (<<)]
-   [re-mote.repl :as mote]
    [re-core.repl.base :refer (refer-base)]
    [re-core.repl.systems :refer (refer-systems)]
    [re-core.presets.system :as sp]
@@ -22,9 +21,6 @@
 
 (def systems (Systems.))
 (def types (Types.))
-
-(defn single [host]
-  (run (ls systems) | (grep :hostname host)))
 
 ; filtering functions
 
@@ -139,10 +135,7 @@
   ([]
    (provision ip))
   ([f]
-   (let [[_ m] (run (ls systems) | (filter-by f))
-         by-type (group-by (comp :type second) (:systems m))]
-     (doseq [[t ms] by-type]
-       (future (mote/provision (into-hosts systems {:systems ms} :ip) (provision-type t)))))))
+    (run (ls systems) | (filter-by f) | (sys/provision)  #_(async-wait pretty-print "provision"))))
 
 (defn- create-system [base args]
   (let [{:keys [fns total type hostname]} (sp/into-spec {} args)
