@@ -17,8 +17,7 @@
    [re-core.model :refer (vconstruct)]
    [taoensso.timbre :refer (refer-timbre)])
   (:import
-   [re_core.repl.base Systems])
-  )
+   [re_core.repl.base Systems]))
 
 (refer-timbre)
 
@@ -108,7 +107,7 @@
   "Clones a system model and creates it"
   [{:keys [system-id] :as spec}]
   (when-not (s/exists? system-id)
-    (throw (ex-info (<< "Could not clone missing system ~{system-id}") {:system spec}) ))
+    (throw (ex-info (<< "Could not clone missing system ~{system-id}") {:system spec})))
   (let [id (s/clone system-id spec)]
     (create (assoc (s/get id) :system-id id))
     (info "system cloned into" id)))
@@ -125,7 +124,7 @@
   (info "starting to provision hosts")
   (let [hosts (sys/into-hosts (Systems.) {:systems (map (fn [m] [(m :system-id) m]) systems)} :ip)]
     (mote/provision hosts t)
-  (info "done provisioning hosts")))
+    (info "done provisioning hosts")))
 
 (defn stage
   "create and provision"

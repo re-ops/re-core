@@ -1,6 +1,6 @@
 (ns re-core.workers
   "Queue workers"
- (:require
+  (:require
    [re-core.workflows :as wf]
    [components.core :refer (Lifecyle)]
    [taoensso.timbre :refer (refer-timbre)]
@@ -26,7 +26,7 @@
   (reset! e (executor :fixed  {:num-threads 20}))
   (setup-workers))
 
-(defn stop- [] 
+(defn stop- []
   (when @e
     (.shutdown @e)
     (reset! e nil)))

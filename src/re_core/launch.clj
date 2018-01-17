@@ -47,7 +47,7 @@
   "stopping the application"
   [components]
   (clean-up components)
-   components)
+  components)
 
 (defn -main [& args]
   (start (setup)))

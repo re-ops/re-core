@@ -135,7 +135,7 @@
   ([]
    (provision ip))
   ([f]
-    (run (ls systems) | (filter-by f) | (sys/provision)  #_(async-wait pretty-print "provision"))))
+   (run (ls systems) | (filter-by f) | (sys/provision)  #_(async-wait pretty-print "provision"))))
 
 (defn- create-system [base args]
   (let [{:keys [fns total type hostname]} (sp/into-spec {} args)

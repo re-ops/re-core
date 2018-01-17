@@ -79,8 +79,8 @@
   (into #{} (filter (fn [{:keys [status]}] (not (nil? status))) sts)))
 
 (defn with-id
-   [[id system]]
-   [(assoc system :system-id id)])
+  [[id system]]
+  [(assoc system :system-id id)])
 
 (defn- schedule-job [topic args]
   (let [tid (gen-uuid) job {:tid tid :args args}]
@@ -94,8 +94,8 @@
   ([m topic systems]
    (schedule m topic systems with-id))
   ([m topic args f]
-    (with-jobs m topic 
-      (map (fn [a] (schedule-job topic (f a))) args))))
+   (with-jobs m topic
+     (map (fn [a] (schedule-job topic (f a))) args))))
 
 (defn result [{:keys [job]}]
   (merge (es/get (job :tid)) job))
