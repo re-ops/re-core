@@ -15,10 +15,10 @@
    [me.raynes.fs :refer (extension file?)]
    [re-core.launch :as core]
    ; re-mote
-   [re-mote.repl :refer :all :exclude (provision single)]
+   [re-mote.repl :refer :all :exclude (provision)]
    [re-mote.zero.functions :refer (call)]
    [re-mote.zero.management :refer (refer-zero-manage)]
-   [re-mote.log :refer (log-hosts redirect-output)]
+   [re-mote.log :refer (log-hosts)]
    [re-mote.zero.functions :refer (plus-one listdir)]
    [re-mote.launch :as mote]))
 
