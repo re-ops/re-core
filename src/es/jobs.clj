@@ -21,11 +21,6 @@
   (common/delete index :jobs tid))
 
 (defn get
-  "Grabs a job by a tid, return nil if missing"
-  [id]
-  (common/get index :system id))
-
-(defn get
   "Get job bu tid"
   [tid]
   (common/get index :jobs tid))
