@@ -1,7 +1,6 @@
 (ns digital.provider
   "Digital ocean provider"
   (:require
-   [slingshot.slingshot :refer (throw+)]
    [digital.validations :refer (provider-validation)]
    [clojure.core.strint :refer (<<)]
    [re-core.model :refer (translate vconstruct hypervisor*)]
@@ -36,14 +35,14 @@
 (defmacro with-id [& body]
   `(if-let [~'id (system-val ~'spec [:digital-ocean :id])]
      (do ~@body)
-     (throw+ {:type ::digital:missing-id} "Droplet id not found")))
+     (throw (ex-info "Droplet id not found" {:id 'id}))))
 
 (defrecord Droplet [token drp spec]
   Vm
   (create [this]
     (let [{:keys [droplet message] :as result} (d/create-droplet token nil drp) {:keys [id]} droplet]
       (when-not droplet
-        (throw+ {:type ::digital:create-fail} message))
+        (throw (ex-info message {:droplet droplet})))
       (wait-for-ip id [5 :minute])
       (let [ip (get-ip id)]
         (s/partial (spec :system-id) {:machine {:ip ip} :digital-ocean {:id id}}))

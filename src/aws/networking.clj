@@ -5,7 +5,6 @@
    [hypervisors.networking :as net]
    [taoensso.timbre :as timbre]
    [amazonica.aws.ec2 :as ec2]
-   [slingshot.slingshot :refer  [throw+]]
    [re-core.model :refer (hypervisor)]
    [re-mote.ssh.transport :refer (execute)]
    [clojure.core.strint :refer (<<)]

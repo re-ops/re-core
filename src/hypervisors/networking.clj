@@ -5,8 +5,7 @@
    [re-mote.ssh.transport :refer (execute)]
    [selmer.filters :refer (add-filter!)]
    [clojure.core.strint :refer [<<]]
-   [selmer.parser :refer (render-file)]
-   [slingshot.slingshot :refer [throw+ try+]]))
+   [selmer.parser :refer (render-file)]))
 
 (refer-timbre)
 
@@ -49,4 +48,4 @@
   (case flavor
     :debian  true ; nothing special todo
     :redhat  (redhat-hostname fqdn remote)
-    (throw+ {:type ::no-matching-flavor} (<< "no os flavor found for ~{flavor}"))))
+    (throw (ex-info (<< "no os flavor found for ~{flavor}") {:flavor flavor}))))

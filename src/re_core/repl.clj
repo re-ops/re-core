@@ -71,6 +71,7 @@
   " Destroy instances (both clear and remove VM):
      (destroy) ; remove all instances (both running and non running)
      (destroy ip) ; remove running instances only
+     (destroy (matching \"Fstr\")) ; remove all instances with an id containing Fstr
      (destroy ip {:force true}) ; remove running instances only without confirmation
   "
   ([]
@@ -125,7 +126,9 @@
   ([f k]
    (run (ls systems) | (filter-by f) | (into-hosts k))))
 
-(defn by-id [part]
+(defn matching
+  "Match instances by partial id matching"
+  [part]
   (fn [[id _]] (.contains id part)))
 
 (defn provision
@@ -135,7 +138,7 @@
   ([]
    (provision ip))
   ([f]
-   (run (ls systems) | (filter-by f) | (sys/provision)  #_(async-wait pretty-print "provision"))))
+   (run (ls systems) | (filter-by f) | (sys/provision))))
 
 (defn- create-system [base args]
   (let [{:keys [fns total type hostname]} (sp/into-spec {} args)

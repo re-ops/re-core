@@ -17,9 +17,9 @@
 (defn add-types
   "populates types"
   []
-  (t/create d/smokeping-type (:type d/smokeping-type))
-  (t/create d/jvm-type (:type d/jvm-type))
-  (t/create d/redis-type (:type d/redis-type)))
+  (t/create d/smokeping-type)
+  (t/create d/jvm-type)
+  (t/create d/redis-type))
 
 (def host
   (g/fmap (partial apply str)
@@ -81,7 +81,7 @@
   [type system id]
   (connect)
   (re-initlize)
-  (t/create type (:type type))
+  (t/create type)
   (s/create system id))
 
 (defn -main

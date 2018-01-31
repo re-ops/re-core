@@ -13,7 +13,6 @@
    [clojure.core.strint :refer (<<)]
    [re-mote.ssh.transport :refer (ssh-up? execute)]
    [re-core.core :refer (Vm)]
-   [slingshot.slingshot :refer  [throw+ try+]]
    [physical.wol :refer (wol)]
    [re-core.model :refer (translate vconstruct)]
    [taoensso.timbre :refer (refer-timbre)]))
@@ -23,10 +22,10 @@
 (defrecord Machine [remote interface]
   Vm
   (create [this]
-    (throw+ {:type ::not-supported} "cannot create a phaysical machine"))
+    (throw (ex-info "cannot create a phaysical machine" {:type ::not-supported})))
 
   (delete [this]
-    (throw+ {:type ::not-supported} "cannot delete a phaysical machine"))
+    (throw (ex-info "cannot delete a phaysical machine" {:type ::not-supported})))
 
   (start [this]
     (wol interface)

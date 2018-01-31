@@ -10,7 +10,6 @@
                  [me.raynes/fs "1.4.6"]
                  [robert/hooke "1.3.0"]
                  [org.clojure/core.incubator "0.1.4"]
-                 [slingshot "0.12.2" ]
                  [org.clojure/core.memoize "0.5.9"]
                  [org.flatland/useful "0.11.5"]
                  [org.clojure/tools.macro "0.1.5"]
@@ -37,7 +36,6 @@
 
                  ; hypervisors
                  [narkisr/digitalocean "1.3"]
-                 [potemkin "0.4.2"] ; see http://bit.ly/2mVr1sI
                  [amazonica "0.3.94" :exclusions [com.taoensso/nippy]]
 
                  ; libvirt
@@ -51,7 +49,7 @@
                  [com.brunobonacci/safely "0.2.4"]
                  [com.google.guava/guava "18.0"]
                  [commons-codec "1.10"]
-                 [substantiation "0.3.1"]
+                 [substantiation "0.4.0"]
                  [com.fasterxml.jackson.core/jackson-core "2.6.4"]
 
                  ; es
@@ -71,12 +69,14 @@
 
                  ; repl
                  [org.clojure/tools.nrepl "0.2.10"]
-                 [io.aviso/pretty "0.1.33"]
+                 [io.aviso/pretty "0.1.34"]
 
                  ; metrics
                  [metrics-clojure "2.10.0"]
                  [metrics-clojure-health "2.10.0"]
                  [metrics-clojure-jvm "2.10.0"]
+
+                 [potemkin "0.4.2"] ; see http://bit.ly/2mVr1sI
                ]
 
   :exclusions [org.clojure/clojure com.taoensso/timbre commons-codec]
@@ -85,7 +85,7 @@
              [mvxcvi/whidbey "1.3.1"]
              [lein-cljfmt "0.5.6"]
              [lein-kibit "0.1.5"]
-             [lein-ancient "0.6.7" :exclusions [org.clojure/clojure]]
+             [lein-ancient "0.6.15" :exclusions [org.clojure/clojure]]
              [lein-tar "2.0.0" ]
              [self-build "0.0.9"]
              [lein-tag "0.1.0"]
@@ -104,7 +104,7 @@
      :test {
        :test-paths ["data" "test"]
        :dependencies [
-          [midje "1.9.0"]
+          [midje "1.9.1"]
           [org.clojure/tools.trace "0.7.9"]
           [org.clojure/test.check "0.7.0"]
         ]
@@ -116,7 +116,7 @@
         :source-paths  ["dev"]
         :resource-paths  ["src/main/resources/" "pkg/etc/re-core/"]
         :plugins [[lein-midje "3.2.1"]]
-        :dependencies [[midje "1.9.0"]]
+        :dependencies [[midje "1.9.1"]]
 
         :set-version {
            :updates [
@@ -131,6 +131,7 @@
 
   :aliases {
       "kvm"  ["with-profile" "test" "do" "midje" ":filter" "kvm"]
+      "digital"  ["with-profile" "test" "do" "midje" ":filter" "digital-ocean"]
       "runtest" ["midje" ":filter" "-integration"]
       "populate" ["with-profile" "populate" "do" "run" "-m" "re-core.fixtures.populate"]
       "travis" [

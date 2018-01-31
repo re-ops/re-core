@@ -10,12 +10,12 @@
    [re-mote.ssh.transport :refer (ssh-up?)]
    [flatland.useful.utils :refer (defm)]
    [flatland.useful.map :refer (dissoc-in*)]
-   [slingshot.slingshot :refer  [throw+ try+]]
    [re-core.provider :refer (wait-for wait-for-ssh map-key)]
    [re-core.core :refer (Vm)]
    [taoensso.timbre :as timbre]
    [es.systems :as s]
-   [re-core.model :refer (translate vconstruct hypervisor*)]))
+   [re-core.model :refer (translate vconstruct hypervisor*)])
+  (:import clojure.lang.ExceptionInfo))
 
 (timbre/refer-timbre)
 
@@ -34,7 +34,7 @@
 (defmacro with-instance-id [& body]
   `(if-let [~'instance-id (instance-id* ~'spec)]
      (do ~@body)
-     (throw+ {:type ::aws:missing-id} "Instance id not found")))
+     (throw (ex-info "Instance id not found" {:type ::aws:missing-id}))))
 
 (defn creation-keys [aws]
   (clojure.set/subset? (into #{} (keys aws))
@@ -100,11 +100,12 @@
       (wait-for-status this "stopped" [5 :minute])))
 
   (status [this]
-    (try+
-     (with-instance-id
-       (instance-desc endpoint instance-id :state :name))
-     (catch [:type ::aws:missing-id] e
-       (debug "No AWS instance id, most chances this instance hasn't been created yet") false)))
+    (try
+      (with-instance-id
+        (instance-desc endpoint instance-id :state :name))
+      (catch ExceptionInfo e
+        (when (= (-> e ex-data :type) ::aws:missing-id)
+          (debug "No AWS instance id, most chances this instance hasn't been created yet")) false)))
 
   (ip [this]
     (with-instance-id

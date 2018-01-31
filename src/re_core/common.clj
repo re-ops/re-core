@@ -5,7 +5,6 @@
    [pallet.stevedore :refer  [script with-source-line-comments]]
    [taoensso.timbre :refer (refer-timbre)])
   (:use
-   [slingshot.slingshot :only  [throw+ try+]]
    [re-core.config :only (config)]
    [clojure.core.strint :only (<<)]))
 
@@ -19,10 +18,10 @@
 
 (defn get!
   "Reading a keys path from configuration raises an error of keys not found"
-  [& keys]
-  (if-let [v (get-in config keys)]
+  [& ks]
+  (if-let [v (get-in config ks)]
     v
-    (throw+ {:type ::missing-conf} (<< "No matching configuration keys ~{keys} found"))))
+    (throw (ex-info (<< "No matching configuration keys ~{keys} found") {:keys ks :type ::missing-conf}))))
 
 (defn get*
   "nil on missing version of get!"
@@ -57,8 +56,8 @@
   "resolve function provided as a symbol with the form of ns/fn"
   [fqn-fn]
   (let [[n f] (.split (str fqn-fn) "/")]
-    (try+
-     (require (symbol n))
-     (ns-resolve (find-ns (symbol n)) (symbol f))
-     (catch java.io.FileNotFoundException e
-       (throw+ {:type ::hook-missing} (<< "Could not locate hook ~{fqn-fn}"))))))
+    (try
+      (require (symbol n))
+      (ns-resolve (find-ns (symbol n)) (symbol f))
+      (catch java.io.FileNotFoundException e
+        (throw (ex-info (<< "Could not locate ~{fqn-fn}") {:fn fqn-fn}))))))

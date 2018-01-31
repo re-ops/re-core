@@ -2,7 +2,6 @@
   (:require
    [es.systems :as s]
    [re-core.provider :refer (wait-for)]
-   [slingshot.slingshot :refer (throw+)]
    [taoensso.timbre :as timbre]
    [clojure.core.strint :refer (<<)]
    [re-mote.ssh.transport :refer (execute)]
@@ -51,7 +50,7 @@
     (execute cmd node :out-fn (collect-log uuid))
     (if-let [ip (second (re-matches #".*addr\:(\d+\.\d+\.\d+\.\d+).*" (or (inet-line (get-log uuid)) "")))]
       ip
-      (throw+ {:type ::kvm:networking} "Failed to grab domain public IP"))))
+      (throw (ex-info "Failed to grab domain public IP" {:type ::kvm:networking})))))
 
 (defn update-ip
   "updates public dns in the machine persisted data"

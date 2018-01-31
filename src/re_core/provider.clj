@@ -7,8 +7,8 @@
    [re-core.model :refer (hypervisor)]
    [minderbinder.time :refer (parse-time-unit)]
    [re-core.common :refer (get! curr-time)]
-   [clojure.core.strint :refer (<<)]
-   [slingshot.slingshot :refer (throw+ try+)]))
+   [clojure.core.strint :refer (<<)])
+  (:import clojure.lang.ExceptionInfo))
 
 (defn- key-select [v] (fn [m] (select-keys m (keys v))))
 
@@ -36,11 +36,12 @@
   [hyp]
   (fn [os]
     (let [ks [hyp :ostemplates os]]
-      (try+
-       (apply hypervisor ks)
-       (catch [:type :re-core.common/missing-conf] e
-         (throw+ {:type :missing-template}
-                 (<< "no matching template found for ~{os} add one to configuration under ~{ks}")))))))
+      (try
+        (apply hypervisor ks)
+        (catch ExceptionInfo e
+          (when (= (-> ex-data :type) :re-core.common/missing-conf)
+            (throw
+             (ex-info (<< "no matching template found for ~{os} add one to configuration under ~{ks}") {:ks ks}))))))))
 
 (defn transform
   "specific model transformations"
@@ -58,7 +59,7 @@
         (if (pred)
           true
           (do (Thread/sleep (parse-time-unit sleep)) (recur)))
-        (throw+ (merge err timings) message)))))
+        (throw (ex-info message (merge err timings)))))))
 
 (defn wait-for-ssh [address user timeout]
   {:pre [address user timeout]}
