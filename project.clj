@@ -3,7 +3,7 @@
   :url "https://github.com/re-core-ops/re-core-core"
   :license  {:name "Apache License, Version 2.0" :url "http://www.apache.org/licenses/LICENSE-2.0.html"}
 
-  :dependencies [[org.clojure/clojure "1.8.0"]
+  :dependencies [[org.clojure/clojure "1.9.0"]
                  [clj-config "0.2.0" ]
 
                  ; utils
@@ -27,7 +27,7 @@
                  [com.taoensso/tufte "1.1.1"]
 
                  ; re-ops
-                 [re-mote "0.7.1"]
+                 [re-mote "0.8.0"]
                  [re-share "0.4.1"]
 
                  ;api

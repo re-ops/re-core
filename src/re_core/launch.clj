@@ -1,6 +1,5 @@
 (ns re-core.launch
   "re-core lanching ground aka main"
-  (:gen-class true)
   (:require
    [re-core.log :refer (setup-logging)]
    [re-core.common :refer (get! get* version)]

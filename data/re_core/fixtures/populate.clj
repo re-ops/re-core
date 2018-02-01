@@ -1,6 +1,5 @@
 (ns re-core.fixtures.populate
   "data population"
-  (:gen-class true)
   (:require
    [re-core.log :refer (setup-logging)]
    [es.types :as t]
