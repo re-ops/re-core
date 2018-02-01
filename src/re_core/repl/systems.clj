@@ -63,12 +63,12 @@
       (run-ack this m)
       [this m]))
 
-  (rm [this systems]
+  (rm [this {:keys [systems] :as m}]
     (doseq [id (map first systems)]
       (s/delete id))
     [this {:systems []}])
 
-  (grep [this systems k v]
+  (grep [this {:keys [systems] :as m} k v]
     [this {:systems (filter (partial grep-system k v) (systems :systems))}])
 
   (add [this specs]
