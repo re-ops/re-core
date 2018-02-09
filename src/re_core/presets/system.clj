@@ -52,10 +52,13 @@
    (kvm-volume size default-pool))
   ([size pool]
    (fn [{:keys [machine] :as instance}]
+     ((kvm-volume size pool (machine :hostname)) instance)))
+  ([size pool vname]
+   (fn [instance]
      (update-in instance [:kvm :volumes]
                 (fn [vs]
                   (conj vs {:device "vdb" :type "qcow2" :size size
-                            :pool pool :clear true :name (machine :hostname)}))))))
+                            :pool pool :clear true :name vname}))))))
 
 ; Default pool kvm volumes
 (def #^{:doc "128Gb kvm volume"} vol-128G (kvm-volume 128))
