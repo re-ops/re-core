@@ -71,7 +71,7 @@
   (grep [this {:keys [systems] :as m} k v]
     [this {:systems (filter (partial grep-system k v) (systems :systems))}])
 
-  (add [this specs]
+  (add- [this specs]
     (let [f (fn [s] (let [id (s/create s)] [id (assoc (s/get id) :system-id id)]))]
       [this {:systems (map f specs)}])))
 

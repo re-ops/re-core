@@ -1,5 +1,6 @@
 (ns es.common
   "type mappings index etc.."
+  (:refer-clojure :exclude (get))
   (:require
    [taoensso.timbre :refer (refer-timbre)]
    [qbits.spandex :as s]

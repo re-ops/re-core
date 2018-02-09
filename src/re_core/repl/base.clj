@@ -15,7 +15,7 @@
   (ls [this] [this & opts])
   (filter-by [this items f])
   (ack [this items opts])
-  (add [this specs])
+  (add- [this specs])
   (rm [this items])
   (grep [this items k v]))
 
@@ -66,4 +66,4 @@
 (defrecord Types [])
 
 (defn refer-base []
-  (require '[re-core.repl.base :as base :refer (run | ls grep rm add pretty filter-by ack summary)]))
+  (require '[re-core.repl.base :as base :refer (run | ls grep rm add- pretty filter-by ack summary)]))

@@ -27,7 +27,7 @@
 (defn by-type
   "get instances by type"
   [t]
-  (fn [[_ {:keys [type]}]] (=  type t)))
+  (fn [[_ {:keys [type] :as m}]] (=  type t)))
 
 (defn ip
   "machine has an ip (usually means its running)"
@@ -145,13 +145,13 @@
         transforms [(sp/with-type type) (sp/with-host hostname) sp/name-gen]
         all (apply conj transforms fns)
         specs (map  (fn [_] (reduce (fn [m f] (f m)) base all)) (range (or total 1)))]
-    (run (add systems specs) | (sys/create) | (async-wait pretty-print "create"))))
+    (run (add- systems specs) | (sys/create) | (async-wait pretty-print "create"))))
 
 (defn- create-type [base args]
   (let [{:keys [fns type description]} (tp/into-spec {} args)
         transforms [(tp/with-type type) (tp/with-desc description)]
         spec (reduce (fn [m f] (f m)) base (apply conj transforms fns))]
-    (run (add types [spec]) | (pretty))))
+    (run (add- types [spec]) | (pretty))))
 
 (defn create
   "Create instances
@@ -165,6 +165,17 @@
     (:machine base) (create-system base args)
     (:puppet base) (create-type base args)
     :else (throw (ex-info "creation type not found" {:base base :args args}))))
+
+(defn add
+  "Add existing system instances:
+     (add (kvm-size 1 512 :openbsd) \"furby\" :foo); we can specify an os
+   "
+  [base & args]
+  (let [{:keys [fns total type hostname]} (sp/into-spec {} args)
+        transforms [(sp/with-type type) (sp/with-host hostname)]
+        all (apply conj transforms fns)
+        specs (map  (fn [_] (reduce (fn [m f] (f m)) base all)) (range (or total 1)))]
+    (run (add- systems specs) | (pretty-print "add"))))
 
 (defn ssh-into
   "SSH into instances (open a terminal)"

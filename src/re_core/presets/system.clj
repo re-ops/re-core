@@ -22,14 +22,16 @@
 (defn kvm [machine node]
   {:machine machine :kvm {:node node}})
 
-(defn kvm-machine [cpu ram]
-  (merge {:cpu cpu :ram ram} (machine "re-ops" "local" :ubuntu-16.04)))
+(defn kvm-machine [cpu ram os]
+  (merge {:cpu cpu :ram ram} (machine "re-ops" "local" os)))
 
 (def default-node :remote)
 
 (defn kvm-size
-  [cpu ram]
-  (kvm (kvm-machine cpu ram) default-node))
+  ([cpu ram]
+   (kvm-size cpu ram :ubuntu-16.04))
+  ([cpu ram os]
+   (kvm (kvm-machine cpu ram os) default-node)))
 
 ; Default kvm instance types
 (def #^{:doc "Tiny kvm instance"} kvm-tiny (kvm-size 1 512))
@@ -75,5 +77,5 @@
         (fn? a) (into-spec (assoc m :fns (conj fns a)) (rest args))))))
 
 (defn refer-system-presets []
-  (require '[re-core.presets.system :as sp :refer [kvm-tiny kvm-small kvm-medium kvm-large kvm-xlarge vol-128G vol-256G vol-512G vol-1T]]))
+  (require '[re-core.presets.system :as sp :refer [kvm-tiny kvm-small kvm-medium kvm-large kvm-xlarge vol-128G vol-256G vol-512G vol-1T kvm-size]]))
 

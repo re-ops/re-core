@@ -22,7 +22,7 @@
           (:system-id domain) => "1"
           (:node domain)  => (just {:user "ronen" :host "localhost" :port 22})
           (:domain domain) =>
-          (just {:user "re-ops" :name "red1.local" :hostname "red1"
+          (just {:user "re-ops" :name "red1" :hostname "red1"
                  :image {:flavor :debian :template "ubuntu-16.04"}
                  :cpu 2 :ram 1024})))
   (fact "volume pool" :kvm

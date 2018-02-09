@@ -48,7 +48,7 @@
             (every-kv {:username #{:required :String} :password #{:required :String}
                        :host #{:required :String} :ssh-port #{:required :number}}))
 
-(def flavors #{:redhat :debian})
+(def flavors #{:redhat :debian :windows})
 
 (validation :flavor
             (when-not-nil flavors  (<< "flavor must be either ~{flavors}")))

@@ -49,3 +49,6 @@
     :debian  true ; nothing special todo
     :redhat  (redhat-hostname fqdn remote)
     (throw (ex-info (<< "no os flavor found for ~{flavor}") {:flavor flavor}))))
+
+(defn ssh-able? [flavor]
+  (#{:redhat :debian} flavor))

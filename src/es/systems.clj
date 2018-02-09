@@ -40,7 +40,7 @@
   [m]
   (when m
     (transform
-     [(multi-path [:machine :os] [:env] [:kvm :node] [:kvm :volumes ALL :pool])] keyword m)))
+     [(multi-path [:type] [:machine :os] [:env] [:kvm :node] [:kvm :volumes ALL :pool])] keyword m)))
 
 (defn get
   "Grabs a system by an id, return nil if missing"

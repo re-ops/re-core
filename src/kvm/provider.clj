@@ -14,7 +14,7 @@
    [taoensso.timbre :as timbre]
    [es.systems :as s]
    [re-core.provider :refer (mappings selections transform os->template wait-for wait-for-ssh)]
-   [hypervisors.networking :refer (set-hostname)]
+   [hypervisors.networking :refer (set-hostname ssh-able?)]
    [re-core.model :refer (translate vconstruct hypervisor*)])
   (:import org.libvirt.LibvirtException))
 
@@ -66,9 +66,10 @@
     (with-connection
       (when-not (= (.status this) "running")
         (.create (get-domain c (domain :name)))
-        (let [ip (.ip this)]
-          (wait-for-ssh ip (domain :user) [5 :minute])
-          (update-ip system-id ip)))))
+        (when (ssh-able? (get-in domain [:image :flavor]))
+          (let [ip (.ip this)]
+            (wait-for-ssh ip (domain :user) [5 :minute])
+            (update-ip system-id ip))))))
 
   (stop [this]
     (with-connection
@@ -94,7 +95,7 @@
 (defn machine-ts
   "Construcuting machine transformations"
   [{:keys [hostname domain] :as machine}]
-  {:name (fn [hostname] (<< "~{hostname}.~{domain}"))
+  {:name (fn [hostname] hostname)
    :image (fn [os] ((os->template :kvm) os))})
 
 (defmethod translate :kvm [{:keys [machine kvm] :as spec}]
