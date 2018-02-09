@@ -80,5 +80,5 @@
         (fn? a) (into-spec (assoc m :fns (conj fns a)) (rest args))))))
 
 (defn refer-system-presets []
-  (require '[re-core.presets.system :as sp :refer [kvm-tiny kvm-small kvm-medium kvm-large kvm-xlarge vol-128G vol-256G vol-512G vol-1T kvm-size]]))
+  (require '[re-core.presets.system :as sp :refer [kvm-tiny kvm-small kvm-medium kvm-large kvm-xlarge vol-128G vol-256G vol-512G vol-1T kvm-size kvm-volume]]))
 
