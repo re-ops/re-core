@@ -101,11 +101,10 @@ Converting systems into re-mote hosts enable us to perform any re-mote operation
 
 # Prerequisites
 
-* JDK 8. 
+* JDK 8.
 * lein (see https://leiningen.org/).
 * A solid understanding of Clojure :)
-
-Check re-mote [prerequisites](https://github.com/re-ops/re-mote#prerequisite).
+* re-mote [prerequisites](https://github.com/re-ops/re-mote#prerequisite).
 
 Optionally:
 
