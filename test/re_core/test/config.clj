@@ -18,12 +18,3 @@
 (fact "missing aws options"
       (validate-conf (assoc-in @local-prox [:hypervisor :dev :aws] {})) => {:hypervisor {:dev {:aws {:access-key "must be present" :secret-key "must be present"
                                                                                                      :default-vpc {:subnet-id "must be present", :vpc-id "must be present" :assign-public "must be present"}}}}})
-
-(fact "wrong central logging"
-      (validate-conf (assoc-in @local-prox [:re-core :log :gelf :type] :foo)) =>
-      {:re-core {:log {:gelf
-                       {:type "type must be either #{:kibana3 :graylog2 :logstash :kibana4}"}}}})
-
-(fact "workers configuration"
-      (validate-conf (assoc-in @local-prox [:re-core :job :workers :stage] "bar")) =>
-      {:re-core {:job {:workers  {:stage "must be a integer"}}}})

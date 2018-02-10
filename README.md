@@ -1,6 +1,6 @@
 # Intro
 
-Re-core is a live environment for setting up VM instances in a consistent and reliable way across multiple providers (AWS, DigitalOcean and Native KVM).
+Re-core is a live functional environment for setting up VM instances in a consistent and reliable way across multiple providers (AWS, DigitalOcean and Native KVM).
 
 It is a part of the [re-ops](https://github.com/re-ops) project that offers a live coding environment for configuration management.
 

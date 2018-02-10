@@ -17,33 +17,21 @@
 
 (validation :levels (when-not-nil levels (<< "level must be either ~{levels}")))
 
-(def central-logging #{:graylog2 :kibana3 :kibana4 :logstash})
-
-(validation :central-logging
-            (when-not-nil central-logging (<< "type must be either ~{central-logging}")))
-
 (def ^{:doc "gelf logging settings"} gelf-v
   {:re-core
-   {:log {:gelf {:host #{:required :String} :port #{:required :Integer} :type #{:required :central-logging}}}}})
+   {:log {:gelf {:host #{:required :String} :port #{:required :Integer}}}}})
 
 (def reset-options #{:stop :start})
 
 (validation :reset-options
             (when-not-nil reset-options (<< "type must be either ~{reset-options}")))
 
-(def ^{:doc "job settings"} job-v
-  {:re-core {:job {:reset-on #{:required :reset-options}
-                   :status-expiry #{:number}
-                   :lock {:expiry #{:number} :wait-time #{:number}}
-                   :workers {:subs/ANY #{:Integer}}}}})
-
 (def ^{:doc "Base config validation"} re-core-v
   {:re-core
-   {:port #{:required :number} :https-port #{:required :number} :session-timeout #{:number}
+   {:port #{:required :number} :https-port #{:required :number}
     :log {:level #{:required :levels}
           :path #{:required :String}
-          :gelf {:host #{:String} :type #{:central-logging}}}
-    :nrepl {:port #{:number}}}})
+          :gelf {:host #{:String}}}}})
 
 (validation :node*
             (every-kv {:username #{:required :String} :password #{:required :String}
@@ -84,8 +72,9 @@
      (map (fn [[e hs]] (map #(((zipmap ks envs) %) e) (filter (into #{} ks) (keys hs)))) hypervisor))))
 
 (defn re-core-validations [{:keys [log job] :as re-core}]
-  (let [v  (if (contains? log :gelf) (combine re-core-v gelf-v) re-core-v)]
-    (if job (combine job-v v) v)))
+  (if (contains? log :gelf)
+    (combine re-core-v gelf-v)
+    re-core-v))
 
 (defn validate-conf
   "applies all validations on a configration map"
