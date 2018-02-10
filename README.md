@@ -21,8 +21,14 @@ nil
 
 The configuration holds the information on how to connect to hypervisors (more docs on this soon):
 
-```clojure
+```bash
 $ cp data/resources/re-core.edn ~/.re-core.edn
+```
+
+After any configuration change you can reload the configuration by:
+
+```clojure
+[re-core]λ: (reset)
 ```
 
 # Usage
@@ -78,7 +84,7 @@ Running start summary:
 [re-core]λ: (provision) ; puppet provision instances using re-mote
 ```
 
-Operations take a filtering function, making it real easy to partition and segement the instances we operate on:
+Operations take a filtering function, making it real easy to select the instances we operate on:
 
 ```clojure
 [re-core]λ: (halt (by-type :redis))
