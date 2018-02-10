@@ -9,8 +9,6 @@ It is a part of the [re-ops](https://github.com/re-ops) project that offers a li
 # Get running
 
 ```clojure
-# get ES running
-$ sudo docker-compose up
 $ git clone git@github.com:re-ops/re-core.git
 $ cd re-core
 # Now start the REPL environment
@@ -101,6 +99,20 @@ Converting systems into re-mote hosts enable us to perform any re-mote operation
 [re-core]λ: (updata (hosts)) ; apt update all the hosts
 ```
 
+# Prerequisites
+
+* JDK 8. 
+* lein (see https://leiningen.org/).
+* A solid understanding of Clojure :)
+
+Check re-mote [prerequisites](https://github.com/re-ops/re-mote#prerequisite).
+
+Optionally:
+
+* Elasticsearch 5.6.x for persisting results and metrics
+* Kibana for viewing results and persisted systems
+
+Check [re-dock](https://github.com/re-ops/re-dock) for a quick docker setup
 
 # Copyright and license
 
