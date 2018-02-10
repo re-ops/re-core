@@ -4,7 +4,8 @@
    [digital.validations :refer (provider-validation)]
    [clojure.core.strint :refer (<<)]
    [re-core.model :refer (translate vconstruct hypervisor*)]
-   [re-core.provider :refer (mappings transform selections os->template wait-for wait-for-ssh wait-for-start wait-for-stop)]
+   [re-core.provider :refer (mappings transform selections os->template wait-for-ssh wait-for-start wait-for-stop)]
+   [re-share.core :refer (wait-for)]
    [es.systems :as s :refer (system-val)]
    [re-core.common :refer (get*)]
    [taoensso.timbre :refer (refer-timbre)]
@@ -29,7 +30,6 @@
   "Wait for an ip to be avilable"
   [id timeout]
   (wait-for {:timeout timeout} #(not (nil? (get-ip id)))
-            {:type ::digital:fail :timeout timeout}
             "Timed out on waiting for ip to be available"))
 
 (defmacro with-id [& body]
@@ -62,7 +62,7 @@
   (stop [this]
     (with-id
       (run-action "power_off" id)
-      (wait-for-stop this [5 :minute] ::digital:stop-failed)))
+      (wait-for-stop this [5 :minute])))
 
   (status [this]
     (if-let [id (system-val spec [:digital-ocean :id])]

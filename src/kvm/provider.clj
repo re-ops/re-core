@@ -9,11 +9,11 @@
    [kvm.volumes :refer (clear-volumes create-volumes)]
    [kvm.common :refer (connect get-domain state domain-list)]
    [kvm.networking :refer (public-ip nat-ip update-ip)]
-   [re-mote.ssh.transport :refer (ssh-up?)]
    [re-core.core :refer (Vm)]
    [taoensso.timbre :as timbre]
    [es.systems :as s]
-   [re-core.provider :refer (mappings selections transform os->template wait-for wait-for-ssh)]
+   [re-core.provider :refer (mappings selections transform os->template wait-for-ssh)]
+   [re-share.core :refer (wait-for)]
    [hypervisors.networking :refer (set-hostname ssh-able?)]
    [re-core.model :refer (translate vconstruct hypervisor*)])
   (:import org.libvirt.LibvirtException))
@@ -37,7 +37,6 @@
   "Waiting for ec2 machine status timeout is in mili"
   [instance req-stat timeout]
   (wait-for {:timeout timeout} #(= req-stat (.status instance))
-            {:type ::kvm:status-failed :status req-stat :timeout timeout}
             "Timed out on waiting for status"))
 
 (defrecord Domain [system-id node volumes domain]

@@ -10,7 +10,8 @@
    [re-mote.ssh.transport :refer (ssh-up?)]
    [flatland.useful.utils :refer (defm)]
    [flatland.useful.map :refer (dissoc-in*)]
-   [re-core.provider :refer (wait-for wait-for-ssh map-key)]
+   [re-core.provider :refer (wait-for-ssh map-key)]
+   [re-share.core :refer (wait-for)]
    [re-core.core :refer (Vm)]
    [taoensso.timbre :as timbre]
    [es.systems :as s]
@@ -23,7 +24,6 @@
   "Waiting for ec2 machine status timeout is in mili"
   [instance req-stat timeout]
   (wait-for {:timeout timeout} #(= req-stat (.status instance))
-            {:type ::aws:status-failed :status req-stat :timeout timeout}
             "Timed out on waiting for status"))
 
 (defn instance-id*

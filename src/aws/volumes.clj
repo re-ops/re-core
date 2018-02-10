@@ -1,6 +1,6 @@
 (ns aws.volumes
   (:require
-   [re-core.provider :refer (wait-for)]
+   [re-share.core :refer (wait-for)]
    [amazonica.aws.ec2 :as ec2]
    [es.systems :as s]
    [aws.common :refer (with-ctx instance-desc creds image-id)]
@@ -15,8 +15,10 @@
 
 (defn wait-for-attach [endpoint instance-id timeout]
   (wait-for {:timeout timeout}
-            #(= "attached" (instance-desc endpoint instance-id :block-device-mappings 0 :ebs :status))
-            {:type ::aws:ebs-attach-failed} "Failed to wait for ebs root device attach"))
+            (fn []
+              (let [status (instance-desc endpoint instance-id :block-device-mappings 0 :ebs :status)]
+                (= "attached" status)))
+            "Failed to wait for ebs root device attach"))
 
 (defn volume-desc [endpoint volume-id & ks]
   (->
@@ -40,13 +42,15 @@
     (doseq [{:keys [device] :as vol} (aws :volumes)
             :let [volume-id (create-volume vol zone endpoint)]]
       (wait-for {:timeout [10 :minute]}
-                #(= "available" (volume-desc endpoint volume-id :state))
-                {:type ::aws:ebs-volume-availability} "Failed to wait for ebs volume to become available")
+                (fn []
+                  (= "available" (volume-desc endpoint volume-id :state)))
+                "Failed to wait for ebs volume to become available")
       (with-ctx ec2/attach-volume
         {:volume-id volume-id :instance-id instance-id :device device})
       (wait-for {:timeout [10 :minute]}
-                #(= "attached" (volume-desc endpoint volume-id :attachments 0 :state))
-                {:type ::aws:ebs-volume-attach-failed} "Failed to wait for ebs volume device attach")
+                (fn []
+                  (= "attached" (volume-desc endpoint volume-id :attachments 0 :state)))
+                "Failed to wait for ebs volume device attach")
       (debug "attached volume" volume-id "owened by" instance-id))))
 
 (defn clear?
@@ -66,6 +70,7 @@
       (debug "deleting volume" volume-id)
       (with-ctx ec2/detach-volume {:volume-id volume-id})
       (wait-for {:timeout [10 :minute]}
-                #(= "available" (volume-desc endpoint volume-id :state))
-                {:type ::aws:ebs-volume-availability} "Failed to wait for ebs volume to become available")
+                (fn []
+                  (= "available" (volume-desc endpoint volume-id :state)))
+                "Failed to wait for ebs volume to become available")
       (with-ctx ec2/delete-volume {:volume-id volume-id}))))

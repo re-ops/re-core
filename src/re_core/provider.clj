@@ -7,6 +7,7 @@
    [re-core.model :refer (hypervisor)]
    [minderbinder.time :refer (parse-time-unit)]
    [re-core.common :refer (get! curr-time)]
+   [re-share.core :refer (wait-for)]
    [clojure.core.strint :refer (<<)])
   (:import clojure.lang.ExceptionInfo))
 
@@ -49,25 +50,14 @@
   (reduce
    (fn [res [k v]] (update-in res [k] v)) res ts))
 
-(defn wait-for
-  "A general wait for pred function"
-  [{:keys [timeout sleep] :or {sleep [1 :seconds]} :as timings} pred err message]
-  {:pre [(map? timings)]}
-  (let [wait (+ (curr-time) (parse-time-unit timeout))]
-    (loop []
-      (if (> wait (curr-time))
-        (if (pred)
-          true
-          (do (Thread/sleep (parse-time-unit sleep)) (recur)))
-        (throw (ex-info message (merge err timings)))))))
-
 (defn wait-for-ssh [address user timeout]
   {:pre [address user timeout]}
   (wait-for {:timeout timeout}
-            #(try
-               (ssh-up? {:host address :port 22 :user user})
-               (catch Throwable e false))
-            {:type ::ssh-failed :timeout timeout} "Timed out while waiting for ssh"))
+            (fn []
+              (try
+                (ssh-up? {:host address :port 22 :user user})
+                (catch Throwable e false)))
+            "Timed out while waiting for ssh"))
 
 (defn map-key [m from to]
   (dissoc-in* (assoc-in m to (get-in m from)) from))
@@ -84,15 +74,13 @@
 (defn running? [this] (= (.status this) "running"))
 
 (defn wait-for-stop
-  "Wait for an ip to be avilable"
-  [this timeout ex]
+  "Wait instance to stop"
+  [this timeout]
   (wait-for {:timeout timeout} #(not (running? this))
-            {:type ex :timeout timeout}
-            "Timed out on waiting for ip to be available"))
+            "Timed out waiting for stop"))
 
 (defn wait-for-start
   "Wait for an ip to be avilable"
   [this timeout ex]
   (wait-for {:timeout timeout} #(running? this)
-            {:type ex :timeout timeout}
-            "Timed out on waiting for ip to be available"))
+            "Timed out waiting for instance to be running"))

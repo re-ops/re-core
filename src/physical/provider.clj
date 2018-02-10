@@ -8,7 +8,8 @@
     "
   (:require
    [physical.validations :refer (validate-provider)]
-   [re-core.provider :refer (wait-for-ssh mappings wait-for)]
+   [re-core.provider :refer (wait-for-ssh mappings)]
+   [re-share.core :refer (wait-for)]
    [re-core.common :refer (bash-)]
    [clojure.core.strint :refer (<<)]
    [re-mote.ssh.transport :refer (ssh-up? execute)]
@@ -34,10 +35,11 @@
   (stop [this]
     (execute (bash- ("sudo" "shutdown" "0" "-P")) remote)
     (wait-for {:timeout [5 :minute]}
-              #(try
-                 (not (ssh-up? remote))
-                 (catch java.net.NoRouteToHostException t true))
-              {:type ::shutdown-failed} "Timed out while waiting for machine to shutdown"))
+              (fn []
+                (try
+                  (not (ssh-up? remote))
+                  (catch java.net.NoRouteToHostException t true)))
+              "Timed out while waiting for machine to shutdown"))
 
   (status [this]
     (try

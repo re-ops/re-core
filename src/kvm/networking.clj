@@ -1,7 +1,7 @@
 (ns kvm.networking
   (:require
    [es.systems :as s]
-   [re-core.provider :refer (wait-for)]
+   [re-share.core :refer (wait-for)]
    [taoensso.timbre :as timbre]
    [clojure.core.strint :refer (<<)]
    [re-mote.ssh.transport :refer (execute)]
@@ -30,7 +30,6 @@
   "Waiting for nat cache to update"
   [c id node timeout]
   (wait-for {:timeout timeout} #(not (nil? (grab-nat c id node)))
-            {:type ::kvm:networking :timeout timeout}
             "Timed out on waiting for arp cache to update"))
 
 (defn nat-ip [c id node]
