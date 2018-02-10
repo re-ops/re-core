@@ -155,10 +155,10 @@
 
 (defn create
   "Create instances
-     (create kvm.small :redis) ; Create a small kvm instance that run redis
-     (create kvm.small :redis \"furry\") ; Create a small kvm instance with a hostname
-     (create kvm.small vol-100 :redis 5) ; Create 5 small redis instances with a 100G Volume
-     (create kvm.small vol-100 :redis 5 \"blurby\") ; Each with 100 GB volume
+     (create kvm-small :redis) ; Create a small kvm instance that run redis
+     (create kvm-small :redis \"furry\") ; Create a small kvm instance with a hostname
+     (create kvm-small vol-128G :redis 5) ; Create 5 small redis instances with a 100G Volume
+     (create kvm-small vol-128G :redis 5 \"blurby\") ; Each with 100 GB volume
      (create puppet src :redis \"redis instance type\") ; Puppet based type using local src directory "
   [base & args]
   (cond
