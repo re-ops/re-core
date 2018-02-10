@@ -1,8 +1,5 @@
 language: clojure
 
-services:
-  - redis-server
-
 jdk:
   - oraclejdk8
 
@@ -14,6 +11,5 @@ install:
 before_script:
   - sleep 20
   - curl http://127.0.0.1:9200/
-  - echo y | sudo lein upgrade
 
 script: lein travis
