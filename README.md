@@ -48,7 +48,7 @@ We can inspect and operate on instances:
               redis-a9347f072f  AWF_17aCdVoDKuXB7mt0       redis     ubuntu-16.04  192.168.122.14
 
 
-[re-core]λ: (halt (by-type :redis))
+[re-core]λ: (halt)
 
 Running halt summary:
 
@@ -69,12 +69,36 @@ Running start summary:
   ✔ redis-a9347f072f
 
 [re-core]λ: (provision) ; puppet provision instances using re-mote
+```
 
+Operations take a filtering function, making it real easy to partition and segement the instances we operate on:
 
-[re-core]λ: (hosts) ; we can convert systems into re-mote hosts and perform any re-mote operation
+```clojure
+[re-core]λ: (halt (by-type :redis))
+
+Running halt summary:
+
+  ✔ redis-d55950759f
+  ✔ redis-7165e5c87b
+  ✔ redis-a12af7a0d2
+  ✔ redis-42bd6672e3
+  ✔ redis-a9347f072f
+
+[re-core]λ: (start (matching "B7mtt")) ; select instance by SHA partial matching (git style)
+
+Running halt summary:
+
+  ✔ redis-d55950759f
+```
+
+Converting systems into re-mote hosts enable us to perform any re-mote operation:
+
+```clojure
+[re-core]λ: (hosts)
 
 #re_mote.repl.base.Hosts {:auth {:user "re-ops"} :hosts ["192.168.122.226" "192.168.122.202" "192.168.122.159" "192.168.122.161" "192.168.122.174"]}
 
+[re-core]λ: (updata (hosts)) ; apt update all the hosts
 ```
 
 
