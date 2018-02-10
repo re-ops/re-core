@@ -17,6 +17,15 @@ $ lein repl
 nil
 ```
 
+# Configure
+
+The configuration holds the information on how to connect to hypervisors (more docs on this soon):
+
+```clojure
+$ cp data/resources/re-core.edn ~/.re-core.edn
+```
+
+# Usage
 
 We can create and manipulate VM's quickly from the repl, a fluent functional DLS enables us to have rapid provisioning:
 
