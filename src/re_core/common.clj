@@ -19,14 +19,14 @@
 (defn get!
   "Reading a keys path from configuration raises an error of keys not found"
   [& ks]
-  (if-let [v (get-in config ks)]
+  (if-let [v (get-in @config ks)]
     v
     (throw (ex-info (<< "No matching configuration keys ~{keys} found") {:keys ks :type ::missing-conf}))))
 
 (defn get*
   "nil on missing version of get!"
   [& keys]
-  (get-in config keys))
+  (get-in @config keys))
 
 (defn envs
   "get all currently defined env keys"

@@ -55,7 +55,8 @@
   (wait-for {:timeout timeout}
             (fn []
               (try
-                (ssh-up? {:host address :port 22 :user user})
+                (ssh-up? {:host address :port 22 :user user
+                          :ssh-key (get! :ssh :private-key-path)})
                 (catch Throwable e false)))
             "Timed out while waiting for ssh"))
 

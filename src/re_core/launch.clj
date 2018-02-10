@@ -5,6 +5,7 @@
    [re-core.common :refer (get! get* version)]
    [re-core.queue :as q]
    [re-core.workers :as w]
+   [re-core.config :as conf]
    [re-core.schedule :as sch]
    [clojure.core.strint :refer (<<)]
    [clojure.java.io :refer (resource)]
@@ -14,8 +15,8 @@
 
 (refer-timbre)
 
-(defn build-components []
-  {:es (es/instance) :queues (q/instance) :schedule (sch/instance) :workers (w/instance)})
+(defn build-components [] {:es (es/instance) :queues (q/instance) :schedule (sch/instance)
+                           :workers (w/instance) :config (conf/instance)})
 
 (defn clean-up
   "Clean/release resources, used also as a shutdown hook"

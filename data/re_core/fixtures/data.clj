@@ -37,8 +37,9 @@
 
 (def smokeping-type (read-fixture "smokeping-type"))
 
-(def local-prox (read-fixture "re-core"))
+(def local-prox (atom (read-fixture "re-core")))
 
 (def local-conf
-  (let [path (fs/expand-home "~/.re-core.edn")]
-    (when (fs/exists? path) (slurp-edn path))))
+  (atom
+   (let [path (fs/expand-home "~/.re-core.edn")]
+     (when (fs/exists? path) (slurp-edn path)))))

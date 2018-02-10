@@ -1,6 +1,7 @@
 (ns re-core.config
   "Celetial configuration info"
   (:require
+   [components.core :refer (Lifecyle)]
    [clj-config.core :as conf]
    [subs.core :refer (validate! combine validation when-not-nil every-kv)]
    [clojure.pprint :refer (pprint)]
@@ -118,11 +119,28 @@
       (System/exit 1))
     c))
 
-(def ^{:doc "main configuation"} config
+(def config (atom nil))
+
+(defn ^{:doc "main configuation"} load-config []
   (if path
-    (read-and-validate)
+    (reset! config (read-and-validate))
     (when-not (System/getProperty "disable-conf") ; enables repl/testing
       (error
        (<< "Missing configuration file, you should configure re-core in either ~{config-paths}"))
       (System/exit 1))))
+
+(load-config)
+
+(defrecord Config []
+  Lifecyle
+  (setup [this])
+  (start [this]
+    (info "load configuration")
+    (load-config))
+  (stop [this]))
+
+(defn instance
+  "Creates a jobs instance"
+  []
+  (Config.))
 
