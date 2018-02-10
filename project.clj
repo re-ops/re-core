@@ -1,4 +1,4 @@
-(defproject re-core "0.3.0"
+(defproject re-core "0.4.0"
   :description "A launching pad for virtualized applications"
   :url "https://github.com/re-core-ops/re-core-core"
   :license  {:name "Apache License, Version 2.0" :url "http://www.apache.org/licenses/LICENSE-2.0.html"}
@@ -27,8 +27,8 @@
                  [com.taoensso/tufte "1.1.1"]
 
                  ; re-ops
-                 [re-mote "0.8.0"]
-                 [re-share "0.4.1"]
+                 [re-mote "0.8.1"]
+                 [re-share "0.5.3"]
 
                  ;api
                  [clj-yaml "0.4.0"]
