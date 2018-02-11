@@ -83,7 +83,7 @@ AWS configuration goes under the hypervisor/aws section in the link:#overview[co
 |===
 
 
-An AWS based system has the following form (see <<Model>>):
+An AWS based system has the following form:
 
 ```clojure
 {
