@@ -49,7 +49,7 @@
     (execute cmd node :out-fn (collect-log uuid))
     (if-let [ip (second (re-matches #".*addr\:(\d+\.\d+\.\d+\.\d+).*" (or (inet-line (get-log uuid)) "")))]
       ip
-      (throw (ex-info "Failed to grab domain public IP" {:type ::kvm:networking})))))
+      (throw (ex-info "Failed to grab domain public IP" {:user user :node node :id id})))))
 
 (defn update-ip
   "updates public dns in the machine persisted data"
