@@ -45,7 +45,7 @@ The Re-core section (situated on top) contains the configuration options of the 
 
 | path
 | Where the log file is store locally
-| Recommend value for production is /var/log/celestial.log
+| Recommend value for production is /var/log/re-core.log
 |===
 
 == Hypervisors
@@ -97,7 +97,7 @@ An AWS based system has the following form (see <<Model>>):
 
   :aws {
     :instance-type "t1.micro"
-    :key-name "celestial"
+    :key-name "re-core"
     :endpoint "ec2.eu-west-1.amazonaws.com"
   }
 
@@ -245,7 +245,7 @@ A KVM based system has the following form:
  :owner "admin"
 
  :machine {
-   :hostname "red1" :user "celestial" :domain "local"
+   :hostname "red1" :user "re-core" :domain "local"
    :os :ubuntu-15.04 :cpu 2 :ram 1024
  }
 
