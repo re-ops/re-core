@@ -47,9 +47,10 @@
   (let [uuid (gen-uuid) nat (nat-ip c id node)
         cmd (<< "ssh ~{ignore-authenticity} ~{user}@~{nat} -C 'ifconfig ~{public-nic}'")]
     (execute cmd node :out-fn (collect-log uuid))
-    (if-let [ip (second (re-matches #".*addr\:(\d+\.\d+\.\d+\.\d+).*" (or (inet-line (get-log uuid)) "")))]
-      ip
-      (throw (ex-info "Failed to grab domain public IP" {:user user :node node :id id})))))
+    (let [log (or (inet-line (get-log uuid)) "")]
+      (if-let [ip (second (re-matches #".*addr\:(\d+\.\d+\.\d+\.\d+).*" log))]
+         ip
+        (throw (ex-info "Failed to grab domain public IP" {:user user :node node :id id :output log}))))))
 
 (defn update-ip
   "updates public dns in the machine persisted data"
