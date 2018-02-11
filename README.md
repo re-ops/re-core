@@ -19,13 +19,15 @@ nil
 
 # Configure
 
-The configuration holds the information on how to connect to hypervisors (more docs on this soon):
+The configuration holds the information on how to connect to hypervisors, you can start by copying:
 
 ```bash
 $ cp data/resources/re-core.edn ~/.re-core.edn
 ```
 
-After any configuration change you can reload the configuration by:
+Follow the [guide](CONFIG.adoc) in order to add [KVM](CONFIG.adoc#kvm), [Digitalocean](CONFIG.adoc#digitalocean) and [AWS](CONFIG.adoc#aws).
+
+Any configuration change can be reflected immediately by:
 
 ```clojure
 [re-core]λ: (reset)
@@ -37,7 +39,7 @@ We can create and manipulate VM's quickly from the repl, a fluent functional DLS
 
 ```clojure
 
-[re-core]λ: (create kvm-small vol-128G :redis 5) ; Create 5 small redis instances with a 100G Volume
+[re-core]λ: (create kvm-small vol-128G :redis 5) ; Create 5 small redis instances with a 128G Volume
 
 Running create summary:
 
