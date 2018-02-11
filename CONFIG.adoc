@@ -1,0 +1,295 @@
+## Configuration
+
+### Overview
+
+Re-core integrates with Hypervisors, provisioning and central logging systems, all the configuration data is kept under **~/re-core.edn** using The link:https://github.com/edn-format/edn[EDN] file format (Clojure's native data representation).
+
+The configuration file is divided to the following sections:
+
+*   Re-core properties like: ports, log settings.
+*   Hypervisors where AWS, Openstack , Proxmox properties are set in matching sections.
+*   Elasticsearch settings
+*   SSH settings, mainly the private key path used to connect to remote instances.
+
+**See the  <<Digitalocean>>, <<KVM>>, <<AWS>> sections for specific hypervisor configuration options.**
+
+### Re-core
+
+The Re-core section (situated on top) contains the configuration options of the server itself:
+```clojure
+{
+ :re-core {
+   :port 8082
+   :log {
+     :level :info
+     :path "re-core.log"
+   }
+ }
+}
+```
+
+[options="header"]
+.Mandatory Settings
+|===
+|Section|Property|Description|Comments
+
+.1+| ports
+| port
+| Standard http port
+| Used for non secured anonymous operations only
+
+.2+| log
+| level
+| Default logging level
+| Optional values include: trace, debug, info, error.
+
+| path
+| Where the log file is store locally
+| Recommend value for production is /var/log/celestial.log
+|===
+
+== Hypervisors
+
+=== AWS
+
+Re-core supports Amazon AWS EC2 machines (see <<Matrix>>) in this section we will go through configuring Re-core to create AWS based systems.
+
+AWS configuration goes under the hypervisor/aws section in the link:#overview[configuration] file:
+
+```clojure
+{
+  :hypervisor {
+   :dev {
+     :aws {
+       :access-key ""
+       :secret-key ""
+       :ostemplates {
+         :ubuntu-12.04 {:ami "" :flavor :debian}
+         :centos-6 {:ami "" :flavor :redhat}
+       }
+      }
+    }
+  }
+}
+```
+
+[options="header"]
+.AWS configuration
+|===
+| Property | Description
+| access-key | AWS access key
+| secret-key | AWS API secret key
+| ostemplates | Mappings between system os key to AMI and flavor (redhat or debian).
+|===
+
+
+An AWS based system has the following form (see <<Model>>):
+
+```clojure
+{
+  :env :dev
+  :owner "username"
+
+  :machine {
+    :hostname "red1" :user "ubuntu"
+    :domain "local" :os :ubuntu-12.10
+  }
+
+  :aws {
+    :instance-type "t1.micro"
+    :key-name "celestial"
+    :endpoint "ec2.eu-west-1.amazonaws.com"
+  }
+
+  :type "redis"
+}
+```
+
+.AWS System
+|===
+|Section|Property|Description|Comments
+.3+| aws | instance-type | EC2 instance type | See link:https://aws.amazon.com/ec2/instance-types/[docs].
+
+| key-name
+| The EC2 machine key pair name.
+| This key should match the default local machine SSH key pair that is used to SSH into the remote machines (usually ~/.ssh/id_rsa).
+
+| endpoint
+| The AWS endpoint that will receive request to setup this machine.
+| See link:http://docs.aws.amazon.com/general/latest/gr/rande.html#ec2_region[endpoint] list.
+
+.4+| machine
+| os
+| Key value of mapped AWS AMI
+| See <<Configuration>> on how to set this up
+
+| user
+| The AMI user name
+| In Ubuntu based AMI this is usually set as ubuntu
+
+| hostname
+| Instance hostname
+| The hostname and domain will be set on the remote machine
+
+| domain
+| Instance domain
+
+|===
+
+=== Digitalocean
+
+link:https://www.digitalocean.com/[Digitalocean] is supported with the following configuration and model
+
+In order to set up Digitalocean under the link:#overview[configuration] section:
+
+```clojure
+:hypervisor {
+  :dev {
+    :digital-ocean {
+      :token ""
+      :ssh-key ""
+      :ostemplates {
+         :ubuntu-14.04  {:image "ubuntu-14-04-x64" :flavor :debian}
+      }
+     }
+   }
+}
+```
+.Digitalocean configuration
+
+|===
+|Section|Property|Description|Comments
+
+| token
+|
+| Digitalocean authentication token
+|
+
+| ssh-key
+|
+| The ssh key id defined in Digitialocean for passwordless access to droplets.
+|
+
+| ostemplates
+|
+| Mapping from OS key to its Digitalocean image
+| Please see link:#packer[packer] on how to create a template
+
+|===
+
+A Digitalocean based system has the following form:
+
+```clojure
+{
+ :env :dev
+
+ :owner "admin"
+
+ :machine {
+   :hostname "red1" :user "root"
+   :domain "local" :os :ubuntu-14.04
+ }
+
+ :digital-ocean {
+   :region "lon1" :size "512mb"
+   :private_networking false
+ }
+
+ :type "redis"
+}
+```
+
+=== KVM
+
+link:http://www.linux-kvm.org/page/Main_Page[KVM] is supported with the following configuration and model
+
+In order to set up KVM under the link:#overview[configuration] section:
+
+
+```clojure
+:hypervisor {
+  :dev {
+    :kvm  {
+      :nodes {
+         :remote {:username "ronen" :host "somehost" :port 22}
+       }
+      :ostemplates {
+         :ubuntu-15.04 {:template "ubuntu-15.04" :flavor :debian}
+      }
+    }
+  }
+}
+```
+.KVM configuration
+|===
+|Section|Property|Description|Comments
+
+| nodes
+|
+| Mapping from id to ssh connection details
+| Please see link:#kvm-libvirt[libvirt] on how to setup authentication
+
+| ostemplates
+|
+| Mapping from OS key to its KVM template
+| Please see link:#packer[packer] on how to create a template
+
+|===
+
+A KVM based system has the following form:
+
+```clojure
+{
+ :env :dev
+
+ :owner "admin"
+
+ :machine {
+   :hostname "red1" :user "celestial" :domain "local"
+   :os :ubuntu-15.04 :cpu 2 :ram 1024
+ }
+
+ :kvm {
+   :node :remote
+ }
+
+ :type "redis"
+}
+```
+
+==== KVM Libvirt
+
+Re-core uses link:https://libvirt.org/[libvirt] in order to access KVM hypervisor instances.
+
+Libvirt uses the underlying ssh key setup in order to access remote hypervisors, this requires us to ssh-copy-id from the Re-core host into KVM hosts we would like to manage:
+
+```bash
+$ ssh-copy-id user@remote-kvm
+
+```
+
+Another issue is that we can't deploy Re-core itself as a VM within an hypervisor that we would like to manage due to link:https://wiki.libvirt.org/page/TroubleshootMacvtapHostFail[networking limitations] imposed by KVM (install Re-core outside any of the managed hosts).
+
+
+=== Matrix
+
+Currently supported and verified systems that Re-core works with:
+
+.Supported hypervisors
+|===
+|Name|Versions|Operating systems|Comments
+| AWS
+|
+| Ubuntu > = 16.x
+|
+
+| Digitalocean
+|
+| Ubuntu > = 16.x
+|
+
+| KVM
+|
+| Ubuntu > = 16.04
+|
+|===
