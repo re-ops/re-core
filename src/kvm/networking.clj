@@ -49,7 +49,7 @@
     (execute cmd node :out-fn (collect-log uuid))
     (let [log (or (inet-line (get-log uuid)) "")]
       (if-let [ip (second (re-matches #".*addr\:(\d+\.\d+\.\d+\.\d+).*" log))]
-         ip
+        ip
         (throw (ex-info "Failed to grab domain public IP" {:user user :node node :id id :output log}))))))
 
 (defn update-ip
