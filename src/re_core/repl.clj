@@ -119,6 +119,7 @@
 (defn hosts
   "Convert systems into re-mote hosts:
     (hosts) ; all systems using ip address
+    (cpu-persist (hosts ip :hostname))) ; use re-gent addresses by grabbing hostname
     (hosts (by-type :redis) :hostname) ; all redis instances using hostname
   "
   ([]
