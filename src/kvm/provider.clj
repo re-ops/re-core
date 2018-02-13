@@ -39,6 +39,8 @@
   (wait-for {:timeout timeout} #(= req-stat (.status instance))
             "Timed out on waiting for status"))
 
+(def timeout [1 :minute])
+
 (defrecord Domain [system-id node volumes domain]
   Vm
   (create [this]
@@ -49,10 +51,10 @@
         (debug "clone done")
         (create-volumes c (domain :name) volumes)
         (debug "volumes created")
-        (wait-for-status this "running" [5 :minute])
+        (wait-for-status this "running" timeout)
         (debug "in running state")
         (let [ip (.ip this) flavor (get-in domain [:image :flavor])]
-          (wait-for-ssh ip (domain :user) [5 :minute])
+          (wait-for-ssh ip (domain :user) timeout)
           (set-hostname (domain :hostname) (domain :name) {:user (domain :user) :host ip} flavor)
           (update-ip system-id ip)
           this))))
@@ -68,7 +70,7 @@
         (.create (get-domain c (domain :name)))
         (when (ssh-able? (get-in domain [:image :flavor]))
           (let [ip (.ip this)]
-            (wait-for-ssh ip (domain :user) [5 :minute])
+            (wait-for-ssh ip (domain :user) timeout)
             (update-ip system-id ip))))))
 
   (stop [this]
@@ -76,7 +78,7 @@
       (s/put system-id
              (dissoc-in* (s/get system-id) [:machine :ip]))
       (.destroy (get-domain c (domain :name)))
-      (wait-for-status this "shutoff" [5 :minute])))
+      (wait-for-status this "shutoff" timeout)))
 
   (status [this]
     (with-connection
@@ -117,22 +119,3 @@
         volumes* (spec/transform [ALL (keypath :pool)] (partial pool-m node) volumes)]
     (provider-validation domain node*)
     (->Domain system-id node* volumes* domain)))
-
-(comment
-  (def c (connection {:host "localhost" :user "ronen" :port 22}))
-
-  (create-volume c "default" 10 "/var/lib/libvirt/images/" "foo.img")
-
-  (clojure.pprint/pprint
-   (.delete (:volume (second (kvm.volumes/list-volumes c "reops-0.local"))) 0))
-
-  (def d
-    (get-domain c "reops-0.local"))
-
-  (attach d "/var/lib/libvirt/images/foo.img")
-
-  (delete-volume c "default" "foo.img")
-
-  (domain-list c)
-
-  (get-domain c "red1.local"))
