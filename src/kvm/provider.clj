@@ -43,7 +43,8 @@
   Vm
   (create [this]
     (with-connection
-      (let [image (get-in domain [:image :template]) target (select-keys domain [:name :cpu :ram])]
+      (let [image (get-in domain [:image :template])
+            target (select-keys domain [:name :cpu :ram])]
         (clone-domain c image target)
         (debug "clone done")
         (create-volumes c (domain :name) volumes)
