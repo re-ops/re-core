@@ -52,13 +52,13 @@
 
 (defn wait-for-ssh [address user timeout]
   {:pre [address user timeout]}
-  (wait-for {:timeout timeout}
-            (fn []
-              (try
-                (ssh-up? {:host address :port 22 :user user
-                          :ssh-key (get! :ssh :private-key-path)})
-                (catch Throwable e false)))
-            "Timed out while waiting for ssh"))
+  (let [k (get! :ssh :private-key-path)]
+    (wait-for {:timeout timeout}
+              (fn []
+                (try
+                  (ssh-up? {:host address :port 22 :user user :ssh-key k})
+                  (catch Throwable e false)))
+              (<< "Timed out while waiting for ssh please check: ssh ~{user}@~{address} -i ~{k}"))))
 
 (defn map-key [m from to]
   (dissoc-in* (assoc-in m to (get-in m from)) from))
