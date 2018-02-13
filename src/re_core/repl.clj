@@ -50,7 +50,7 @@
   ([]
    (reload ip))
   ([f]
-   (run (ls systems) | (filter-by f) | (sys/reload) | (block-wait) | (pretty-print "reload"))))
+   (run (ls systems) | (filter-by f) | (sys/reload) | (async-wait pretty-print "reload"))))
 
 (defn clear
   " Clear model only (VM won't be deleted):
