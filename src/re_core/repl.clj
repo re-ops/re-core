@@ -180,9 +180,9 @@
 (defn ssh-into
   "SSH into instances (open a terminal)"
   ([]
-   (ssh-into (hosts)))
-  ([{:keys [auth] :as hs}]
-   (let [{:keys [user]} auth]
+   (ssh-into identity))
+  ([f]
+   (let [{:keys [auth] :as hs} (hosts f :ip)]
      (doseq [host (:hosts hs)]
-       (.exec  (Runtime/getRuntime) (<< "/usr/bin/x-terminal-emulator --disable-factory -e /usr/bin/ssh ~{user}@~{host}"))))))
+       (.exec  (Runtime/getRuntime) (<< "/usr/bin/x-terminal-emulator --disable-factory -e /usr/bin/ssh ~(auth :user)@~{host}"))))))
 
