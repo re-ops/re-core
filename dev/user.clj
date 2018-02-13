@@ -20,6 +20,7 @@
    [re-mote.zero.management :refer (refer-zero-manage)]
    [re-mote.log :refer (log-hosts)]
    [re-mote.zero.functions :refer (plus-one listdir)]
+   [re-mote.zero.stats :refer (disk-breach)]
    [re-mote.launch :as mote]))
 
 (refer-zero-manage)
