@@ -99,7 +99,7 @@
   ([]
    (start (comp not ip)))
   ([f]
-   (run (ls systems) | (filter-by f) | (sys/start) | (block-wait) | (pretty-print "start"))))
+   (run (ls systems) | (filter-by f) | (sys/start) | (async-wait pretty-print "start"))))
 
 (defn list
   "List available instances:
