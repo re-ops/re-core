@@ -1,6 +1,7 @@
 (ns re-core.repl.systems
   "Repl systems access"
   (:require
+   [re-core.common :refer  (get!)]
    [clojure.core.strint :refer  (<<)]
    [clansi.core :refer  (style)]
    [re-core.queue :as q]
@@ -163,8 +164,9 @@
   (into-hosts [this m]
     (into-hosts this m :ip))
   (into-hosts [this {:keys [systems]} k]
-    (let [{:keys [user]} (:machine (second (first systems)))]
-      (Hosts. {:user user} (mapv (fn [[_ system]] (get-in system [:machine k])) systems)))))
+    (let [{:keys [user]} (:machine (second (first systems)))
+          remote {:user user :ssh-key (get! :ssh :private-key-path)}]
+      (Hosts. remote (mapv (fn [[_ system]] (get-in system [:machine k])) systems)))))
 
 (extend-type Systems
   Report

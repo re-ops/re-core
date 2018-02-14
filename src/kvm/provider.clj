@@ -1,5 +1,6 @@
 (ns kvm.provider
   (:require
+   [re-core.common :refer (get!)]
    [com.rpl.specter :as spec :refer  (MAP-VALS ALL ATOM keypath)]
    [flatland.useful.map :refer (dissoc-in*)]
    [safely.core :refer [safely]]
@@ -41,6 +42,9 @@
 
 (def timeout [1 :minute])
 
+(defn key- []
+  (get! :ssh :private-key-path))
+
 (defrecord Domain [system-id node volumes domain]
   Vm
   (create [this]
@@ -53,9 +57,10 @@
         (debug "volumes created")
         (wait-for-status this "running" timeout)
         (debug "in running state")
-        (let [ip (.ip this) flavor (get-in domain [:image :flavor])]
-          (wait-for-ssh ip (domain :user) timeout)
-          (set-hostname (domain :hostname) (domain :name) {:user (domain :user) :host ip} flavor)
+        (let [ip (.ip this) flavor (get-in domain [:image :flavor])
+              {:keys [user name hostname]} domain]
+          (wait-for-ssh ip user timeout)
+          (set-hostname hostname name {:user user :host ip :ssh-key (key-)} flavor)
           (update-ip system-id ip)
           this))))
 
