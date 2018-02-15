@@ -170,7 +170,7 @@ link:https://www.digitalocean.com/[Digitalocean] is supported with the following
 | ostemplates
 |
 | Mapping from OS key to its Digitalocean image
-| Please see link:#re-dock[https://github.com/re-ops/re-pack] on how to create a template
+| Please see link:#re-pack[https://github.com/re-ops/re-pack] on how to create a template
 
 |===
 
@@ -205,7 +205,7 @@ link:http://www.linux-kvm.org/page/Main_Page[KVM] is supported with the followin
 | ostemplates
 |
 | Mapping from OS key to its KVM template
-| Please see link:#packer[packer] on how to create a template
+| Please see link:#re-pack[https://github.com/re-ops/re-pack] on how to create a template
 |===
 
 ==== KVM Libvirt
