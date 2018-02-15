@@ -172,6 +172,7 @@ link:https://www.digitalocean.com/[Digitalocean] is supported with the following
 | Mapping from OS key to its Digitalocean image
 | Please see link:#re-dock[https://github.com/re-ops/re-pack] on how to create a template
 
+|===
 
 === KVM
 
