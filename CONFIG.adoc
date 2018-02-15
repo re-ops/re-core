@@ -52,8 +52,6 @@ The Re-core section (situated on top) contains the configuration options of the 
 
 === AWS
 
-Re-core supports Amazon AWS EC2 machines (see <<Matrix>>) in this section we will go through configuring Re-core to create AWS based systems.
-
 AWS configuration goes under the hypervisor/aws section in the link:#overview[configuration] file:
 
 ```clojure
@@ -64,9 +62,11 @@ AWS configuration goes under the hypervisor/aws section in the link:#overview[co
        :access-key ""
        :secret-key ""
        :ostemplates {
-         :ubuntu-12.04 {:ami "" :flavor :debian}
-         :centos-6 {:ami "" :flavor :redhat}
+         :ubuntu-16.04 {:ami "" :flavor :debian}
        }
+       :default-vpc {
+          :vpc-id "vpc-123456" :subnet-id "subnet-123456" :assign-public true
+        }
       }
     }
   }
@@ -76,71 +76,35 @@ AWS configuration goes under the hypervisor/aws section in the link:#overview[co
 [options="header"]
 .AWS configuration
 |===
-| Property | Description
-| access-key | AWS access key
-| secret-key | AWS API secret key
-| ostemplates | Mappings between system os key to AMI and flavor (redhat or debian).
-|===
+| Section | Property | Description | Comments
 
+| access-key
+|
+| AWS access key
+|
 
-An AWS based system has the following form:
+| secret-key
+|
+| AWS API secret key
+|
 
-```clojure
-{
-  :env :dev
-  :owner "username"
+| ostemplates
+|
+| Mappings between system os key to AMI and flavor (redhat or debian).
+|
 
-  :machine {
-    :hostname "red1" :user "ubuntu"
-    :domain "local" :os :ubuntu-12.10
-  }
-
-  :aws {
-    :instance-type "t1.micro"
-    :key-name "re-core"
-    :endpoint "ec2.eu-west-1.amazonaws.com"
-  }
-
-  :type "redis"
-}
-```
-
-.AWS System
-|===
-|Section|Property|Description|Comments
-.3+| aws | instance-type | EC2 instance type | See link:https://aws.amazon.com/ec2/instance-types/[docs].
-
-| key-name
-| The EC2 machine key pair name.
-| This key should match the default local machine SSH key pair that is used to SSH into the remote machines (usually ~/.ssh/id_rsa).
-
-| endpoint
-| The AWS endpoint that will receive request to setup this machine.
-| See link:http://docs.aws.amazon.com/general/latest/gr/rande.html#ec2_region[endpoint] list.
-
-.4+| machine
-| os
-| Key value of mapped AWS AMI
-| See <<Configuration>> on how to set this up
-
-| user
-| The AMI user name
-| In Ubuntu based AMI this is usually set as ubuntu
-
-| hostname
-| Instance hostname
-| The hostname and domain will be set on the remote machine
-
-| domain
-| Instance domain
+| default-vpc
+|
+| VPC, subnet and whether to assign a public IP
+| EC2 requires the use of VPC
 
 |===
+
 
 === Digitalocean
 
-link:https://www.digitalocean.com/[Digitalocean] is supported with the following configuration and model
+link:https://www.digitalocean.com/[Digitalocean] is supported with the following configuration:
 
-In order to set up Digitalocean under the link:#overview[configuration] section:
 
 ```clojure
 :hypervisor {
@@ -173,38 +137,12 @@ In order to set up Digitalocean under the link:#overview[configuration] section:
 | ostemplates
 |
 | Mapping from OS key to its Digitalocean image
-| Please see link:#packer[packer] on how to create a template
+| Please see link:#re-dock[https://github.com/re-ops/re-pack] on how to create a template
 
-|===
-
-A Digitalocean based system has the following form:
-
-```clojure
-{
- :env :dev
-
- :owner "admin"
-
- :machine {
-   :hostname "red1" :user "root"
-   :domain "local" :os :ubuntu-14.04
- }
-
- :digital-ocean {
-   :region "lon1" :size "512mb"
-   :private_networking false
- }
-
- :type "redis"
-}
-```
 
 === KVM
 
-link:http://www.linux-kvm.org/page/Main_Page[KVM] is supported with the following configuration and model
-
-In order to set up KVM under the link:#overview[configuration] section:
-
+link:http://www.linux-kvm.org/page/Main_Page[KVM] is supported with the following configuration:
 
 ```clojure
 :hypervisor {
@@ -233,29 +171,6 @@ In order to set up KVM under the link:#overview[configuration] section:
 |
 | Mapping from OS key to its KVM template
 | Please see link:#packer[packer] on how to create a template
-
-|===
-
-A KVM based system has the following form:
-
-```clojure
-{
- :env :dev
-
- :owner "admin"
-
- :machine {
-   :hostname "red1" :user "re-core" :domain "local"
-   :os :ubuntu-15.04 :cpu 2 :ram 1024
- }
-
- :kvm {
-   :node :remote
- }
-
- :type "redis"
-}
-```
 
 ==== KVM Libvirt
 
