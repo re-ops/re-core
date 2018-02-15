@@ -192,6 +192,7 @@ link:http://www.linux-kvm.org/page/Main_Page[KVM] is supported with the followin
   }
 }
 ```
+
 .KVM configuration
 |===
 |Section|Property|Description|Comments
@@ -199,12 +200,13 @@ link:http://www.linux-kvm.org/page/Main_Page[KVM] is supported with the followin
 | nodes
 |
 | Mapping from id to ssh connection details
-| Please see link:#kvm-libvirt[libvirt] on how to setup authentication
+|
 
 | ostemplates
 |
 | Mapping from OS key to its KVM template
 | Please see link:#packer[packer] on how to create a template
+|===
 
 ==== KVM Libvirt
 
