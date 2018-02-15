@@ -2,7 +2,7 @@
 
 ### Overview
 
-Re-core integrates with Hypervisors, provisioning and central logging systems, all the configuration data is kept under **~/re-core.edn** using The link:https://github.com/edn-format/edn[EDN] file format (Clojure's native data representation).
+Re-core  the configuration data is kept under **~/re-core.edn** using The link:https://github.com/edn-format/edn[EDN] file format (Clojure's native data representation).
 
 The configuration file is divided to the following sections:
 
@@ -25,8 +25,7 @@ The Re-core section (situated on top) contains the configuration options of the 
      :path "re-core.log"
    }
  }
- 
- 
+
  :elasticsearch {
    :host "localhost"
    :port 9200
@@ -119,10 +118,18 @@ AWS configuration goes under the hypervisor/aws section in the link:#overview[co
 | Mappings between system os key to AMI and flavor (redhat or debian).
 |
 
-| default-vpc
+.3+| default-vpc
+| vpc-id
+| The id of the VPC that will be used with EC2 instances.
 |
-| VPC, subnet and whether to assign a public IP
-| EC2 requires the use of VPC
+
+| subnet-id
+| The id of the subnet that will be used with EC2 instances.
+|
+
+| assign-public
+| Whether to assign a public IP or not.
+| If false then a VPN is used to access the internal VPC network.
 
 |===
 
