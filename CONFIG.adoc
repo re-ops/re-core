@@ -25,6 +25,17 @@ The Re-core section (situated on top) contains the configuration options of the 
      :path "re-core.log"
    }
  }
+ 
+ 
+ :elasticsearch {
+   :host "localhost"
+   :port 9200
+ }
+
+ :ssh {
+   :private-key-path "/home/foo/.ssh/id_rsa"
+ }
+
 }
 ```
 
@@ -45,7 +56,22 @@ The Re-core section (situated on top) contains the configuration options of the 
 
 | path
 | Where the log file is store locally
-| Recommend value for production is /var/log/re-core.log
+|
+
+.2+| elasticsearch
+| host
+| The host Elasticsearch is running on
+|
+
+| port
+| http API port (9200 by default)
+|
+
+.1+| ssh
+| private-key-path
+|
+| Used by re-core to perform setup tasks on newly created VM's
+
 |===
 
 == Hypervisors
