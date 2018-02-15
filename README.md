@@ -33,6 +33,10 @@ Any configuration change can be reflected immediately by:
 [re-core]λ: (reset)
 ```
 
+# Images
+
+Re-core requires key based ssh access to the images it uses, compatible images can be created using [re-pack](https://github.com/re-ops/re-pack).
+
 # Usage
 
 We can create and manipulate VM's quickly from the repl, a fluent functional DLS enables us to have rapid provisioning:
