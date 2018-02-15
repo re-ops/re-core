@@ -186,7 +186,7 @@ link:http://www.linux-kvm.org/page/Main_Page[KVM] is supported with the followin
          :remote {:username "ronen" :host "somehost" :port 22}
        }
       :ostemplates {
-         :ubuntu-15.04 {:template "ubuntu-15.04" :flavor :debian}
+         :ubuntu-16.04 {:template "ubuntu-16.04" :flavor :debian}
       }
     }
   }
