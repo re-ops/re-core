@@ -149,7 +149,6 @@
 
   (pretty-print [this {:keys [results chain] :as m} message]
     (let [{:keys [success failure]} results]
-      (println success)
       (println "\n")
       (println (style (<< "Running ~{message} summary:") :blue) "\n")
       (doseq [{:keys [message args]} success :let [hostname (get-in args [0 :machine :hostname])]]
