@@ -33,7 +33,7 @@
             "Timed out on waiting for arp cache to update"))
 
 (defn nat-ip [c id node]
-  (wait-for-nat c id node [5 :minute])
+  (wait-for-nat c id node [1 :minute])
   (grab-nat c id node))
 
 (def ignore-authenticity "-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no")
