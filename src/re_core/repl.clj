@@ -2,6 +2,7 @@
   "Repl Driven re-core"
   (:refer-clojure :exclude [list update])
   (:require
+   [es.history :refer (refer-history)]
    [clojure.core.strint :refer  (<<)]
    [re-core.repl.base :refer (refer-base)]
    [re-core.repl.systems :refer (refer-systems)]
@@ -15,6 +16,7 @@
 
 (refer-base)
 (refer-systems)
+(refer-history)
 (refer-types)
 
 (set-level! :debug)

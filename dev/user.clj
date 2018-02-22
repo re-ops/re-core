@@ -11,6 +11,7 @@
    [re-core.presets.system :refer (refer-system-presets)]
    [re-core.presets.type :refer (refer-type-presets)]
    [re-core.log :refer (debug-on info-on trace-on)]
+   [es.history :refer (refer-history)]
    [re-core.repl.fixtures :refer :all]
    [me.raynes.fs :refer (extension file?)]
    [re-core.launch :as core]
@@ -23,6 +24,7 @@
    [re-mote.zero.stats :refer (disk-breach)]
    [re-mote.launch :as mote]))
 
+(refer-history)
 (refer-zero-manage)
 (refer-system-presets)
 (refer-type-presets)
