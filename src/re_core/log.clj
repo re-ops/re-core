@@ -17,14 +17,10 @@
   "Sets up logging configuration"
   []
   (let [log* (partial get* :re-core :log)]
-    (when (log* :gelf)
-      (merge-config!
-       {:appenders {:gelf (gelf-appender {:host (log* :gelf :host)})}}))
     (merge-config!
      {:appenders {:rolling (rolling-appender {:path (log* :path) :pattern :weekly})}})
     (merge-config!
-     {:ns-blacklist ["net.schmizz.*" "org.elasticsearch.client.*"
-                     "org.elasticsearch.indices.*" "org.apache.http.*"]})
+     {:ns-blacklist ["net.schmizz.*" "org.elasticsearch.*" "org.apache.http.*"]})
     (merge-config!
      {:appenders {:println {:ns-whitelist ["re-core" "re-mote"]}}})
     (disable-coloring)
