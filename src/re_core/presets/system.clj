@@ -17,7 +17,8 @@
   (update-in instance [:machine :hostname]
              (fn [hostname] (str hostname "-" (.substring (gen-uuid) 0 10)))))
 
-(defn machine [user domain os] {:user user :domain domain :os os})
+(defn machine [user domain os]
+  {:user user :domain domain :os os})
 
 (defn kvm [machine node]
   {:machine machine :kvm {:node node}})
@@ -26,6 +27,10 @@
   (merge {:cpu cpu :ram ram} (machine "re-ops" "local" os)))
 
 (def default-node :remote)
+
+(defn os [k]
+  (fn [instance]
+    (assoc-in instance [:machine :os] k)))
 
 (defn kvm-size
   ([cpu ram]
@@ -80,5 +85,5 @@
         (fn? a) (into-spec (assoc m :fns (conj fns a)) (rest args))))))
 
 (defn refer-system-presets []
-  (require '[re-core.presets.system :as sp :refer [kvm-tiny kvm-small kvm-medium kvm-large kvm-xlarge vol-128G vol-256G vol-512G vol-1T kvm-size kvm-volume]]))
+  (require '[re-core.presets.system :as sp :refer [kvm-tiny kvm-small kvm-medium kvm-large kvm-xlarge vol-128G vol-256G vol-512G vol-1T kvm-size kvm-volume os]]))
 
