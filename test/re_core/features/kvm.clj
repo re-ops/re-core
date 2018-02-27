@@ -4,7 +4,7 @@
    [es.systems :as s]
    [re-core.model :refer (vconstruct)]
    [re-core.fixtures.core :refer (with-conf is-type?) :as f]
-   [re-core.fixtures.data :refer (redis-type local-conf redis-gce)]
+   [re-core.fixtures.data :refer (redis-type local-conf)]
    [re-core.fixtures.populate :refer (populate-system)]
    [re-core.features.common :refer (spec)]
    [re-core.workflows :as wf]
