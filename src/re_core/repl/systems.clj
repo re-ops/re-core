@@ -1,6 +1,8 @@
 (ns re-core.repl.systems
   "Repl systems access"
   (:require
+   kvm.provider
+   [re-core.model :refer (vconstruct)]
    [re-core.common :refer  (get!)]
    [clojure.core.strint :refer  (<<)]
    [clansi.core :refer  (style)]
@@ -31,7 +33,7 @@
   (block-wait [this jobs])
   (async-wait [this jobs f args])
   (pretty-print [this m message])
-  (watch [this jobs]))
+  (spice [this items]))
 
 (defprotocol Host
   "Hosts"
@@ -129,7 +131,6 @@
 
   (status [this {:keys [jobs]}]
     (map (fn [{:keys [job]}] (assoc job :status (q/status job))) jobs))
-
   (block-wait [this {:keys [jobs systems] :as js}]
     (loop [done (filter-done (status this js))]
       (when (< (count done) (count jobs))
@@ -156,7 +157,12 @@
       (doseq [{:keys [message args]} failure :let [hostname (get-in args [0 :machine :hostname])]]
         (println " " (style "x" :red) hostname "-" message))
       (println "")
-      [this m])))
+      [this m]))
+
+  (spice [this {:keys [systems] :as m}]
+    (doseq [[_ s] systems :let [k (vconstruct s)]]
+      (kvm.provider/open-spice k))
+    [this m]))
 
 (extend-type Systems
   Host
@@ -180,4 +186,4 @@
     [this m]))
 
 (defn refer-systems []
-  (require '[re-core.repl.systems :as sys :refer [watch status into-hosts block-wait async-wait pretty-print]]))
+  (require '[re-core.repl.systems :as sys :refer [status into-hosts block-wait async-wait pretty-print spice]]))

@@ -15,6 +15,7 @@
    [es.systems :as s]
    [re-core.provider :refer (mappings selections transform os->template wait-for-ssh)]
    [re-share.core :refer (wait-for)]
+   [kvm.spice :refer (graphics remmina)]
    [hypervisors.networking :refer (set-hostname ssh-able?)]
    [re-core.model :refer (translate vconstruct hypervisor*)])
   (:import org.libvirt.LibvirtException))
@@ -44,6 +45,9 @@
 
 (defn key- []
   (get! :ssh :private-key-path))
+
+(defprotocol Spicy
+  (open-spice [this]))
 
 (defrecord Domain [system-id node volumes domain]
   Vm
@@ -97,7 +101,12 @@
     (with-connection
       (if (= (:host node) "localhost")
         (nat-ip c (domain :name) node)
-        (public-ip c (domain :user) node (domain :name))))))
+        (public-ip c (domain :user) node (domain :name)))))
+
+  Spicy
+  (open-spice [this]
+    (with-connection
+      (remmina domain (graphics c (domain :name))))))
 
 (defn machine-ts
   "Construcuting machine transformations"
@@ -124,3 +133,8 @@
         volumes* (spec/transform [ALL (keypath :pool)] (partial pool-m node) volumes)]
     (provider-validation domain node*)
     (->Domain system-id node* volumes* domain)))
+
+(comment
+  (let [node {:user "" :host "localhost" :port 22}]
+    (with-connection
+      (clojure.pprint/pprint (kvm.spice/graphics (kvm.common/domain-zip c ""))))))

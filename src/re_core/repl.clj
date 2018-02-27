@@ -189,3 +189,9 @@
      (doseq [host (:hosts hs)]
        (.exec  (Runtime/getRuntime) (<< "/usr/bin/x-terminal-emulator --disable-factory -e /usr/bin/ssh ~(auth :user)@~{host}"))))))
 
+(defn spice-into
+  "Open remote spice connection to KVM instances"
+  ([]
+   (spice-into identity))
+  ([f]
+   (run (ls systems) | (filter-by f) | (filter-by (fn [[_ m]] (contains? m :kvm))) | (spice) | (pretty-print "spice"))))
