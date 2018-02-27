@@ -32,6 +32,10 @@
   (fn [instance]
     (assoc-in instance [:machine :os] k)))
 
+(defn node [n]
+  (fn [instance]
+    (assoc-in instance [:kvm :node] n)))
+
 (defn kvm-size
   ([cpu ram]
    (kvm-size cpu ram :ubuntu-16.04))
@@ -85,5 +89,5 @@
         (fn? a) (into-spec (assoc m :fns (conj fns a)) (rest args))))))
 
 (defn refer-system-presets []
-  (require '[re-core.presets.system :as sp :refer [kvm-tiny kvm-small kvm-medium kvm-large kvm-xlarge vol-128G vol-256G vol-512G vol-1T kvm-size kvm-volume os]]))
+  (require '[re-core.presets.system :as sp :refer [kvm-tiny kvm-small kvm-medium kvm-large kvm-xlarge vol-128G vol-256G vol-512G vol-1T kvm-size kvm-volume os node]]))
 
