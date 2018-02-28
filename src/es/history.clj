@@ -2,9 +2,10 @@
   "lein history persistence"
   (:refer-clojure :exclude [get partial])
   (:require
-   [es.common :refer (index) :as common]
-   [es.node :as node :refer (c)]
    [qbits.spandex :as s]
+   [es.common :refer (index)]
+   [re-share.es.node :refer (connection)]
+   [re-share.es.common :as common]
    [clojure.core.strint :refer (<<)]
    [taoensso.timbre :refer (refer-timbre)]
    [re-core.model :as model])
@@ -24,7 +25,7 @@
   "Add history for the current host"
   ([hist]
    (try
-     (= (:status (s/request @c {:url [index :history hostname] :method :post :body hist})) 200)
+     (= (:status (s/request (connection) {:url [index :history hostname] :method :post :body hist})) 200)
      (catch Exception e
        (error e
               (ex-data e)

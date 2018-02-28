@@ -2,9 +2,8 @@
   "Jobs Elasticsearch persistency"
   (:refer-clojure :exclude [get])
   (:require
-   [qbits.spandex :as s]
-   [es.node :as node :refer (c)]
-   [es.common :refer (index) :as common]
+   [es.common :refer (index)]
+   [re-share.es.common :as common]
    [taoensso.timbre :refer (refer-timbre)]
    [re-core.common :refer (envs)]))
 

@@ -4,8 +4,9 @@
   (:require
    [com.rpl.specter :refer [select transform ALL multi-path]]
    [qbits.spandex :as s]
-   [es.common :refer (index) :as common]
-   [es.node :as node :refer (c)]
+   [es.common :refer (index)]
+   [re-share.es.common :as common]
+   [re-share.es.node :refer (connection)]
    [clojure.core.strint :refer (<<)]
    [taoensso.timbre :refer (refer-timbre)]
    [re-core.model :as model]))
@@ -20,7 +21,7 @@
   "create a type with id type"
   ([type]
    (try
-     (= (:status (s/request @c {:url [index :type (type :type)] :method :post :body type})) 200)
+     (= (:status (s/request (connection) {:url [index :type (type :type)] :method :post :body type})) 200)
      (catch Exception e
        (error e
               (ex-data e)
@@ -59,7 +60,7 @@
   "partial update of a type into Elasticsearch"
   [t part]
   (let [type (get t)]
-    (= (:status (s/request @c {:url [index :type t] :method :put :body (merge-with merge type part)})) 200)))
+    (= (:status (s/request (connection) {:url [index :type t] :method :put :body (merge-with merge type part)})) 200)))
 
 (defn all
   "return all existing types"

@@ -3,16 +3,17 @@
   (:require
    [components.core :refer (Lifecyle)]
    [es.common :refer (initialize index)]
-   [es.node :as node]))
+   [re-core.common :refer (get!)]
+   [re-share.es.node :as node]))
 
 (defrecord Elastic
            []
   Lifecyle
   (setup [this]
-    (node/connect)
+    (node/connect (get! :elasticsearch))
     (initialize))
   (start [this]
-    (node/connect))
+    (node/connect (get! :elasticsearch)))
   (stop [this]
     (node/stop)))
 
