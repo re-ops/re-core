@@ -83,4 +83,4 @@
 (defn all
   "return all existing systems"
   []
-  (mapv (fn [[k v]] [k (keywordize v)]) (common/all :system)))
+  (mapv (fn [[k v]] [k (keywordize v)]) (common/all index :system)))
