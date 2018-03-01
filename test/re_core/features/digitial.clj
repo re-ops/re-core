@@ -3,7 +3,7 @@
   (:require
    [re-core.fixtures.core :refer (with-defaults is-type? with-conf)]
    [es.systems :as s]
-   [es.node :refer (stop)]
+   [re-share.es.node :refer (stop)]
    [re-core.fixtures.data :refer (redis-type local-conf)]
    [re-core.fixtures.populate :refer (populate-system)]
    [re-core.features.common :refer (spec get-spec)]

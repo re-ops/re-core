@@ -2,11 +2,13 @@
   "type mappings index etc.."
   (:require
    [taoensso.timbre :refer (refer-timbre)]
+   [re-core.common :refer (get!)]
    [re-share.es.common :refer (create exists?)]))
 
 (refer-timbre)
 
-(def ^:const index "re-core")
+(defn index []
+  (get! :elasticsearch :index))
 
 (def ^:const types {:jobs {:properties {:env {:type "keyword"}
                                         :status {:type "text"}
@@ -27,7 +29,7 @@
 
 (defn initialize
   "Creates systems index and types"
-  [& [m & _]]
+  [index]
   (when-not (exists? index)
     (info "Creating index" index)
     (create index {:mappings types})))

@@ -3,7 +3,7 @@
   (:require
    [es.jobs :as jobs]
    [es.common :as es]
-   [es.node :refer (stop)]
+   [re-share.es.node :refer (stop)]
    [re-core.fixtures.data :refer (redis-ec2-spec)]
    [re-core.fixtures.core :refer (with-conf)]
    [re-core.fixtures.populate :refer (re-initlize)])
@@ -19,7 +19,7 @@
 (defn add-jobs
   "adds a list of systems into ES"
   []
-  (es/initialize {:indices.ttl.interval 2})
+  (es/initialize (es/index))
   (jobs/put (-> job (merge {:tid "1" :status :success}) stamp))
   (jobs/put (-> job (merge {:tid "2" :status :failure :env :prod}) stamp))
   (jobs/put (-> job (merge {:tid "3" :status :success :identity 2}) stamp))

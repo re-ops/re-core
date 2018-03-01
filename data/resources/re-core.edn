@@ -48,8 +48,10 @@
  :elasticsearch {
    :host "localhost"
    :port 9200
+   :user "elastic"
+   :pass "changeme"
+   :index "re-core"
  }
-
 
  :ssh {
    :private-key-path "/home/ronen/.ssh/id_rsa"

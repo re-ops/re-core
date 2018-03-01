@@ -3,8 +3,10 @@
   (:require
    [re-core.log :refer (setup-logging)]
    [es.types :as t]
-   [es.common :as es]
-   [es.node :refer (stop connect)]
+   [re-share.es.common :as es]
+   [es.common :refer (initialize index)]
+   [re-core.common :refer (get!)]
+   [re-share.es.node :as node]
    [re-core.model :refer (figure-virt)]
    [re-core.fixtures.core :refer (with-conf)]
    [clojure.test.check.generators :as g]
@@ -60,11 +62,11 @@
 (defn re-initlize
   "Re-init datastores"
   ([] (re-initlize false))
-  ([clear-es]
-   (connect)
-   (when clear-es
-     (es/clear))
-   (es/initialize)))
+  ([c]
+   (node/connect (get! :elasticsearch))
+   (when c
+     (es/clear (index)))
+   (initialize (index))))
 
 (def populators {:types add-types :systems puts})
 
@@ -78,7 +80,7 @@
 (defn populate-system
   "Adds single type and system"
   [type system id]
-  (connect)
+  (node/connect (get! :elasticsearch))
   (re-initlize)
   (t/create type)
   (s/create system id))
@@ -87,5 +89,5 @@
   "run populate all"
   [& args]
   (populate-all)
-  (stop)
+  (node/stop)
   (println "populate done!"))

@@ -4,7 +4,7 @@
    [re-core.log :refer (setup-logging)]
    [es.common :as es]
    [es.systems :as s]
-   [es.node :refer (stop)]
+   [re-share.es.node :refer (stop)]
    [re-core.fixtures.data :refer (redis-kvm-spec redis-ec2-spec)]
    [re-core.fixtures.core :refer (with-conf)]
    [re-core.fixtures.populate :refer (re-initlize)])
@@ -14,7 +14,7 @@
 
 (defn puts
   "adds a list of systems into ES" []
-  (es/initialize)
+  (es/initialize (es/index))
   (s/put "1" (assoc redis-kvm-spec :owner "admin"))
   (s/put "2" (assoc-in redis-ec2-spec [:machine :hostname] "foo-1"))
   (s/put "3" (assoc redis-ec2-spec :env :prod-1))

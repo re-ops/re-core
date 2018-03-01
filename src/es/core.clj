@@ -2,7 +2,7 @@
   "Core elasticsearch module"
   (:require
    [components.core :refer (Lifecyle)]
-   [es.common :refer (initialize index)]
+   [es.common :refer (initialize)]
    [re-core.common :refer (get!)]
    [re-share.es.node :as node]))
 
@@ -10,8 +10,9 @@
            []
   Lifecyle
   (setup [this]
-    (node/connect (get! :elasticsearch))
-    (initialize))
+    (let [{:keys [index] :as m} (get! :elasticsearch)]
+      (node/connect m)
+      (initialize index)))
   (start [this]
     (node/connect (get! :elasticsearch)))
   (stop [this]
