@@ -3,7 +3,7 @@
   (:require
    [taoensso.timbre :refer (refer-timbre)]
    [re-core.common :refer (get!)]
-   [re-share.es.common :refer (create exists?)]))
+   [re-share.es.common :refer (create-index exists?)]))
 
 (refer-timbre)
 
@@ -32,4 +32,4 @@
   [index]
   (when-not (exists? index)
     (info "Creating index" index)
-    (create index {:mappings types})))
+    (create-index index {:mappings types})))
