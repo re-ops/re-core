@@ -3,6 +3,13 @@
   (:require
    [re-core.common :refer (gen-uuid)]))
 
+(defn os [k]
+  (fn [instance]
+    (assoc-in instance [:machine :os] k)))
+
+(defn machine [user domain os]
+  {:user user :domain domain :os os})
+
 (defn name-gen
   "Generating a unique hostname from host/type + uuid"
   [instance]

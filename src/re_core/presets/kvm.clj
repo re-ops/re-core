@@ -1,10 +1,8 @@
 (ns re-core.presets.kvm
   "KVM System presets"
   (:require
+   [re-core.presets.common :refer (os machine)]
    [clojure.core.strint :refer (<<)]))
-
-(defn machine [user domain os]
-  {:user user :domain domain :os os})
 
 (defn kvm [machine node]
   {:machine machine :kvm {:node node}})
@@ -13,10 +11,6 @@
   (merge {:cpu cpu :ram ram} (machine "re-ops" "local" os)))
 
 (def default-node :remote)
-
-(defn os [k]
-  (fn [instance]
-    (assoc-in instance [:machine :os] k)))
 
 (defn node [n]
   (fn [instance]
@@ -65,5 +59,5 @@
 (def #^{:doc "1TB kvm volume"} vol-1T (kvm-volume 1024))
 
 (defn refer-kvm-presets []
-  (require '[re-core.presets.kvm :as sp :refer [kvm-tiny kvm-small kvm-medium kvm-large kvm-xlarge vol-128G vol-256G vol-512G vol-1T kvm-size kvm-volume os node]]))
+  (require '[re-core.presets.kvm :as sp :refer [kvm-tiny kvm-small kvm-medium kvm-large kvm-xlarge vol-128G vol-256G vol-512G vol-1T kvm-size kvm-volume node]]))
 
