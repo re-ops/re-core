@@ -32,3 +32,6 @@
 (defn with-host [h]
   (fn [{:keys [type] :as instance}]
     (assoc-in instance [:machine :hostname] (or h (name type)))))
+
+(defn refer-common-presets []
+  (require '[re-core.presets.common :as spc :refer [os]]))

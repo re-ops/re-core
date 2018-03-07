@@ -4,13 +4,29 @@
 (defn ec2 [instance]
   {:aws {:instance-type instance}})
 
+(defn security
+  "Setting security group"
+  [])
+
+(defn eph-volume
+  ([]
+   (eph-volume "/dev/sdb" "ephemeral0"))
+  ([device name]
+   (fn [instance]
+     (update-in instance [:aws :volumes]
+                (fn [vs]
+                  (conj vs {:device-name device :virtual-name name}))))))
+
 (defn ebs-volume
   ([size]
    (ebs-volume size "/dev/sdn" "standard"))
   ([size device]
    (ebs-volume size "/dev/sdn"))
   ([size device t]
-   {:volumes [{:device device :size size :clear true :volume-type t}]}))
+   (fn [instance]
+     (update-in instance [:aws :volumes]
+                (fn [vs]
+                  (conj vs {:device device :size size :clear true :volume-type t}))))))
 
 ; https://aws.amazon.com/ec2/instance-types/t2/
 (def #^{:vcpu 1 :ram 1 :cpu-credit 6} t2-micro (ec2 "t2.micro"))

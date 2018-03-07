@@ -9,7 +9,7 @@
    [re-core.presets.common :as sp]
    [re-core.presets.type :as tp]
    [re-core.repl.types :refer (refer-types)]
-   [taoensso.timbre :as timbre :refer (set-level!)])
+   [taoensso.timbre :as timbre])
   (:import
    [re_mote.repl.base Hosts]
    [re_core.repl.base Types Systems]))
@@ -18,8 +18,6 @@
 (refer-systems)
 (refer-history)
 (refer-types)
-
-(set-level! :debug)
 
 (def systems (Systems.))
 (def types (Types.))
