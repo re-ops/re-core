@@ -9,8 +9,7 @@
    [re-share.es.common :as common]
    [clojure.core.strint :refer (<<)]
    [taoensso.timbre :refer (refer-timbre)]
-   [re-core.model :as model])
-  )
+   [re-core.model :as model]))
 
 (refer-timbre)
 

@@ -7,8 +7,7 @@
   (:use
    [re-core.config :only (config)]
    [clojure.core.strint :only (<<)])
-  (:import java.net.InetAddress)
-  )
+  (:import java.net.InetAddress))
 
 (.bindRoot #'pallet.stevedore/*script-language* :pallet.stevedore.bash/bash)
 
