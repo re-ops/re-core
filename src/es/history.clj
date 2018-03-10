@@ -2,6 +2,7 @@
   "lein history persistence"
   (:refer-clojure :exclude [get partial])
   (:require
+   [re-core.common :refer (hostname)]
    [qbits.spandex :as s]
    [es.common :refer (index)]
    [re-share.es.node :refer (connection)]
@@ -9,14 +10,11 @@
    [clojure.core.strint :refer (<<)]
    [taoensso.timbre :refer (refer-timbre)]
    [re-core.model :as model])
-  (:import java.net.InetAddress))
+  )
 
 (refer-timbre)
 
 (def path ".lein-repl-history")
-
-(def hostname
-  (.getHostName (InetAddress/getLocalHost)))
 
 (defn history-m []
   {:history (slurp path) :date (System/currentTimeMillis)})

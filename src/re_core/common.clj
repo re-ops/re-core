@@ -6,7 +6,9 @@
    [taoensso.timbre :refer (refer-timbre)])
   (:use
    [re-core.config :only (config)]
-   [clojure.core.strint :only (<<)]))
+   [clojure.core.strint :only (<<)])
+  (:import java.net.InetAddress)
+  )
 
 (.bindRoot #'pallet.stevedore/*script-language* :pallet.stevedore.bash/bash)
 
@@ -61,3 +63,6 @@
       (ns-resolve (find-ns (symbol n)) (symbol f))
       (catch java.io.FileNotFoundException e
         (throw (ex-info (<< "Could not locate ~{fqn-fn}") {:fn fqn-fn}))))))
+
+(def hostname
+  (.getHostName (InetAddress/getLocalHost)))
