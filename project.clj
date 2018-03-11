@@ -23,7 +23,6 @@
                  ; logging / profiling
                  [com.taoensso/timbre "4.10.0"]
                  [com.fzakaria/slf4j-timbre "0.3.7"]
-                 [com.narkisr/gelfino-client "0.8.1"]
                  [com.taoensso/tufte "1.1.1"]
 
                  ; re-ops

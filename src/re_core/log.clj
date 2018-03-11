@@ -1,7 +1,6 @@
 (ns re-core.log
   (:require
    [re-core.common :refer (get! get* version)]
-   [gelfino.timbre :refer (set-tid get-tid gelf-appender)]
    [taoensso.timbre.appenders.3rd-party.rolling :refer (rolling-appender)]
    [taoensso.timbre.appenders.core :refer (println-appender)]
    [taoensso.timbre  :as timbre :refer (merge-config! set-level! refer-timbre)]))
