@@ -22,18 +22,19 @@
 
 (timbre/refer-timbre)
 
+(declare ^:dynamic *libvirt-connection*)
+
 (defn connection [{:keys [host user port]}]
-  (safely
-   (connect (<< "qemu+ssh://~{user}@~{host}:~{port}/system"))
-   :on-error
-   :log-errors false
-   :max-retry 5
-   :message "Error while trying to connect to libvirt"
-   :retry-delay [:random-range :min 200 :max 500]))
+   (connect (<< "qemu+ssh://~{user}@~{host}:~{port}/system")))
+
+(defn c [] *libvirt-connection*)
 
 (defmacro with-connection [& body]
-  `(let [~'c (connection ~'node)]
-     (do ~@body)))
+  `(binding [*libvirt-connection* (connection ~'node)]
+     (try
+       (do ~@body)
+       (finally
+         (debug "status code for close libvirt connection" (.close *libvirt-connection*))))))
 
 (defn wait-for-status
   "Waiting for ec2 machine status timeout is in mili"
@@ -55,9 +56,9 @@
     (with-connection
       (let [image (get-in domain [:image :template])
             target (select-keys domain [:name :cpu :ram])]
-        (clone-domain c image target)
+        (clone-domain (c) image target)
         (debug "clone done")
-        (create-volumes c (domain :name) volumes)
+        (create-volumes (c) (domain :name) volumes)
         (debug "volumes created")
         (wait-for-status this "running" timeout)
         (debug "in running state")
@@ -70,13 +71,13 @@
 
   (delete [this]
     (with-connection
-      (clear-volumes c (domain :name) volumes)
-      (.undefine (get-domain c (domain :name)))))
+      (clear-volumes (c) (domain :name) volumes)
+      (.undefine (get-domain (c) (domain :name)))))
 
   (start [this]
     (with-connection
       (when-not (= (.status this) "running")
-        (.create (get-domain c (domain :name)))
+        (.create (get-domain (c) (domain :name)))
         (when (ssh-able? (get-in domain [:image :flavor]))
           (let [ip (.ip this)]
             (wait-for-ssh ip (domain :user) timeout)
@@ -86,27 +87,28 @@
     (with-connection
       (s/put system-id
              (dissoc-in* (s/get system-id) [:machine :ip]))
-      (.destroy (get-domain c (domain :name)))
+      (.destroy (get-domain (c) (domain :name)))
       (wait-for-status this "shutoff" timeout)))
 
   (status [this]
     (with-connection
       (try
-        (if-not (first (filter #(= % (domain :name)) (domain-list c)))
+        (if-not (first (filter #(= % (domain :name)) (domain-list (c))))
           false
-          (state (get-domain c (domain :name))))
-        (catch LibvirtException e (debug (.getMessage e)) false))))
+          (state (get-domain (c) (domain :name))))
+        (catch LibvirtException e (error (.getMessage e)) false))))
 
   (ip [this]
     (with-connection
       (if (= (:host node) "localhost")
-        (nat-ip c (domain :name) node)
-        (public-ip c (domain :user) node (domain :name)))))
+        ; in case that the node is local host we can't ssh to our public ip!
+        (nat-ip (c) (domain :name) node)
+        (public-ip (c) (domain :user) node (domain :name)))))
 
   Spicy
   (open-spice [this]
     (with-connection
-      (remmina domain (graphics c (domain :name))))))
+      (remmina domain (graphics (c) (domain :name))))))
 
 (defn machine-ts
   "Construcuting machine transformations"
@@ -137,4 +139,4 @@
 (comment
   (let [node {:user "" :host "localhost" :port 22}]
     (with-connection
-      (clojure.pprint/pprint (kvm.spice/graphics (kvm.common/domain-zip c ""))))))
+      (clojure.pprint/pprint (kvm.spice/graphics (kvm.common/domain-zip (c) ""))))))
