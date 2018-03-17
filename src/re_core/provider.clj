@@ -1,6 +1,7 @@
 (ns re-core.provider
   "common providers functions"
   (:require
+   [taoensso.timbre :refer (refer-timbre)]
    [flatland.useful.map :refer (dissoc-in*)]
    [subs.core :refer (validation when-not-nil)]
    [re-mote.ssh.transport :refer (ssh-up?)]
@@ -10,6 +11,8 @@
    [re-share.core :refer (wait-for)]
    [clojure.core.strint :refer (<<)])
   (:import clojure.lang.ExceptionInfo))
+
+(refer-timbre)
 
 (defn- key-select [v] (fn [m] (select-keys m (keys v))))
 
@@ -53,11 +56,13 @@
 (defn wait-for-ssh [address user timeout]
   {:pre [address user timeout]}
   (let [k (get! :ssh :private-key-path)]
-    (wait-for {:timeout timeout}
+    (wait-for {:timeout timeout :sleep [1000 :ms]}
               (fn []
                 (try
                   (ssh-up? {:host address :port 22 :user user :ssh-key k})
-                  (catch Throwable e false)))
+                  (catch Throwable e 
+                    (debug e)false
+                )))
               (<< "Timed out while waiting for ssh please check: ssh ~{user}@~{address} -i ~{k}"))))
 
 (defn map-key [m from to]
