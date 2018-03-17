@@ -37,7 +37,7 @@
          (debug "status code for close libvirt connection" (.close *libvirt-connection*))))))
 
 (defn wait-for-status
-  "Waiting for ec2 machine status timeout is in mili"
+  "Waiting for VM status (timeout is in milliseconds)"
   [instance req-stat timeout]
   (wait-for {:timeout timeout} #(= req-stat (.status instance))
             "Timed out on waiting for status"))
