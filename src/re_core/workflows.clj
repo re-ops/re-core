@@ -21,17 +21,6 @@
 
 (refer-timbre)
 
-(defmacro deflow
-  "Defines a basic flow functions"
-  [fname & args]
-  (let [[name* attrs] (tm/name-with-attributes fname args)
-        timer (symbol (str name* "-time"))
-        meta-map (meta name*)]
-    `(do
-       (deftimer ~timer)
-       (defn ~name* ~@(when (seq meta-map) [meta-map]) ~(first attrs)
-         (time! ~timer ~@(next attrs))))))
-
 (defn updated-system
   "grabs system and associates system id"
   [system-id]
@@ -50,7 +39,7 @@
   (assert (not (= (.status vm) "running"))) ; might not match all providers
 )
 
-(deflow reload
+(defn reload
   "Reloads a machine if one already exists, will distroy the old one"
   [{:keys [machine system-id] :as spec}]
   (let [vm (vconstruct spec)]
@@ -64,7 +53,7 @@
       (running! vm*)
       (debug "done system setup"))))
 
-(deflow stop
+(defn stop
   "Stops a vm instance"
   [{:keys [machine] :as spec}]
   (let [vm (vconstruct spec)]
@@ -72,7 +61,7 @@
     (.stop vm)
     (not-running! vm)))
 
-(deflow start
+(defn start
   "Start a vm instance"
   [{:keys [machine] :as spec}]
   (let [vm (vconstruct spec)]
@@ -81,7 +70,7 @@
     (.start vm)
     (running! vm)))
 
-(deflow create
+(defn create
   "Sets up a clean machine from scratch"
   [{:keys [machine] :as spec}]
   (let [vm (vconstruct spec)]
@@ -93,7 +82,7 @@
       (running! vm*)
       (info "done system setup"))))
 
-(deflow destroy
+(defn destroy
   "Deletes a system"
   [{:keys [system-id machine] :as spec}]
   (let [vm (vconstruct spec)]
@@ -103,7 +92,7 @@
     (s/delete system-id)
     (info "system destruction done")))
 
-(deflow clone
+(defn clone
   "Clones a system model and creates it"
   [{:keys [system-id] :as spec}]
   (when-not (s/exists? system-id)
@@ -112,13 +101,13 @@
     (create (assoc (s/get id) :system-id id))
     (info "system cloned into" id)))
 
-(deflow clear
+(defn clear
   "Clear system model (no machine destruction)"
   [{:keys [system-id] :as spec}]
   (s/delete system-id)
   (info "deleted system with id" system-id))
 
-(deflow provision
+(defn provision
   "provision a group of systems"
   [systems t]
   (info "starting to provision hosts")
