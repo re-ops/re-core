@@ -76,4 +76,4 @@
 
 (defn refer-aws-presets []
   (require '[re-core.presets.aws :as asp :refer [t2-nano t2-micro t2-small c5-large security endpoint key-name
-                                                eph-volume]]))
+                                                 eph-volume]]))

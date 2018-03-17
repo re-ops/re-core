@@ -50,7 +50,7 @@
         {:keys [reservation]} (with-ctx ec2/run-instances inst)]
     (get-in reservation [:instances 0 :instance-id])))
 
-(def ssh-timeout 10)
+(def ssh-timeout 5)
 
 (defrecord Instance [endpoint spec user]
   Vm
