@@ -61,7 +61,6 @@
 (def #^{:doc "1TB kvm volume"} vol-1T (kvm-volume 1024))
 
 (defn refer-kvm-presets []
-  (require '[re-core.presets.kvm :as ksp :refer [
-      kvm-tiny kvm-small kvm-medium kvm-large kvm-xlarge vol-128G
-      vol-256G vol-512G vol-1T kvm-size kvm-volume node localhost]]))
+  (require '[re-core.presets.kvm :as ksp :refer [kvm-tiny kvm-small kvm-medium kvm-large kvm-xlarge vol-128G
+                                                 vol-256G vol-512G vol-1T kvm-size kvm-volume node localhost]]))
 
