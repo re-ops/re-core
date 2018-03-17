@@ -75,5 +75,5 @@
 (def #^{:doc "1TB EBS volume"} ebs-1T (ebs-volume 1024))
 
 (defn refer-aws-presets []
-  (require '[re-core.presets.aws :as ap :refer [t2-nano t2-micro t2-small c5-large security endpoint key-name
+  (require '[re-core.presets.aws :as asp :refer [t2-nano t2-micro t2-small c5-large security endpoint key-name
                                                 eph-volume]]))

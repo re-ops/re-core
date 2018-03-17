@@ -9,6 +9,7 @@
    ; re-core
    [re-core.repl :refer :all]
    [re-core.presets.kvm :refer (refer-kvm-presets)]
+   [re-core.presets.aws :refer (refer-aws-presets)]
    [re-core.presets.common :refer (refer-common-presets)]
    [re-core.presets.type :refer (refer-type-presets)]
    [re-core.log :refer (debug-on info-on trace-on)]
@@ -28,6 +29,7 @@
 (refer-history)
 (refer-zero-manage)
 (refer-kvm-presets)
+(refer-aws-presets)
 (refer-common-presets)
 (refer-type-presets)
 
