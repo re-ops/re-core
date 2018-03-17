@@ -15,12 +15,15 @@
   `(try
      ~f
      (catch org.libvirt.LibvirtException e#
-       (when-not (-> e# Throwable->map :message (.contains "Storage volume not found"))
-         (info e#)
-         (throw e#)))))
+       (when-let [m# (-> e# Throwable->map :via :message)]
+         (when-not (.contains m# "Storage volume not found")
+           (throw e#))))))
 
 (defn volumes [pool]
-  (map (fn [v] (safe (.storageVolLookupByName pool v))) (.listVolumes pool)))
+  (filter identity
+          (map
+           (fn [v] (safe (.storageVolLookupByName pool v)))
+           (.listVolumes pool))))
 
 (defn pool-lookup [c id]
   (.storagePoolLookupByName c id))
