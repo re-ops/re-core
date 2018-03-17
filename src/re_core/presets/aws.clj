@@ -45,13 +45,20 @@
 (defn ec2-machine [os]
   (c/machine "re-ops" "local" os))
 
+; regions
+(def sydney (endpoint "ec2.ap-southeast-2.amazonaws.com"))
+
+(def dublin (endpoint "ec2.eu-west-1.amazonaws.com"))
+
+(def virginia (endpoint "ec2.us-east-1.amazonaws.com"))
+
 (defn ec2
   ([instance]
    (ec2 instance :ubuntu-16.04))
   ([instance os] {:machine (ec2-machine os)
                   :aws {:instance-type instance
                         :key-name hostname
-                        :endpoint "ec2.ap-southeast-2.amazonaws.com"
+                        :endpoint sydney
                         :security-groups ["default"]
                         :ebs-optimized false}}))
 
@@ -75,5 +82,5 @@
 (def #^{:doc "1TB EBS volume"} ebs-1T (ebs-volume 1024))
 
 (defn refer-aws-presets []
-  (require '[re-core.presets.aws :as asp :refer [t2-nano t2-micro t2-small c5-large security endpoint key-name
-                                                 eph-volume]]))
+  (require '[re-core.presets.aws :as asp :refer [t2-nano t2-micro t2-small c5-large security endpoint key-name eph-volume
+                                                 sydney dublin virginia]]))
