@@ -24,7 +24,7 @@
     (execute (<< "arp -i ~{nic}") node :out-fn (collect-log uuid))
     (if-let [line (first (filter #(.contains % mac) (get-log uuid)))]
       (first (.split line "\\s"))
-      (do (debug (<< "no nat ip found for nic: ~{nic}  mac: ~{mac}")) nil))))
+      (do (debug (<< "no nat ip found for nic: ~{nic} mac: ~{mac}")) nil))))
 
 (defn wait-for-nat
   "Waiting for nat cache to update"
