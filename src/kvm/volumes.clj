@@ -1,20 +1,37 @@
 (ns kvm.volumes
   (:require
+   [taoensso.timbre :as timbre]
    [clojure.core.strint :refer (<<)]
    [clojure.zip :as zip]
    [kvm.common :refer (tree-edit domain-zip get-domain)]
    [clojure.data.xml :as xml :refer (element)]
    [clojure.data.zip.xml :as zx]))
 
-(defn volumes [c pool path]
-  (map (fn [v] (.storageVolLookupByName pool v)) (.listVolumes pool)))
+(timbre/refer-timbre)
+
+(defmacro safe
+  "Volumes might be destroyed as we iterate though, its safe to ignore"
+  [f]
+  `(try
+     ~f
+     (catch org.libvirt.LibvirtException e#
+       (when-not (-> e# Throwable->map :message (.contains "Storage volume not found"))
+         (info e#)
+         (throw e#)))))
+
+(defn volumes [pool]
+  (map (fn [v] (safe (.storageVolLookupByName pool v))) (.listVolumes pool)))
 
 (defn pool-lookup [c id]
   (.storagePoolLookupByName c id))
 
+(defn pools [c]
+  (map (partial pool-lookup c) (.listStoragePools c)))
+
 (defn find-volume [c path]
-  (let [pools (map (partial pool-lookup c) (.listStoragePools c))]
-    (first (filter #(= (.getPath %) path) (mapcat (fn [pool] (volumes c pool path)) pools)))))
+  (first
+   (filter #(= (safe (.getPath %)) path)
+           (mapcat (fn [pool] (volumes pool)) (pools c)))))
 
 (defn get-disks [root]
   (map vector
