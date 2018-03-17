@@ -24,17 +24,20 @@
     (execute (<< "arp -i ~{nic}") node :out-fn (collect-log uuid))
     (if-let [line (first (filter #(.contains % mac) (get-log uuid)))]
       (first (.split line "\\s"))
-      (do (debug (<< "no nat ip found for ~{mac}")) nil))))
+      (do (debug (<< "no nat ip found for nic: ~{nic}  mac: ~{mac}")) nil))))
 
 (defn wait-for-nat
   "Waiting for nat cache to update"
   [c id node timeout]
-  (wait-for {:timeout timeout} #(not (nil? (grab-nat c id node)))
+  (wait-for {:timeout timeout :sleep [2000 :ms]} #(not (nil? (grab-nat c id node)))
             "Timed out on waiting for arp cache to update"))
 
 (defn nat-ip [c id node]
   (wait-for-nat c id node [1 :minute])
-  (grab-nat c id node))
+  (let [ip (grab-nat c id node)]
+    (debug (<< "found nat ip ~{ip} for ~{id}"))
+    ip
+    ))
 
 (def ignore-authenticity "-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no")
 
