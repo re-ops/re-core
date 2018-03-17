@@ -35,7 +35,7 @@
 
 (def default-pool :default)
 
-(def localhost (node :localhost))
+(def local (node :localhost))
 
 (defn kvm-volume
   "Add a kvm volume to an instance"
@@ -62,5 +62,5 @@
 
 (defn refer-kvm-presets []
   (require '[re-core.presets.kvm :as ksp :refer [kvm-tiny kvm-small kvm-medium kvm-large kvm-xlarge vol-128G
-                                                 vol-256G vol-512G vol-1T kvm-size kvm-volume node localhost]]))
+                                                 vol-256G vol-512G vol-1T kvm-size kvm-volume node local]]))
 
