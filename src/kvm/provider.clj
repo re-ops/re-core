@@ -25,7 +25,7 @@
 (declare ^:dynamic *libvirt-connection*)
 
 (defn connection [{:keys [host user port]}]
-   (connect (<< "qemu+ssh://~{user}@~{host}:~{port}/system")))
+  (connect (<< "qemu+ssh://~{user}@~{host}:~{port}/system")))
 
 (defn c [] *libvirt-connection*)
 

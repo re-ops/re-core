@@ -15,8 +15,7 @@
    (try
      (Connect. uri)
      (catch Exception e
-       (error "Failed to connect to" uri)
-       ))))
+       (error "Failed to connect to" uri)))))
 
 (defn tree-edit
   "Take a zipper, a function that matches a pattern in the tree,

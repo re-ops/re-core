@@ -60,9 +60,8 @@
               (fn []
                 (try
                   (ssh-up? {:host address :port 22 :user user :ssh-key k})
-                  (catch Throwable e 
-                    (debug e)false
-                )))
+                  (catch Throwable e
+                    (debug e) false)))
               (<< "Timed out while waiting for ssh please check: ssh ~{user}@~{address} -i ~{k}"))))
 
 (defn map-key [m from to]

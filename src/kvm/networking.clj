@@ -36,8 +36,7 @@
   (wait-for-nat c id node [1 :minute])
   (let [ip (grab-nat c id node)]
     (debug (<< "found nat ip ~{ip} for ~{id}"))
-    ip
-    ))
+    ip))
 
 (def ignore-authenticity "-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no")
 
