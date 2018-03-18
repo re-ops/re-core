@@ -58,7 +58,7 @@
   ([instance os] {:machine (ec2-machine os)
                   :aws {:instance-type instance
                         :key-name hostname
-                        :endpoint sydney
+                        :endpoint "ec2.ap-southeast-2.amazonaws.com"
                         :security-groups ["default"]
                         :ebs-optimized false}}))
 
