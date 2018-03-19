@@ -1,9 +1,0 @@
-{
- :puppet {
-   :tar "http://dl.bintray.com/content/narkisr/boxes/jvm-sandbox-0.4.0.tar.gz"
-   :args []
-  }
-
- :description "JVM standalone"
- :type "jvm"
-}
