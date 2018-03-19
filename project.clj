@@ -99,6 +99,16 @@
         :dependencies [[org.clojure/test.check "0.7.0"]]
      }
 
+    :codox {:dependencies [[org.clojure/tools.reader "1.1.0"]
+                             [codox-theme-rdash "0.1.2"]]
+              :plugins [[lein-codox "0.10.3"]]
+              :codox {:project {:name "re-core"}
+                      :themes [:rdash]
+                      :source-paths ["src"]
+                      :source-uri "https://github.com/re-ops/re-core/blob/master/{filepath}#L{line}"
+              }
+    }
+
 
      :test {
        :test-paths ["data" "test"]
@@ -138,6 +148,10 @@
         "midje" ":filter" "-integration," "midje" ":elasticsearch,"
         "cljfmt" "check"
       ]
+      "docs" [
+         "with-profile" "codox" "do" "codox"
+      ]
+
    }
 
 
