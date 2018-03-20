@@ -25,39 +25,46 @@
 ; filtering functions
 
 (defn by-type
-  "get instances by type"
+  "Get instances by type:
+     (reload (by-type :redis))"
   [t]
   (fn [[_ {:keys [type] :as m}]] (=  type t)))
 
 (defn ip
-  "machine has an ip (usually means its running)"
+  "Pick systems with an ip (they are running):
+     (stop ip)"
   [[_ {:keys [machine] :as m}]]
   (machine :ip))
 
 (defn with-ids
-  "instances by id"
+  "Pick systems using unique ids:
+     (provision (with-ids [\"12345\"]))"
   [ids]
   (fn [[id _]]
     ((into #{} (map str ids)) (str id))))
+
+(defn matching
+  "Match instances by partial id matching (ala git):
+     (provision (matching \"A17_\"))"
+  [part]
+  (fn [[id _]] (.contains id part)))
 
 ; management
 
 (defn reload
   "Reload (stop destroy and up):
-   (reload) ; reload all running instances
-   (reload (by-type :redis)) ; reload all redis instances
-  "
+     (reload) ; reload all running instances
+     (reload (by-type :redis)) ; reload all redis instances"
   ([]
    (reload ip))
   ([f]
    (run (ls systems) | (filter-by f) | (sys/reload) | (async-wait pretty-print "reload"))))
 
 (defn clear
-  " Clear model only (VM won't be deleted):
-    (clear) ; clear all systems (both runnging and non running)
-    (clear (by-type :redis)) ; clear systems with redis type
-    (clear identity :types) ; clear all types
-  "
+  "Clear model only (VM won't be deleted):
+     (clear) ; clear all systems (both runnging and non running)
+     (clear (by-type :redis)) ; clear systems with redis type
+     (clear identity :types) ; clear all types"
   ([]
    (clear identity))
   ([f]
@@ -68,12 +75,11 @@
      :types (run (ls types) | (filter-by f) | (rm) | (pretty)))))
 
 (defn destroy
-  " Destroy instances (both clear and remove VM):
+  "Destroy instances (both clear and remove VM):
      (destroy) ; remove all instances (both running and non running)
      (destroy ip) ; remove running instances only
      (destroy (matching \"Fstr\")) ; remove all instances with an id containing Fstr
-     (destroy ip {:force true}) ; remove running instances only without confirmation
-  "
+     (destroy ip {:force true}) ; remove running instances only without confirmation"
   ([]
    (destroy identity {}))
   ([f]
@@ -82,10 +88,9 @@
    (run (ls systems) | (filter-by f) | (ack opts) | (sys/destroy) | (async-wait pretty-print "destroy"))))
 
 (defn halt
-  " Halt instances:
-   (halt) ; halt all running (have ip)
-   (halt (single \"foo\")) ; halt host foo
-  "
+  "Halt instances:
+     (halt) ; halt all running (have ip)
+     (halt (single \"foo\")) ; halt host foo"
   ([]
    (halt ip))
   ([f]
@@ -93,9 +98,8 @@
 
 (defn start
   "Start instances:
-    (start) ; start all without ip (stopped)
-    (start (by-type :redis)) ; start all redis types
-  "
+     (start) ; start all without ip (stopped)
+     (start (by-type :redis)) ; start all redis types"
   ([]
    (start (comp not ip)))
   ([f]
@@ -103,10 +107,9 @@
 
 (defn list
   "List available instances:
-    (list) ; list all systems
-    (list ip) ; list all systems that have an ip (running)
-    (list identity :types) ; list all types
-  "
+     (list) ; list all systems
+     (list ip) ; list all systems that have an ip (running)
+     (list identity :types) ; list all types"
   ([]
    (list identity :systems))
   ([f]
@@ -118,19 +121,15 @@
 
 (defn hosts
   "Convert systems into re-mote hosts:
-    (hosts) ; all systems using ip address
-    (cpu-persist (hosts ip :hostname))) ; use re-gent addresses by grabbing hostname
-    (hosts (by-type :redis) :hostname) ; all redis instances using hostname
-  "
+     (hosts) ; all systems using ip address
+     (cpu-persist (hosts ip :hostname))) ; use re-gent addresses by grabbing hostname
+     (hosts (by-type :redis) :hostname) ; all redis instances using hostname"
   ([]
    (hosts ip :ip))
   ([f k]
    (run (ls systems) | (filter-by f) | (into-hosts k))))
 
-(defn matching
-  "Match instances by partial id matching"
-  [part]
-  (fn [[id _]] (.contains id part)))
+
 
 (defn provision
   "Provision VM:
@@ -141,14 +140,18 @@
   ([f]
    (run (ls systems) | (filter-by f) | (sys/provision))))
 
-(defn- create-system [base args]
+(defn- create-system
+  "Create a system internal implementation"
+  [base args]
   (let [{:keys [fns total type hostname]} (sp/into-spec {} args)
         transforms [(sp/with-type type) (sp/with-host hostname) sp/name-gen]
         all (apply conj transforms fns)
         specs (map  (fn [_] (reduce (fn [m f] (f m)) base all)) (range (or total 1)))]
     (run (add- systems specs) | (sys/create) | (async-wait pretty-print "create"))))
 
-(defn- create-type [base args]
+(defn- create-type
+  "Create type internal implementation"
+  [base args]
   (let [{:keys [fns type description]} (tp/into-spec {} args)
         transforms [(tp/with-type type) (tp/with-desc description)]
         spec (reduce (fn [m f] (f m)) base (apply conj transforms fns))]
@@ -168,9 +171,8 @@
     :else (throw (ex-info "creation type not found" {:base base :args args}))))
 
 (defn add
-  "Add existing system instances:
-     (add (kvm-size 1 512 :openbsd) \"furby\" :foo); we can specify an os
-   "
+   "Add existing system instances:
+      (add (kvm-size 1 512) :ubuntu-16.04-desktop \"furby\" :foo); we specify an os"
   [base & args]
   (let [{:keys [fns total type hostname]} (sp/into-spec {} args)
         transforms [(sp/with-type type) (sp/with-host hostname)]
@@ -179,7 +181,8 @@
     (run (add- systems specs) | (pretty-print "add"))))
 
 (defn ssh-into
-  "SSH into instances (open a terminal)"
+  "SSH into instances (open a terminal window):
+     (ssh-into)"
   ([]
    (ssh-into identity))
   ([f]
@@ -188,7 +191,8 @@
        (.exec  (Runtime/getRuntime) (<< "/usr/bin/x-terminal-emulator --disable-factory -e /usr/bin/ssh ~(auth :user)@~{host}"))))))
 
 (defn spice-into
-  "Open remote spice connection to KVM instances"
+  "Open remote spice connection to KVM instances (using remmina spice):
+     (spice-into (by-type :desktop))"
   ([]
    (spice-into identity))
   ([f]
