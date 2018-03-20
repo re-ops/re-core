@@ -129,8 +129,6 @@
   ([f k]
    (run (ls systems) | (filter-by f) | (into-hosts k))))
 
-
-
 (defn provision
   "Provision VM:
     (provision) ; run provision on all running instances
@@ -171,7 +169,7 @@
     :else (throw (ex-info "creation type not found" {:base base :args args}))))
 
 (defn add
-   "Add existing system instances:
+  "Add existing system instances:
       (add (kvm-size 1 512) :ubuntu-16.04-desktop \"furby\" :foo); we specify an os"
   [base & args]
   (let [{:keys [fns total type hostname]} (sp/into-spec {} args)
