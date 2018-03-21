@@ -37,17 +37,10 @@
   [t]
   (common/delete (index) :type t))
 
-(defn keywordize
-  "converting Elasticsearch values back into keywords"
-  [m]
-  (when m
-    (transform
-     [(multi-path [:machine :os] [:env] [:kvm :node] [:kvm :volumes ALL :pool])] keyword  m)))
-
 (defn get
   "Grabs a type by its name"
   [t]
-  (keywordize (common/get (index) :type t)))
+  (common/get (index) :type t))
 
 (defn get!
   "Grabs a type by an id"

@@ -8,8 +8,21 @@
 
 (def puppet {:puppet {:tar "" :args []}})
 
-(defn src [{:keys [type] :as instance}]
-  (assoc-in instance [:puppet :src] (<< "~{home}/code/boxes/~{type}-sandbox/")))
+(defn src [s]
+  "Set puppet source code location"
+  (fn [{:keys [type] :as instance}]
+    (assoc-in instance [:puppet :src] s)))
+
+(defn default-src
+  "Using name as a convention for puppet source location"
+  [instance]
+  ((src (<< "~{home}/code/boxes/~{type}-sandbox/")) instance))
+
+(defn args
+  "Set Puppet run script arguments"
+  [& as]
+  (fn [{:keys [type] :as instance}]
+    (assoc-in instance [:puppet :args] (into [] as))))
 
 (defn with-type [t]
   (fn [instance]
@@ -28,4 +41,4 @@
         (fn? a) (into-spec (assoc m :fns (conj fns a)) (rest args))))))
 
 (defn refer-type-presets []
-  (require '[re-core.presets.type :as tp :refer [puppet src]]))
+  (require '[re-core.presets.type :as tp :refer [puppet src default-src args]]))
