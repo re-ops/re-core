@@ -17,29 +17,11 @@ $ lein repl
 nil
 ```
 
-# Configure
+For more detailed information please follow the [setup](https://re-ops.github.io/re-docs/setup/re-core.html#intro) guide.
 
-The configuration holds the information on how to connect to hypervisors, you can start by copying:
+# Basic usage
 
-```bash
-$ cp data/resources/re-core.edn ~/.re-core.edn
-```
-
-Follow the [guide](CONFIG.adoc) in order to add [KVM](CONFIG.adoc#kvm), [Digitalocean](CONFIG.adoc#digitalocean) and [AWS](CONFIG.adoc#aws).
-
-Any configuration change can be reflected immediately by:
-
-```clojure
-[re-core]λ: (reset)
-```
-
-# Images
-
-Re-core requires key based ssh access to the images it uses, compatible images can be created using [re-pack](https://github.com/re-ops/re-pack).
-
-# Usage
-
-We can create and manipulate VM's quickly from the repl, a fluent functional DLS enables us to have rapid provisioning:
+We can create and manipulate VMs quickly from the repl, a fluent functional DLS enables us to have rapid provisioning:
 
 ```clojure
 
@@ -120,23 +102,11 @@ Converting systems into re-mote hosts enable us to perform any re-mote operation
 [re-core]λ: (updata (hosts)) ; apt update all the hosts
 ```
 
-# Prerequisites
-
-* JDK 8.
-* lein (see https://leiningen.org/).
-* A solid understanding of Clojure :)
-* re-mote [prerequisites](https://github.com/re-ops/re-mote#prerequisite).
-
-Optionally:
-
-* Elasticsearch 5.6.x for persisting results and metrics
-* Kibana for viewing results and persisted systems
-
-Check [re-dock](https://github.com/re-ops/re-dock) for a quick docker setup
+For more information on how to use Re-core follow the [usage](https://re-ops.github.io/re-docs/usage/#re-core) guide.
 
 # Copyright and license
 
-Copyright [2017] [Ronen Narkis]
+Copyright [2018] [Ronen Narkis]
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
