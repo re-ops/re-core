@@ -18,7 +18,7 @@
 
 (defn default-src
   "Using name as a convention for puppet source location"
-  [instance]
+  [{:keys [type] :as instance}]
   ((src (<< "~{home}/code/boxes/~{type}-sandbox/")) instance))
 
 (defn args
