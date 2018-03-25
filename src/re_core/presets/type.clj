@@ -1,5 +1,8 @@
 (ns re-core.presets.type
-  "Type presets"
+  "Type presets that enable us to create types quickly, for example:
+    (create puppet :re-ops default-src \"re-ops instances\") ; default source convention from type name
+    (create puppet :re-ops (src  \"re-ops instances\") \"re-ops instances\") ; source specified
+  "
   (:require
    [clojure.core.strint :refer (<<)]
    [re-core.common :refer (gen-uuid)]))
