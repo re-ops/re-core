@@ -15,8 +15,8 @@
 
 (refer-timbre)
 
-(defn build-components [] {:es (es/instance) :queues (q/instance) :schedule (sch/instance)
-                           :workers (w/instance) :config (conf/instance)})
+(defn build-components [] {:es (es/instance) :queues (q/instance)
+                           :schedule (sch/instance) :workers (w/instance)})
 
 (defn clean-up
   "Clean/release resources, used also as a shutdown hook"
@@ -32,6 +32,7 @@
   []
   (let [components (build-components)]
     (setup-logging)
+    (conf/load)
     (add-shutdown components)
     (setup-all components)
     components))
@@ -39,6 +40,7 @@
 (defn start
   "Main components startup (jetty, job workers etc..)"
   [components]
+  (conf/load)
   (start-all components)
   (info (<<  "version ~{version} see https://github.com/re-ops/re-core"))
   components)
