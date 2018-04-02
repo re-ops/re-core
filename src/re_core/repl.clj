@@ -7,6 +7,7 @@
    [re-core.repl.base :refer (refer-base)]
    [re-core.repl.systems :refer (refer-systems)]
    [re-core.presets.common :as sp]
+   [re-core.common :as c]
    [re-core.presets.type :as tp]
    [re-core.repl.types :refer (refer-types)]
    [taoensso.timbre :as timbre])
@@ -191,7 +192,9 @@
   ([f]
    (let [{:keys [auth] :as hs} (hosts f :ip)]
      (doseq [host (:hosts hs)]
-       (.exec  (Runtime/getRuntime) (<< "/usr/bin/x-terminal-emulator --disable-factory -e /usr/bin/ssh ~(auth :user)@~{host}"))))))
+       (let [target (<< "~(auth :user)@~{host}") private-key (c/get! :ssh :private-key-path)]
+         (.exec (Runtime/getRuntime)
+                (<< "/usr/bin/x-terminal-emulator --disable-factory -e /usr/bin/ssh ~{target} -i ~{private-key}")))))))
 
 (defn spice-into
   "Open remote spice connection to KVM instances (using remmina spice):
