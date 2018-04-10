@@ -8,7 +8,8 @@
    [clojure.core.strint :refer (<<)]
    [kvm.clone :refer (clone-domain)]
    [kvm.volumes :refer (clear-volumes create-volumes)]
-   [kvm.common :refer (connect get-domain state domain-list)]
+   [kvm.common :refer (get-domain domain-zip state domain-list)]
+   [kvm.connection :refer (with-connection c)]
    [kvm.networking :refer (public-ip nat-ip update-ip)]
    [re-core.core :refer (Vm)]
    [taoensso.timbre :as timbre]
@@ -21,20 +22,6 @@
   (:import org.libvirt.LibvirtException))
 
 (timbre/refer-timbre)
-
-(declare ^:dynamic *libvirt-connection*)
-
-(defn connection [{:keys [host user port]}]
-  (connect (<< "qemu+ssh://~{user}@~{host}:~{port}/system")))
-
-(defn c [] *libvirt-connection*)
-
-(defmacro with-connection [& body]
-  `(binding [*libvirt-connection* (connection ~'node)]
-     (try
-       (do ~@body)
-       (finally
-         (debug "status code for close libvirt connection" (.close *libvirt-connection*))))))
 
 (defn wait-for-status
   "Waiting for VM status (timeout is in milliseconds)"
@@ -137,6 +124,6 @@
     (->Domain system-id node* volumes* domain)))
 
 (comment
-  (let [node {:user "" :host "localhost" :port 22}]
+  (let [node {:user "ronen" :host "localhost" :port 22}]
     (with-connection
-      (clojure.pprint/pprint (kvm.spice/graphics (kvm.common/domain-zip (c) ""))))))
+      (clojure.pprint/pprint (first (map (partial domain-zip (c)) (kvm.common/domain-list (c))))))))
