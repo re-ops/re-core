@@ -36,7 +36,7 @@
 
 (defmethod pretty #{:systems} [this {:keys [systems] :as m}]
   (let [formatter (format-columns bold-white-font [:right 30] "  " reset-font [:right 20] "  "
-                                  [:right 10] "  " [:right 15] "  " :none)]
+                                  [:right 10] "  " [:right 25] "  " :none)]
     (write-rows *out* formatter [:hostname :id (comp name :type) (comp name :os) :ip] (map render systems))))
 
 (defn src-or-tar
