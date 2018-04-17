@@ -39,8 +39,8 @@
 
 (defn with-ids
   "Pick systems using unique ids:
-     (provision (with-ids [\"12345\"]))"
-  [ids]
+     (provision (with-ids \"Bar\" \"Foo\"))"
+  [& ids]
   (fn [[id _]]
     ((into #{} (map str ids)) (str id))))
 
@@ -91,7 +91,7 @@
 (defn halt
   "Halt instances:
      (halt) ; halt all running (have ip)
-     (halt (single \"foo\")) ; halt host foo"
+   "
   ([]
    (halt ip))
   ([f]
