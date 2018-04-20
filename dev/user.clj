@@ -82,5 +82,16 @@
   (print (str (char 27) "[2J"))
   (print (str (char 27) "[;H")))
 
-(defn history []
-  (println  (slurp ".lein-repl-history")))
+(defn contains
+  "return true if string contains substring"
+  [sub]
+  (fn [s]
+    (.contains s sub)))
+
+(defn history
+  ([]
+   (history identity))
+  ([f]
+   (doseq [line (filter f (clojure.string/split (slurp ".lein-repl-history") #"\n"))]
+     (println line))))
+
