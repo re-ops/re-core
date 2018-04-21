@@ -17,6 +17,8 @@
    [re-core.repl.fixtures :refer :all]
    [me.raynes.fs :refer (extension file?)]
    [re-core.launch :as core]
+   ; re-share
+   [re-share.log :refer (redirect-output)]
    ; re-mote
    [re-mote.repl :refer :all :exclude (provision)]
    [re-mote.zero.functions :refer (call)]
