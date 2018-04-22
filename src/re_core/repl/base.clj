@@ -53,7 +53,7 @@
   (get-in t [:puppet :src] (get-in t [:puppet :tar])))
 
 (defmethod pretty #{:types} [_ {:keys [types]}]
-  (let [formatter (format-columns bold-white-font [:right 10] "  " reset-font [:left 70] [:right 20] :none)]
+  (let [formatter (format-columns bold-white-font [:right 10] "  " reset-font [:left 40] [:right 20] :none)]
     (write-rows *out* formatter [:type src-or-tar :description] (map (fn [[id t]] (assoc t :id id)) types))))
 
 (defmethod pretty #{:jobs} [_ {:keys [jobs]}]
