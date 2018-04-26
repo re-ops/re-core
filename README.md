@@ -23,7 +23,7 @@ For more detailed information please follow the [setup](https://re-ops.github.io
 
 We can create and manipulate VMs quickly from the repl, a fluent functional DLS enables us to have rapid provisioning:
 
-![re-mote-gif](https://re-ops.github.io/re-one/gifs/re-core.gif)
+![re-core-gif](https://re-ops.github.io/re-one/gifs/re-core.gif)
 
 For more information on how to use Re-core follow the [usage](https://re-ops.github.io/re-docs/usage/#re-core) guide.
 
