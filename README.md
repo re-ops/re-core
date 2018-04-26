@@ -11,7 +11,7 @@ For more detailed information please follow the [setup](https://re-ops.github.io
 
 # Basic usage
 
-We can create and manipulate VMs quickly from the repl, a fluent functional DLS enables us to have rapid provisioning:
+Re-core enables us to create and manipulate VMs quickly from the REPL using a fast functional DSL for rapid provisioning:
 
 ![re-core-gif](https://re-ops.github.io/re-one/gifs/re-core.gif)
 
