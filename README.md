@@ -4,9 +4,10 @@ Re-core is a live functional environment for setting up VM instances in a consis
 
 It is a part of the [Re-ops](https://re-ops.github.io/re-ops/) project that offers a live coding environment for configuration management.
 
-[![Build Status](https://travis-ci.org/re-ops/re-core.png)](https://travis-ci.org/re-ops/re-core)
 
-For more detailed information please follow the [setup](https://re-ops.github.io/re-docs/setup/re-core.html#intro) [usage](https://re-ops.github.io/re-docs/usage/#re-core) guides.
+For more detailed information please follow the [setup](https://re-ops.github.io/re-docs/setup/re-core.html#intro) and [usage](https://re-ops.github.io/re-docs/usage/#re-core) guides.
+
+[![Build Status](https://travis-ci.org/re-ops/re-core.png)](https://travis-ci.org/re-ops/re-core)
 
 # Basic usage
 
