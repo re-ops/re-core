@@ -6,26 +6,13 @@ It is a part of the [Re-ops](https://re-ops.github.io/re-ops/) project that offe
 
 [![Build Status](https://travis-ci.org/re-ops/re-core.png)](https://travis-ci.org/re-ops/re-core)
 
-# Get running
-
-```clojure
-$ git clone git@github.com:re-ops/re-core.git
-$ cd re-core
-# Now start the REPL environment
-$ lein repl
-[re-core]λ: (go)
-nil
-```
-
-For more detailed information please follow the [setup](https://re-ops.github.io/re-docs/setup/re-core.html#intro) guide.
+For more detailed information please follow the [setup](https://re-ops.github.io/re-docs/setup/re-core.html#intro) [usage](https://re-ops.github.io/re-docs/usage/#re-core) guides.
 
 # Basic usage
 
 We can create and manipulate VMs quickly from the repl, a fluent functional DLS enables us to have rapid provisioning:
 
 ![re-core-gif](https://re-ops.github.io/re-one/gifs/re-core.gif)
-
-For more information on how to use Re-core follow the [usage](https://re-ops.github.io/re-docs/usage/#re-core) guide.
 
 # Copyright and license
 
