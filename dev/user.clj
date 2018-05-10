@@ -12,13 +12,12 @@
    [re-core.presets.aws :refer (refer-aws-presets)]
    [re-core.presets.common :refer (refer-common-presets)]
    [re-core.presets.type :refer (refer-type-presets)]
-   [re-core.log :refer (debug-on info-on trace-on)]
    [es.history :refer (refer-history)]
    [re-core.repl.fixtures :refer :all]
    [me.raynes.fs :refer (extension file?)]
    [re-core.launch :as core]
    ; re-share
-   [re-share.log :refer (redirect-output)]
+   [re-share.log :refer (redirect-output debug-on debug-off)]
    ; re-mote
    [re-mote.repl :refer :all :exclude (provision)]
    [re-mote.zero.functions :refer (call)]
