@@ -10,22 +10,26 @@
 (def home (System/getProperty "user.home"))
 
 (def puppet {:puppet {:tar "" :args []}})
+(def reconf {:re-conf {:args []}})
+
+(defn prefix-key [m]
+  (first (filter #{:puppet :re-conf} (keys m))))
 
 (defn src [s]
-  "Set puppet source code location"
-  (fn [{:keys [type] :as instance}]
-    (assoc-in instance [:puppet :src] s)))
+  "Set source code location"
+  (fn [instance]
+    (assoc-in instance [(prefix-key instance) :src] s)))
 
 (defn default-src
-  "Using name as a convention for puppet source location"
-  [{:keys [type] :as instance}]
+  "Using name as a convention source location"
+  [instance]
   ((src (<< "~{home}/code/boxes/~{type}-sandbox/")) instance))
 
 (defn args
-  "Set Puppet run script arguments"
+  "Set script arguments"
   [& as]
-  (fn [{:keys [type] :as instance}]
-    (assoc-in instance [:puppet :args] (into [] as))))
+  (fn [instance]
+    (assoc-in instance [(prefix-key instance) :args] (into [] as))))
 
 (defn with-type [t]
   (fn [instance]
@@ -44,4 +48,4 @@
         (fn? a) (into-spec (assoc m :fns (conj fns a)) (rest args))))))
 
 (defn refer-type-presets []
-  (require '[re-core.presets.type :as tp :refer [puppet src default-src args]]))
+  (require '[re-core.presets.type :as tp :refer [puppet reconf src default-src args]]))

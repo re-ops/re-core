@@ -172,6 +172,7 @@
   (cond
     (:machine base) (create-system base args)
     (:puppet base) (create-type base args)
+    (:re-conf base) (create-type base args)
     :else (throw (ex-info "creation type not found" {:base base :args args}))))
 
 (defn add
