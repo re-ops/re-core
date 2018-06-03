@@ -5,15 +5,13 @@
   "
   (:require
    [clojure.core.strint :refer (<<)]
+   [re-core.repl.types :refer (prefix-key)]
    [re-core.common :refer (gen-uuid)]))
 
 (def home (System/getProperty "user.home"))
 
 (def puppet {:puppet {:tar "" :args []}})
 (def reconf {:re-conf {:args []}})
-
-(defn prefix-key [m]
-  (first (filter #{:puppet :re-conf} (keys m))))
 
 (defn src [s]
   "Set source code location"

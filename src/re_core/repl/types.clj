@@ -40,8 +40,12 @@
     (println "")
     [this ts]))
 
+(defn prefix-key [m]
+  (first (filter #{:puppet :re-conf} (keys m))))
+
 (defn provision-type [t]
-  (:puppet (t/get t)))
+  (let [type (t/get t)]
+    ((prefix-key type) type)))
 
 (defn refer-types []
   (require '[re-core.repl.types :as ts :refer (provision-type)]))
