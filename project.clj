@@ -27,7 +27,7 @@
 
                  ; re-ops
                  [re-mote "0.8.5"]
-                 [re-share "0.6.6"]
+                 [re-share "0.6.7"]
 
                  ;api
                  [clj-yaml "0.4.0"]
