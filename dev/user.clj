@@ -60,6 +60,20 @@
   []
   (alter-var-root #'system start-all))
 
+(defn es-switch
+  "Switch ES connection"
+  [k {:keys [es] :as s}]
+  (.stop es)
+  (es.common/prefix-switch k)
+  (.setup es)
+  (.start es)
+  s)
+
+(defn switch-
+  "Starts the current development system."
+  [k]
+  (alter-var-root #'system (partial es-switch k)))
+
 (defn stop
   "Shuts down and destroys the current development system."
   []

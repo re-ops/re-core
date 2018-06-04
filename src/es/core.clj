@@ -2,19 +2,17 @@
   "Core elasticsearch module"
   (:require
    [components.core :refer (Lifecyle)]
-   [es.common :refer (initialize)]
-   [re-core.common :refer (get!)]
+   [es.common :refer (initialize get-es! prefix-switch)]
    [re-share.es.node :as node]))
 
-(defrecord Elastic
-           []
+(defrecord Elastic []
   Lifecyle
   (setup [this]
-    (let [{:keys [index] :as m} (get! :elasticsearch)]
+    (let [{:keys [index] :as m} (get-es!)]
       (node/connect m)
       (initialize index)))
   (start [this]
-    (node/connect (get! :elasticsearch)))
+    (node/connect (get-es!)))
   (stop [this]
     (node/stop)))
 
@@ -22,3 +20,4 @@
   "creates a Elastic components"
   []
   (Elastic.))
+

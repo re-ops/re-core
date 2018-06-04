@@ -7,8 +7,18 @@
 
 (refer-timbre)
 
+(def conn-prefix (atom :default))
+
+(defn get-es! [& ks]
+  (apply get! :elasticsearch @conn-prefix ks))
+
+(defn prefix-switch
+  "Change es prefix"
+  [k]
+  (reset! conn-prefix k))
+
 (defn index []
-  (get! :elasticsearch :index))
+  (get-es! :index))
 
 (def ^:const types {:jobs {:properties {:env {:type "keyword"}
                                         :status {:type "text"}

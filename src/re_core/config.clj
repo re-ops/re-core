@@ -10,16 +10,15 @@
    [clojure.core.strint :refer (<<)]
    [clojure.java.io :refer (file)]))
 
-(def base-v {:elasticsearch {:host #{:required :String} :port #{:required :Integer}}
-             :ssh {:private-key-path #{:required :String}}})
+(validation :elasticsearch*
+            (every-kv {:host #{:required :String} :port #{:required :Integer}}))
+
+(def base-v {:ssh {:private-key-path #{:required :String}}
+             :elasticsearch #{:required :elasticsearch*}})
 
 (def levels #{:trace :debug :info :error})
 
 (validation :levels (when-not-nil levels (<< "level must be either ~{levels}")))
-
-(def ^{:doc "gelf logging settings"} gelf-v
-  {:re-core
-   {:log {:gelf {:host #{:required :String} :port #{:required :Integer}}}}})
 
 (def reset-options #{:stop :start})
 
@@ -30,8 +29,7 @@
   {:re-core
    {:port #{:required :number} :https-port #{:required :number}
     :log {:level #{:required :levels}
-          :path #{:required :String}
-          :gelf {:host #{:String}}}}})
+          :path #{:required :String}}}})
 
 (validation :node*
             (every-kv {:username #{:required :String} :password #{:required :String}
@@ -73,7 +71,7 @@
 
 (defn re-core-validations [{:keys [log job] :as re-core}]
   (if (contains? log :gelf)
-    (combine re-core-v gelf-v)
+    (combine re-core-v)
     re-core-v))
 
 (defn validate-conf
