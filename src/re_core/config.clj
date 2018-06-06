@@ -1,11 +1,10 @@
 (ns re-core.config
   "Celetial configuration info"
   (:require
-   [components.core :refer (Lifecyle)]
    [clj-config.core :as conf]
    [subs.core :refer (validate! combine validation when-not-nil every-kv)]
    [clojure.pprint :refer (pprint)]
-   [taoensso.timbre :refer (merge-config! debug info error warn trace)]
+   [taoensso.timbre :refer (merge-config! info)]
    [taoensso.timbre.appenders.core :refer (spit-appender)]
    [clojure.core.strint :refer (<<)]
    [clojure.java.io :refer (file)]))
@@ -80,40 +79,3 @@
   (validate! c
              (apply combine
                     (into [base-v (re-core-validations re-core)] (hypervisor-validations hypervisor)))))
-
-(def config-paths
-  ["/etc/re-core/re-core.edn" (<< "~(System/getProperty \"user.home\")/.re-core.edn")])
-
-(def path
-  (first (filter #(.exists (file %)) config-paths)))
-
-(defn pretty-error
-  "A pretty print error log"
-  [m c]
-  (let [st (java.io.StringWriter.)]
-    (binding [*out* st]
-      (clojure.pprint/pprint m))
-    (merge-config!
-     {:appenders
-      {:spit
-       (spit-appender {:fname (get-in c [:re-core :log :path] "re-core.log")})}})
-    (error "Following configuration errors found:\n" (.toString st))))
-
-(defn read-and-validate []
-  (let [c (conf/read-config path) es (validate-conf c)]
-    (when-not (empty? es)
-      (pretty-error es c)
-      (System/exit 1))
-    c))
-
-(def config (atom {}))
-
-(defn ^{:doc "main configuation"} load []
-  (info "Loading configuration")
-  (if path
-    (info (reset! config (read-and-validate)))
-    (when-not (System/getProperty "disable-conf") ; enables repl/testing
-      (error
-       (<< "Missing configuration file, you should configure re-core in either ~{config-paths}"))
-      (System/exit 1))))
-

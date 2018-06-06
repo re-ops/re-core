@@ -7,7 +7,8 @@
    [re-mote.ssh.transport :refer (ssh-up?)]
    [re-core.model :refer (hypervisor)]
    [minderbinder.time :refer (parse-time-unit)]
-   [re-core.common :refer (get! curr-time)]
+   [re-core.common :refer (curr-time)]
+   [re-share.config :refer (get!)]
    [re-share.core :refer (wait-for)]
    [clojure.core.strint :refer (<<)])
   (:import clojure.lang.ExceptionInfo))

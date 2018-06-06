@@ -1,7 +1,8 @@
 (ns re-core.schedule
   "Scheduled tasks"
   (:require
-   [re-core.common :refer (get* resolve-)]
+   [re-core.common :refer (resolve-)]
+   [re-share.config :refer (get*)]
    [taoensso.timbre :refer (refer-timbre)]
    [chime :refer [chime-ch]]
    [components.core :refer (Lifecyle)]

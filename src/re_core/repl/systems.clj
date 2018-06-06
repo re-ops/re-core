@@ -3,7 +3,7 @@
   (:require
    kvm.provider
    [re-core.model :refer (vconstruct)]
-   [re-core.common :refer  (get!)]
+   [re-share.config :refer  (get!)]
    [clojure.core.strint :refer  (<<)]
    [clansi.core :refer  (style)]
    [re-core.queue :as q]

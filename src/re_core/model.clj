@@ -1,7 +1,7 @@
 (ns re-core.model
   "Model manipulation ns"
   (:require
-   [re-core.common :refer (get! get*)]))
+   [re-share.config :refer (get! get*)]))
 
 (def ^{:doc "A local binding of current environment (used for hypervisors, provisioners etc..)" :dynamic true :private true}
   env nil)

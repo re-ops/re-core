@@ -2,8 +2,9 @@
   "Core elasticsearch module"
   (:require
    [components.core :refer (Lifecyle)]
-   [es.common :refer (initialize get-es! prefix-switch)]
-   [re-share.es.node :as node]))
+   [es.common :refer (initialize)]
+   [re-share.es.node :as node]
+   [re-share.es.common :refer (get-es!)]))
 
 (defrecord Elastic []
   Lifecyle

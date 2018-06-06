@@ -4,7 +4,7 @@
   (:require
    [com.rpl.specter :refer [select transform ALL multi-path]]
    [qbits.spandex :as s]
-   [es.common :refer (index)]
+   [re-share.es.common :refer (index)]
    [re-share.es.common :as common]
    [re-share.es.node :refer (connection)]
    [clojure.core.strint :refer (<<)]

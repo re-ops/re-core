@@ -64,7 +64,7 @@
   "Switch ES connection"
   [k {:keys [es] :as s}]
   (.stop es)
-  (es.common/prefix-switch k)
+  (re-share.es.common/prefix-switch k)
   (.setup es)
   (.start es)
   s)

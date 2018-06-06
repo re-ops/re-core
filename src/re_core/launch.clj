@@ -2,10 +2,11 @@
   "re-core lanching ground aka main"
   (:require
    [re-core.log :refer (setup-logging)]
-   [re-core.common :refer (get! get* version)]
+   [re-core.common :refer (version)]
+   [re-share.config :as conf]
    [re-core.queue :as q]
    [re-core.workers :as w]
-   [re-core.config :as conf]
+   [re-core.config :refer (validate-conf)]
    [re-core.schedule :as sch]
    [clojure.core.strint :refer (<<)]
    [clojure.java.io :refer (resource)]
@@ -32,7 +33,7 @@
   []
   (let [components (build-components)]
     (setup-logging)
-    (conf/load)
+    (conf/load validate-conf)
     (add-shutdown components)
     (setup-all components)
     components))
@@ -40,7 +41,7 @@
 (defn start
   "Main components startup (jetty, job workers etc..)"
   [components]
-  (conf/load)
+  (conf/load validate-conf)
   (start-all components)
   (info (<<  "version ~{version} see https://github.com/re-ops/re-core"))
   components)

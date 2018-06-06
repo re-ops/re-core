@@ -27,7 +27,7 @@
 
                  ; re-ops
                  [re-mote "0.8.5"]
-                 [re-share "0.6.7"]
+                 [re-share "0.6.8"]
 
                  ;api
                  [clj-yaml "0.4.0"]
@@ -52,7 +52,7 @@
                  [com.fasterxml.jackson.core/jackson-core "2.6.4"]
 
                  ; es
-                 [cc.qbits/spandex "0.5.5" :exclusions [org.clojure/clojure]]
+                 [cc.qbits/spandex "0.6.0" :exclusions [org.clojure/clojure]]
                  [org.apache.httpcomponents/httpclient "4.5.2"]
 
                  ; queue

@@ -1,6 +1,6 @@
 (ns kvm.provider
   (:require
-   [re-core.common :refer (get!)]
+   [re-share.config :refer (get!)]
    [com.rpl.specter :as spec :refer  (MAP-VALS ALL ATOM keypath)]
    [flatland.useful.map :refer (dissoc-in*)]
    [safely.core :refer [safely]]
