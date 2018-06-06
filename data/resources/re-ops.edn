@@ -6,9 +6,8 @@
      :level :info
      :path "re-core.log"
    }
- }
 
- :hypervisor {
+  :hypervisor {
    :dev {
 
     ;;:aws {
@@ -43,14 +42,18 @@
 
     :physical { }
    }
+  }
  }
 
+
  :elasticsearch {
-   :host "localhost"
-   :port 9200
-   :user "elastic"
-   :pass "changeme"
-   :index "re-core"
+  :default {
+    :host "localhost"
+    :port 9200
+    :user "elastic"
+    :pass "changeme"
+    :index "re-core"
+   }
  }
 
  :ssh {
