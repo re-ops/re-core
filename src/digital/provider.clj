@@ -7,7 +7,6 @@
    [re-core.provider :refer (mappings transform selections os->template wait-for-ssh wait-for-start wait-for-stop)]
    [re-share.core :refer (wait-for)]
    [es.systems :as s :refer (system-val)]
-   [re-share.config :refer (get*)]
    [taoensso.timbre :refer (refer-timbre)]
    [re-core.core :refer (Vm)]
    [digitalocean.v2.core :as d]))
