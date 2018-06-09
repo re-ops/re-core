@@ -1,8 +1,8 @@
 (ns es.common
-  "type mappings index etc.."
+  "Common ES"
   (:require
    [taoensso.timbre :refer (refer-timbre)]
-   [re-share.es.common :refer (create-index exists?)]))
+   [re-share.es.common :as share :refer (create-index exists?)]))
 
 (refer-timbre)
 
@@ -21,11 +21,7 @@
                                         :description {:type "text"}
                                         :type {:type "keyword"}}}})
 
-(def ^:const settings {:number_of_shards 1})
-
-(defn initialize
-  "Creates systems index and types"
-  [index]
-  (when-not (exists? index)
-    (info "Creating index" index)
-    (create-index index {:mappings types})))
+(defn index
+  "get re-core index"
+  []
+  (share/index :re-core))
