@@ -170,7 +170,7 @@
     (into-hosts this m :ip))
   (into-hosts [this {:keys [systems]} k]
     (let [{:keys [user]} (:machine (second (first systems)))
-          remote {:user user :ssh-key (get! :ssh :private-key-path)}]
+          remote {:user user :ssh-key (get! :shared :ssh :private-key-path)}]
       (Hosts. remote (mapv (fn [[_ system]] (get-in system [:machine k])) systems)))))
 
 (extend-type Systems

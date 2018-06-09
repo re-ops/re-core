@@ -56,7 +56,7 @@
 
 (defn wait-for-ssh [address user timeout]
   {:pre [address user timeout]}
-  (let [k (get! :ssh :private-key-path)]
+  (let [k (get! :shared :ssh :private-key-path)]
     (wait-for {:timeout timeout :sleep [2000 :ms]}
               (fn []
                 (try

@@ -26,12 +26,12 @@
 (defn hypervisor
   "obtains current environment hypervisor"
   [& ks] {:pre [(not (nil? env))]}
-  (apply get! :hypervisor env ks))
+  (apply get! :re-core :hypervisor env ks))
 
 (defn hypervisor*
   "obtains current environment hypervisor using get*"
   [& ks] {:pre [(not (nil? env))]}
-  (apply get* :hypervisor env ks))
+  (apply get* :re-core :hypervisor env ks))
 
 (defn- select-sub
   "select sub map"
@@ -43,14 +43,6 @@
   [[:digital-ocean]
    [:aws] [:physical] [:openstack]
    [:kvm :ostemplates] [:kvm :nodes]])
-
-(defn sanitized-envs
-  "sanitized (from sensative data) environments "
-  [envs]
-  (let [es (filter envs (keys (get* :hypervisor)))
-        inc-nodes (map (fn [e] (select-sub (get* :hypervisor) (map #(into [e] %) whitelist))) es)
-        sanitized  [:ssh-port :username :password :access-key :secret-key]]
-    (apply merge (clojure.walk/postwalk #(if (map? %) (apply dissoc % sanitized) %) inc-nodes))))
 
 (defmulti clone
   "Clones an existing system map replacing unique identifiers in the process"

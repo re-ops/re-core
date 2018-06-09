@@ -21,13 +21,6 @@
 (defn time-fn [unit]
   (resolve-  (symbol (str "clj-time.core/" (name unit)))))
 
-(defn load-schedules
-  "Load all scheduled tasks"
-  []
-  (doseq [[f m] (get* :scheduled) :let [{:keys [every args]} m]]
-    (let [[t unit] every]
-      (schedule (resolve- f) (chime-ch (periodic-seq (t/now) ((time-fn unit) t))) args))))
-
 (defn schedules []
   (map
    (fn [[f {:keys [every args]}]]

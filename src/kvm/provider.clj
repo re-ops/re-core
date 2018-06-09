@@ -45,7 +45,7 @@
 (def timeout [1 :minute])
 
 (defn key- []
-  (get! :ssh :private-key-path))
+  (get! :shared :ssh :private-key-path))
 
 (defprotocol Spicy
   (open-spice [this]))

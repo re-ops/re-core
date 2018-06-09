@@ -193,7 +193,7 @@
   ([f]
    (let [{:keys [auth] :as hs} (hosts f :ip)]
      (doseq [host (:hosts hs)]
-       (let [target (<< "~(auth :user)@~{host}") private-key (c/get! :ssh :private-key-path)]
+       (let [target (<< "~(auth :user)@~{host}") private-key (c/get! :shared :ssh :private-key-path)]
          (.exec (Runtime/getRuntime)
                 (<< "/usr/bin/x-terminal-emulator --disable-factory -e /usr/bin/ssh ~{target} -i ~{private-key}")))))))
 
