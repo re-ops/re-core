@@ -39,16 +39,17 @@
 (re-core.model/set-dev)
 
 (defn setup-all []
-  (mote/setup)
-  (core/setup))
+  {:re-mote (mote/setup) :re-core (core/setup)})
 
-(defn start-all [s]
-  (mote/start nil)
-  (core/start s))
+(defn start-all [{:keys [re-core re-mote] :as m}]
+  (mote/start re-mote)
+  (core/start re-core)
+  m)
 
-(defn stop-all [s]
-  (mote/stop nil)
-  (core/stop s))
+(defn stop-all [{:keys [re-core re-mote] :as m}]
+  (mote/stop re-mote)
+  (core/stop re-core)
+  m)
 
 (defn init
   "Constructs the current development system."
