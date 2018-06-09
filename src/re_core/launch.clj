@@ -10,13 +10,14 @@
    [re-core.schedule :as sch]
    [clojure.core.strint :refer (<<)]
    [clojure.java.io :refer (resource)]
-   [components.core :refer (start-all stop-all setup-all)]
-   [es.core :as es]
+   [re-share.components.core :refer (start-all stop-all setup-all)]
+   [re-share.components.elastic :as es]
+   [es.common :refer (types)]
    [taoensso.timbre :refer (refer-timbre)]))
 
 (refer-timbre)
 
-(defn build-components [] {:es (es/instance) :queues (q/instance)
+(defn build-components [] {:es (es/instance types) :queues (q/instance)
                            :schedule (sch/instance) :workers (w/instance)})
 
 (defn clean-up
@@ -33,7 +34,7 @@
   []
   (let [components (build-components)]
     (setup-logging)
-    (conf/load validate-conf)
+    (conf/load (fn [_] {}))
     (add-shutdown components)
     (setup-all components)
     components))
@@ -41,7 +42,7 @@
 (defn start
   "Main components startup (jetty, job workers etc..)"
   [components]
-  (conf/load validate-conf)
+  (conf/load (fn [_] {}))
   (start-all components)
   (info (<<  "version ~{version} see https://github.com/re-ops/re-core"))
   components)
