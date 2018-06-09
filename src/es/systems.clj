@@ -3,7 +3,8 @@
   (:refer-clojure :exclude [get partial])
   (:require
    [com.rpl.specter :refer [select transform ALL multi-path]]
-   [re-share.es.common :as common :refer (index)]
+   [re-share.es.common :as common]
+   [es.common :refer (index)]
    [re-share.es.node :refer (connection)]
    [qbits.spandex :as s]
    [clojure.core.strint :refer (<<)]

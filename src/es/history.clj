@@ -4,7 +4,7 @@
   (:require
    [re-core.common :refer (hostname)]
    [qbits.spandex :as s]
-   [re-share.es.common :refer (index)]
+   [es.common :refer (index)]
    [re-share.es.node :refer (connection)]
    [re-share.es.common :as common]
    [clojure.core.strint :refer (<<)]
