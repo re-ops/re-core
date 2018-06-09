@@ -9,7 +9,7 @@
 (defn set-dev
   "set root env to :dev"
   []
-  (alter-var-root (var re-core.model/env) (fn [_] :dev)))
+  (alter-var-root (var re-core.model/env) (fn [_] :default)))
 
 (defmacro set-env [e & body] `(binding  [env ~e] ~@body))
 
