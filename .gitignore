@@ -17,6 +17,7 @@ tags
 public/bower_components
 .nrepl-port
 re-core.log*
+re-mote.log*
 re-core-third-party.log
 re-mote.log
 scripts
