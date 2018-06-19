@@ -50,7 +50,9 @@
 
 (defn src-or-tar
   [t]
-  (get-in t [:puppet :src] (get-in t [:puppet :tar])))
+  (or
+   (get-in t [:re-conf :src])
+   (get-in t [:puppet :src] (get-in t [:puppet :tar]))))
 
 (defmethod pretty #{:types} [_ {:keys [types]}]
   (let [formatter (format-columns bold-white-font [:right 10] "  " reset-font [:left 40] [:right 20] :none)]
