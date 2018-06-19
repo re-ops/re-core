@@ -63,12 +63,13 @@
 
 (defn es-switch
   "Switch ES connection"
-  [k {:keys [es] :as s}]
-  (.stop es)
-  (re-share.es.common/prefix-switch k)
-  (.setup es)
-  (.start es)
-  s)
+  [k {:keys [re-core] :as s}]
+  (let [{:keys [es]} re-core]
+    (.stop es)
+    (re-share.es.common/prefix-switch k)
+    (.setup es)
+    (.start es)
+    s))
 
 (defn switch-
   "Starts the current development system."
