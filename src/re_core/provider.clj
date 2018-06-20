@@ -62,7 +62,8 @@
                 (try
                   (ssh-up? {:host address :port 22 :user user :ssh-key k})
                   (catch Throwable e
-                    (debug e) false)))
+                    (debug (<< "Failed to ssh to ~{address} due to ~(.getMessage e) with ~{user} ~{k}"))
+                    false)))
               (<< "Timed out while waiting for ssh please check: ssh ~{user}@~{address} -i ~{k}"))))
 
 (defn map-key [m from to]
