@@ -4,11 +4,11 @@
    [re-core.log :refer (setup-logging)]
    [es.types :as t]
    [re-share.es.common :as es]
-   [es.common :refer (initialize index)]
-   [re-core.common :refer (get!)]
-   [re-share.es.node :as node]
+   [re-share.components.elastic :as esc]
+   [es.common :refer (types)]
    [re-core.model :refer (figure-virt)]
    [re-core.fixtures.core :refer (with-conf)]
+   [re-share.config :as conf]
    [clojure.test.check.generators :as g]
    [es.systems :as s]
    [re-core.fixtures.data :refer (admin ronen) :as d]))
@@ -59,14 +59,17 @@
   (doseq [s (g/sample systems-with-machines 100)]
     (s/create s)))
 
+(def elastic (esc/instance types))
+
 (defn re-initlize
-  "Re-init datastores"
-  ([] (re-initlize false))
+  "Re-init datastore"
+  ([]
+   (re-initlize false))
   ([c]
-   (node/connect (get! :elasticsearch))
+   (conf/load (fn [_] {}))
+   (.start elastic)
    (when c
-     (es/clear (index)))
-   (initialize (index))))
+     (es/clear (es/index :re-core))) (esc/initialize (es/index :re-core) types)))
 
 (def populators {:types add-types :systems puts})
 
@@ -80,7 +83,7 @@
 (defn populate-system
   "Adds single type and system"
   [type system id]
-  (node/connect (get! :elasticsearch))
+  (.setup elastic)
   (re-initlize)
   (t/create type)
   (s/create system id))
@@ -89,5 +92,5 @@
   "run populate all"
   [& args]
   (populate-all)
-  (node/stop)
+  (.stop elastic)
   (println "populate done!"))

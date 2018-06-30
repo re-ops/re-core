@@ -3,7 +3,7 @@
    [re-core.log :refer (setup-logging)]
    [es.systems :as s]
    [re-core.model :refer (vconstruct)]
-   [re-core.fixtures.core :refer (with-conf is-type?) :as f]
+   [re-core.fixtures.core :as f :refer (with-dev)]
    [re-core.fixtures.data :refer (redis-type local-conf)]
    [re-core.fixtures.populate :refer (populate-system)]
    [re-core.features.common :refer (spec)]
@@ -16,7 +16,7 @@
 
 (setup-logging)
 
-(with-conf
+(with-dev
   (fact "legal instance spec" :kvm
         (let [domain (vconstruct (assoc redis-kvm :system-id "1"))]
           (:system-id domain) => "1"
@@ -24,14 +24,16 @@
           (:domain domain) =>
           (just {:user "re-ops" :name "red1" :hostname "red1"
                  :image {:flavor :debian :template "ubuntu-16.04"}
-                 :cpu 2 :ram 1024})))
+                 :cpu 2 :ram 1024}))))
+
+(with-dev
   (fact "volume pool" :kvm
         (let [with-vol (assoc-in redis-kvm [:kvm :volumes] [volume])
               domain (vconstruct (assoc with-vol :system-id "1"))]
           (first (:volumes domain)) =>
           (just (assoc volume :pool {:id "default" :path "/var/lib/libvirt/images/"})))))
 
-(with-conf local-conf
+(with-dev
   (fact "kvm creation workflows" :integration :kvm :workflow
         (populate-system redis-type redis-kvm "1")
         (wf/create (spec)) => nil

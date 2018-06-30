@@ -25,7 +25,7 @@
 
 (defn hypervisor
   "obtains current environment hypervisor"
-  [& ks] {:pre [(not (nil? env))]}
+  [& ks]
   (apply get! :re-core :hypervisor env ks))
 
 (defn hypervisor*

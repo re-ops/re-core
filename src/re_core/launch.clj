@@ -6,7 +6,6 @@
    [re-share.config :as conf]
    [re-core.queue :as q]
    [re-core.workers :as w]
-   [re-core.config :refer (validate-conf)]
    [re-core.schedule :as sch]
    [clojure.core.strint :refer (<<)]
    [clojure.java.io :refer (resource)]

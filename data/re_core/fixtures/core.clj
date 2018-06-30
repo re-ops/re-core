@@ -18,6 +18,11 @@
     `(with-redefs [re-core.config/config re-core.fixtures.data/local-prox re-core.model/env :dev]
        ~@(conj body f))))
 
+(defmacro with-dev
+  [f & body]
+  `(with-redefs [re-core.model/env :dev]
+     ~@body))
+
 (defmacro with-defaults
   "A fact that includes default conf and admin user"
   [& args]

@@ -46,18 +46,20 @@
  }
 
 
- :elasticsearch {
-  :default {
-    :host "localhost"
-    :port 9200
-    :user "elastic"
-    :pass "changeme"
-    :index "re-core"
-   }
- }
+ :shared {
+  :elasticsearch {
+   :default {
+     :host "localhost"
+     :port 9200
+     :user "elastic"
+     :pass "changeme"
+     :index "re-core"
+    }
+  }
 
- :ssh {
-   :private-key-path "/home/ronen/.ssh/id_rsa"
- }
+  :ssh {
+    :private-key-path "/home/ronen/.ssh/id_rsa"
+  }
 
+ }
 }
