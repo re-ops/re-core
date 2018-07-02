@@ -43,6 +43,10 @@
     :physical { }
    }
   }
+
+  :elasticsearch {
+    :index "re-core"
+  }
  }
 
 
