@@ -11,12 +11,12 @@
    [clojure.java.io :refer (resource)]
    [re-share.components.core :refer (start-all stop-all setup-all)]
    [re-share.components.elastic :as es]
-   [es.common :refer (types)]
+   [es.common :refer (types index)]
    [taoensso.timbre :refer (refer-timbre)]))
 
 (refer-timbre)
 
-(defn build-components [] {:es (es/instance types) :queues (q/instance)
+(defn build-components [] {:es (es/instance types :re-core) :queues (q/instance)
                            :schedule (sch/instance) :workers (w/instance)})
 
 (defn clean-up
