@@ -26,7 +26,7 @@
                  [com.taoensso/tufte "1.1.1"]
 
                  ; re-ops
-                 [re-mote "0.8.5"]
+                 [re-mote "0.8.6"]
                  [re-share "0.6.10"]
 
                  ;api
