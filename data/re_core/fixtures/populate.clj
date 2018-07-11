@@ -59,7 +59,7 @@
   (doseq [s (g/sample systems-with-machines 100)]
     (s/create s)))
 
-(def elastic (esc/instance types))
+(def elastic (esc/instance types :re-core))
 
 (defn re-initlize
   "Re-init datastore"
