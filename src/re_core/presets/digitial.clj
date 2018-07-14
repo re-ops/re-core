@@ -33,8 +33,7 @@
 
 (defn droplet
   ([size]
-   (droplet size :ubuntu-16.04)
-   )
+   (droplet size :ubuntu-16.04))
   ([size os]
    {:machine (digital-machine os)
     :digital-ocean {:region "sfo1" :size size
