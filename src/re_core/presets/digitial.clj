@@ -54,7 +54,5 @@
 (def vcpu-2-2G (droplet "s-2vcpu-2gb"))
 
 (defn refer-digital-presets []
-  (require '[re-core.presets.digitial :as dig :refer [
-        vcpu-1-1G vcpu-1-2G vcpu-1-3G vcpu-2-2G
-        sgp1 lon1 nyc1 nyc2 nyc3 tor1 sfo1 sfo2
-        ]]))
+  (require '[re-core.presets.digitial :as dig :refer [vcpu-1-1G vcpu-1-2G vcpu-1-3G vcpu-2-2G
+                                                      sgp1 lon1 nyc1 nyc2 nyc3 tor1 sfo1 sfo2]]))
