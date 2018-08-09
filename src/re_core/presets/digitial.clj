@@ -18,7 +18,13 @@
   (fn [instance]
     (assoc-in instance [:digital-ocean :private_networking] t)))
 
+(def nyc1 (region "nyc1"))
+
 (def nyc2 (region "nyc2"))
+
+(def nyc3 (region "nyc3"))
+
+(def tor1 (region "tor1"))
 
 (def sfo1 (region "sfo1"))
 
@@ -43,5 +49,12 @@
 
 (def vcpu-1-2G (droplet "s-1vcpu-2gb"))
 
+(def vcpu-1-3G (droplet "s-1vcpu-3gb"))
+
+(def vcpu-2-2G (droplet "s-2vcpu-2gb"))
+
 (defn refer-digital-presets []
-  (require '[re-core.presets.digitial :as dig :refer [vcpu-1-1G vcpu-1-2G sgp1 lon1]]))
+  (require '[re-core.presets.digitial :as dig :refer [
+        vcpu-1-1G vcpu-1-2G vcpu-1-3G vcpu-2-2G
+        sgp1 lon1 nyc1 nyc2 nyc3 tor1 sfo1 sfo2
+        ]]))
