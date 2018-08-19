@@ -45,14 +45,14 @@
     :digital-ocean {:region "sfo1" :size size
                     :private_networking false}}))
 
-(def vcpu-1-1G (droplet "s-1vcpu-1gb"))
+(def droplet-1-1G (droplet "s-1vcpu-1gb"))
 
-(def vcpu-1-2G (droplet "s-1vcpu-2gb"))
+(def droplet-1-2G (droplet "s-1vcpu-2gb"))
 
-(def vcpu-1-3G (droplet "s-1vcpu-3gb"))
+(def droplet-1-3G (droplet "s-1vcpu-3gb"))
 
-(def vcpu-2-2G (droplet "s-2vcpu-2gb"))
+(def droplet-2-2G (droplet "s-2vcpu-2gb"))
 
 (defn refer-digital-presets []
-  (require '[re-core.presets.digitial :as dig :refer [vcpu-1-1G vcpu-1-2G vcpu-1-3G vcpu-2-2G
+  (require '[re-core.presets.digitial :as dig :refer [droplet-1-1G droplet-1-2G droplet-1-3G droplet-2-2G
                                                       sgp1 lon1 nyc1 nyc2 nyc3 tor1 sfo1 sfo2]]))
