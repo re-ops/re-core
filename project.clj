@@ -26,8 +26,8 @@
                  [com.taoensso/tufte "1.1.1"]
 
                  ; re-ops
-                 [re-mote "0.8.6"]
-                 [re-share "0.6.10"]
+                 [re-mote "0.8.8"]
+                 [re-share "0.7.1"]
 
                  ;api
                  [clj-yaml "0.4.0"]
