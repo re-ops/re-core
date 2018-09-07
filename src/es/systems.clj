@@ -73,7 +73,7 @@
   "basic query string"
   [query & {:keys [from size] :or {size 100 from 0}}]
   (:body
-   (s/request (connection) {:url [(index) :_search] :method :get :body {:from from :size size :query query}})))
+   (s/request (connection) {:url [(index :system) :_search] :method :get :body {:from from :size size :query query}})))
 
 (defn system-val
   "grabbing instance id of spec"

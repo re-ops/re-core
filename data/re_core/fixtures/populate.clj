@@ -69,7 +69,9 @@
    (conf/load (fn [_] {}))
    (.start elastic)
    (when c
-     (es/clear (es/index :re-core))) (esc/initialize (es/index :re-core) types)))
+     (doseq [[t _] types]
+       (es/clear :re-core t)))
+   (esc/initialize :re-core types)))
 
 (def populators {:types add-types :systems puts})
 

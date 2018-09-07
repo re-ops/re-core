@@ -20,7 +20,7 @@
 (defn add-jobs
   "adds a list of systems into ES"
   []
-  (esc/initialize "re-core" types)
+  (esc/initialize :re-core types)
   (jobs/put (-> job (merge {:tid "1" :status :success}) stamp))
   (jobs/put (-> job (merge {:tid "2" :status :failure :env :prod}) stamp))
   (jobs/put (-> job (merge {:tid "3" :status :success :identity 2}) stamp))
