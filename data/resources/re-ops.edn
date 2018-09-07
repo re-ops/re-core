@@ -52,12 +52,13 @@
 
  :shared {
   :elasticsearch {
-   :default {
-     :host "localhost"
-     :port 9200
-     :user "elastic"
-     :pass "changeme"
-     :index "re-core"
+    :default {
+       :host "http://localhost:9200"
+       :auth {
+         :user "elastic"
+         :password "changeme"
+        }
+        :self? false
     }
   }
 
