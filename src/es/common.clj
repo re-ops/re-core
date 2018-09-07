@@ -18,10 +18,9 @@
                                           :type {:type "keyword"}}}
                     :type {:properties {:puppet {:properties {:src {:type "text"}
                                                               :tar {:type "text"}}}
-                                        :description {:type "text"}
-                                        :type {:type "keyword"}}}})
+                                        :description {:type "text"}}}})
 
 (defn index
   "get re-core index"
-  []
-  (share/index :re-core))
+  [type]
+  (share/index :re-core type))

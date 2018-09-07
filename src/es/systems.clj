@@ -15,26 +15,26 @@
 
 (defn exists?
   [id]
-  (common/exists? (index) :system id))
+  (common/exists? (index :system) id))
 
 (defn create
   "create a system returning its id"
   ([system]
-   (let [{:keys [status body] :as m} (s/request (connection) {:url [(index) :system] :method :post :body system})]
+   (let [{:keys [status body] :as m} (s/request (connection) {:url [(index :system) :system] :method :post :body system})]
      (assert (#{201 200} status))
      (body :_id)))
   ([system id]
-   (= (:status (s/request (connection) {:url [(index) :system id] :method :post :body system})) 200)))
+   (= (:status (s/request (connection) {:url [(index :system) :system id] :method :post :body system})) 200)))
 
 (defn put
   "Update a system"
   [id system]
-  (common/put (index) :system id system))
+  (common/put (index :system) :system id system))
 
 (defn delete
   "delete a system from ES"
   [id]
-  (common/delete (index) :system id))
+  (common/delete (index :system) :system id))
 
 (defn keywordize
   "converting ES values back into keywords"
@@ -46,7 +46,7 @@
 (defn get
   "Grabs a system by an id, return nil if missing"
   [id]
-  (keywordize (common/get (index) :system id)))
+  (keywordize (common/get (index :system) :system id)))
 
 (defn get!
   "Grabs a system by an id"
@@ -59,7 +59,7 @@
   "partial update of a system into ES"
   [id part]
   (let [system (get id)]
-    (= (:status (s/request (connection) {:url [(index) :system id] :method :put :body (merge-with merge system part)})) 200)))
+    (= (:status (s/request (connection) {:url [(index :system) :system id] :method :put :body (merge-with merge system part)})) 200)))
 
 (defn clone
   "clones an existing system"
@@ -83,4 +83,4 @@
 (defn all
   "return all existing systems"
   []
-  (mapv (fn [[k v]] [k (keywordize v)]) (common/all (index) :system)))
+  (mapv (fn [[k v]] [k (keywordize v)]) (common/all (index :system))))

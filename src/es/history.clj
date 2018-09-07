@@ -22,7 +22,7 @@
   "Add history for the current host"
   ([hist]
    (try
-     (= (:status (s/request (connection) {:url [(index) :history hostname] :method :post :body hist})) 200)
+     (= (:status (s/request (connection) {:url [(index :history) hostname] :method :post :body hist})) 200)
      (catch Exception e
        (error e
               (ex-data e)
@@ -30,21 +30,21 @@
 (defn put
   "Update history"
   [hist]
-  (common/put (index) :history hostname hist))
+  (common/put (index :history) hostname hist))
 
 (defn delete
   "delete history"
   [t]
-  (common/delete (index) :history hostname))
+  (common/delete (index :history) hostname))
 
 (defn exists?
   [host]
-  (common/exists? (index) :history host))
+  (common/exists? (index :history) host))
 
 (defn get
   "Grabs history for hostname"
   [host]
-  (common/get (index) :history host))
+  (common/get (index :history) host))
 
 (defn restore []
   (let [{:keys [history]} (get hostname)]

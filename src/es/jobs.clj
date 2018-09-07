@@ -11,15 +11,15 @@
 (defn put
   "Update a job"
   [{:keys [tid] :as job}]
-  (common/put (index) :jobs tid job))
+  (common/put (index :jobs) :jobs tid job))
 
 (defn delete
   "delete a system from ES"
   [tid]
-  (common/delete (index) :jobs tid))
+  (common/delete (index :jobs) :jobs tid))
 
 (defn get
   "Get job bu tid"
   [tid]
-  (common/get (index) :jobs tid))
+  (common/get (index :jobs) :jobs tid))
 

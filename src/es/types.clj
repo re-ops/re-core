@@ -15,13 +15,13 @@
 
 (defn exists?
   [id]
-  (common/exists? (index) :type id))
+  (common/exists? (index :type) id))
 
 (defn create
   "create a type with id type"
   ([type]
    (try
-     (= (:status (s/request (connection) {:url [(index) :type (type :type)] :method :post :body type})) 200)
+     (= (:status (s/request (connection) {:url [(index :type) :type (type :type)] :method :post :body (dissoc type :type)})) 200)
      (catch Exception e
        (error e
               (ex-data e)
@@ -30,17 +30,17 @@
 (defn put
   "Update a type"
   [type]
-  (common/put (index) :type (type :type) type))
+  (common/put (index :type) :type (type :type) type))
 
 (defn delete
-  "delete a type  from ES"
+  "delete a type from ES"
   [t]
-  (common/delete (index) :type t))
+  (common/delete (index :type) :type t))
 
 (defn get
   "Grabs a type by its name"
   [t]
-  (common/get (index) :type t))
+  (common/get (index :type) t))
 
 (defn get!
   "Grabs a type by an id"
@@ -53,13 +53,13 @@
   "partial update of a type into Elasticsearch"
   [t part]
   (let [type (get t)]
-    (= (:status (s/request (connection) {:url [(index) :type t] :method :put :body (merge-with merge type part)})) 200)))
+    (= (:status (s/request (connection) {:url [(index :type) t] :method :put :body (merge-with merge type part)})) 200)))
 
 (defn all
   "return all existing types"
   []
-  (common/all (index) :type))
+  (common/all (index :type)))
 
 (defn clear []
-  (common/delete-all (index) :type))
+  (common/delete-all (index :type)))
 

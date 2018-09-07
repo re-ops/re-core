@@ -35,7 +35,7 @@
             (save-status job topic :success start f)
             (debug "done processing " topic tid)
             (catch Throwable e
-              (error e)
+              (error "queue process failed" e)
               (save-status (assoc job :message (.getMessage e)) topic :failure start f))
             (finally
               (complete! task)))))))
