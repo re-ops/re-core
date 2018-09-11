@@ -16,7 +16,7 @@
 
 (defn description-meta
   "Grab domain metadata stored in the description string"
-  [domain]
+  [c domain]
   (first
    (zx/xml-> (domain-zip c domain) :description zx/text read-string)))
 
@@ -27,7 +27,3 @@
 (defrecord Libsync []
   Sync
   (sync [this]))
-
-(comment
-  (let [c (connect "qemu+ssh://ronen@localhost:22/system")]
-    (let [root (first (map (partial domain-zip c) (active-domains c)))])))
