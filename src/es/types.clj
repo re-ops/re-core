@@ -15,7 +15,7 @@
 
 (defn exists?
   [id]
-  (common/exists? (index :type) id))
+  (common/exists? (index :type) :type id))
 
 (defn create
   "create a type with id type"

@@ -15,7 +15,7 @@
 
 (defn exists?
   [id]
-  (common/exists? (index :system) id))
+  (common/exists? (index :system) :system id))
 
 (defn create
   "create a system returning its id"
