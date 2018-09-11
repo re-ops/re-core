@@ -1,4 +1,6 @@
-(ns re-core.core)
+(ns re-core.core
+  "Core protocols"
+  (:refer-clojure :exclude [sync]))
 
 (defprotocol Vm
   "A VM/Machine base API, implement this in order to add a new provider into re-core"
@@ -8,3 +10,7 @@
   (stop [this]  "Stops a VM only if it exists and running")
   (status [this] "Returns vm status (values defere between providers) false if it does not exists")
   (ip [this] "Instance IP address"))
+
+(defprotocol Sync
+  "Sync an hypervisor into re-core systems"
+  (sync [this]))
