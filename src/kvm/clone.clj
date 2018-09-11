@@ -4,7 +4,6 @@
    [kvm.volumes :refer (volume-xml into-volume get-disks update-disks)]
    [kvm.common :refer (connect tree-edit domain-zip state)]
    [clojure.zip :as zip]
-   [clojure.data.zip.xml :as zx]
    [clojure.data.xml :as xml])
   (:import
    java.text.SimpleDateFormat
@@ -14,8 +13,14 @@
   [c]
   (.getLibVirVersion c))
 
-(defn set-name [xml name']
-  (-> xml zip/down zip/down (zip/edit (fn [e]  name')) zip/root zip/xml-zip))
+(defn- set-name [xml name']
+  (-> xml zip/down zip/down
+      (zip/edit (fn [e] name')) zip/root zip/xml-zip))
+
+(defn- add-description [xml desc]
+  (-> xml
+      (zip/append-child (xml/element :description {} (list (str desc))))
+      zip/root zip/xml-zip))
 
 (defn clear-uuid [xml]
   (-> xml zip/down zip/right zip/remove zip/root zip/xml-zip))
@@ -44,11 +49,13 @@
   (zip/xml-zip
    (tree-edit xml ram? (fn [node] (assoc node :content (list (* ram 1024)))))))
 
-(defn clone-root [root name cpu ram]
+(defn- clone-root [root name desc cpu ram]
   (-> root
-      (set-name name) clear-uuid clear-all-macs (set-cpu cpu) (set-ram ram)))
+      (set-name name) (add-description desc)
+      clear-uuid clear-all-macs
+      (set-cpu cpu) (set-ram ram)))
 
-(defn clone-volume-xml
+(defn- clone-volume-xml
   "A cloned volume XML"
   [{:keys [volume type file]} name']
   (volume-xml (.capacity (.getInfo volume)) "B" type file name' true))
@@ -64,6 +71,6 @@
 
 (defn clone-domain [c id {:keys [name cpu ram] :as target}]
   (let [root (domain-zip c id) volumes (clone-disks c name root)
-        target-root (update-disks (clone-root root name cpu ram) volumes)
+        target-root (update-disks (clone-root root name {:id id} cpu ram) volumes)
         cloned-domain (.domainDefineXML c (xml/emit-str target-root))]
     (.create cloned-domain)))
