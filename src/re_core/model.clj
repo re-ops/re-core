@@ -33,17 +33,6 @@
   [& ks] {:pre [(not (nil? env))]}
   (apply get* :re-core :hypervisor env ks))
 
-(defn- select-sub
-  "select sub map"
-  [m ks]
-  (reduce
-   (fn [r k] (if-let [v (get-in m k)] (assoc-in r k v) r)) {} ks))
-
-(def whitelist
-  [[:digital-ocean]
-   [:aws] [:physical] [:openstack]
-   [:kvm :ostemplates] [:kvm :nodes]])
-
 (defmulti clone
   "Clones an existing system map replacing unique identifiers in the process"
   (fn [spec clone-spec] (figure-virt spec)))
@@ -57,9 +46,3 @@
   (fn [spec] (figure-virt spec)))
 
 (defmulti check-validity (fn [m] [(figure-virt m) (or (:as m) :entity)]))
-
-(def provisioners #{:chef :puppet})
-
-(def remoters #{:re-mote :capistrano :ruby})
-
-(defn figure-rem [spec] (first (filter remoters (keys spec))))
