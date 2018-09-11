@@ -39,7 +39,7 @@
 
 (defn exists?
   [host]
-  (common/exists? (index :history) host))
+  (common/exists? (index :history) :history host))
 
 (defn get
   "Grabs history for hostname"
