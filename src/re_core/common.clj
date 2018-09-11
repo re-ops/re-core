@@ -1,8 +1,10 @@
 (ns re-core.common
   (:import java.util.Date)
+  (:refer-clojure :exclude [read-string])
   (:require
    pallet.stevedore.bash
    [clojure.core.strint :refer (<<)]
+   [clojure.edn :refer (read-string)]
    [pallet.stevedore :refer  [script with-source-line-comments]]
    [taoensso.timbre :refer (refer-timbre)])
   (:import java.net.InetAddress))
@@ -41,4 +43,4 @@
   (.getHostName (InetAddress/getLocalHost)))
 
 (defn slurp-edn [file]
-  (read-string  (slurp file)))
+  (read-string (slurp file)))
