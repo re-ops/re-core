@@ -40,7 +40,7 @@
 (defn get
   "Grabs a type by its name"
   [t]
-  (common/get (index :type) t))
+  (common/get (index :type) :type t))
 
 (defn get!
   "Grabs a type by an id"
