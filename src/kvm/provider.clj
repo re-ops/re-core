@@ -1,4 +1,5 @@
 (ns kvm.provider
+  (:refer-clojure :exclude [sync])
   (:require
    [re-share.config :refer (get!)]
    [com.rpl.specter :as spec :refer  (MAP-VALS ALL ATOM keypath)]
@@ -15,8 +16,10 @@
    [es.systems :as s]
    [re-core.provider :refer (mappings selections transform os->template wait-for-ssh)]
    [re-share.core :refer (wait-for)]
+   [kvm.sync :refer (active-domains into-system)]
    [kvm.spice :refer (graphics remmina)]
    [hypervisors.networking :refer (set-hostname ssh-able?)]
+   [re-core.core :refer (Sync)]
    [re-core.model :refer (translate vconstruct hypervisor*)])
   (:import org.libvirt.LibvirtException))
 
@@ -110,6 +113,13 @@
     (with-connection
       (remmina domain (graphics (c) (domain :name))))))
 
+(defrecord Libvirt [node]
+  Sync
+  (sync [this]
+    (with-connection
+      (doseq [system (map (partial into-system (c)) (active-domains (c)))]
+        (println system)))))
+
 (defn machine-ts
   "Construcuting machine transformations"
   [{:keys [hostname domain] :as machine}]
@@ -137,6 +147,6 @@
     (->Domain system-id node* volumes* domain)))
 
 (comment
-  (let [node {:user "" :host "localhost" :port 22}]
+  (let [node {:user "ronen" :host "localhost" :port 22}]
     (with-connection
-      (clojure.pprint/pprint (kvm.spice/graphics (kvm.common/domain-zip (c) ""))))))
+      (.sync (Libvirt. node)))))
