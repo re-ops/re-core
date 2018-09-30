@@ -1,6 +1,6 @@
-(ns kvm.syncher
+(ns kvm.sync
   "Synching kvm status into re-core"
-  (:refer-clojure :exclude [sync read-string])
+  (:refer-clojure :exclude [read-string])
   (:require
    [clojure.edn :refer (read-string)]
    [clojure.zip :as zip]
@@ -20,10 +20,24 @@
   (first
    (zx/xml-> (domain-zip c domain) :description zx/text read-string)))
 
+(defn vcpu
+  "read cpu"
+  [root]
+  (first (zx/xml-> root :vcpu zx/text)))
+
+(defn hostname
+  [root]
+  (first (zx/xml-> root :name zx/text)))
+
+(defn memory
+  "read ram"
+  [root]
+  (Integer/parseInt (first (zx/xml-> root :memory zx/text))))
+
 (defn into-system
   "Convert domain into a system"
-  [domain])
+  [c d]
+  (let [{:keys [id user domain]} (description-meta c d) root (domain-zip c d)]
+    {:machine {:hostname (hostname root) :user user :domain domain
+               :os id :cpu (vcpu root) :memory (/ (memory root) 1024)}}))
 
-(defrecord Libsync []
-  Sync
-  (sync [this]))
