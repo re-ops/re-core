@@ -53,24 +53,22 @@
 (defprotocol Spicy
   (open-spice [this]))
 
-(defrecord Domain [system-id node volumes domain]
+(defrecord Domain [system-id node volumes domain type]
   Vm
   (create [this]
     (with-connection
-      (let [image (get-in domain [:image :template])
-            target (select-keys domain [:name :cpu :ram])]
-        (clone-domain (c) image target)
-        (debug "clone done")
-        (create-volumes (c) (domain :name) volumes)
-        (debug "volumes created")
-        (wait-for-status this "running" timeout)
-        (debug "in running state")
-        (let [ip (.ip this) flavor (get-in domain [:image :flavor])
-              {:keys [user name hostname]} domain]
-          (wait-for-ssh ip user timeout)
-          (set-hostname hostname name {:user user :host ip :ssh-key (key-)} flavor)
-          (update-ip system-id ip)
-          this))))
+      (clone-domain (c) domain type)
+      (debug "clone done")
+      (create-volumes (c) (domain :name) volumes)
+      (debug "volumes created")
+      (wait-for-status this "running" timeout)
+      (debug "in running state")
+      (let [ip (.ip this) flavor (get-in domain [:image :flavor])
+            {:keys [user name hostname]} domain]
+        (wait-for-ssh ip user timeout)
+        (set-hostname hostname name {:user user :host ip :ssh-key (key-)} flavor)
+        (update-ip system-id ip)
+        this)))
 
   (delete [this]
     (with-connection
@@ -117,8 +115,9 @@
   Sync
   (sync [this]
     (with-connection
-      (doseq [system (map (partial into-system (c)) (active-domains (c)))]
-        (println system)))))
+      (active-domains (c))
+      #_(doseq [system (map (partial into-system (c) (node :hostname)) (active-domains (c)))]
+          (println system)))))
 
 (defn machine-ts
   "Construcuting machine transformations"
@@ -139,12 +138,12 @@
 (defn pool-m [node pool]
   (merge {:id (name pool)} (((node-m node) :pools) pool)))
 
-(defmethod vconstruct :kvm [{:keys [kvm machine system-id] :as spec}]
+(defmethod vconstruct :kvm [{:keys [kvm machine system-id type] :as spec}]
   (let [[domain] (translate spec) {:keys [node volumes]} kvm
         node* (dissoc (mappings (node-m node) {:username :user}) :pools)
         volumes* (spec/transform [ALL (keypath :pool)] (partial pool-m node) volumes)]
     (provider-validation domain node*)
-    (->Domain system-id node* volumes* domain)))
+    (->Domain system-id node* volumes* domain type)))
 
 (comment
   (let [node {:user "ronen" :host "localhost" :port 22}]
