@@ -36,8 +36,8 @@
 
 (defn into-system
   "Convert domain into a system"
-  [c d node]
-  (let [{:keys [os user]} (description-meta c d) root (domain-zip c d)]
+  [c d]
+  (let [{:keys [os user node]} (description-meta c d) root (domain-zip c d)]
     {:machine {:hostname (hostname root) :user user :os os
                :cpu (vcpu root) :memory (/ (memory root) 1024)}
      :kvm {:node node}}))

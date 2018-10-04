@@ -69,12 +69,12 @@
      (for [[idx {:keys [volume] :as v}] volumes :let [pool (.storagePoolLookupByVolume volume) new-name (clone-name name' idx)]]
        (assoc v :volume (.storageVolCreateXML pool (xml/emit-str (clone-volume-xml v new-name)) 0))))))
 
-(defn clone-domain [c domain type]
+(defn clone-domain [c domain {:keys [type node]}]
   (let [{:keys [name cpu ram] :as target} (select-keys domain [:name :cpu :ram])
         id (get-in domain [:image :template])
         root (domain-zip c id)
         volumes (clone-disks c name root)
-        description (assoc (select-keys domain [:user]) :os id :type type)
+        description (assoc (select-keys domain [:user]) :os id :type type :node (:name node))
         target-root (update-disks (clone-root root name description cpu ram) volumes)
         cloned-domain (.domainDefineXML c (xml/emit-str target-root))]
     (.create cloned-domain)))
