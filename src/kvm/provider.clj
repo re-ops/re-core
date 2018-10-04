@@ -57,7 +57,7 @@
   Vm
   (create [this]
     (with-connection
-      (clone-domain (c) domain type)
+      (clone-domain (c) domain {:type type :node node :system-id system-id})
       (debug "clone done")
       (create-volumes (c) (domain :name) volumes)
       (debug "volumes created")
@@ -115,9 +115,8 @@
   Sync
   (sync [this]
     (with-connection
-      (active-domains (c))
-      #_(doseq [system (map (partial into-system (c) (node :hostname)) (active-domains (c)))]
-          (println system)))))
+      (doseq [system (map (partial into-system (c)) (active-domains (c)))]
+        (println system)))))
 
 (defn machine-ts
   "Construcuting machine transformations"
@@ -133,7 +132,7 @@
       (selections [[:name :user :image :cpu :ram :hostname]])))
 
 (defn node-m [node]
-  (hypervisor* :kvm :nodes node))
+  (assoc (hypervisor* :kvm :nodes node) :name node))
 
 (defn pool-m [node pool]
   (merge {:id (name pool)} (((node-m node) :pools) pool)))
