@@ -1,12 +1,12 @@
 (ns re-core.workflows
   "Main workflows"
   (:require
-    ; loading defmethods
+   ; loading defmethods
    kvm.provider
    digital.provider
    aws.provider
    physical.provider
-    ;cloning
+   ; cloning
    aws.model
    [re-core.repl.systems :as sys]
    [re-mote.repl :as mote]
