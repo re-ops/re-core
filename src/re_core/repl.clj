@@ -185,6 +185,14 @@
         specs (map  (fn [_] (reduce (fn [m f] (f m)) base all)) (range (or total 1)))]
     (run (add- systems specs) | (pretty-print "add"))))
 
+(defn sync
+  "Sync an existing hypervisor state into re-core:
+     (sync :digital-ocean)
+     (sync :kvm)
+     (sync :aws)"
+  [hyp]
+  (run (sync- hyp) | (pretty-print "sync")))
+
 (defn ssh-into
   "SSH into instances (open a terminal window):
      (ssh-into)"

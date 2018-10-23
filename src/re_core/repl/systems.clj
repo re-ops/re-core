@@ -2,7 +2,7 @@
   "Repl systems access"
   (:require
    kvm.provider
-   [re-core.model :refer (vconstruct)]
+   [re-core.model :refer (vconstruct sconstruct)]
    [re-share.config :refer  (get!)]
    [clojure.core.strint :refer  (<<)]
    [clansi.core :refer  (style)]
@@ -131,6 +131,7 @@
 
   (status [this {:keys [jobs]}]
     (map (fn [{:keys [job]}] (assoc job :status (q/status job))) jobs))
+
   (block-wait [this {:keys [jobs systems] :as js}]
     (loop [done (filter-done (status this js))]
       (when (< (count done) (count jobs))
@@ -185,5 +186,10 @@
     (println "")
     [this m]))
 
+(defn sync-
+  [hyp]
+  (let [syncher (sconstruct hyp)]
+    (.sync syncher)))
+
 (defn refer-systems []
-  (require '[re-core.repl.systems :as sys :refer [status into-hosts block-wait async-wait pretty-print spice]]))
+  (require '[re-core.repl.systems :as sys :refer [status into-hosts block-wait async-wait pretty-print spice sync-]]))

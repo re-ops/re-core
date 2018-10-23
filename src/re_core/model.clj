@@ -42,7 +42,11 @@
   (fn [spec] (figure-virt spec)))
 
 (defmulti vconstruct
-  "Creates a Virtualized instance model from input spec"
+  "Creates an hypervisor provider from input spec"
   (fn [spec] (figure-virt spec)))
+
+(defmulti sconstruct
+  "Creates an hypervisor synchronizer from input spec"
+  (fn [k] k))
 
 (defmulti check-validity (fn [m] [(figure-virt m) (or (:as m) :entity)]))

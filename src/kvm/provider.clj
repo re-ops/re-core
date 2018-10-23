@@ -20,7 +20,7 @@
    [kvm.spice :refer (graphics remmina)]
    [hypervisors.networking :refer (set-hostname ssh-able?)]
    [re-core.core :refer (Sync)]
-   [re-core.model :refer (translate vconstruct hypervisor*)])
+   [re-core.model :refer (translate vconstruct sconstruct hypervisor* hypervisor)])
   (:import org.libvirt.LibvirtException))
 
 (timbre/refer-timbre)
@@ -115,8 +115,10 @@
   Sync
   (sync [this]
     (with-connection
-      (doseq [system (map (partial into-system (c)) (active-domains (c)))]
-        (println system)))))
+      (let [systems (map (partial into-system (c)) (active-domains (c)))]
+        (map
+         (fn [system]
+           (assoc system :system-id (s/create system))) systems)))))
 
 (defn machine-ts
   "Construcuting machine transformations"
@@ -144,7 +146,12 @@
     (provider-validation domain node*)
     (->Domain system-id node* volumes* domain type)))
 
+(defmethod sconstruct :kvm [_]
+  (Libvirt. (hypervisor :kvm)))
+
 (comment
+  (hypervisor :kvm)
+  (sconstruct :dev :kvm)
   (let [node {:user "ronen" :host "localhost" :port 22}]
     (with-connection
       (.sync (Libvirt. node)))))
