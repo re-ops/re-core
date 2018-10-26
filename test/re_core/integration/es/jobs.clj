@@ -4,7 +4,7 @@
    [es.jobs :as jobs]
    [es.common :as es :refer (types)]
    [re-share.components.elastic :as esc]
-   [re-share.es.node :refer (stop)]
+   [zentai.node :refer (stop)]
    [re-core.fixtures.data :refer (redis-ec2-spec)]
    [re-share.config :as conf]
    [re-core.fixtures.populate :refer (re-initlize)])

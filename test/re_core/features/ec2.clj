@@ -7,7 +7,7 @@
    [re-core.fixtures.data :refer (redis-type redis-ec2-spec local-conf)]
    [re-core.fixtures.populate :refer (populate-system)]
    [re-core.features.common :refer (spec get-spec)]
-   [re-share.es.node :refer  (stop)]
+   [zentai.node :refer (stop)]
    [re-core.workflows :as wf])
   (:import clojure.lang.ExceptionInfo)
   (:use midje.sweet))

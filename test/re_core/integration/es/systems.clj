@@ -4,7 +4,7 @@
    [re-core.log :refer (setup-logging)]
    [es.common :as es :refer (types)]
    [es.systems :as s]
-   [re-share.es.node :refer (stop)]
+   [zentai.node :refer (stop)]
    [re-share.components.elastic :as esc]
    [re-core.fixtures.data :refer (redis-kvm-spec redis-ec2-spec)]
    [re-core.fixtures.populate :refer (re-initlize)])
