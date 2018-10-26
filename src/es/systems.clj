@@ -3,9 +3,9 @@
   (:refer-clojure :exclude [get partial])
   (:require
    [com.rpl.specter :refer [select transform ALL multi-path]]
-   [re-share.es.common :as common]
+   [zentai.core :as z]
    [es.common :refer (index)]
-   [re-share.es.node :refer (connection)]
+   [zentai.node :refer (connection)]
    [qbits.spandex :as s]
    [clojure.core.strint :refer (<<)]
    [taoensso.timbre :refer (refer-timbre)]
@@ -15,7 +15,7 @@
 
 (defn exists?
   [id]
-  (common/exists? (index :system) :system id))
+  (z/exists? (index :system) :system id))
 
 (defn create
   "create a system returning its id"
@@ -29,12 +29,12 @@
 (defn put
   "Update a system"
   [id system]
-  (common/put (index :system) :system id system))
+  (z/put (index :system) :system id system))
 
 (defn delete
   "delete a system from ES"
   [id]
-  (common/delete (index :system) :system id))
+  (z/delete (index :system) :system id))
 
 (defn keywordize
   "converting ES values back into keywords"
@@ -46,7 +46,7 @@
 (defn get
   "Grabs a system by an id, return nil if missing"
   [id]
-  (keywordize (common/get (index :system) :system id)))
+  (keywordize (z/get (index :system) :system id)))
 
 (defn get!
   "Grabs a system by an id"
@@ -83,4 +83,4 @@
 (defn all
   "return all existing systems"
   []
-  (mapv (fn [[k v]] [k (keywordize v)]) (common/all (index :system))))
+  (mapv (fn [[k v]] [k (keywordize v)]) (z/all (index :system))))

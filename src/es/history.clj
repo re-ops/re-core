@@ -5,8 +5,8 @@
    [re-core.common :refer (hostname)]
    [qbits.spandex :as s]
    [es.common :refer (index)]
-   [re-share.es.node :refer (connection)]
-   [re-share.es.common :as common]
+   [zentai.node :refer (connection)]
+   [zentai.core :as z]
    [clojure.core.strint :refer (<<)]
    [taoensso.timbre :refer (refer-timbre)]
    [re-core.model :as model]))
@@ -30,21 +30,21 @@
 (defn put
   "Update history"
   [hist]
-  (common/put (index :history) hostname hist))
+  (z/put (index :history) hostname hist))
 
 (defn delete
   "delete history"
   [t]
-  (common/delete (index :history) hostname))
+  (z/delete (index :history) hostname))
 
 (defn exists?
   [host]
-  (common/exists? (index :history) :history host))
+  (z/exists? (index :history) :history host))
 
 (defn get
   "Grabs history for hostname"
   [host]
-  (common/get (index :history) host))
+  (z/get (index :history) host))
 
 (defn restore []
   (let [{:keys [history]} (get hostname)]

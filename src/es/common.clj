@@ -2,7 +2,7 @@
   "Common ES"
   (:require
    [taoensso.timbre :refer (refer-timbre)]
-   [re-share.es.common :as share :refer (create-index exists?)]))
+   [re-share.es.common :as share]))
 
 (refer-timbre)
 

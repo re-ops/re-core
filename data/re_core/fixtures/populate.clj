@@ -3,7 +3,7 @@
   (:require
    [re-core.log :refer (setup-logging)]
    [es.types :as t]
-   [re-share.es.common :as es]
+   [zentai.core :as z]
    [re-share.components.elastic :as esc]
    [es.common :refer (types)]
    [re-core.model :refer (figure-virt)]
@@ -70,7 +70,7 @@
    (.start elastic)
    (when c
      (doseq [[t _] types]
-       (es/clear :re-core t)))
+       (z/clear :re-core t)))
    (esc/initialize :re-core types)))
 
 (def populators {:types add-types :systems puts})
