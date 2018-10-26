@@ -5,8 +5,8 @@
    [com.rpl.specter :refer [select transform ALL multi-path]]
    [qbits.spandex :as s]
    [es.common :refer (index)]
-   [re-share.es.common :as common]
-   [re-share.es.node :refer (connection)]
+   [zentai.core :as z]
+   [zentai.node :refer (connection)]
    [clojure.core.strint :refer (<<)]
    [taoensso.timbre :refer (refer-timbre)]
    [re-core.model :as model]))
@@ -15,7 +15,7 @@
 
 (defn exists?
   [id]
-  (common/exists? (index :type) :type id))
+  (z/exists? (index :type) :type id))
 
 (defn create
   "create a type with id type"
@@ -30,17 +30,17 @@
 (defn put
   "Update a type"
   [type]
-  (common/put (index :type) :type (type :type) type))
+  (z/put (index :type) :type (type :type) type))
 
 (defn delete
   "delete a type from ES"
   [t]
-  (common/delete (index :type) :type t))
+  (z/delete (index :type) :type t))
 
 (defn get
   "Grabs a type by its name"
   [t]
-  (common/get (index :type) :type t))
+  (z/get (index :type) :type t))
 
 (defn get!
   "Grabs a type by an id"
@@ -58,8 +58,8 @@
 (defn all
   "return all existing types"
   []
-  (common/all (index :type)))
+  (z/all (index :type)))
 
 (defn clear []
-  (common/delete-all (index :type)))
+  (z/delete-all (index :type)))
 
