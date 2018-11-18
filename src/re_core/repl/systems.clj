@@ -41,6 +41,11 @@
     [this items]
     [this items k]))
 
+(defprotocol Synching
+  "Hosts"
+  (synch
+    [this hyp opts]))
+
 (defn grep-system [k v [id system]]
   (let [sub (select-keys* system [:owner] [:machine :hostname] [:machine :os] [:machine :ip])]
     (= v (sub k))))
@@ -186,10 +191,13 @@
     (println "")
     [this m]))
 
-(defn sync-
-  [hyp]
-  (let [syncher (sconstruct hyp)]
-    (.sync syncher)))
+(extend-type Systems
+  Synching
+  (synch
+    [this hyp opts]
+    (let [syncher (sconstruct hyp opts)]
+      [this {:systems (.sync syncher)}])))
 
 (defn refer-systems []
-  (require '[re-core.repl.systems :as sys :refer [status into-hosts block-wait async-wait pretty-print spice sync-]]))
+  (require '[re-core.repl.systems :as sys :refer [status into-hosts block-wait async-wait pretty-print spice synch]]))
+
