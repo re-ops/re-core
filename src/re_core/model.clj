@@ -47,6 +47,6 @@
 
 (defmulti sconstruct
   "Creates an hypervisor synchronizer from input spec"
-  (fn [k] k))
+  (fn [k opts] k))
 
 (defmulti check-validity (fn [m] [(figure-virt m) (or (:as m) :entity)]))

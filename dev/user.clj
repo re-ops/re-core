@@ -19,6 +19,8 @@
    [re-core.launch :as core]
    ; re-share
    [re-share.log :refer (redirect-output debug-on debug-off)]
+   ; Elasticsearch access
+   [zentai.core :refer :all :exclude (clear get create)]
    ; re-mote
    [re-mote.repl :refer :all :exclude (provision)]
    [re-mote.zero.functions :refer (call)]

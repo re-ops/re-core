@@ -13,7 +13,7 @@
                                         :end {:type "long"}}}
                     :system {:properties {:owner {:type "text"}
                                           :env {:type "keyword"}
-                                          :machine {:properties {:hostname {:type "keyword" :index false}
+                                          :machine {:properties {:hostname {:type "keyword"}
                                                                  :cpus {:type "integer"}}}
                                           :type {:type "keyword"}}}
                     :type {:properties {:puppet {:properties {:src {:type "text"}

@@ -13,6 +13,21 @@
 
 (refer-timbre)
 
+(defn get-system-by-host
+  "Search for a system using its hostname"
+  [host]
+  (second
+   (or
+    (first
+     (z/search (index :system)
+               {:query {:term {:machine.hostname host}} :size 1})) [])))
+
+(defn missing-systems
+  "Filter systems that aren't persisted already"
+  [systems]
+  (filter
+   (fn [{:keys [machine]}] (nil? (get-system-by-host (machine :hostname)))) systems))
+
 (defn exists?
   [id]
   (z/exists? (index :system) :system id))

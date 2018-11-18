@@ -30,7 +30,7 @@
                  [re-share "0.9.2"]
 
                  ; Elasticsearc
-                 [zentai "0.1.2"]
+                 [zentai "0.1.7"]
 
                  ;api
                  [clj-yaml "0.4.0"]

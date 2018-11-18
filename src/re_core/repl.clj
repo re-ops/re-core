@@ -1,6 +1,6 @@
 (ns re-core.repl
   "Repl Driven re-core"
-  (:refer-clojure :exclude [list update])
+  (:refer-clojure :exclude [list update sync])
   (:require
    [es.history :refer (refer-history)]
    [clojure.core.strint :refer  (<<)]
@@ -188,10 +188,12 @@
 (defn sync
   "Sync an existing hypervisor state into re-core:
      (sync :digital-ocean)
-     (sync :kvm)
-     (sync :aws)"
-  [hyp]
-  (run (sync- hyp) | (pretty-print "sync")))
+     (sync :kvm :active true) ; using options
+     (sync :aws :filter (fn [m] ...)) ; using a filtering function"
+  ([hyp]
+   (sync hyp {}))
+  ([hyp opts]
+   (run (synch systems hyp opts) | (pretty))))
 
 (defn ssh-into
   "SSH into instances (open a terminal window):

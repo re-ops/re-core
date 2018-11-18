@@ -16,7 +16,7 @@
    [es.systems :as s]
    [re-core.provider :refer (mappings selections transform os->template wait-for-ssh)]
    [re-share.core :refer (wait-for)]
-   [kvm.sync :refer (active-domains into-system)]
+   [kvm.sync :refer (descriptive-domains into-system)]
    [kvm.spice :refer (graphics remmina)]
    [hypervisors.networking :refer (set-hostname ssh-able?)]
    [re-core.core :refer (Sync)]
@@ -111,14 +111,19 @@
     (with-connection
       (remmina domain (graphics (c) (domain :name))))))
 
-(defrecord Libvirt [node]
+(defn sync-node [k node opts]
+  (with-connection
+    (let [systems (map (partial into-system (c)) (descriptive-domains (c)))]
+      (map
+       (fn [system]
+         (let [id (s/create system)] [id system])) (s/missing-systems systems)))))
+
+(defrecord Libvirt [nodes opts]
   Sync
   (sync [this]
-    (with-connection
-      (let [systems (map (partial into-system (c)) (active-domains (c)))]
-        (map
-         (fn [system]
-           (assoc system :system-id (s/create system))) systems)))))
+    (apply concat
+           (map
+            (fn [[k n]] (sync-node k (mappings n {:username :user}) opts)) nodes))))
 
 (defn machine-ts
   "Construcuting machine transformations"
@@ -146,12 +151,8 @@
     (provider-validation domain node*)
     (->Domain system-id node* volumes* domain type)))
 
-(defmethod sconstruct :kvm [_]
-  (Libvirt. (hypervisor :kvm)))
+(defmethod sconstruct :kvm [_ opts]
+  (Libvirt. (hypervisor :kvm :nodes) opts))
 
 (comment
-  (hypervisor :kvm)
-  (sconstruct :dev :kvm)
-  (let [node {:user "ronen" :host "localhost" :port 22}]
-    (with-connection
-      (.sync (Libvirt. node)))))
+  (hypervisor :kvm))
