@@ -155,5 +155,3 @@
 (defmethod vconstruct :aws [spec]
   (apply ->Instance (validate (translate spec))))
 
-(comment
-  (let [endpoint "ec2.ap-southeast-2.amazonaws.com"]))
