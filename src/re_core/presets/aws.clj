@@ -8,7 +8,7 @@
   "Setting security group"
   [group]
   (fn [instance]
-    (assoc-in instance [:aws :security-groups] group)))
+    (assoc-in instance [:aws :security-groups] [group])))
 
 (defn endpoint
   "Setting endpoint"
@@ -30,6 +30,14 @@
      (update-in instance [:aws :volumes]
                 (fn [vs]
                   (conj vs {:device-name device :virtual-name name}))))))
+
+(defn vpc
+  "Attach vpc information"
+  ([id subnet]
+   (vpc id subnet false))
+  ([id subnet public]
+   (fn [instance]
+     (assoc-in instance [:aws :vpc] {:assign-public public :subnet-id subnet :vpc-id id}))))
 
 (defn ebs-volume
   ([size]
@@ -82,5 +90,5 @@
 (def #^{:doc "1TB EBS volume"} ebs-1T (ebs-volume 1024))
 
 (defn refer-aws-presets []
-  (require '[re-core.presets.aws :as asp :refer [t2-nano t2-micro t2-small c5-large security endpoint key-name eph-volume
+  (require '[re-core.presets.aws :as asp :refer [t2-nano t2-micro t2-small c5-large security endpoint key-name eph-volume vpc
                                                  sydney dublin virginia]]))
