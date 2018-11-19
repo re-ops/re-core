@@ -91,6 +91,7 @@
              [lein-tar "2.0.0" ]
              [self-build "0.0.9"]
              [lein-tag "0.1.0"]
+             [venantius/ultra "0.5.2"]
              [lein-set-version "0.3.0"]]
 
   :bin {:name "re-core"}
