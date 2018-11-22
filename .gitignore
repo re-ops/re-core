@@ -24,3 +24,4 @@ scripts
 .curve
 .ruby-gemset
 .ruby-version
+dump.edn
