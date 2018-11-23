@@ -27,7 +27,7 @@
 
                  ; re-ops
                  [re-mote "0.9.1"]
-                 [re-share "0.9.2"]
+                 [re-share "0.9.5"]
 
                  ; Elasticsearc
                  [zentai "0.1.7"]
