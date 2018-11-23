@@ -70,7 +70,7 @@
   [k {:keys [re-core] :as s}]
   (let [{:keys [es]} re-core]
     (.stop es)
-    (re-share.es.common/prefix-switch k)
+    (prefix-switch k)
     (.setup es)
     (.start es)
     s))
