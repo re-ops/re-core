@@ -69,7 +69,7 @@
    (conf/load (fn [_] {}))
    (.start elastic)
    (when c
-    (doseq [idx (filter #(.startsWith % "re-core") (list-indices))]
+    (doseq [idx (filter #(.startsWith % "re-core") (map :index (list-indices)))]
        (delete-index idx)))
    (esc/initialize :re-core types false)))
 
