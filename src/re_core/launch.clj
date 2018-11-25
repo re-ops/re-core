@@ -16,7 +16,7 @@
 
 (refer-timbre)
 
-(defn build-components [] {:es (es/instance types :re-core) :queues (q/instance)
+(defn build-components [] {:es (es/instance types :re-core false) :queues (q/instance)
                            :schedule (sch/instance) :workers (w/instance)})
 
 (defn clean-up

@@ -2,7 +2,7 @@
   "Jobs Elasticsearch persistency"
   (:refer-clojure :exclude [get])
   (:require
-   [zentai.core :as z]
+   [rubber.core :as z]
    [es.common :refer (index)]
    [taoensso.timbre :refer (refer-timbre)]))
 
