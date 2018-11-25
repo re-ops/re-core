@@ -53,7 +53,7 @@
  :shared {
   :elasticsearch {
     :default {
-       :host "http://localhost:9200"
+       :hosts ["http://localhost:9200"]
        :auth {
          :user "elastic"
          :password "changeme"
