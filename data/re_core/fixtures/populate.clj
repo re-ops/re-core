@@ -3,7 +3,7 @@
   (:require
    [re-core.log :refer (setup-logging)]
    [es.types :as t]
-   [rubber.core :as z]
+   [rubber.core :refer (list-indices delete-index)]
    [re-share.components.elastic :as esc]
    [es.common :refer (types)]
    [re-core.model :refer (figure-virt)]
@@ -69,8 +69,8 @@
    (conf/load (fn [_] {}))
    (.start elastic)
    (when c
-     (doseq [[t _] types]
-       (z/clear :re-core t)))
+    (doseq [idx (filter #(.startsWith % "re-core") (list-indices))]
+       (delete-index idx)))
    (esc/initialize :re-core types false)))
 
 (def populators {:types add-types :systems puts})
