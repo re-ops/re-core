@@ -5,8 +5,8 @@
    [re-core.common :refer (hostname)]
    [qbits.spandex :as s]
    [es.common :refer (index)]
-   [zentai.node :refer (connection)]
-   [zentai.core :as z]
+   [rubber.node :refer (connection)]
+   [rubber.core :as z]
    [clojure.core.strint :refer (<<)]
    [taoensso.timbre :refer (refer-timbre)]
    [re-core.model :as model]))

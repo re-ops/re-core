@@ -3,9 +3,9 @@
   (:refer-clojure :exclude [get partial])
   (:require
    [com.rpl.specter :refer [select transform ALL multi-path]]
-   [zentai.core :as z]
+   [rubber.core :as z]
    [es.common :refer (index)]
-   [zentai.node :refer (connection)]
+   [rubber.node :refer (connection)]
    [qbits.spandex :as s]
    [clojure.core.strint :refer (<<)]
    [taoensso.timbre :refer (refer-timbre)]

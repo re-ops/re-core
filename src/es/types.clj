@@ -5,8 +5,8 @@
    [com.rpl.specter :refer [select transform ALL multi-path]]
    [qbits.spandex :as s]
    [es.common :refer (index)]
-   [zentai.core :as z]
-   [zentai.node :refer (connection)]
+   [rubber.core :as z]
+   [rubber.node :refer (connection)]
    [clojure.core.strint :refer (<<)]
    [taoensso.timbre :refer (refer-timbre)]
    [re-core.model :as model]))

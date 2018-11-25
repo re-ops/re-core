@@ -2,7 +2,7 @@
   "digital ocean support"
   (:require
    [es.systems :as s]
-   [zentai.node :refer (stop)]
+   [rubber.node :refer (stop)]
    [re-core.fixtures.data :refer (redis-type)]
    [re-core.fixtures.populate :refer (populate-system)]
    [re-core.fixtures.core :refer (with-dev)]

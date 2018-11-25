@@ -4,7 +4,7 @@
    [re-core.log :refer (setup-logging)]
    [es.common :as es :refer (types)]
    [es.systems :as s]
-   [zentai.node :refer (stop)]
+   [rubber.node :refer (stop)]
    [re-share.components.elastic :as esc]
    [re-core.fixtures.data :refer (redis-kvm-spec redis-ec2-spec)]
    [re-core.fixtures.populate :refer (re-initlize)])
@@ -14,7 +14,7 @@
 
 (defn puts
   "adds a list of systems into ES" []
-  (esc/initialize :re-core types)
+  (esc/initialize :re-core types false)
   (s/put "1" (assoc redis-kvm-spec :owner "admin"))
   (s/put "2" (assoc-in redis-ec2-spec [:machine :hostname] "foo-1"))
   (s/put "3" (assoc redis-ec2-spec :env :prod-1))
