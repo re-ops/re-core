@@ -62,7 +62,7 @@
 
 (defn ec2
   ([instance]
-   (ec2 instance :ubuntu-16.04))
+   (ec2 instance :ubuntu-18.04))
   ([instance os] {:machine (ec2-machine os)
                   :aws {:instance-type instance
                         :key-name hostname
