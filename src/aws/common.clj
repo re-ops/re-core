@@ -6,6 +6,9 @@
 
 (defn creds [] (dissoc (hypervisor :aws) :ostemplates))
 
+(defn aws [endpoint]
+  (assoc (creds) :endpoint endpoint))
+
 (defmacro with-ctx
   "Run ec2 action with context (endpoint and creds)"
   [f & args]
