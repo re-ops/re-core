@@ -1,11 +1,9 @@
 (ns physical.provider
   "Physical machine management,
-   * creation is not supported maybe pxe boot in future?
-   * deletion is not supported.
-   * start will use wake on lan)
+   * start/creation/deletion are not supported.
    * stop will run remote stop command via ssh
-   * status will use ssh to try and see if the machine is running
-    "
+   * status will use ssh to try and see if the machine is running"
+  (:refer-clojure :exclude [sync])
   (:require
    [physical.validations :refer (validate-provider)]
    [re-core.provider :refer (wait-for-ssh mappings)]
@@ -13,10 +11,13 @@
    [re-core.common :refer (bash-)]
    [clojure.core.strint :refer (<<)]
    [re-mote.ssh.transport :refer (ssh-up? execute)]
-   [re-core.core :refer (Vm)]
+   [re-mote.repl :refer (host-scan port-scan deploy)]
+   [re-mote.zero.facts :refer (os-info)]
+   [re-core.core :refer (Sync Vm)]
    [physical.wol :refer (wol)]
-   [re-core.model :refer (translate vconstruct)]
-   [taoensso.timbre :refer (refer-timbre)]))
+   [re-core.model :refer (translate vconstruct sconstruct)]
+   [taoensso.timbre :refer (refer-timbre)])
+  (:import [re_mote.repl.base Hosts]))
 
 (refer-timbre)
 
@@ -48,6 +49,35 @@
 
   (ip [this]
     (remote :ip)))
+
+(defn physical-hosts
+  "Filter physical hosts from the scan result"
+  [result]
+  (filter
+   (fn [m]
+     (not (some (fn [{:keys [vendor]}] (= vendor "QEMU virtual NIC")) (first (vals m))))) result))
+
+(defn ssh-able
+  [hosts ports]
+  (filter
+   (fn [host]
+     (some
+      (fn [{:keys [portid]}] (= portid "22")) (ports host))) hosts))
+
+(defn result [[_ m]]
+  (-> m :success first :result))
+
+(defrecord Scanner [opts]
+  Sync
+  (sync [this]
+    (let [{:keys [pivot network re-gent]} opts
+          addresses (-> (host-scan pivot network) result physical-hosts)
+          ports (result (port-scan pivot network))
+          deployed (deploy (Hosts. (.auth pivot) (ssh-able (mapcat keys addresses) ports)) re-gent)]
+      [])))
+
+(defmethod sconstruct :physical [_ opts]
+  (Scanner. opts))
 
 (defmethod translate :physical
   [{:keys [physical machine]}]
