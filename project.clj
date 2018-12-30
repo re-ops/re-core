@@ -26,11 +26,11 @@
                  [com.taoensso/tufte "1.1.1"]
 
                  ; re-ops
-                 [re-mote "0.9.3"]
-                 [re-share "0.9.11"]
+                 [re-mote "0.9.5"]
+                 [re-share "0.9.12"]
 
                  ; Elasticsearc
-                 [rubber "0.3.0"]
+                 [rubber "0.3.2"]
 
                  ;api
                  [clj-yaml "0.4.0"]
