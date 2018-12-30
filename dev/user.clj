@@ -23,12 +23,12 @@
    [rubber.core :refer :all :exclude (clear get create call)]
    ; re-mote
    [re-mote.repl :refer :all :exclude (provision)]
-   [re-mote.zero.functions :refer (call)]
    [re-mote.zero.management :refer (refer-zero-manage)]
    [re-mote.log :refer (log-hosts)]
-   [re-mote.zero.functions :refer (plus-one listdir)]
    [re-mote.zero.stats :refer (disk-breach)]
-   [re-mote.launch :as mote]))
+   [re-mote.launch :as mote])
+  (:import
+   re_mote.repl.base.Hosts))
 
 (refer-history)
 (refer-zero-manage)
@@ -37,6 +37,9 @@
 (refer-digital-presets)
 (refer-common-presets)
 (refer-type-presets)
+
+(defn into-hosts [auth hosts]
+  (Hosts. auth hosts))
 
 (def system nil)
 
