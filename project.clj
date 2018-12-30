@@ -140,7 +140,7 @@
     }
 
 
-  :jvm-opts ^:replace ["-Djava.library.path=/usr/lib:/usr/local/lib"]
+  :jvm-opts ^:replace ["-Djava.library.path=/usr/lib:/usr/local/lib" "-Xms4g" "-Xmx4g"]
 
   :aliases {
       "kvm"  ["with-profile" "test" "do" "midje" ":filter" "kvm"]
