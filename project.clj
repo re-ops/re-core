@@ -26,7 +26,7 @@
                  [com.taoensso/tufte "1.1.1"]
 
                  ; re-ops
-                 [re-mote "0.9.5"]
+                 [re-mote "0.9.6"]
                  [re-share "0.9.12"]
 
                  ; Elasticsearc
