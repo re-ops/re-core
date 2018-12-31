@@ -5,10 +5,8 @@
    [es.common :as es :refer (types)]
    [re-share.components.elastic :as esc]
    [rubber.node :refer (stop)]
-   [re-core.fixtures.data :refer (redis-ec2-spec)]
-   [re-share.config :as conf]
    [re-core.fixtures.populate :refer (re-initlize)])
-  (:use midje.sweet))
+  (:use clojure.test))
 
 (def job {:tid "" :status :success :identity 1 :args [] :env :dev :topic :stop})
 
@@ -26,8 +24,15 @@
   (jobs/put (-> job (merge {:tid "3" :status :success :identity 2}) stamp))
   (jobs/put (-> job (merge {:tid "4" :status :failure}) stamp)))
 
-(against-background [(before :facts (do (re-initlize true) (add-jobs))) (after :facts (stop))]
-                    (fact "basic job get" :integration :elasticsearch
-                          (:status (jobs/get "1")) => "success"
-                          (:env (jobs/get "2")) => "prod"
-                          (:identity (jobs/get "3")) => 2))
+(defn setup [f]
+  (re-initlize true)
+  (add-jobs)
+  (f)
+  (stop))
+
+(deftest jobs-persistency
+  (is (= (:status (jobs/get "1")) "success"))
+  (is (= (:env (jobs/get "2")) "prod"))
+  (is (= (:identity (jobs/get "3")) 2)))
+
+(use-fixtures :once setup)

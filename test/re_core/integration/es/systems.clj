@@ -8,7 +8,7 @@
    [re-share.components.elastic :as esc]
    [re-core.fixtures.data :refer (redis-kvm-spec redis-ec2-spec)]
    [re-core.fixtures.populate :refer (re-initlize)])
-  (:use midje.sweet))
+  (:use clojure.test))
 
 (setup-logging)
 
@@ -23,19 +23,25 @@
 
 (defn total [res] (get-in res [:hits :total]))
 
-(against-background [(before :facts (do (re-initlize true) (puts))) (after :facts (stop))]
-                    (fact "basic system put and get" :integration :elasticsearch
-                          (get (s/get "1") :env) => :dev)
+(defn setup [f]
+  (re-initlize true)
+  (puts)
+  (f)
+  (stop))
 
-                    (fact "term searching" :integration :elasticsearch
-                          (total (s/query {:bool {:must {:match {:machine.cpu 4}}}})) => 2)
+(deftest basic-put- get
+  (is (= (get (s/get "1") :env) :dev)))
 
-                    (fact "pagination" :integration :elasticsearch
-                          (let [query {:bool {:must {:term {:machine.cpu 4}}}}
-                                {:keys [hits]} (s/query query :size 2 :from 1)]
-                            (-> hits :hits count) => 1))
+(deftest term-searching
+  (is (= (total (s/query {:bool {:must {:match {:machine.cpu 4}}}})) 2)))
 
-                    (fact "aws" :integration :elasticsearch
-                          (let [query {:wildcard {:aws.endpoint "*"}} {:keys [hits]} (s/query query :size 2 :from 0)]
-                            (-> hits :hits count) => 2)))
+(deftest pagination
+  (let [query {:bool {:must {:term {:machine.cpu 4}}}}
+        {:keys [hits]} (s/query query :size 2 :from 1)]
+    (is (= (-> hits :hits count) 1))))
 
+(deftest aws
+  (let [query {:wildcard {:aws.endpoint "*"}} {:keys [hits]} (s/query query :size 2 :from 0)]
+    (is (= (-> hits :hits count) 2))))
+
+(use-fixtures :each setup)
