@@ -26,9 +26,10 @@
    [re-mote.zero.management :refer (refer-zero-manage)]
    [re-mote.log :refer (log-hosts)]
    [re-mote.zero.stats :refer (disk-breach)]
-   [re-mote.launch :as mote])
-  (:import
-   re_mote.repl.base.Hosts))
+   [re-mote.launch :as mote]
+   ; testing
+   [clojure.test])
+  (:import re_mote.repl.base.Hosts))
 
 (refer-history)
 (refer-zero-manage)
@@ -119,3 +120,35 @@
    (doseq [line (filter f (clojure.string/split (slurp ".lein-repl-history") #"\n"))]
      (println line))))
 
+(defn require-tests []
+  (require
+   're-core.integration.es.jobs
+   're-core.integration.es.systems
+   're-core.test.aws
+   're-core.test.kvm
+   're-core.test.physical
+   're-core.test.provider
+   're-core.test.validations))
+
+(defn run-tests []
+  (clojure.test/run-tests
+   're-core.test.aws
+   're-core.test.kvm
+   're-core.test.physical
+   're-core.test.provider
+   're-core.test.validations))
+
+(defn run-integration
+  "run integration tests"
+  []
+  (clojure.test/run-tests
+   're-core.integration.es.jobs
+   're-core.integration.es.systems))
+
+(defn run-provider
+  "run provider tests"
+  []
+  (clojure.test/run-tests
+   're-core.features.kvm
+   're-core.features.ec2
+   're-core.features.digital))

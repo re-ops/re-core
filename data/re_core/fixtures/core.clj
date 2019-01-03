@@ -5,9 +5,8 @@
   (fn [exception]
     (= type (-> exception ex-data :type))))
 
-(defn with-m? [m]
-  (fn [actual]
-    (= (-> actual ex-data :errors) m)))
+(defn with-m? [m actual]
+  (= (-> actual ex-data :errors) m))
 
 (defmacro with-conf
   "Using fixture/re-core.edn conf file"
@@ -28,4 +27,3 @@
   [& args]
   `(with-admin
      (with-conf ~@args)))
-

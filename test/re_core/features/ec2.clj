@@ -10,74 +10,69 @@
    [rubber.node :refer (stop)]
    [re-core.workflows :as wf])
   (:import clojure.lang.ExceptionInfo)
-  (:use midje.sweet))
+  (:use clojure.test))
 
-(with-state-changes [(before :facts (populate-system redis-type redis-ec2-spec "1")) (after :facts (stop))]
-  (fact "aws creation" :integration :ec2 :workflow
-        (wf/create (spec)) => nil
-        (wf/create (spec)) => (throws ExceptionInfo  (is-type? :re-core.workflows/machine-exists))
-        (wf/stop (spec)) => nil
-        (wf/create (spec)) => (throws ExceptionInfo  (is-type? :re-core.workflows/machine-exists))
-        (wf/destroy (spec)) => nil)
+(defn setup [f]
+  (populate-system redis-type redis-ec2-spec "1")
+  (f)
+  (stop))
 
-  (fact "aws provisioning" :integration :ec2 :workflow
-        (wf/create (spec)) => nil
-        (wf/reload (spec)) => nil
-        (wf/destroy (spec)) => nil)
+(deftest ec2
+  (testing "aws creation"
+    (is (nil? (wf/create (spec))))
+    (is (thrown? ExceptionInfo (wf/create (spec))))
+    (is (nil? (wf/stop (spec))))
+    (is (thrown? ExceptionInfo (wf/create (spec))))
+    (is (nil? (wf/destroy (spec)))))
 
-  (fact "vpc eip" :integration :ec2 :vpc
-        (when-let [{:keys [eip]} (clojure.edn/read-string (System/getenv "EIP"))]
-          (s/put 1 (spec {:machine {:ip eip :os :ubuntu-15.04}}))
-          (wf/create (spec)) => nil
-          (:machine (spec)) => (contains {:ip eip})
-          (wf/stop (spec)) => nil
-          (wf/reload (spec)) => nil
-          (instance-desc (get-spec :aws :endpoint) (get-spec :aws :instance-id)) => (contains {:public-ip-address eip})
-          (wf/destroy (spec)) => nil))
+  (testing "aws provisioning"
+    (is (nil? (wf/create (spec))))
+    (is (nil? (wf/reload (spec))))
+    (is (nil? (wf/destroy (spec)))))
 
-  (fact "aws with ebs volumes" :integration :ec2 :workflow
-        (let [with-vol {:aws {:volumes [{:device "/dev/sdn" :size 10 :clear true :volume-type "standard"}]}}]
-          (wf/create (spec with-vol)) => nil
-          (wf/reload (spec with-vol)) => nil
-          (wf/destroy (spec with-vol)) => nil))
+  (testing "vpc eip"
+    (when-let [{:keys [eip]} (clojure.edn/read-string (System/getenv "EIP"))]
+      (s/put 1 (spec {:machine {:ip eip :os :ubuntu-15.04}}))
+      (is (nil? (wf/create (spec))))
+      (is (= eip (:machine (spec))))
+      (is (nil? (wf/stop (spec))))
+      (is (nil? (wf/reload (spec))))
+      (is (= eip (get (instance-desc (get-spec :aws :endpoint) (get-spec :aws :instance-id) :public-ip-address))))
+      (is (nil? (wf/destroy (spec))))))
 
-  (fact "aws with ephemeral volumes" :integration :ec2 :workflow :ephemeral
-        (let [with-vol {:aws {:instance-type "c3.large" :block-devices [{:device-name "/dev/sdb" :virtual-name "ephemeral0"}]}}]
-          (wf/create (spec with-vol)) => nil
-          (wf/reload (spec with-vol)) => nil
-          (wf/destroy (spec with-vol)) => nil))
+  (testing "aws with ebs volumes"
+    (let [with-vol {:aws {:volumes [{:device "/dev/sdn" :size 10 :clear true :volume-type "standard"}]}}]
+      (is (nil? (wf/create (spec with-vol))))
+      (is (nil? (wf/reload (spec with-vol))))
+      (is (nil? (wf/destroy (spec with-vol))))))
 
-  (fact "aws with zone and security groups" :integration :ec2 :workflow :zone
-        (let [with-zone {:aws {:availability-zone "ap-southeast-2c" :security-groups ["test"]}}]
-          (wf/create (spec with-zone)) => nil
-          (let [{:keys [placement security-groups]}
-                (instance-desc (get-spec :aws :endpoint) (get-spec :aws :instance-id))]
-            placement => (contains {:availability-zone "ap-southeast-2c"})
-            (first security-groups) => (contains {:group-name "test"}))
-          (wf/reload (spec with-zone)) => nil
-          (wf/destroy (spec with-zone)) => nil))
+  (testing "aws with ephemeral volumes"
+    (let [with-vol {:aws {:instance-type "c3.large" :block-devices [{:device-name "/dev/sdb" :virtual-name "ephemeral0"}]}}]
+      (is (nil? (wf/create (spec with-vol))))
+      (is (nil? (wf/reload (spec with-vol))))
+      (is (nil? (wf/destroy (spec with-vol))))))
 
-  (fact "aws clone workflows" :integration :ec2 :workflow :clone
-        (wf/create (spec)) => nil
-        (wf/clone {:system-id 1 :hostname "bar" :owner "ronen"}) => nil
-        (wf/destroy (assoc (s/get 2) :system-id 2)) => nil
-        (wf/destroy (spec)) => nil)
+  (testing "aws with zone and security groups"
+    (let [with-zone {:aws {:availability-zone "ap-southeast-2c" :security-groups ["test"]}}]
+      (is (nil? (wf/create (spec with-zone))))
+      (let [{:keys [placement security-groups]}
+            (instance-desc (get-spec :aws :endpoint) (get-spec :aws :instance-id))]
+        (is (= "ap-southeast-2c" (:availability-zone placement)))
+        (is (= "test" (-> security-groups first :group-name))))
+      (is (nil? (wf/reload (spec with-zone))))
+      (is (nil? (wf/destroy (spec with-zone))))))
 
-  (fact "aws ebs-optimized" :integration :ec2 :workflow
-        (wf/create (-> (spec)
-                       (assoc-in [:aws :instance-type] "m4.large")
-                       (assoc-in [:aws :ebs-optimized] true))) => nil
-        (wf/destroy (spec)) => nil))
+  (testing "aws clone workflows"
+    (is (nil? (wf/create (spec))))
+    (is (nil? (wf/clone {:system-id 1 :hostname "bar" :owner "ronen"})))
+    (is (nil? (wf/destroy (assoc (s/get 2) :system-id 2))))
+    (is (nil? (wf/destroy (spec)))))
 
-(comment
-  "The following are deprecated or require special environment to run"
-    ; require a vpn
-  (fact "vpc private ip" :integration :ec2-vpn :vpc
-        (when-let [{:keys [subnet id]} (clojure.edn/read-string (System/getenv "VPC"))]
-          (s/put 1
-                 (spec {:machine {:os :ubuntu-15.04}
-                        :aws {:vpc {:assign-public false :subnet-id subnet :vpc-id id}}}))
-          (wf/create (spec)) => nil
-          (wf/stop (spec)) => nil
-          (wf/reload (spec)) => nil
-          (wf/destroy (spec)) => nil)))
+  (testing "aws ebs-optimized"
+    (is (nil? (wf/create
+               (-> (spec)
+                   (assoc-in [:aws :instance-type] "m4.large")
+                   (assoc-in [:aws :ebs-optimized] true)))))
+    (is (nil? (wf/destroy (spec))))))
+
+(use-fixtures :once setup)

@@ -7,9 +7,8 @@
    [re-core.fixtures.core :refer (with-m?)]
    [re-core.model :refer (vconstruct)]
    [re-core.fixtures.data :refer (redis-physical)])
-  (:use midje.sweet))
+  (:use clojure.test))
 
-(fact "basic physical machine instance creation"
-      (vconstruct redis-physical) => truthy
-      (vconstruct (dissoc-in* redis-physical [:physical :mac])) =>
-      (throws ExceptionInfo (with-m? {:interface {:mac "must be present"}})))
+(deftest instance-creation
+  (is (not (nil? (vconstruct redis-physical))))
+  (is (thrown? ExceptionInfo (vconstruct (dissoc-in* redis-physical [:physical :mac])))))

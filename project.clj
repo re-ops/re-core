@@ -117,7 +117,6 @@
      :test {
        :test-paths ["data" "test"]
        :dependencies [
-          [midje "1.9.1"]
           [org.clojure/tools.trace "0.7.9"]
           [org.clojure/test.check "0.7.0"]
         ]
@@ -126,10 +125,8 @@
      }
 
      :dev {
-        :source-paths  ["dev"]
-        :resource-paths  ["src/main/resources/" "pkg/etc/re-core/"]
-        :plugins [[lein-midje "3.2.1"]]
-        :dependencies [[midje "1.9.1"]]
+        :source-paths  ["dev" "test" "data"]
+        :resource-paths  ["src/main/resources/"]
 
         :set-version {
            :updates [
@@ -143,18 +140,23 @@
   :jvm-opts ^:replace ["-Djava.library.path=/usr/lib:/usr/local/lib" "-Xms4g" "-Xmx4g"]
 
   :aliases {
-      "kvm"  ["with-profile" "test" "do" "midje" ":filter" "kvm"]
-      "digital"  ["with-profile" "test" "do" "midje" ":filter" "digital-ocean"]
-      "runtest" ["midje" ":filter" "-integration"]
+      "test" [
+        "test" ":only"
+        "re-core.test.aws" "re-core.test.kvm" "re-core.test.digital"
+        "re-core.test.physical" "re-core.test.validation" "re-core.test.provider"
+      ]
+
+      "integration" [
+       "test" ":only"
+       "re-core.integration.es.jobs"
+       "re-core.integration.es.systems"
+      ]
       "travis" [
-        "with-profile" "test" "do"
-        "midje" ":filter" "-integration," "midje" ":elasticsearch,"
-        "cljfmt" "check"
+        "with-profile" "test" "do" "test," "integration," "cljfmt" "check"
       ]
       "docs" [
          "with-profile" "codox" "do" "codox"
       ]
-
    }
 
 
