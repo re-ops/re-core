@@ -79,6 +79,9 @@
                  [metrics-clojure-jvm "2.10.0"]
 
                  [potemkin "0.4.2"] ; see http://bit.ly/2mVr1sI
+
+                 ; wiring
+                 [mount "0.1.13"]
                ]
 
   :exclusions [org.clojure/clojure com.taoensso/timbre commons-codec]

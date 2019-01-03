@@ -1,11 +1,11 @@
 (ns re-core.schedule
   "Scheduled tasks"
   (:require
+   [mount.core :as mount :refer (defstate)]
    [re-core.common :refer (resolve-)]
    [re-share.config :refer (get*)]
    [taoensso.timbre :refer (refer-timbre)]
    [chime :refer [chime-ch]]
-   [components.core :refer (Lifecyle)]
    [clj-time.core :as t]
    [clj-time.periodic :refer  [periodic-seq]]
    [clojure.core.async :as a :refer [<! close! go-loop]]))
@@ -33,15 +33,15 @@
   (close! c)
   (clojure.core.async/reduce (fn [_ _] nil) [] c))
 
-(defrecord Schedule
-           [scs]
-  Lifecyle
-  (setup [this])
-  (start [this]
-    (info "Starting scheduled tasks")
-    (doseq [s scs] (apply schedule s)))
-  (stop [this]
-    (doseq [[_ c _] scs] (close-and-flush c))))
+(defn start [scs]
+  (info "Starting scheduled tasks")
+  (doseq [s scs]
+    (apply schedule s))
+  scs)
 
-(defn instance []
-  (Schedule. (schedules)))
+(defn stop [scs]
+  (doseq [[_ c _] scs] (close-and-flush c)))
+
+(defstate scehdule
+  :start (start (schedules))
+  :stop (stop scehdule))

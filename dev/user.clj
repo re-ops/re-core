@@ -47,16 +47,16 @@
 (re-core.model/set-dev)
 
 (defn setup-all []
-  {:re-mote (mote/setup) :re-core (core/setup)})
+  {:re-mote (mote/setup)})
 
 (defn start-all [{:keys [re-core re-mote] :as m}]
   (mote/start re-mote)
-  (core/start re-core)
+  (core/start)
   m)
 
 (defn stop-all [{:keys [re-core re-mote] :as m}]
   (mote/stop re-mote)
-  (core/stop re-core)
+  (core/stop)
   m)
 
 (defn init

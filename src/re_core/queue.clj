@@ -2,8 +2,8 @@
   "Durable worker queues"
   (:require
    [es.jobs :as jobs]
-   [components.core :refer (Lifecyle)]
    [taoensso.timbre :refer (refer-timbre)]
+   [mount.core :as mount :refer (defstate)]
    [durable-queue :refer (take! put! complete! queues) :as dq]))
 
 (refer-timbre)
@@ -57,18 +57,7 @@
   (reset! run false)
   (reset! q nil))
 
-(defrecord Queue []
-  Lifecyle
-  (setup [this])
-  (start [this]
-    (info "Starting work queue")
-    (start-))
-  (stop [this]
-    (info "Stopping work queue")
-    (stop-)))
-
-(defn instance
-  "Creates a jobs instance"
-  []
-  (Queue.))
+(defstate queue
+  :start (start-)
+  :stop (stop-))
 
