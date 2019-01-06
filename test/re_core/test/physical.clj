@@ -4,7 +4,6 @@
   (:require
    physical.provider
    [flatland.useful.map :refer (dissoc-in*)]
-   [re-core.fixtures.core :refer (with-m?)]
    [re-core.model :refer (vconstruct)]
    [re-core.fixtures.data :refer (redis-physical)])
   (:use clojure.test))

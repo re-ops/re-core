@@ -8,7 +8,6 @@
    [re-core.queue :refer (queue)]
    [re-core.workers :refer (workers)]
    [re-core.schedule :refer (schedule)]
-   [clojure.java.io :refer (resource)]
    [re-share.components.elastic :as es]
    [mount.core :as mount]
    [es.common :refer (types index)]

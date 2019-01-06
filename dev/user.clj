@@ -128,7 +128,10 @@
    're-core.test.kvm
    're-core.test.physical
    're-core.test.provider
-   're-core.test.validations))
+   're-core.test.validations
+   're-core.features.digitial
+   're-core.features.kvm
+   're-core.features.ec2))
 
 (defn run-tests []
   (clojure.test/run-tests
@@ -150,5 +153,6 @@
   []
   (clojure.test/run-tests
    're-core.features.kvm
-   're-core.features.ec2
-   're-core.features.digital))
+   ;; 're-core.features.ec2
+   ;; 're-core.features.digital
+))

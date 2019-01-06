@@ -5,7 +5,7 @@
    [es.common :as es :refer (types)]
    [re-share.components.elastic :as esc]
    [rubber.node :refer (stop)]
-   [re-core.fixtures.populate :refer (re-initlize)])
+   [re-core.integration.es.common :refer (re-initlize)])
   (:use clojure.test))
 
 (def job {:tid "" :status :success :identity 1 :args [] :env :dev :topic :stop})

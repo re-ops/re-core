@@ -100,43 +100,31 @@
   :bin {:name "re-core"}
 
   :profiles {
-     :populate {
-        :source-paths ["data"]
-        :test-paths ["test"]
-        :dependencies [[org.clojure/test.check "0.7.0"]]
-     }
-
-    :codox {:dependencies [[org.clojure/tools.reader "1.1.0"]
-                             [codox-theme-rdash "0.1.2"]]
+     :codox {
+        :dependencies [[org.clojure/tools.reader "1.1.0"]
+                       [codox-theme-rdash "0.1.2"]]
               :plugins [[lein-codox "0.10.3"]]
               :codox {:project {:name "re-core"}
                       :themes [:rdash]
                       :source-paths ["src"]
                       :source-uri "https://github.com/re-ops/re-core/blob/master/{filepath}#L{line}"
               }
-    }
-
-
-     :test {
-       :test-paths ["data" "test"]
-       :dependencies [
-          [org.clojure/tools.trace "0.7.9"]
-          [org.clojure/test.check "0.7.0"]
-        ]
-
-        :jvm-opts ^:replace ["-Ddisable-conf=true"]
      }
 
      :dev {
         :source-paths  ["dev" "test" "data"]
         :resource-paths  ["src/main/resources/"]
-
+        :dependencies [
+          [cljfmt "0.5.2"]
+          [org.clojure/tools.trace "0.7.9"]
+          [org.clojure/test.check "0.7.0"]
+        ]
         :set-version {
            :updates [
              {:path "project.clj" :search-regex #"\"target\/re-core-\d+\.\d+\.\d+\.jar"}
              {:path "src/re-core/common.clj" :search-regex #"\"\d+\.\d+\.\d+\""}]}
 
-      }
+     }
     }
 
 

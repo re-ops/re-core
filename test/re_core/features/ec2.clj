@@ -2,10 +2,9 @@
   "ec2 workflows"
   (:require
    [aws.common :refer (with-ctx instance-desc)]
-   [re-core.fixtures.core :refer (is-type?)]
    [es.systems :as s]
-   [re-core.fixtures.data :refer (redis-type redis-ec2-spec local-conf)]
-   [re-core.fixtures.populate :refer (populate-system)]
+   [re-core.fixtures.data :refer (redis-type redis-ec2)]
+   [re-core.integration.es.common :refer (populate-system)]
    [re-core.features.common :refer (spec get-spec)]
    [rubber.node :refer (stop)]
    [re-core.workflows :as wf])
@@ -13,7 +12,7 @@
   (:use clojure.test))
 
 (defn setup [f]
-  (populate-system redis-type redis-ec2-spec "1")
+  (populate-system redis-type redis-ec2 "1")
   (f)
   (stop))
 

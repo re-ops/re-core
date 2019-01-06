@@ -4,13 +4,13 @@
    [es.systems :as s]
    [rubber.node :refer (stop)]
    [re-core.fixtures.data :refer (redis-type)]
-   [re-core.fixtures.populate :refer (populate-system)]
-   [re-core.features.common :refer (spec get-spec)]
+   [re-core.integration.es.common :refer (populate-system)]
+   [re-core.features.common :as common :refer (spec get-spec)]
    [re-core.workflows :as wf]
    [re-core.fixtures.data :refer [redis-digital]])
   (:use clojure.test))
 
-(defn setup [f]
+(defn add-system [f]
   (populate-system redis-type redis-digital "1")
   (f)
   (stop))
@@ -22,4 +22,4 @@
     (is (nil? (wf/start (spec))))
     (is (nil? (wf/destroy (spec))))))
 
-(use-fixtures :once setup)
+(use-fixtures :once add-system common/setup)
