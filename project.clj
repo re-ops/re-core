@@ -3,8 +3,8 @@
   :url "https://github.com/re-core-ops/re-core-core"
   :license  {:name "Apache License, Version 2.0" :url "http://www.apache.org/licenses/LICENSE-2.0.html"}
 
-  :dependencies [[org.clojure/clojure "1.9.0"]
-                 [clj-config "0.2.0" ]
+  :dependencies [[org.clojure/clojure "1.10.0"]
+                 [clj-config "0.2.0"]
 
                  ; utils
                  [me.raynes/fs "1.4.6"]
