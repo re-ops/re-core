@@ -31,6 +31,7 @@
 
                  ; Elasticsearc
                  [rubber "0.3.2"]
+                 [org.apache.httpcomponents/httpclient "4.5.2"]
 
                  ;api
                  [clj-yaml "0.4.0"]
@@ -38,7 +39,7 @@
 
                  ; hypervisors
                  [narkisr/digitalocean "1.3"]
-                 [amazonica "0.3.94" :exclusions [com.taoensso/nippy]]
+                 [amazonica "0.3.94" :exclusions [com.taoensso/nippy com.google.protobuf/protobuf-java]]
 
                  ; libvirt
                  [org.clojure/data.xml "0.0.8"]
@@ -53,10 +54,6 @@
                  [commons-codec "1.10"]
                  [substantiation "0.4.0"]
                  [com.fasterxml.jackson.core/jackson-core "2.6.4"]
-
-                 ; es
-                 [cc.qbits/spandex "0.6.0" :exclusions [org.clojure/clojure]]
-                 [org.apache.httpcomponents/httpclient "4.5.2"]
 
                  ; queue
                  [factual/durable-queue "0.1.5"]
@@ -73,12 +70,8 @@
                  [org.clojure/tools.nrepl "0.2.10"]
                  [io.aviso/pretty "0.1.34"]
 
-                 ; metrics
-                 [metrics-clojure "2.10.0"]
-                 [metrics-clojure-health "2.10.0"]
-                 [metrics-clojure-jvm "2.10.0"]
-
-                 [potemkin "0.4.2"] ; see http://bit.ly/2mVr1sI
+                 ; see http://bit.ly/2mVr1sI
+                 [potemkin "0.4.2"]
 
                  ; wiring
                  [mount "0.1.13"]
@@ -115,7 +108,6 @@
         :source-paths  ["dev" "test" "data"]
         :resource-paths  ["src/main/resources/"]
         :dependencies [
-          [cljfmt "0.5.2"]
           [org.clojure/tools.trace "0.7.9"]
           [org.clojure/test.check "0.7.0"]
         ]
@@ -128,10 +120,10 @@
     }
 
 
-  :jvm-opts ^:replace ["-Djava.library.path=/usr/lib:/usr/local/lib" "-Xms4g" "-Xmx4g"]
+  :jvm-opts ^:replace ["-Djava.library.path=/usr/lib:/usr/local/lib" "-Xms2g" "-Xmx2g"]
 
   :aliases {
-      "test" [
+      "unit" [
         "test" ":only"
         "re-core.test.aws" "re-core.test.kvm" "re-core.test.digital"
         "re-core.test.physical" "re-core.test.validation" "re-core.test.provider"
@@ -143,7 +135,7 @@
        "re-core.integration.es.systems"
       ]
       "travis" [
-        "with-profile" "test" "do" "test," "integration," "cljfmt" "check"
+        "with-profile" "test" "do" "unit," "integration," "cljfmt" "check"
       ]
       "docs" [
          "with-profile" "codox" "do" "codox"
