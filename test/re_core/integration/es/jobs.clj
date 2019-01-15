@@ -2,10 +2,8 @@
   "Done jobs persistency"
   (:require
    [es.jobs :as jobs]
-   [es.common :as es :refer (types)]
-   [re-share.components.elastic :as esc]
-   [rubber.node :refer (stop)]
-   [re-core.integration.es.common :refer (re-initlize)])
+   [es.common :refer (types)]
+   [re-core.integration.es.common :refer (re-initlize stop)])
   (:use clojure.test))
 
 (def job {:tid "" :status :success :identity 1 :args [] :env :dev :topic :stop})
@@ -18,7 +16,6 @@
 (defn add-jobs
   "adds a list of systems into ES"
   []
-  (esc/initialize :re-core types false)
   (jobs/put (-> job (merge {:tid "1" :status :success}) stamp))
   (jobs/put (-> job (merge {:tid "2" :status :failure :env :prod}) stamp))
   (jobs/put (-> job (merge {:tid "3" :status :success :identity 2}) stamp))

@@ -4,18 +4,15 @@
    [re-core.log :refer (setup-logging)]
    [es.common :as es :refer (types index)]
    [es.systems :as s]
-   [rubber.node :refer (stop)]
    [rubber.core :refer (refresh-index)]
-   [re-share.components.elastic :as esc]
    [re-core.fixtures.data :refer (redis-kvm redis-ec2)]
-   [re-core.integration.es.common :refer (re-initlize)])
+   [re-core.integration.es.common :refer (re-initlize stop)])
   (:use clojure.test))
 
 (setup-logging)
 
 (defn puts
   "adds a list of systems into ES" []
-  (esc/initialize :re-core types false)
   (s/put "1" (assoc redis-kvm :owner "admin"))
   (s/put "2" (assoc-in redis-ec2 [:machine :hostname] "foo-1"))
   (s/put "3" (assoc redis-ec2 :env :prod-1))

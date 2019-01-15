@@ -2,7 +2,7 @@
   "Common ES"
   (:require
    [taoensso.timbre :refer (refer-timbre)]
-   [re-share.es.common :as share]))
+   [re-share.es.common :as es]))
 
 (refer-timbre)
 
@@ -23,4 +23,9 @@
 (defn index
   "get re-core index"
   [type]
-  (share/index :re-core type))
+  (es/index :re-core type))
+
+(defn initialize
+  "Create re-core Elasticsearch mappings and types"
+  []
+  (es/initialize :re-core types false))
