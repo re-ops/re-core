@@ -39,6 +39,7 @@
    [re-share.config :as conf]
    [re-share.zero.keys :as k]
    [re-share.schedule :as sc]
+   [re-mote.publish.riemann :refer (riemann)]
    ; testing
    [clojure.test])
   (:import re_mote.repl.base.Hosts))
@@ -64,7 +65,7 @@
   (setup-logging)
   (conf/load (fn [_] {}))
   (k/create-server-keys ".curve")
-  (mount/start #'elastic #'zero #'schedule #'queue #'workers))
+  (mount/start #'elastic #'zero #'schedule #'queue #'workers #'riemann))
 
 (defn stop
   "Shuts down and destroys the current development system."
