@@ -22,7 +22,7 @@
   {:env :dev
    :owner "admin"
    :machine {:hostname "red1" :user "ubuntu"
-             :domain "local" :os :ubuntu-16.04}
+             :domain "local" :os :ubuntu-18.04}
 
    :aws {:instance-type "t2.micro"
          :key-name "enceladus"
@@ -35,7 +35,7 @@
   {:env :dev
    :owner "admin"
    :machine {:hostname "red1" :user "ubuntu"  :ip "1.2.3.4"
-             :domain "local" :os :ubuntu-12.10}
+             :domain "local" :os :ubuntu-18.04}
    :physical {:mac "9a:07:e4:bc:79:df"
               :broadcast "192.168.0.255"}
    :type "redis"})
