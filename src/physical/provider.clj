@@ -5,6 +5,7 @@
    * status will use ssh to try and see if the machine is running"
   (:refer-clojure :exclude [sync])
   (:require
+   [es.systems :as s]
    [physical.validations :refer (validate-provider)]
    [re-core.provider :refer (wait-for-ssh mappings)]
    [re-share.core :refer (wait-for)]
@@ -57,24 +58,42 @@
    (fn [m]
      (not (some (fn [{:keys [vendor]}] (= vendor "QEMU virtual NIC")) (first (vals m))))) result))
 
-(defn ssh-able
-  [hosts ports]
+(defn ssh-able [addresses ports]
   (filter
-   (fn [host]
-     (some
-      (fn [{:keys [portid]}] (= portid "22")) (ports host))) hosts))
+   (fn [address]
+     (let [host (first (keys address))]
+       (some
+        (fn [{:keys [portid]}] (= portid "22")) (ports host)))) addresses))
 
 (defn result [[_ m]]
   (-> m :success first :result))
 
+(defn find-address [type addresses]
+  (first (filter (fn [{:keys [addrtype]}] (= addrtype type)) addresses)))
+
+(defn into-system
+  "Convert scan result into a system"
+  [user [fqdn addresses]]
+  (let [[host domain] (clojure.string/split fqdn '#"\.")
+        mac (find-address "mac" addresses)
+        ip (find-address "ipv4" addresses)
+        machine {:machine {:hostname host :user user :ip (ip :addr) :domain domain :os :unkown} :physical {} :type :unkown}]
+    (if-not mac
+      machine
+      (merge machine {:physical {:mac (mac :addr) :vendor (mac :vendor)}}))))
+
 (defrecord Scanner [opts]
   Sync
   (sync [this]
-    (let [{:keys [pivot network re-gent]} opts
+    (let [{:keys [pivot network user]} opts
           addresses (-> (host-scan pivot network) result physical-hosts)
           ports (result (port-scan pivot network))
-          deployed (deploy (Hosts. (.auth pivot) (ssh-able (mapcat keys addresses) ports)) re-gent)]
-      [])))
+          hosts (apply merge (ssh-able addresses ports))
+          systems (map (partial into-system user) hosts)]
+      (map
+       (fn [system]
+         (println system)
+         (let [id (s/create system)] [id system])) (s/missing-systems systems)))))
 
 (defmethod sconstruct :physical [_ opts]
   (Scanner. opts))
