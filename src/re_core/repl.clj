@@ -189,7 +189,10 @@
   "Sync an existing hypervisor state into re-core:
      (sync :digital-ocean)
      (sync :kvm :active true) ; using options
-     (sync :aws :filter (fn [m] ...)) ; using a filtering function"
+     (sync :aws :filter (fn [m] ...)) ; using a filtering function
+     (sync :physical {
+           :pivot rosetta  :network \"192.168.1.0/24\" :re-gent \"/home/ronen/code/re-ops/re-gent/target/re-gent\"
+      }) ; nmap based sync "
   ([hyp]
    (sync hyp {}))
   ([hyp opts]
