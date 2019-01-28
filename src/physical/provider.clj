@@ -71,13 +71,18 @@
 (defn find-address [type addresses]
   (first (filter (fn [{:keys [addrtype]}] (= addrtype type)) addresses)))
 
+(defn base-system [host user ip domain]
+  {:machine {:hostname host :user user :ip (ip :addr) :domain domain :os :unknown-os}
+   :physical {}
+   :type :unknown-type})
+
 (defn into-system
   "Convert scan result into a system"
   [user [fqdn addresses]]
   (let [[host domain] (clojure.string/split fqdn '#"\.")
         mac (find-address "mac" addresses)
         ip (find-address "ipv4" addresses)
-        machine {:machine {:hostname host :user user :ip (ip :addr) :domain domain :os :unkown} :physical {} :type :unkown}]
+        machine (base-system host user ip domain)]
     (if-not mac
       machine
       (merge machine {:physical {:mac (mac :addr) :vendor (mac :vendor)}}))))
