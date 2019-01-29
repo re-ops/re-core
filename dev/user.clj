@@ -30,12 +30,13 @@
    [rubber.core :refer :all :exclude (clear get create call)]
    ; re-mote
    [re-mote.repl :refer :all :exclude (provision)]
+   [re-mote.repl.stress :refer (refer-stress)]
    [re-mote.zero.management :refer (refer-zero-manage)]
    [re-mote.log :refer (log-hosts)]
    [re-mote.zero.stats :refer (disk-breach)]
    ; re-mote components
    [re-mote.zero.cycle :refer (zero)]
-   [re-mote.persist.es :as mote-es :refer (elastic)]
+   [re-mote.persist.es :refer (elastic)]
    [re-share.config :as conf]
    [re-share.zero.keys :as k]
    [re-share.schedule :as sc]
@@ -51,6 +52,7 @@
 (refer-digital-presets)
 (refer-common-presets)
 (refer-type-presets)
+(refer-stress)
 
 (defn into-hosts [auth hosts]
   (Hosts. auth hosts))
