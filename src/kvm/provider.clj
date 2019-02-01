@@ -1,12 +1,12 @@
 (ns kvm.provider
   (:refer-clojure :exclude [sync])
   (:require
+   [clojure.core.strint :refer (<<)]
    [re-share.config :refer (get!)]
    [com.rpl.specter :as spec :refer  (MAP-VALS ALL ATOM keypath)]
    [flatland.useful.map :refer (dissoc-in*)]
    [safely.core :refer [safely]]
    [kvm.validations :refer (provider-validation)]
-   [clojure.core.strint :refer (<<)]
    [kvm.clone :refer (clone-domain)]
    [kvm.volumes :refer (clear-volumes create-volumes)]
    [kvm.common :refer (connect get-domain state domain-list)]
@@ -113,10 +113,7 @@
 
 (defn sync-node [k node opts]
   (with-connection
-    (let [systems (map (partial into-system (c)) (descriptive-domains (c)))]
-      (map
-       (fn [system]
-         (let [id (s/create system)] [id system])) (s/missing-systems systems)))))
+    (map (partial into-system (c)) (descriptive-domains (c)))))
 
 (defrecord Libvirt [nodes opts]
   Sync

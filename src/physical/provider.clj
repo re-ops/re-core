@@ -93,12 +93,8 @@
     (let [{:keys [pivot network user]} opts
           addresses (-> (host-scan pivot network) result physical-hosts)
           ports (result (port-scan pivot network))
-          hosts (apply merge (ssh-able addresses ports))
-          systems (map (partial into-system user) hosts)]
-      (map
-       (fn [system]
-         (println system)
-         (let [id (s/create system)] [id system])) (s/missing-systems systems)))))
+          hosts (apply merge (ssh-able addresses ports))]
+      (map (partial into-system user) hosts))))
 
 (defmethod sconstruct :physical [_ opts]
   (Scanner. opts))
