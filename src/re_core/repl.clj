@@ -186,17 +186,19 @@
     (run (add- systems specs) | (pretty-print "add"))))
 
 (defn sync
-  "Sync an existing hypervisor state into re-core:
+  "Sync existing instances into re-core systems:
      (sync :digital-ocean)
      (sync :kvm :active true) ; using options
      (sync :aws :filter (fn [m] ...)) ; using a filtering function
-     (sync :physical {
-           :pivot rosetta  :network \"192.168.1.0/24\" :re-gent \"/home/ronen/code/re-ops/re-gent/target/re-gent\"
-      }) ; nmap based sync "
+     (sync :physical {:pivot rosetta  :network \"192.168.1.0/24\" :user \"re-ops\"}) ; nmap based sync "
   ([hyp]
    (sync hyp {}))
   ([hyp opts]
    (run (synch systems hyp opts) | (pretty))))
+
+(defn fill
+  "Fill up systems information from host hardware and os info"
+  [hs])
 
 (defn ssh-into
   "SSH into instances (open a terminal window):
