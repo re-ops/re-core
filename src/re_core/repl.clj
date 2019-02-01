@@ -196,9 +196,10 @@
   ([hyp opts]
    (run (synch systems hyp opts) | (pretty))))
 
-(defn fill
-  "Fill up systems information from host hardware and os info"
-  [hs])
+(defn fillup
+  "Fill up systems missing information from hosts"
+  [f]
+  (run (ls systems) | (filter-by f) | (add-hosts-info)))
 
 (defn ssh-into
   "SSH into instances (open a terminal window):

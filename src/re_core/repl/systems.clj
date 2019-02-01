@@ -2,9 +2,10 @@
   "Repl systems access"
   (:require
    kvm.provider
+   [clojure.string :refer (lower-case split)]
+   [clojure.core.strint :refer  (<<)]
    [re-core.model :refer (vconstruct sconstruct)]
    [re-share.config :refer  (get!)]
-   [clojure.core.strint :refer  (<<)]
    [clansi.core :refer  (style)]
    [re-core.queue :as q]
    [re-core.common :refer (gen-uuid)]
@@ -13,7 +14,9 @@
    [es.systems :as s]
    [es.jobs :as es]
    [re-mote.repl.base :as base]
+   [re-mote.repl :refer (host-hardware-info host-os-info)]
    [re-core.repl.types :refer (provision-type)]
+   [com.rpl.specter :refer [transform ALL multi-path]]
    [re-core.repl.base :refer [Repl Report select-keys*]])
   (:import
    [re_mote.repl.base Hosts]
@@ -45,8 +48,8 @@
   "Hosts"
   (synch
     [this hyp opts])
-  (fillup
-    [this]))
+  (add-hosts-info
+    [this items]))
 
 (defn grep-system [k v [id system]]
   (let [sub (select-keys* system [:owner] [:machine :hostname] [:machine :os] [:machine :ip])]
@@ -198,6 +201,14 @@
    (fn [system]
      (let [id (s/create system)] [id system])) (s/missing-systems systems)))
 
+(defn os-versions [[_ {:keys [success]}]]
+  (apply merge
+         (transform [ALL]
+                    (fn [{:keys [host result]}]
+                      (let [{:keys [version family]} result
+                            release (first (split (version :version) #"\s"))]
+                        {host (keyword (<< "~(lower-case family)-~{release}"))})) success)))
+
 (extend-type Systems
   Synching
   (synch
@@ -205,8 +216,12 @@
     (let [syncher (sconstruct hyp opts)
           systems (persist-synched (.sync syncher))]
       [this {:systems systems}]))
-  (fillup [this]))
+  (add-hosts-info
+    [this items]
+    (let [hs (into-hosts this items :hostname)
+          [_ hardware] (host-hardware-info hs)]
+      (os-versions (host-os-info hs)))))
 
 (defn refer-systems []
-  (require '[re-core.repl.systems :as sys :refer [status into-hosts block-wait async-wait pretty-print spice synch]]))
+  (require '[re-core.repl.systems :as sys :refer [status into-hosts block-wait async-wait pretty-print spice synch add-hosts-info]]))
 
