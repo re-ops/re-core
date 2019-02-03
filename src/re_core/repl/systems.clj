@@ -16,7 +16,7 @@
    [re-mote.repl.base :as base]
    [re-mote.repl :refer (host-hardware-info host-os-info)]
    [re-core.repl.types :refer (provision-type)]
-   [com.rpl.specter :refer [transform ALL multi-path]]
+   [com.rpl.specter :refer [transform ALL multi-path select MAP-VALS nthpath]]
    [re-core.repl.base :refer [Repl Report select-keys*]])
   (:import
    [re_mote.repl.base Hosts]
@@ -49,7 +49,7 @@
   (synch
     [this hyp opts])
   (add-hosts-info
-    [this items]))
+    [this items opts]))
 
 (defn grep-system [k v [id system]]
   (let [sub (select-keys* system [:owner] [:machine :hostname] [:machine :os] [:machine :ip])]
@@ -209,6 +209,18 @@
                             release (first (split (version :version) #"\s"))]
                         {host (keyword (<< "~(lower-case family)-~{release}"))})) success)))
 
+(defn match-ip [subnet {:keys [ipv4]}]
+  (when-not (empty? ipv4)
+    (.startsWith (first ipv4) subnet)))
+
+(defn hosts-ip
+  "Find host public ip by subnet"
+  [subnet [_ {:keys [success]}]]
+  (let [interfaces (apply hash-map (select [ALL (multi-path [:host] [:result :networks])] success))]
+    (transform [MAP-VALS]
+               (fn [nics]
+                 (-> (first (filter (partial match-ip subnet) nics)) :ipv4 first)) interfaces)))
+
 (extend-type Systems
   Synching
   (synch
@@ -217,10 +229,10 @@
           systems (persist-synched (.sync syncher))]
       [this {:systems systems}]))
   (add-hosts-info
-    [this items]
+    [this items {:keys [subnet]}]
     (let [hs (into-hosts this items :hostname)
-          [_ hardware] (host-hardware-info hs)]
-      (os-versions (host-os-info hs)))))
+          versions (os-versions (host-os-info hs))
+          ips (hosts-ip subnet (host-hardware-info hs))])))
 
 (defn refer-systems []
   (require '[re-core.repl.systems :as sys :refer [status into-hosts block-wait async-wait pretty-print spice synch add-hosts-info]]))

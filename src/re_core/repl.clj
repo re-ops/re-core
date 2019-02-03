@@ -198,8 +198,8 @@
 
 (defn fillup
   "Fill up systems missing information from hosts"
-  [f]
-  (run (ls systems) | (filter-by f) | (add-hosts-info)))
+  [f opts]
+  (run (ls systems) | (filter-by f) | (add-hosts-info opts)))
 
 (defn ssh-into
   "SSH into instances (open a terminal window):

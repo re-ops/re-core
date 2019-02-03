@@ -48,7 +48,7 @@
                  [org.libvirt/libvirt "0.5.1"]
 
                  ; model
-                 [com.rpl/specter "1.0.3"]
+                 [com.rpl/specter "1.1.2"]
                  [com.brunobonacci/safely "0.2.4"]
                  [com.google.guava/guava "18.0"]
                  [commons-codec "1.10"]
