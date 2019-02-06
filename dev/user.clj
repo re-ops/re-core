@@ -33,7 +33,6 @@
    [re-mote.repl.stress :refer (refer-stress)]
    [re-mote.zero.management :refer (refer-zero-manage)]
    [re-mote.log :refer (log-hosts)]
-   [re-mote.zero.stats :refer (disk-breach)]
    ; re-mote components
    [re-mote.zero.cycle :refer (zero)]
    [re-mote.persist.es :refer (elastic)]
