@@ -44,7 +44,7 @@
 
 (defmethod pretty #{:systems} [this {:keys [systems] :as m}]
   (let [rendered (map render systems)]
-    (write-rows *out* (systems-format rendered)
+    (write-rows (systems-format rendered)
                 [:hostname :id (comp name :type) (comp name :os) :ip]
                 rendered)))
 
@@ -56,11 +56,11 @@
 
 (defmethod pretty #{:types} [_ {:keys [types]}]
   (let [formatter (format-columns bold-white-font [:right 10] "  " reset-font [:left 40] [:right 20] :none)]
-    (write-rows *out* formatter [:type src-or-tar :description] (map (fn [[id t]] (assoc t :id id)) types))))
+    (write-rows formatter [:type src-or-tar :description] (map (fn [[id t]] (assoc t :id id)) types))))
 
 (defmethod pretty #{:jobs} [_ {:keys [jobs]}]
   (let [formatter (format-columns bold-white-font [:right 3] "  " reset-font [:right 10] :none)]
-    (write-rows *out* formatter [:system  :job] jobs)))
+    (write-rows formatter [:system :job] jobs)))
 
 (defmacro | [source fun & funs]
   (let [f (first fun) args (rest fun)]
