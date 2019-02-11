@@ -4,6 +4,8 @@
   :license  {:name "Apache License, Version 2.0" :url "http://www.apache.org/licenses/LICENSE-2.0.html"}
 
   :dependencies [[org.clojure/clojure "1.10.0"]
+
+                 ; configuration
                  [clj-config "0.2.0"]
 
                  ; utils
@@ -26,7 +28,7 @@
                  [com.taoensso/tufte "1.1.1"]
 
                  ; re-ops
-                 [re-mote "0.10.3"]
+                 [re-mote "0.10.4"]
                  [re-share "0.9.13"]
 
                  ; Elasticsearc
@@ -66,28 +68,25 @@
                  [jarohen/chime "0.2.0" :exclusions [org.clojure/core.async]]
                  [org.clojure/core.async "0.3.443"]
 
-                 ; repl
-                 [org.clojure/tools.nrepl "0.2.10"]
-                 [io.aviso/pretty "0.1.34"]
-
                  ; see http://bit.ly/2mVr1sI
                  [potemkin "0.4.2"]
 
                  ; wiring
                  [mount "0.1.13"]
+
+                 ;systems pretty print
+                 [io.aviso/pretty "0.1.37"]
                ]
 
   :exclusions [org.clojure/clojure com.taoensso/timbre commons-codec]
 
   :plugins  [[jonase/eastwood "0.2.4"]
-             [mvxcvi/whidbey "1.3.1"]
              [lein-cljfmt "0.5.6"]
              [lein-kibit "0.1.5"]
              [lein-ancient "0.6.15" :exclusions [org.clojure/clojure]]
              [lein-tar "2.0.0" ]
              [self-build "0.0.9"]
              [lein-tag "0.1.0"]
-             [venantius/ultra "0.5.2"]
              [lein-set-version "0.3.0"]]
 
   :bin {:name "re-core"}
@@ -155,16 +154,6 @@
 
   :test-paths  []
 
-  :whidbey {
-    :width 180
-    :map-delimiter ""
-    :extend-notation true
-    :print-meta true
-    :color-scheme {
-      :delimiter [:blue]
-       :tag [:bold :red]
-    }
-  }
   :repl-options {
     :init-ns user
     :prompt (fn [ns] (str "\u001B[35m[\u001B[34m" "re-core" "\u001B[35m]\u001B[33mλ:\u001B[m " ))
