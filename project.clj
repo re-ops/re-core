@@ -28,8 +28,8 @@
                  [com.taoensso/tufte "1.1.1"]
 
                  ; re-ops
-                 [re-mote "0.10.4"]
-                 [re-share "0.9.13"]
+                 [re-mote "0.10.5"]
+                 [re-share "0.9.14"]
 
                  ; Elasticsearc
                  [rubber "0.3.2"]
