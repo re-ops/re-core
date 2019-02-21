@@ -221,6 +221,12 @@
                (fn [nics]
                  (-> (first (filter (partial match-ip subnet) nics)) :ipv4 first)) interfaces)))
 
+(defn add-os [systems versions]
+  (map
+   (fn [[id {:keys [machine] :as m}]]
+     (let [{:keys [hostname os]} machine]
+       [id (assoc-in m [:machine :os] (or (versions hostname) os))])) systems))
+
 (extend-type Systems
   Synching
   (synch
@@ -228,12 +234,16 @@
     (let [syncher (sconstruct hyp opts)
           systems (persist-synched (.sync syncher))]
       [this {:systems systems}]))
+
   (add-hosts-info
-    [this items {:keys [subnet]}]
-    (let [hs (into-hosts this items :hostname)
+    [this {:keys [systems] :as m} {:keys [subnet]}]
+    (let [hs (into-hosts this m :hostname)
           versions (os-versions (host-os-info hs))
-          ips (hosts-ip subnet (host-hardware-info hs))])))
+          ips (hosts-ip subnet (host-hardware-info hs))
+          updated (add-os systems versions)]
+      (doseq [[id system] updated]
+        (s/put id system))
+      [this {:systems updated}])))
 
 (defn refer-systems []
   (require '[re-core.repl.systems :as sys :refer [status into-hosts block-wait async-wait pretty-print spice synch add-hosts-info]]))
-
