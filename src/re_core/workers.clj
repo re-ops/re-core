@@ -19,11 +19,11 @@
 (defn- setup-workers []
   (doseq [[topic [f n]] workers-m]
     (dotimes [_ n]
-      (knit/future @e (process f topic))
+      (knit/future (process f topic) {:executor @e})
       (debug "future for " topic "started"))))
 
 (defn start- []
-  (reset! e (executor :fixed  {:num-threads 20}))
+  (reset! e (executor :fixed {:num-threads 20}))
   (setup-workers))
 
 (defn stop- []

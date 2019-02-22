@@ -13,11 +13,10 @@
    [clojure.set :refer (difference)]
    [es.systems :as s]
    [es.jobs :as es]
-   [re-mote.repl.base :as base]
    [re-mote.repl :refer (host-hardware-info host-os-info)]
    [re-core.repl.types :refer (provision-type)]
    [com.rpl.specter :refer [transform ALL multi-path select MAP-VALS nthpath]]
-   [re-core.repl.base :refer [Repl Report select-keys*]])
+   [re-core.repl.base :as base :refer [Repl Report select-keys* pretty]])
   (:import
    [re_mote.repl.base Hosts]
    [re_core.repl.base Systems]))
@@ -45,11 +44,13 @@
     [this items k]))
 
 (defprotocol Synching
-  "Hosts"
+  "Synching existing systems into re-core"
   (synch
     [this hyp opts])
-  (add-hosts-info
-    [this items opts]))
+  (detect-host-info
+    [this systems opts])
+  (update-systems
+    [this systems ks v]))
 
 (defn grep-system [k v [id system]]
   (let [sub (select-keys* system [:owner] [:machine :hostname] [:machine :os] [:machine :ip])]
@@ -235,7 +236,7 @@
           systems (persist-synched (.sync syncher))]
       [this {:systems systems}]))
 
-  (add-hosts-info
+  (detect-host-info
     [this {:keys [systems] :as m} {:keys [subnet]}]
     (let [hs (into-hosts this m :hostname)
           versions (os-versions (host-os-info hs))
@@ -243,7 +244,13 @@
           updated (add-os systems versions)]
       (doseq [[id system] updated]
         (s/put id system))
-      [this {:systems updated}])))
+      [this {:systems updated}]))
+
+  (update-systems [this {:keys [systems] :as m} ks v]
+    (let [updated (map (fn [[id system]] [id (assoc-in system ks v)]) systems)]
+      (doseq [[id system] updated]
+        (s/put id system))
+      [this (assoc m :systems updated)])))
 
 (defn refer-systems []
-  (require '[re-core.repl.systems :as sys :refer [status into-hosts block-wait async-wait pretty-print spice synch add-hosts-info]]))
+  (require '[re-core.repl.systems :as sys :refer [status into-hosts block-wait async-wait pretty-print spice synch detect-host-info update-systems]]))

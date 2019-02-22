@@ -196,10 +196,17 @@
   ([hyp opts]
    (run (synch systems hyp opts) | (pretty))))
 
-(defn fillup
-  "Fill up systems missing information from hosts"
+(defn detect
+  "Detect systems information automaticly"
   [f opts]
-  (run (ls systems) | (filter-by f) | (add-hosts-info opts)))
+  (run (ls systems) | (filter-by f) | (detect-host-info opts)))
+
+(defn fill
+  "fill systems information from provided ks v pair
+    (fill identity [:machine :os] :ubuntu-18.04) 
+  "
+  [f ks v]
+  (run (ls systems) | (filter-by f) | (update-systems ks v)))
 
 (defn ssh-into
   "SSH into instances (open a terminal window):
