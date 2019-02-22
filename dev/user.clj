@@ -17,7 +17,6 @@
    [mount.core :as mount]
    [re-core.queue :refer (queue)]
    [re-core.workers :refer (workers)]
-   [re-core.schedule :refer (schedule)]
    [es.common :as core-es]
    ; utilities
    [es.history :refer (refer-history)]
@@ -66,7 +65,7 @@
   (setup-logging)
   (conf/load (fn [_] {}))
   (k/create-server-keys ".curve")
-  (mount/start #'elastic #'zero #'schedule #'queue #'workers #'riemann))
+  (mount/start #'elastic #'zero #'queue #'workers #'riemann))
 
 (defn stop
   "Shuts down and destroys the current development system."

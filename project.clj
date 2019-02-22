@@ -12,7 +12,6 @@
                  [me.raynes/fs "1.4.6"]
                  [robert/hooke "1.3.0"]
                  [org.clojure/core.incubator "0.1.4"]
-                 [org.clojure/core.memoize "0.5.9"]
                  [org.flatland/useful "0.11.5"]
                  [org.clojure/tools.macro "0.1.5"]
                  [org.clojure/java.data "0.1.1"]
@@ -20,7 +19,6 @@
                  ; templating
                  [selmer "0.8.2"]
                  [com.palletops/stevedore "0.8.0-beta.7"]
-                 [camel-snake-kebab "0.1.2"]
 
                  ; logging / profiling
                  [com.taoensso/timbre "4.10.0"]
@@ -59,17 +57,10 @@
 
                  ; queue
                  [factual/durable-queue "0.1.5"]
-                 [cc.qbits/knit "0.3.1"]
+                 [cc.qbits/knit "1.0.0"]
 
                  ; timeunits
                  [fogus/minderbinder "0.2.0"]
-
-                 ; scheduling
-                 [jarohen/chime "0.2.0" :exclusions [org.clojure/core.async]]
-                 [org.clojure/core.async "0.3.443"]
-
-                 ; see http://bit.ly/2mVr1sI
-                 [potemkin "0.4.2"]
 
                  ; wiring
                  [mount "0.1.13"]
