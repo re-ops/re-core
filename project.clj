@@ -30,7 +30,7 @@
                  [re-share "0.9.14"]
 
                  ; Elasticsearc
-                 [rubber "0.3.2"]
+                 [rubber "0.3.3"]
                  [org.apache.httpcomponents/httpclient "4.5.2"]
 
                  ;api
@@ -79,8 +79,6 @@
              [self-build "0.0.9"]
              [lein-tag "0.1.0"]
              [lein-set-version "0.3.0"]]
-
-  :bin {:name "re-core"}
 
   :profiles {
      :codox {
