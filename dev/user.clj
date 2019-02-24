@@ -34,7 +34,7 @@
    [re-mote.log :refer (log-hosts)]
    ; re-mote components
    [re-mote.zero.cycle :refer (zero)]
-   [re-mote.persist.es :refer (elastic)]
+   [re-mote.persist.es :as es :refer (elastic)]
    [re-share.config :as conf]
    [re-share.zero.keys :as k]
    [re-share.schedule :as sc]
@@ -65,7 +65,8 @@
   (setup-logging)
   (conf/load (fn [_] {}))
   (k/create-server-keys ".curve")
-  (mount/start #'elastic #'zero #'queue #'workers #'riemann))
+  (mount/start #'elastic #'zero #'queue #'workers #'riemann)
+  (es/initialize))
 
 (defn stop
   "Shuts down and destroys the current development system."
