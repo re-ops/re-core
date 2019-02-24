@@ -50,6 +50,18 @@
   [part]
   (fn [[id _]] (.contains id part)))
 
+(defn hostname
+  "Match instances by hostname matching:
+     (provision (hostname \"foo\"))"
+  [name]
+  (fn [[_ {:keys [machine]}]] (=  (machine :hostname) name)))
+
+(defn match-kv
+  "Match instances by kv pair:
+     (provision (match-kv [:machine :os] :ubuntu-18.04))"
+  [ks v]
+  (fn [[_ m]] (=  (get-in m ks) v)))
+
 ; management
 
 (defn reload
@@ -203,7 +215,7 @@
 
 (defn fill
   "fill systems information from provided ks v pair
-    (fill identity [:machine :os] :ubuntu-18.04) 
+    (fill identity [:machine :os] :ubuntu-18.04)
   "
   [f ks v]
   (run (ls systems) | (filter-by f) | (update-systems ks v)))
