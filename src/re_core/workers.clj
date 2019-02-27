@@ -12,8 +12,8 @@
 (def e (atom nil))
 
 (def workers-m
-  {:reload [wf/reload 4] :destroy [wf/destroy 4] :provision [wf/provision 4]
-   :stage [wf/stage 4] :create [wf/create 4] :start [wf/start 4] :stop [wf/stop 4]
+  {:reload [wf/reload 2] :destroy [wf/destroy 2] :provision [wf/provision 2]
+   :stage [wf/stage 2] :create [wf/create 2] :start [wf/start 2] :stop [wf/stop 2]
    :clear [wf/clear 2] :clone [wf/clone 2]})
 
 (defn- setup-workers []
