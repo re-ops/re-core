@@ -26,7 +26,7 @@
 
 (defn process [f topic]
   (while @run
-    (let [task (take! @q topic 1000 :timed-out!)]
+    (let [task (take! @q (name topic) 1000 :timed-out!)]
       (when-not (= task :timed-out!)
         (let [{:keys [tid args] :as job} (deref task) start (now)]
           (try
