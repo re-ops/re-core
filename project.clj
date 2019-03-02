@@ -26,11 +26,11 @@
                  [com.taoensso/tufte "1.1.1"]
 
                  ; re-ops
-                 [re-mote "0.10.6"]
+                 [re-mote "0.10.7"]
                  [re-share "0.9.14"]
 
-                 ; Elasticsearc
-                 [rubber "0.3.3"]
+                 ; Elasticsearchj
+                 [rubber "0.3.4"]
                  [org.apache.httpcomponents/httpclient "4.5.2"]
 
                  ;api
