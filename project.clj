@@ -29,7 +29,7 @@
                  [re-mote "0.10.7"]
                  [re-share "0.9.14"]
 
-                 ; Elasticsearchj
+                 ; Elasticsearc
                  [rubber "0.3.4"]
                  [org.apache.httpcomponents/httpclient "4.5.2"]
 
@@ -147,6 +147,7 @@
     :init-ns user
     :prompt (fn [ns] (str "\u001B[35m[\u001B[34m" "re-core" "\u001B[35m]\u001B[33mλ:\u001B[m " ))
     :welcome (println "Welcome to re-core!" )
+    :timeout 120000
   }
 
 )
