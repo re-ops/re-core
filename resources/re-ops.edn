@@ -1,0 +1,77 @@
+{
+  :riemann {
+   :host "127.0.0.1"
+   :port 5555
+   :to ""
+  }
+
+  :re-core {
+    :port 8082
+    :https-port 8443
+    :log {
+      :level :info
+      :path "re-core.log"
+    }
+
+    :hypervisor {
+      :default {
+        :physical { }
+        :kvm {
+            :nodes {
+              :localhost {
+                  :username "ronen" :host "localhost" :port 22
+                  :pools {
+                    :default {:path "/var/lib/libvirt/images/"}
+                  }
+              }
+            }
+            :ostemplates {
+              :ubuntu-18.04.2 {:template "ubuntu-server-18.04" :flavor :debian}
+            }
+       }
+
+        :digital-ocean {
+          :token ""
+          :ssh-key ""
+            :ostemplates {
+               :ubuntu-18.04  {:image "" :flavor :debian}
+            }
+        }
+      }
+    }
+
+    :elasticsearch {
+      :index "re-core"
+    }
+  }
+
+  :re-mote {
+    :elasticsearch {
+      :index "re-mote"
+    }
+
+    :smtp {
+      :host "smtp.gmail.com"
+      :user ""
+      :pass ""
+      :ssl :yes!!!11
+    }
+  }
+
+  :shared {
+    :elasticsearch {
+      :default {
+        :hosts ["https://localhost:9200"]
+        :auth {
+          :user ""
+          :password ""
+         }
+         :self? true
+      }
+    }
+
+    :ssh {
+      :private-key-path "id_rsa"
+    }
+  }
+}
