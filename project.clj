@@ -29,7 +29,7 @@
                  [re-mote "0.10.7"]
                  [re-share "0.10.0"]
 
-                 ; Elasticsearc
+                 ; Elasticsearch
                  [rubber "0.3.4"]
                  [org.apache.httpcomponents/httpclient "4.5.2"]
 
@@ -65,8 +65,9 @@
                  ; wiring
                  [mount "0.1.13"]
 
-                 ;systems pretty print
+                 ; pretty print
                  [io.aviso/pretty "0.1.37"]
+                 [rm-hull/table "0.7.0"]
                ]
 
   :exclusions [org.clojure/clojure com.taoensso/timbre commons-codec]

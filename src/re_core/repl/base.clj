@@ -1,8 +1,7 @@
 (ns re-core.repl.base
   "Core repl functions"
   (:require
-   [io.aviso.ansi :refer :all]
-   [io.aviso.columns :refer (format-columns write-rows max-value-length)]
+   [table.core :refer (table)]
    [clojure.set :refer (intersection)]))
 
 (def admin {:username "admin" :password "foo"
@@ -34,33 +33,15 @@
       (select-keys* [:type] [:machine :hostname] [:machine :os] [:machine :ip])
       (assoc :id id)))
 
-(defn systems-format [rendered]
-  (format-columns
-   "  " bold-white-font (max-value-length rendered :hostname) "  "
-   reset-font [:right 20] "  "
-   (max-value-length rendered :type) "  "
-   (max-value-length rendered :os) "  "
-   :none))
-
-(defmethod pretty #{:systems} [this {:keys [systems] :as m}]
-  (let [rendered (map render systems)]
-    (write-rows (systems-format rendered)
-                [:hostname :id (comp name :type) (comp name :os) :ip]
-                rendered)))
-
-(defn src-or-tar
-  [t]
-  (or
-   (get-in t [:re-conf :src])
-   (get-in t [:puppet :src] (get-in t [:puppet :tar]))))
+(defmethod pretty #{:systems} [this {:keys [systems]}]
+  (table
+   (map
+    (fn [[id s]]
+      (select-keys* (assoc s :id id) [:id] [:machine :hostname] [:type] [:machine :os] [:machine :ip])) systems) :style :borderless))
 
 (defmethod pretty #{:types} [_ {:keys [types]}]
-  (let [formatter (format-columns bold-white-font [:right 10] "  " reset-font [:left 40] [:right 20] :none)]
-    (write-rows formatter [:type src-or-tar :description] (map (fn [[id t]] (assoc t :id id)) types))))
-
-(defmethod pretty #{:jobs} [_ {:keys [jobs]}]
-  (let [formatter (format-columns bold-white-font [:right 3] "  " reset-font [:right 10] :none)]
-    (write-rows formatter [:system :job] jobs)))
+  (table
+   (map (fn [[id t]] (select-keys* (assoc t :id id) [:id] [:description] [:re-conf :src])) types) :style :borderless))
 
 (defmacro | [source fun & funs]
   (let [f (first fun) args (rest fun)]
