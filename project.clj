@@ -27,7 +27,7 @@
 
                  ; re-ops
                  [re-mote "0.10.7"]
-                 [re-share "0.9.14"]
+                 [re-share "0.10.0"]
 
                  ; Elasticsearc
                  [rubber "0.3.4"]

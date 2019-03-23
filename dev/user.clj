@@ -1,9 +1,7 @@
 (ns user
   (:refer-clojure :exclude  [update list])
   (:require
-   [clojure.tools.trace :refer (deftrace trace trace-ns trace-vars)]
    [clojure.java.io :as io]
-   [clojure.pprint :refer (pprint)]
    [clojure.repl :refer :all]
    [clojure.tools.namespace.repl :refer (refresh refresh-all)]
    ; re-core
@@ -63,7 +61,6 @@
   "Starts the current development system."
   []
   (setup-logging)
-  (conf/load (fn [_] {}))
   (k/create-server-keys ".curve")
   (mount/start #'elastic #'zero #'queue #'workers #'riemann)
   (es/initialize))

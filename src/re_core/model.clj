@@ -26,12 +26,12 @@
 (defn hypervisor
   "obtains current environment hypervisor"
   [& ks]
-  (apply get! :re-core :hypervisor env ks))
+  (apply get! :re-core :hypervisor ks))
 
 (defn hypervisor*
   "obtains current environment hypervisor using get*"
-  [& ks] {:pre [(not (nil? env))]}
-  (apply get* :re-core :hypervisor env ks))
+  [& ks]
+  (apply get* :re-core :hypervisor ks))
 
 (defmulti clone
   "Clones an existing system map replacing unique identifiers in the process"

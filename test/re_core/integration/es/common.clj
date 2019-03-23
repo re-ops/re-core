@@ -14,7 +14,6 @@
   ([]
    (re-initlize false))
   ([c]
-   (conf/load (fn [_] {}))
    (mount/start #'elastic)
    (when c
      (doseq [idx (filter #(.startsWith % "re-core") (map :index (or (list-indices) [])))]

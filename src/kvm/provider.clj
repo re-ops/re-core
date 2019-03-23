@@ -5,13 +5,11 @@
    [re-share.config :refer (get!)]
    [com.rpl.specter :as spec :refer  (MAP-VALS ALL ATOM keypath)]
    [flatland.useful.map :refer (dissoc-in*)]
-   [safely.core :refer [safely]]
    [kvm.validations :refer (provider-validation)]
    [kvm.clone :refer (clone-domain)]
    [kvm.volumes :refer (clear-volumes create-volumes)]
    [kvm.common :refer (connect get-domain state domain-list)]
    [kvm.networking :refer (public-ip nat-ip update-ip)]
-   [re-core.core :refer (Vm)]
    [taoensso.timbre :as timbre]
    [es.systems :as s]
    [re-core.provider :refer (mappings selections transform os->template wait-for-ssh)]
@@ -19,7 +17,7 @@
    [kvm.sync :refer (descriptive-domains into-system)]
    [kvm.spice :refer (graphics remmina)]
    [hypervisors.networking :refer (set-hostname ssh-able?)]
-   [re-core.core :refer (Sync)]
+   [re-core.core :refer (Sync Vm)]
    [re-core.model :refer (translate vconstruct sconstruct hypervisor* hypervisor)])
   (:import org.libvirt.LibvirtException))
 

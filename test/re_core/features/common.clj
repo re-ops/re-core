@@ -18,7 +18,6 @@
 (defn setup
   "Fixtures setup for provisioning tests"
   [f]
-  (conf/load (fn [_] {}))
   (mount/start #'queue #'workers)
   (f)
   (mount/stop))

@@ -4,10 +4,8 @@
   (:require
    [re-core.model :refer (hypervisor)]
    [clojure.edn :refer (read-string)]
-   [clojure.zip :as zip]
    [clojure.data.zip.xml :as zx]
-   [kvm.common :refer (domain-list get-domain connect domain-zip)]
-   [re-core.core :refer (Sync)]))
+   [kvm.common :refer (domain-list get-domain connect domain-zip)]))
 
 (defn active-domains
   [c]
@@ -48,7 +46,7 @@
   {:post [(not (nil? %))]}
   (first
    (first
-    (filter (fn [[k {:keys [template]}]] (= template t)) (hypervisor :kvm :ostemplates)))))
+    (filter (fn [[_ {:keys [template]}]] (= template t)) (hypervisor :kvm :ostemplates)))))
 
 (defn into-system
   "Convert domain into a system"
