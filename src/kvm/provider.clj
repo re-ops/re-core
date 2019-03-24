@@ -1,4 +1,5 @@
 (ns kvm.provider
+  "KVM virtualization provider for re-core"
   (:refer-clojure :exclude [sync])
   (:require
    [clojure.core.strint :refer (<<)]
