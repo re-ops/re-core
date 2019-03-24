@@ -47,6 +47,10 @@
                  [net.java.dev.jna/jna "4.2.0"]
                  [org.libvirt/libvirt "0.5.1"]
 
+                 ; lxc 
+                 [http-kit "2.3.0"]
+                 [less-awful-ssl "1.0.4"]
+
                  ; model
                  [com.rpl/specter "1.1.2"]
                  [com.brunobonacci/safely "0.2.4"]
