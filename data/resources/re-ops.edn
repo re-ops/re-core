@@ -40,6 +40,21 @@
         }
      }
 
+   :lxc  {
+     :nodes {
+         :localhost {
+           :port 22
+           :pools  {
+              :default {:path "/var/lib/libvirt/images/"}
+           }
+          }
+        }
+       :images {
+          :ubuntu-18.04 {:template "ubuntu-18.04" :flavor :debian}
+        }
+     }
+
+
     :physical { }
    }
   }
