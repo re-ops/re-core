@@ -38,6 +38,11 @@
   [node name]
   (run http/get (<< "containers/~{name}") node))
 
+(defn delete
+  "Get container information"
+  [node name]
+  (run http/delete (<< "containers/~{name}") node))
+
 (defn list
   "List containers in lxd instance"
   [node]
@@ -62,4 +67,5 @@
 
   (list node)
   (get node "my-new-container")
+  (delete node "my-new-container")
   (create node m))
