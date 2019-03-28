@@ -1,6 +1,8 @@
 (ns re-core.queue
   "Durable worker queues"
   (:require
+   [re-share.config :refer (get!)]
+   [me.raynes.fs :refer (mkdir)]
    [es.jobs :as jobs]
    [taoensso.timbre :refer (refer-timbre)]
    [mount.core :as mount :refer (defstate)]
@@ -44,14 +46,16 @@
 (defn enqueue [topic job]
   (put! @q topic job))
 
-(defn status [{:keys [tid] :as job}]
+(defn status [{:keys [tid]}]
   {:pre [(not (nil? tid))]}
   (when-let [job (jobs/get tid)]
     (-> job :status keyword)))
 
 (defn- start- []
-  (reset! run true)
-  (reset! q (queues "/tmp" {:complete? (fn [_] true)})))
+  (let [dir (get! :re-core :queue-dir)]
+    (reset! run true)
+    (mkdir dir)
+    (reset! q (queues dir {:complete? (fn [_] true)}))))
 
 (defn- stop- []
   (reset! run false)
