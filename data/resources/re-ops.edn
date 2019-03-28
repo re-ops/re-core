@@ -1,5 +1,6 @@
 {
  :re-core {
+   :queue-dir "/tmp/re-core-queue"
    :port 8082
    :https-port 8443
    :log {
@@ -41,17 +42,17 @@
      }
 
    :lxc  {
-     :nodes {
+     :auth {
+         :path #join [#env HOME "/.config/lxc"]  :p12 "certificate.p12" :password "1234" :crt "127.0.0.1.crt"
+      }
+      :nodes {
          :localhost {
-           :port 22
-           :pools  {
-              :default {:path "/var/lib/libvirt/images/"}
-           }
+           :host "127.0.0.1" :port 22
           }
-        }
+       }
        :images {
           :ubuntu-18.04 {:template "ubuntu-18.04" :flavor :debian}
-        }
+       }
      }
 
 
