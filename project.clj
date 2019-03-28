@@ -5,9 +5,6 @@
 
   :dependencies [[org.clojure/clojure "1.10.0"]
 
-                 ; configuration
-                 [clj-config "0.2.0"]
-
                  ; utils
                  [me.raynes/fs "1.4.6"]
                  [robert/hooke "1.3.0"]
@@ -33,7 +30,7 @@
                  [rubber "0.3.4"]
                  [org.apache.httpcomponents/httpclient "4.5.2"]
 
-                 ;api
+                 ; Api
                  [clj-yaml "0.4.0"]
                  [org.clojure/data.json "0.2.6" ]
 
@@ -47,7 +44,7 @@
                  [net.java.dev.jna/jna "4.2.0"]
                  [org.libvirt/libvirt "0.5.1"]
 
-                 ; lxc 
+                 ; lxc
                  [http-kit "2.3.0"]
                  [less-awful-ssl "1.0.4"]
 
