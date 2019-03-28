@@ -28,20 +28,25 @@
       (json/read-str body :key-fn keyword))))
 
 (defn run
-  ([endpoint node]
-   (run endpoint node {}))
-  ([endpoint node opts]
-   (parse (endpoint (merge (ssl-opts node) opts)))))
+  ([verb endpoint node]
+   (run verb endpoint node {}))
+  ([verb endpoint {:keys [host port] :as node} opts]
+   (parse (verb (<< "https://~{host}:~{port}/1.0/~{endpoint}") (merge (ssl-opts node) opts)))))
+
+(defn get
+  "Get container information"
+  [node name]
+  (run http/get (<< "containers/~{name}") node))
 
 (defn list
   "List containers in lxd instance"
-  [{:keys [host port] :as node}]
-  (run (partial http/get (<< "https://~{host}:~{port}/1.0/containers")) node))
+  [node]
+  (run http/get "containers" node))
 
 (defn create
   "Create container using http api"
-  [{:keys [host port] :as node} container]
-  (run (partial http/post (<< "https://~{host}:~{port}/1.0/containers")) node (into-body container)))
+  [node container]
+  (run http/post "containers" node (into-body container)))
 
 (comment
   (def node
@@ -56,4 +61,5 @@
            :source {:type "image" :alias "ubuntu-18.04"}})
 
   (list node)
+  (get node "my-new-container")
   (create node m))
