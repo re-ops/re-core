@@ -6,7 +6,7 @@
      openssl pkcs12 -export -out certificate.p12 -inkey client.key -in client.crt -certfile servercerts/127.0.0.1.cr
   "
   (:require
-   [clojure.string :refer (lower-case)]
+   [clojure.string :refer (lower-case join)]
    [clojure.data.json :as json]
    [re-share.config :refer (get!)]
    [re-core.model :refer (hypervisor)]
@@ -35,15 +35,21 @@
   ([verb endpoint {:keys [host port] :as node} opts]
    (parse (verb (<< "https://~{host}:~{port}/1.0/~{endpoint}") (merge (ssl-opts node) opts)))))
 
+(defn into-status [s]
+  (keyword (lower-case s)))
+
 (defn async-status
   "Poll for async container operations return final status"
-  [node resp]
-  (loop [{:keys [operation status]} resp]
+  [node {:keys [operation status] :as m}]
+  (loop [metadata {:status "running"} attempts 0]
+    (when (> attempts 30)
+      (throw (ex-info "Failed to pull for the async operation status" m)))
     (Thread/sleep 100)
-    (if (empty? operation)
-      (keyword (lower-case status))
-      (recur
-       (run http/get (subs operation 4) node)))))
+    (let [status-key (into-status (metadata :status))]
+      (if-not (= :running status-key)
+        metadata
+        (recur
+         (:metadata (run http/get (subs operation 4) node)) (+ 1 attempts))))))
 
 (defn get
   "Get container information"
@@ -66,7 +72,7 @@
   (async-status node (run http/post "containers" node (into-body container))))
 
 (defn action [op]
-  {:action op :timeout 30 :force true :stateful true})
+  {:action op :timeout 5000 :force false :stateful false})
 
 (defn state
   "Change container state"
@@ -94,10 +100,9 @@
            :ephemeral false
            :config {:limits.cpu "2"}
            :source {:type "image" :alias "ubuntu-18.04"}})
-  (try
-    (start node "my-new-container")
-    (catch Exception e
-      (println e)))
+
+  (start node "my-new-container")
+  (stop node "my-new-container")
 
   (list node)
   (require '[clojure.pprint :refer (pprint)])
