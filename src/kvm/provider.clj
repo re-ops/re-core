@@ -10,7 +10,7 @@
    [kvm.clone :refer (clone-domain)]
    [kvm.volumes :refer (clear-volumes create-volumes)]
    [kvm.common :refer (connect get-domain state domain-list)]
-   [kvm.networking :refer (public-ip nat-ip update-ip)]
+   [kvm.networking :refer (public-ip nat-ip)]
    [taoensso.timbre :as timbre]
    [es.systems :as s]
    [re-core.provider :refer (mappings selections transform os->template wait-for-ssh)]
@@ -66,7 +66,7 @@
             {:keys [user name hostname]} domain]
         (wait-for-ssh ip user timeout)
         (set-hostname hostname name {:user user :host ip :ssh-key (key-)} flavor)
-        (update-ip system-id ip)
+        (s/update-ip system-id ip)
         this)))
 
   (delete [this]
@@ -81,7 +81,7 @@
         (when (ssh-able? (get-in domain [:image :flavor]))
           (let [ip (.ip this)]
             (wait-for-ssh ip (domain :user) timeout)
-            (update-ip system-id ip))))))
+            (s/update-ip system-id ip))))))
 
   (stop [this]
     (with-connection

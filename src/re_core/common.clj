@@ -27,20 +27,14 @@
 (defn gen-uuid []
   (.replace (str (java.util.UUID/randomUUID)) "-" ""))
 
-(def version "0.6.0")
-
-(defn resolve-
-  "resolve function provided as a symbol with the form of ns/fn"
-  [fqn-fn]
-  (let [[n f] (.split (str fqn-fn) "/")]
-    (try
-      (require (symbol n))
-      (ns-resolve (find-ns (symbol n)) (symbol f))
-      (catch java.io.FileNotFoundException e
-        (throw (ex-info (<< "Could not locate ~{fqn-fn}") {:fn fqn-fn}))))))
-
 (def hostname
   (.getHostName (InetAddress/getLocalHost)))
 
 (defn slurp-edn [file]
   (read-string (slurp file)))
+
+(defmacro print-e [f]
+  `(try
+     ~f
+     (catch Exception e#
+       (println e#))))

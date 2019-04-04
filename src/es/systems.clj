@@ -99,3 +99,9 @@
   "return all existing systems"
   []
   (mapv (fn [[k v]] [k (keywordize v)]) (z/all (index :system))))
+
+(defn update-ip
+  "updates public ip address in the machine persisted data"
+  [system-id ip]
+  (when (exists? system-id)
+    (partial system-id {:machine {:ip ip}})))

@@ -1,6 +1,5 @@
 (ns kvm.networking
   (:require
-   [es.systems :as s]
    [re-share.core :refer (wait-for)]
    [taoensso.timbre :as timbre]
    [clojure.core.strint :refer (<<)]
@@ -54,8 +53,4 @@
         ip
         (throw (ex-info "Failed to grab domain public IP" {:user user :node node :id id :output log}))))))
 
-(defn update-ip
-  "updates public dns in the machine persisted data"
-  [system-id ip]
-  (when (s/exists? system-id)
-    (s/partial system-id {:machine {:ip ip}})))
+
