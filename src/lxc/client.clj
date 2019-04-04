@@ -8,7 +8,6 @@
   (:require
    [clojure.string :refer (lower-case join)]
    [clojure.data.json :as json]
-   [re-share.config :refer (get!)]
    [re-core.model :refer (hypervisor)]
    [less.awful.ssl :refer (ssl-context->engine ssl-p12-context)]
    [clojure.core.strint :refer (<<)]
@@ -47,18 +46,25 @@
     (Thread/sleep 100)
     (let [status-key (into-status (metadata :status))]
       (if-not (= :running status-key)
-        metadata
+        (if-not (= :success status-key)
+          (throw (ex-info (<< "Async operation failed due to '~(metadata :err)'") metadata))
+          :success)
         (recur
          (:metadata (run http/get (subs operation 4) node)) (+ 1 attempts))))))
 
 (defn get
   "Get container information"
-  [node name]
+  [node {:keys [name]}]
   (run http/get (<< "containers/~{name}") node))
+
+(defn state
+  "Get container current state"
+  [node {:keys [name]}]
+  (run http/get (<< "containers/~{name}/state") node))
 
 (defn delete
   "Get container information"
-  [node name]
+  [node {:keys [name]}]
   (async-status node (run http/delete (<< "containers/~{name}") node)))
 
 (defn list
@@ -74,20 +80,32 @@
 (defn action [op]
   {:action op :timeout 5000 :force false :stateful false})
 
-(defn state
+(defn change-state
   "Change container state"
   [node name op]
   (async-status node (run http/put (<< "containers/~{name}/state") node (into-body (action op)))))
 
 (defn start
   "start container"
-  [node name]
-  (state node name "start"))
+  [node {:keys [name]}]
+  (change-state node name "start"))
 
 (defn stop
   "stop container"
-  [node name]
-  (state node name "stop"))
+  [node {:keys [name]}]
+  (change-state node name "stop"))
+
+(defn ip [node container]
+  (:address
+   (first
+    (filter (fn [{:keys [family]}] (= family "inet"))
+            (get-in (state node container) [:metadata :network :eth0 :addresses])))))
+
+(defn status [node container]
+  (-> (state node container)
+      (get-in [:metadata :status])
+      lower-case
+      keyword))
 
 (comment
   (def node
@@ -101,11 +119,14 @@
            :config {:limits.cpu "2"}
            :source {:type "image" :alias "ubuntu-18.04"}})
 
-  (start node "my-new-container")
-  (stop node "my-new-container")
-
-  (list node)
   (require '[clojure.pprint :refer (pprint)])
-  (pprint (get node "my-new-container"))
-  (delete node "my-new-container")
-  (create node m))
+
+  (start node m)
+
+  (stop node m)
+
+  (status node m)
+
+  (pprint (state node m))
+
+  (list node))
