@@ -9,6 +9,14 @@
    :kvm {:node :localhost}
    :type "redis"})
 
+(def redis-lxc
+  {:env :dev
+   :owner "ronen"
+   :machine {:hostname "red1" :user "re-ops" :domain "local"
+             :os :ubuntu-18.04 :cpu 4 :ram 1024}
+   :lxc {:node :localhost}
+   :type "redis"})
+
 (def redis-digital
   {:env :dev
    :owner "admin"
