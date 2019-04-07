@@ -2,7 +2,7 @@
   "Systems indexing/searching"
   (:refer-clojure :exclude [get partial])
   (:require
-   [com.rpl.specter :refer [select transform ALL multi-path]]
+   [com.rpl.specter :refer [select must transform ALL multi-path]]
    [rubber.core :as z]
    [es.common :refer (index)]
    [rubber.node :refer (connection)]
@@ -56,7 +56,7 @@
   [m]
   (when m
     (transform
-     [(multi-path [:type] [:machine :os] [:env] [:kvm :node] [:kvm :volumes ALL :pool])] keyword m)))
+     [(multi-path [:type] [:machine :os] [:env] [(must :lxc) :node] [(must :kvm) :node] [(must :kvm) :volumes ALL :pool])] keyword m)))
 
 (defn get
   "Grabs a system by an id, return nil if missing"

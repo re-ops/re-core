@@ -7,6 +7,7 @@
    ; re-core
    [re-core.repl :refer :all]
    [re-core.presets.kvm :refer (refer-kvm-presets)]
+   [re-core.presets.lxc :refer (refer-lxc-presets)]
    [re-core.presets.digitial :refer (refer-digital-presets)]
    [re-core.presets.aws :refer (refer-aws-presets)]
    [re-core.presets.common :refer (refer-common-presets)]
@@ -114,7 +115,7 @@
   "run provider tests"
   []
   (clojure.test/run-tests
-   're-core.features.kvm
+   're-core.features.lxc
    ;; 're-core.features.ec2
    ;; 're-core.features.digital
 ))

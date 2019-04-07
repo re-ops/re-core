@@ -16,7 +16,7 @@
 (defn get-env! [] {:pre [(not (nil? env))]} env)
 
 (def hypervizors
-  #{:aws :physical :digital-ocean :kvm})
+  #{:aws :physical :digital-ocean :kvm :lxc})
 
 (def operations
   #{:reload :destroy :provision :stage :create :start :stop :clear :clone})
