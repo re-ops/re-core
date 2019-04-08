@@ -11,7 +11,8 @@
    [re-core.model :refer (hypervisor)]
    [less.awful.ssl :refer (ssl-context->engine ssl-p12-context)]
    [clojure.core.strint :refer (<<)]
-   [org.httpkit.client :as http]))
+   [org.httpkit.client :as http])
+  (:import clojure.lang.ExceptionInfo))
 
 (defn context [{:keys [path p12 password crt]}]
   (ssl-p12-context (<< "~{path}/~{p12}") (char-array password) (<< "~{path}/servercerts/~{crt}")))
@@ -22,8 +23,11 @@
 (defn into-body [m]
   {:body (json/write-str m) :headers {"Content-Type" "application/json"}})
 
-(defn parse [response]
-  (let [{:keys [status body] :as result} (deref response)]
+(defn parse
+  [response]
+  (let [{:keys [status body error] :as result} (deref response)]
+    (when error
+      (throw error))
     (if (and (>= status 400) (<= status 599))
       (throw (ex-info (<< "Failed to process lxc api request got ~{status} code") result))
       (json/read-str body :key-fn keyword))))
@@ -60,7 +64,8 @@
 (defn state
   "Get container current state"
   [node {:keys [name]}]
-  (run http/get (<< "containers/~{name}/state") node))
+  (try
+    (run http/get (<< "containers/~{name}/state") node)))
 
 (defn delete
   "Get container information"
