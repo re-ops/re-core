@@ -10,9 +10,9 @@
   (testing "lxc creation workflows"
     (populate-system redis-type redis-lxc "1")
     (is (nil? (wf/create (spec))))
-    (is (nil? (wf/stop (spec))))
-    (is (nil? (wf/start (spec))))
-    (is (nil? (wf/destroy (spec)))))
+    #_(is (nil? (wf/stop (spec))))
+    #_(is (nil? (wf/start (spec))))
+    #_(is (nil? (wf/destroy (spec)))))
 
   #_(testing "lxc reload"
       (populate-system redis-type redis-lxc "1")
