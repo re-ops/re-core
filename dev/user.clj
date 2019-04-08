@@ -94,6 +94,7 @@
    're-core.test.validations
    're-core.features.digitial
    're-core.features.kvm
+   're-core.features.lxc
    're-core.features.ec2))
 
 (defn run-tests []
