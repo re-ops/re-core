@@ -7,7 +7,9 @@
    [re-core.model :refer (vconstruct hypervisor* hypervisor)]
    [re-core.provider :refer (selections mappings transform wait-for-ssh os->template)]
    [re-core.core :refer (Sync Vm)]
-   [es.systems :as s]))
+   [clojure.spec.alpha :as s]
+   [lxc.spec :as spec]
+   [es.systems :refer (update-ip)]))
 
 (timbre/refer-timbre)
 
@@ -22,7 +24,7 @@
     (debug "container in running state")
     (let [ip (.ip this)]
       (wait-for-ssh ip user timeout)
-      (s/update-ip system-id ip)
+      (update-ip system-id ip)
       this))
 
   (delete [this]
@@ -38,7 +40,8 @@
     (debug "container stopped"))
 
   (status [this]
-    (lxc/status node container))
+    (when-let [s (lxc/status node container)]
+      (name s)))
 
   (ip [this]
     (lxc/ip node container)))
@@ -62,7 +65,11 @@
       (merge base)))
 
 (defmethod vconstruct :lxc [{:keys [lxc machine system-id type] :as spec}]
+  {:post [(s/valid? :lxc/container  %)]}
   (let [node (hypervisor :lxc :nodes (lxc :node))
+        auth (hypervisor :lxc :auth)
         container (translate spec)]
-    (->Container system-id node container (:user machine))))
+    (->Container system-id (merge node auth) container (:user machine))))
 
+(comment
+  (hypervisor :lxc :nodes :localhost))
