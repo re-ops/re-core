@@ -41,12 +41,7 @@
   [hyp]
   (fn [os]
     (let [ks [hyp :ostemplates os]]
-      (try
-        (apply hypervisor ks)
-        (catch ExceptionInfo e
-          (when (= (-> ex-data :type) :re-core.common/missing-conf)
-            (throw
-             (ex-info (<< "no matching template found for ~{os} add one to configuration under ~{ks}") {:ks ks}))))))))
+      (apply hypervisor ks))))
 
 (defn transform
   "specific model transformations"

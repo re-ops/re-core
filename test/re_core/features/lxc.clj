@@ -10,21 +10,14 @@
   (testing "lxc creation workflows"
     (populate-system redis-type redis-lxc "1")
     (is (nil? (wf/create (spec))))
-    #_(is (nil? (wf/stop (spec))))
-    #_(is (nil? (wf/start (spec))))
-    #_(is (nil? (wf/destroy (spec)))))
+    (is (nil? (wf/stop (spec))))
+    (is (nil? (wf/start (spec))))
+    (is (nil? (wf/destroy (spec)))))
 
-  #_(testing "lxc reload"
-      (populate-system redis-type redis-lxc "1")
-      (is (nil? (wf/create (spec))))
-      (is (nil? (wf/reload (spec))))
-      (is (nil? (wf/destroy (spec)))))
-
-  #_(testing "lxc with volume"
-      (populate-system redis-type redis-lxc "1")
-      (let [with-vol {:lxc {:volumes [volume]}}]
-        (is (nil? (wf/create (spec with-vol))))
-        (is (nil? (wf/reload (spec with-vol))))
-        (is (nil? (wf/destroy (spec with-vol)))))))
+  (testing "lxc reload"
+    (populate-system redis-type redis-lxc "1")
+    (is (nil? (wf/create (spec))))
+    (is (nil? (wf/reload (spec))))
+    (is (nil? (wf/destroy (spec))))))
 
 (use-fixtures :once common/setup)
