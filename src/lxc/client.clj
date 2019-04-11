@@ -6,6 +6,7 @@
      openssl pkcs12 -export -out certificate.p12 -inkey client.key -in client.crt -certfile servercerts/127.0.0.1.cr
   "
   (:require
+   [re-share.core :refer (wait-for)]
    [clojure.string :refer (lower-case join)]
    [clojure.data.json :as json]
    [re-core.model :refer (hypervisor)]
@@ -41,13 +42,15 @@
 (defn into-status [s]
   (keyword (lower-case s)))
 
+(defonce max-async-attempts 30)
+
 (defn async-status
   "Poll for async container operations return final status"
-  [node {:keys [operation status] :as m}]
+  [node {:keys [operation] :as m}]
   (loop [metadata {:status "running"} attempts 0]
-    (when (> attempts 30)
-      (throw (ex-info "Failed to pull for the async operation status" m)))
-    (Thread/sleep 100)
+    (when (> attempts max-async-attempts)
+      (throw (ex-info (<< "Failed to poll for successful async operation state after ~{attempts} attempts") m)))
+    (Thread/sleep 1000)
     (let [status-key (into-status (metadata :status))]
       (if-not (= :running status-key)
         (if-not (= :success status-key)
@@ -106,17 +109,25 @@
     (filter (fn [{:keys [family]}] (= family "inet"))
             (get-in (state node container) [:metadata :network :eth0 :addresses])))))
 
+(defn wait-for-ip [node container timeout]
+  (wait-for {:timeout timeout :sleep [2000 :ms]}
+            #(not (nil? (ip node container)))
+            "Timed out on waiting for container ip "))
+
 (defn status [node container]
-  (-> (state node container)
-      (get-in [:metadata :status])
-      lower-case
-      keyword))
+  (try (-> (state node container)
+           (get-in [:metadata :status])
+           lower-case
+           keyword)
+       (catch ExceptionInfo e
+         (when-not (= 404 (:status (ex-data e)))
+           (throw e)))))
 
 (comment
   (def node
     (merge {:host "127.0.0.1" :port "8443"} (hypervisor :lxc :auth)))
 
-  (def m  {:name "my-new-container"
+  (def m  {:name "red1"
            :architecture "x86_64"
            :profiles ["default"]
            :devices {}
@@ -130,7 +141,7 @@
 
   (stop node m)
 
-  (status node m)
+  (ip node m)
 
   (pprint (state node m))
 
