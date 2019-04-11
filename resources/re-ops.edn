@@ -5,30 +5,39 @@
    :to ""
   }
 
+  :re-mote {
+    :elasticsearch {
+      :index "re-mote"
+    }
+  }
+
   :re-core {
+    :queue-dir "/tmp/re-core-queue/"
+
     :port 8082
     :https-port 8443
+
     :log {
       :level :info
       :path "re-core.log"
     }
 
-    :hypervisor {
-      :default {
+    :hypervisor #profile {
+      :dev {
         :physical { }
         :kvm {
-            :nodes {
-              :localhost {
-                  :username "ronen" :host "localhost" :port 22
-                  :pools {
-                    :default {:path "/var/lib/libvirt/images/"}
-                  }
+          :nodes {
+            :localhost {
+              :username "ronen" :host "localhost" :port 22
+              :pools {
+                 :default {:path "/var/lib/libvirt/images/"}
               }
             }
-            :ostemplates {
-              :ubuntu-18.04.2 {:template "ubuntu-server-18.04" :flavor :debian}
-            }
-       }
+          }
+          :ostemplates {
+            :ubuntu-18.04.2 {:template "ubuntu-18.04.2" :flavor :debian}
+          }
+        }
 
         :digital-ocean {
           :token ""
@@ -37,7 +46,23 @@
                :ubuntu-18.04  {:image "" :flavor :debian}
             }
         }
-      }
+
+        :lxc {
+          :auth {
+             :path #join [#env HOME "/.config/lxc"]  :p12 "certificate.p12" :password "" :crt "127.0.0.1.crt"
+           }
+
+          :nodes {
+             :localhost {
+                :host "127.0.0.1" :port 8443
+             }
+          }
+
+          :ostemplates {
+            :ubuntu-18.04 {:template "ubuntu-18.04.2" :flavor :debian}
+          }
+         }
+       }
     }
 
     :elasticsearch {
@@ -45,18 +70,6 @@
     }
   }
 
-  :re-mote {
-    :elasticsearch {
-      :index "re-mote"
-    }
-
-    :smtp {
-      :host "smtp.gmail.com"
-      :user ""
-      :pass ""
-      :ssl :yes!!!11
-    }
-  }
 
   :shared {
     :elasticsearch {
