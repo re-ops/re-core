@@ -11,6 +11,7 @@
    [re-core.presets.digitial :refer (refer-digital-presets)]
    [re-core.presets.aws :refer (refer-aws-presets)]
    [re-core.presets.common :refer (refer-common-presets)]
+   [re-core.presets.instance-types :refer (refer-instance-types)]
    [re-core.presets.type :refer (refer-type-presets)]
    ; re-core components
    [mount.core :as mount]
@@ -49,6 +50,7 @@
 (refer-aws-presets)
 (refer-digital-presets)
 (refer-common-presets)
+(refer-instance-types)
 (refer-type-presets)
 (refer-stress)
 

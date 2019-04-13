@@ -63,10 +63,7 @@
 (defn refer-lxc-presets []
   (require '[re-core.presets.lxc :as lxc :refer [lxc-tiny lxc-small lxc-medium lxc-large lxc-xlarge lxc-size lxc-volume]]))
 
-(defmacro size [name]
-  `(defn ~name [] 1))
 
-(defmacro types [sizes]
-  `(do ~@(map #(size %) sizes)))
 
-(macroexpand-1 '(types #{'m1 'm2}))
+
+
