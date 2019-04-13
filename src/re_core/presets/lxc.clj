@@ -61,6 +61,12 @@
 (def ^{:doc "1TB LXC volume"} lxc-vol-1T (lxc-volume 1024))
 
 (defn refer-lxc-presets []
-  (require '[re-core.presets.lxc :as ksp :refer [lxc-tiny lxc-small lxc-medium lxc-large lxc-xlarge vol-128G
-                                                 vol-256G vol-512G vol-1T lxc-size lxc-volume node local]]))
+  (require '[re-core.presets.lxc :as lxc :refer [lxc-tiny lxc-small lxc-medium lxc-large lxc-xlarge lxc-size lxc-volume]]))
 
+(defmacro size [name]
+  `(defn ~name [] 1))
+
+(defmacro types [sizes]
+  `(do ~@(map #(size %) sizes)))
+
+(macroexpand-1 '(types #{'m1 'm2}))

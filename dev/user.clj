@@ -45,6 +45,7 @@
 (refer-history)
 (refer-zero-manage)
 (refer-kvm-presets)
+(refer-lxc-presets)
 (refer-aws-presets)
 (refer-digital-presets)
 (refer-common-presets)
