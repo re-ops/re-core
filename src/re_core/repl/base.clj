@@ -23,7 +23,9 @@
 
 (defmulti pretty
   (fn [_ m]
-    (intersection (into #{} (keys m)) #{:systems :types :jobs})))
+    (let [k (first (intersection (into #{} (keys m)) #{:systems :types :jobs}))]
+      (when (not (empty? (m k)))
+        k))))
 
 (defn select-keys* [m & paths]
   (into {} (map (fn [p] [(last p) (get-in m p)])) paths))
@@ -33,13 +35,15 @@
       (select-keys* [:type] [:machine :hostname] [:machine :os] [:machine :ip])
       (assoc :id id)))
 
-(defmethod pretty #{:systems} [this {:keys [systems]}]
+(defmethod pretty nil [_ _] nil)
+
+(defmethod pretty :systems [this {:keys [systems]}]
   (table
    (map
     (fn [[id s]]
       (select-keys* (assoc s :id id) [:id] [:machine :hostname] [:type] [:machine :os] [:machine :ip])) systems) :style :borderless))
 
-(defmethod pretty #{:types} [_ {:keys [types]}]
+(defmethod pretty :types [_ {:keys [types]}]
   (table
    (map (fn [[id t]] (select-keys* (assoc t :id id) [:id] [:description] [:re-conf :src])) types) :style :borderless))
 
