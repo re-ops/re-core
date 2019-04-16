@@ -1,6 +1,7 @@
 (ns re-core.repl.base
   "Core repl functions"
   (:require
+   [re-core.model :refer (figure-virt)]
    [table.core :refer (table)]
    [clojure.set :refer (intersection)]))
 
@@ -30,18 +31,14 @@
 (defn select-keys* [m & paths]
   (into {} (map (fn [p] [(last p) (get-in m p)])) paths))
 
-(defn render [[id m]]
-  (-> m
-      (select-keys* [:type] [:machine :hostname] [:machine :os] [:machine :ip])
-      (assoc :id id)))
-
 (defmethod pretty nil [_ _] nil)
 
 (defmethod pretty :systems [this {:keys [systems]}]
   (table
    (map
     (fn [[id s]]
-      (select-keys* (assoc s :id id) [:id] [:machine :hostname] [:type] [:machine :os] [:machine :ip])) systems) :style :borderless))
+      (select-keys* (merge s {:id id :hypervisor (figure-virt s)})
+                    [:id] [:machine :hostname] [:type] [:machine :os] [:hypervisor] [:machine :ip])) systems) :style :borderless))
 
 (defmethod pretty :types [_ {:keys [types]}]
   (table
