@@ -31,18 +31,19 @@
   (fn [instance]
     (assoc-in instance [:machine :os] k)))
 
-(def ubuntu-1804 (os :ubuntu-18.04))
+(def ubuntu-18_04_2 (os :ubuntu-18.04.2))
 
 (defn machine [user domain]
   (fn [instance]
-    (update instance :machine (fn [m] (merge m {:user user :domain domain})))))
+    (update instance :machine
+            (fn [m] (merge m {:user user :domain domain})))))
 
 (def default-machine (machine "re-ops" "local"))
 
 (defn defaults
   "default machine and os settings"
   [instance]
-  (-> instance (ubuntu-1804) (default-machine)))
+  (-> instance (ubuntu-18_04_2) (default-machine)))
 
 (defn node [n]
   (fn [instance]
@@ -50,12 +51,10 @@
 
 (def local (node :localhost))
 
-(def lxc
-  {:lxc {} :machine {}})
+(def lxc {:lxc {} :machine {}})
 
-(defn kvm []
-  {:kvm {}})
+(def kvm {:kvm {} :machine {}})
 
 (defn refer-common-presets []
-  (require '[re-core.presets.common :as spc :refer [node lxc os ubuntu-1804 defaults local]]))
+  (require '[re-core.presets.common :as spc :refer [node lxc kvm os ubuntu-18_04_2 defaults local]]))
 

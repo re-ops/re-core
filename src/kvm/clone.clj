@@ -3,6 +3,7 @@
   (:require
    [kvm.volumes :refer (volume-xml into-volume get-disks update-disks)]
    [kvm.common :refer (connect tree-edit domain-zip state)]
+   [re-core.provider :refer (into-mb)]
    [clojure.zip :as zip]
    [clojure.data.xml :as xml])
   (:import
@@ -47,7 +48,7 @@
 
 (defn set-ram [xml ram]
   (zip/xml-zip
-   (tree-edit xml ram? (fn [node] (assoc node :content (list (* ram 1024)))))))
+   (tree-edit xml ram? (fn [node] (assoc node :content (list (into-mb (* ram 1024))))))))
 
 (defn- clone-root [root name desc cpu ram]
   (-> root

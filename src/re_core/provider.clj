@@ -86,3 +86,8 @@
   [this timeout ex]
   (wait-for {:timeout timeout} #(running? this)
             "Timed out waiting for instance to be running"))
+
+(defn into-mb
+  "Convert RAM units to Megabytes"
+  [units]
+  (int (* 1024 units)))

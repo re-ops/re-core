@@ -5,7 +5,7 @@
   {:env :dev
    :owner "ronen"
    :machine {:hostname "red1" :user "re-ops" :domain "local"
-             :os :ubuntu-18.04 :cpu 4 :ram 1024}
+             :os :ubuntu-18.04.2 :cpu 4 :ram 1}
    :kvm {:node :localhost}
    :type "redis"})
 
@@ -13,7 +13,7 @@
   {:env :dev
    :owner "ronen"
    :machine {:hostname "red1" :user "root" :domain "local"
-             :os :ubuntu-18.04 :cpu 4 :ram 1024}
+             :os :ubuntu-18.04.2 :cpu 4 :ram 1}
    :lxc {:node :localhost}
    :type "redis"})
 
@@ -21,7 +21,7 @@
   {:env :dev
    :owner "admin"
    :machine {:hostname "red1" :user "root"
-             :domain "local" :os :ubuntu-18.04}
+             :domain "local" :os :ubuntu-18.04.2}
    :digital-ocean {:region "lon1" :size "512mb"
                    :private_networking false}
    :type "redis"})
@@ -30,7 +30,7 @@
   {:env :dev
    :owner "admin"
    :machine {:hostname "red1" :user "ubuntu"
-             :domain "local" :os :ubuntu-18.04}
+             :domain "local" :os :ubuntu-18.04.2}
 
    :aws {:instance-type "t2.micro"
          :key-name "enceladus"
@@ -43,7 +43,7 @@
   {:env :dev
    :owner "admin"
    :machine {:hostname "red1" :user "ubuntu"  :ip "1.2.3.4"
-             :domain "local" :os :ubuntu-18.04}
+             :domain "local" :os :ubuntu-18.04.2}
    :physical {:mac "9a:07:e4:bc:79:df"
               :broadcast "192.168.0.255"}
    :type "redis"})

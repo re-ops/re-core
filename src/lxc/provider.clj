@@ -4,7 +4,7 @@
    [taoensso.timbre :as timbre]
    [lxc.client :as lxc]
    [re-core.model :refer (vconstruct hypervisor* hypervisor)]
-   [re-core.provider :refer (selections mappings transform wait-for-ssh os->template)]
+   [re-core.provider :refer (selections mappings transform wait-for-ssh os->template into-mb)]
    [re-core.core :refer (Sync Vm)]
    [clojure.spec.alpha :refer (valid?)]
    [flatland.useful.map :refer (dissoc-in*)]
@@ -65,7 +65,7 @@
 (defn translate [machine]
   (-> machine
       (mappings {:os :image :hostname :name :cpu :limits.cpu :ram :limits.memory})
-      (transform {:limits.cpu str :limits.memory str
+      (transform {:limits.cpu str :limits.memory (comp str into-mb)
                   :image (fn [img] (:template ((os->template :lxc) img)))})
       (base)))
 
