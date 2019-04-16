@@ -21,7 +21,8 @@
 (def operations
   #{:reload :destroy :provision :stage :create :start :stop :clear :clone})
 
-(defn figure-virt [spec] (first (filter hypervizors (keys spec))))
+(defn figure-virt [spec]
+  (first (filter hypervizors (keys spec))))
 
 (defn hypervisor
   "obtains current environment hypervisor"

@@ -7,8 +7,6 @@
    [aws.volumes :refer (delete-volumes handle-volumes)]
    [aws.validations :refer (provider-validation)]
    [clojure.core.strint :refer (<<)]
-   [re-mote.ssh.transport :refer (ssh-up?)]
-   [flatland.useful.utils :refer (defm)]
    [flatland.useful.map :refer (dissoc-in*)]
    [re-core.provider :refer (wait-for-ssh map-key)]
    [re-share.core :refer (wait-for)]

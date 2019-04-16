@@ -34,14 +34,14 @@
 
 (def lon1 (region "lon1"))
 
-(defn digital-machine [os]
-  (c/machine "re-ops" "local" os))
+(defn digital-machine []
+  (c/machine "re-ops" "local"))
 
 (defn droplet
   ([size]
    (droplet size :ubuntu-16.04))
   ([size os]
-   {:machine (digital-machine os)
+   {:machine (digital-machine)
     :digital-ocean {:region "sfo1" :size size
                     :private_networking false}}))
 

@@ -1,14 +1,8 @@
 (ns re-core.presets.common
   "Common preset functions"
   (:require
+   [re-core.model :refer (figure-virt)]
    [re-core.common :refer (gen-uuid)]))
-
-(defn os [k]
-  (fn [instance]
-    (assoc-in instance [:machine :os] k)))
-
-(defn machine [user domain os]
-  {:user user :domain domain :os os})
 
 (defn name-gen
   "Generating a unique hostname from host/type + uuid"
@@ -33,6 +27,35 @@
   (fn [{:keys [type] :as instance}]
     (assoc-in instance [:machine :hostname] (or h (name type)))))
 
+(defn os [k]
+  (fn [instance]
+    (assoc-in instance [:machine :os] k)))
+
+(def ubuntu-1804 (os :ubuntu-18.04))
+
+(defn machine [user domain]
+  (fn [instance]
+    (update instance :machine (fn [m] (merge m {:user user :domain domain})))))
+
+(def default-machine (machine "re-ops" "local"))
+
+(defn defaults
+  "default machine and os settings"
+  [instance]
+  (-> instance (ubuntu-1804) (default-machine)))
+
+(defn node [n]
+  (fn [instance]
+    (assoc-in instance [(figure-virt instance) :node] n)))
+
+(def local (node :localhost))
+
+(def lxc
+  {:lxc {} :machine {}})
+
+(defn kvm []
+  {:kvm {}})
+
 (defn refer-common-presets []
-  (require '[re-core.presets.common :as spc :refer [os]]))
+  (require '[re-core.presets.common :as spc :refer [node lxc os ubuntu-1804 defaults local]]))
 

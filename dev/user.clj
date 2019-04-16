@@ -7,7 +7,6 @@
    ; re-core
    [re-core.repl :refer :all]
    [re-core.presets.kvm :refer (refer-kvm-presets)]
-   [re-core.presets.lxc :refer (refer-lxc-presets)]
    [re-core.presets.digitial :refer (refer-digital-presets)]
    [re-core.presets.aws :refer (refer-aws-presets)]
    [re-core.presets.common :refer (refer-common-presets)]
@@ -46,7 +45,6 @@
 (refer-history)
 (refer-zero-manage)
 (refer-kvm-presets)
-(refer-lxc-presets)
 (refer-aws-presets)
 (refer-digital-presets)
 (refer-common-presets)

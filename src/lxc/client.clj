@@ -132,12 +132,12 @@
            :profiles ["default"]
            :devices {}
            :ephemeral false
-           :config {:limits.cpu "2"}
+           :config {:limits.cpu "1" :limits.memory "500"}
            :source {:type "image" :alias "ubuntu-18.04"}})
 
   (require '[clojure.pprint :refer (pprint)])
 
-  (start node m)
+  (create node m)
 
   (stop node m)
 
