@@ -27,6 +27,13 @@
   (fn [{:keys [type] :as instance}]
     (assoc-in instance [:machine :hostname] (or h (name type)))))
 
+(defn into-specs [base args]
+  (let [{:keys [fns total type hostname]} (into-spec {} args)
+        transforms [(with-type type) (with-host hostname) name-gen]
+        all (apply conj transforms fns)]
+    (map
+     (fn [_] (reduce (fn [m f] (f m)) base all)) (range (or total 1)))))
+
 (defn os [k]
   (fn [instance]
     (assoc-in instance [:machine :os] k)))

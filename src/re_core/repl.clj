@@ -6,11 +6,10 @@
    [clojure.core.strint :refer  (<<)]
    [re-core.repl.base :refer (refer-base)]
    [re-core.repl.systems :refer (refer-systems)]
-   [re-core.presets.common :as sp]
+   [re-core.presets.common :as sp :refer (into-specs)]
    [re-share.config :as c]
    [re-core.presets.type :as tp]
-   [re-core.repl.types :refer (refer-types)]
-   [taoensso.timbre :as timbre])
+   [re-core.repl.types :refer (refer-types)])
   (:import
    [re_mote.repl.base Hosts]
    [re_core.repl.base Types Systems]))
@@ -154,10 +153,7 @@
 (defn- create-system
   "Create a system internal implementation"
   [base args]
-  (let [{:keys [fns total type hostname]} (sp/into-spec {} args)
-        transforms [(sp/with-type type) (sp/with-host hostname) sp/name-gen]
-        all (apply conj transforms fns)
-        specs (map  (fn [_] (reduce (fn [m f] (f m)) base all)) (range (or total 1)))]
+  (let [specs (into-specs base args)]
     (run (add- systems specs) | (sys/create) | (async-wait pretty-print "create"))))
 
 (defn- create-type
