@@ -53,4 +53,3 @@
         ip
         (throw (ex-info "Failed to grab domain public IP" {:user user :node node :id id :output log}))))))
 
-
