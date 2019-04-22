@@ -12,8 +12,6 @@
    [re-core.repl.systems :as sys]
    [re-mote.repl :as mote]
    [es.systems :as s]
-   [clojure.tools.macro :as tm]
-   [metrics.timers :refer  [deftimer time!]]
    [clojure.core.strint :refer (<<)]
    [re-core.model :refer (vconstruct)]
    [taoensso.timbre :refer (refer-timbre)])
@@ -32,13 +30,13 @@
   "Asserts that a VM is running"
   [vm]
   (assert (= (.status vm) "running")) ; might not match all providers
-)
+  )
 
 (defn not-running!
   "Assert that a vm is not running"
   [vm]
   (assert (not (= (.status vm) "running"))) ; might not match all providers
-)
+  )
 
 (defn reload
   "Reloads a machine if one already exists, will distroy the old one"

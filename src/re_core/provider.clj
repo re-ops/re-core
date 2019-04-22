@@ -2,12 +2,10 @@
   "common providers functions"
   (:require
    [taoensso.timbre :refer (refer-timbre)]
-   [flatland.useful.map :refer (dissoc-in*)]
+   [clojure.core.incubator :refer (dissoc-in)]
    [subs.core :refer (validation when-not-nil)]
    [re-mote.ssh.transport :refer (ssh-up?)]
    [re-core.model :refer (hypervisor)]
-   [minderbinder.time :refer (parse-time-unit)]
-   [re-core.common :refer (curr-time)]
    [re-share.config :refer (get!)]
    [re-share.core :refer (wait-for)]
    [clojure.core.strint :refer (<<)])
@@ -62,7 +60,7 @@
               (<< "Timed out while waiting for ssh please check: ssh ~{user}@~{address} -i ~{k}"))))
 
 (defn map-key [m from to]
-  (dissoc-in* (assoc-in m to (get-in m from)) from))
+  (dissoc-in (assoc-in m to (get-in m from)) from))
 
 ; common validations
 (validation :ip (when-not-nil (partial re-find #"\d+\.\d+\.\d+\.\d+") "must be a legal ip address"))

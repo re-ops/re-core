@@ -7,7 +7,7 @@
    [aws.volumes :refer (delete-volumes handle-volumes)]
    [aws.validations :refer (provider-validation)]
    [clojure.core.strint :refer (<<)]
-   [flatland.useful.map :refer (dissoc-in*)]
+   [clojure.core.incubator :refer (dissoc-in)]
    [re-core.provider :refer (wait-for-ssh map-key)]
    [re-share.core :refer (wait-for)]
    [re-core.core :refer (Vm)]
@@ -85,7 +85,7 @@
       (wait-for-status this "terminated" [5 :minute])
       ; for reload support
       (s/put (spec :system-id)
-             (dissoc-in* (s/get (spec :system-id)) [:aws :instance-id]))))
+             (dissoc-in (s/get (spec :system-id)) [:aws :instance-id]))))
 
   (stop [this]
     (with-instance-id
@@ -93,7 +93,7 @@
       (when-not (first (:addresses (describe-eip endpoint instance-id)))
         (debug "clearing dynamic public ip from system")
         (s/put (spec :system-id)
-               (dissoc-in* (s/get (spec :system-id)) [:machine :ip])))
+               (dissoc-in (s/get (spec :system-id)) [:machine :ip])))
       (with-ctx ec2/stop-instances {:instance-ids [instance-id]})
       (wait-for-status this "stopped" [5 :minute])))
 
@@ -128,13 +128,13 @@
         public [{:groups groups :device-index 0 :associate-public-ip-address assign-public :subnet-id subnet-id}]]
     (-> spec
         (assoc-in [:aws :network-interfaces] public)
-        (dissoc-in* [:aws :vpc])
-        (dissoc-in* [:aws :security-groups]))))
+        (dissoc-in [:aws :vpc])
+        (dissoc-in [:aws :security-groups]))))
 
 (defn aws-spec
   "Creates an ec2 spec"
   [{:keys [aws machine] :as spec}]
-  (let [spec' (merge-with merge (dissoc-in* spec [:aws :endpoint]) defaults)]
+  (let [spec' (merge-with merge (dissoc-in spec [:aws :endpoint]) defaults)]
     (assign-vpc (get-in spec [:aws :endpoint])
                 (cond-> spec'
                   (get-in spec' [:aws :availability-zone])

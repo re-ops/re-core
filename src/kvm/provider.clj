@@ -5,7 +5,7 @@
    [clojure.core.strint :refer (<<)]
    [re-share.config :refer (get!)]
    [com.rpl.specter :as spec :refer  (MAP-VALS ALL ATOM keypath)]
-   [flatland.useful.map :refer (dissoc-in*)]
+   [clojure.core.incubator :refer (dissoc-in)]
    [kvm.validations :refer (provider-validation)]
    [kvm.clone :refer (clone-domain)]
    [kvm.volumes :refer (clear-volumes create-volumes)]
@@ -86,7 +86,7 @@
   (stop [this]
     (with-connection
       (s/put system-id
-             (dissoc-in* (s/get system-id) [:machine :ip]))
+             (dissoc-in (s/get system-id) [:machine :ip]))
       (.destroy (get-domain (c) (domain :name)))
       (wait-for-status this "shutoff" timeout)))
 

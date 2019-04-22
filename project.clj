@@ -7,11 +7,7 @@
 
                  ; utils
                  [me.raynes/fs "1.4.6"]
-                 [robert/hooke "1.3.0"]
                  [org.clojure/core.incubator "0.1.4"]
-                 [org.flatland/useful "0.11.5"]
-                 [org.clojure/tools.macro "0.1.5"]
-                 [org.clojure/java.data "0.1.1"]
 
                  ; templating
                  [selmer "0.8.2"]
@@ -32,10 +28,11 @@
 
                  ; Api
                  [clj-yaml "0.4.0"]
-                 [org.clojure/data.json "0.2.6" ]
 
-                 ; hypervisors
+                 ; digitalocean
                  [narkisr/digitalocean "1.3"]
+
+                 ; amazon
                  [amazonica "0.3.94" :exclusions [com.taoensso/nippy com.google.protobuf/protobuf-java]]
 
                  ; libvirt
@@ -47,6 +44,7 @@
                  ; lxc
                  [http-kit "2.3.0"]
                  [less-awful-ssl "1.0.4"]
+                 [org.clojure/data.json "0.2.6" ]
 
                  ; model
                  [com.rpl/specter "1.1.2"]
@@ -67,7 +65,6 @@
                  [mount "0.1.13"]
 
                  ; pretty print
-                 [io.aviso/pretty "0.1.37"]
                  [rm-hull/table "0.7.0"]
                ]
 

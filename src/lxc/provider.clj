@@ -7,7 +7,7 @@
    [re-core.provider :refer (selections mappings transform wait-for-ssh os->template into-mb)]
    [re-core.core :refer (Sync Vm)]
    [clojure.spec.alpha :refer (valid?)]
-   [flatland.useful.map :refer (dissoc-in*)]
+   [clojure.core.incubator :refer (dissoc-in)]
    [lxc.spec :as spec]
    [es.systems :as s :refer (update-ip)]))
 
@@ -43,7 +43,7 @@
 
   (stop [this]
     (lxc/stop node container)
-    (s/put system-id (dissoc-in* (s/get system-id) [:machine :ip]))
+    (s/put system-id (dissoc-in (s/get system-id) [:machine :ip]))
     (debug "container stopped"))
 
   (status [this]
