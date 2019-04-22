@@ -25,6 +25,14 @@
     :hypervisor #profile {
       :dev {
         :physical { }
+        :aws {
+              :access-key ""
+              :secret-key ""
+           :ostemplates {
+              :ubuntu-18.04 {:ami "" :flavor :debian}
+           }
+        }
+
         :kvm {
           :nodes {
             :localhost {
