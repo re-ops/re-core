@@ -30,13 +30,13 @@
   "Asserts that a VM is running"
   [vm]
   (assert (= (.status vm) "running")) ; might not match all providers
-  )
+)
 
 (defn not-running!
   "Assert that a vm is not running"
   [vm]
   (assert (not (= (.status vm) "running"))) ; might not match all providers
-  )
+)
 
 (defn reload
   "Reloads a machine if one already exists, will distroy the old one"
