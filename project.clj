@@ -70,11 +70,8 @@
 
   :exclusions [org.clojure/clojure com.taoensso/timbre commons-codec]
 
-  :plugins  [[jonase/eastwood "0.2.4"]
-             [lein-cljfmt "0.5.6"]
-             [lein-kibit "0.1.5"]
+  :plugins  [[lein-cljfmt "0.5.6"]
              [lein-ancient "0.6.15" :exclusions [org.clojure/clojure]]
-             [lein-tar "2.0.0" ]
              [self-build "0.0.9"]
              [lein-tag "0.1.0"]
              [lein-set-version "0.3.0"]]
