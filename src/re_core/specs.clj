@@ -6,11 +6,21 @@
 
 (s/def ::node keyword?)
 
+(s/def ::lxc (s/keys :req-un [::node]))
+
 (defmulti system (fn [spec] (figure-virt spec)))
 
-(defmethod system :lxc [_] (s/keys :req-un [::node]))
+(defmethod system :lxc [_] (s/keys :req-un [::lxc]))
 
 (s/def ::system (s/multi-spec system figure-virt))
 
 (comment
-  (s/explain ::system {:lxc {}}))
+  (def redis-lxc
+    {:env :dev
+     :owner "ronen"
+     :machine {:hostname "red1" :user "root" :domain "local"
+               :os :ubuntu-18.04.2 :cpu 4 :ram 1}
+     :lxc {:node :localhost}
+     :type "redis"})
+
+  (s/explain ::system redis-lxc))
