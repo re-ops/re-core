@@ -1,11 +1,12 @@
 (ns re-core.specs
   (:require
+   [clojure.core.strint :refer (<<)]
    [clojure.spec.alpha :as s]
    [re-share.spec :as re-ops]
    [re-core.presets.instance-types :as types]
    [re-core.model :refer (figure-virt)]))
 
-; Properties
+; Digital ocean
 (def digital-regions #{"nyc1" "nyc2" "nyc3" "tor1" "sfo1" "sfo2" "sgp1" "lon1"})
 
 (def droplet-sizes #{"s-1vcpu-1gb" "s-1vcpu-2gb" "s-1vcpu-3gb" "s-2vcpu-2gb" "512mb"})
@@ -16,7 +17,31 @@
 
 (s/def :digital/private_networking boolean?)
 
-(s/def ::node (s/and keyword? #(re-matches #"\w+" (name %))))
+; AWS
+
+(def instance-types (into #{} (map name (keys types/aws))))
+
+(s/def :aws/instance-type (s/and string? instance-types))
+
+(s/def :aws/key-name (s/and string? #(re-matches #"\w+" %)))
+
+(defn region-suffix [r]
+  (get {"cn-north-1" "cn" "cn-northwest-1" "cn"} r "com"))
+
+(def ec2-regions
+  ["us-east-2" "us-east-1" "us-west-1" "us-west-2" "ap-east-1" "ap-south-1" "ap-northeast-3"
+   "ap-northeast-2" "ap-southeast-1" "ap-southeast-2" "ap-northeast-1" "ca-central-1" "cn-north-1"
+   "cn-northwest-1" "eu-central-1" "eu-west-1" "eu-west-2" "eu-west-3" "eu-north-1" "sa-east-1"
+   "us-gov-east-1" "us-gov-west-1"])
+
+(def ec2-endpoints
+  (into #{} (map (fn [r] (<< "ec2.~{r}.amazonaws.~(region-suffix r)")) ec2-regions)))
+
+(s/def :aws/endpoint (s/and string? ec2-endpoints))
+
+(s/def :aws/security-groups (s/coll-of (s/and string? #(re-matches #"\w+" %))))
+
+(s/def :aws/ebs-optimized boolean?)
 
 ; Networking properties
 (def ethernet-address #"^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$")
@@ -39,7 +64,9 @@
 
 (def user-regex #"^[a-z_]([a-z0-9_-]{0,31}|[a-z0-9_-]{0,30}\$)$")
 
-; Other properties
+; Common properties
+(s/def ::node (s/and keyword? #(re-matches #"\w+" (name %))))
+
 (s/def ::user (s/and string? #(re-matches user-regex %)))
 
 (def os-regex #"^[a-z]+\-[1-9]{1,2}\.[0-9]{1,2}[\.0-9]{0,2}$")
@@ -61,11 +88,15 @@
 
 (s/def ::digital-ocean (s/keys :req-un [:digital/region :digital/size :digital/private_networking]))
 
+(s/def ::aws (s/keys :req-un [:aws/instance-type :aws/key-name :aws/endpoint :aws/security-groups :aws/ebs-optimized]))
+
 (s/def ::physical (s/keys :req-un [::mac ::broadcast]))
 
 (defmulti system (fn [spec] (figure-virt spec)))
 
 (defmethod system :lxc [_] (s/keys :req-un [:resource/machine ::lxc]))
+
+(defmethod system :aws [_] (s/keys :req-un [::aws]))
 
 (defmethod system :physical [_] (s/keys :req-un [::physical]))
 
@@ -79,6 +110,3 @@
 (s/def :resource/machine (s/keys :req-un [::os ::cpu ::ram]))
 
 (s/def ::system (s/merge (s/multi-spec system figure-virt) (s/keys :req-un [:common/machine])))
-
-(comment
-  (s/valid? ::system redis-physical))

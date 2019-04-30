@@ -1,13 +1,12 @@
 (ns re-core.test.kvm
   (:require
-   [re-share.config :as conf]
    [re-core.fixtures.data :refer [redis-kvm volume]]
    [re-core.model :refer (vconstruct)])
   (:use clojure.test))
 
 (def expected-domain
-  {:user "re-ops" :name "red1" :hostname "red1" :cpu 4 :ram 1024
-   :image {:flavor :debian :template "ubuntu-server-18.04.1"}})
+  {:user "re-ops" :name "red1" :hostname "red1" :cpu 4 :ram 1
+   :image {:flavor :debian :template "ubuntu-18.04.2"}})
 
 (deftest kvm-sanity
   (testing "legal instance spec"

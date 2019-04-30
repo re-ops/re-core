@@ -102,6 +102,7 @@
   (clojure.test/run-tests
    're-core.test.aws
    're-core.test.kvm
+   're-core.test.specs
    're-core.test.physical
    're-core.test.provider
    're-core.test.validations))
