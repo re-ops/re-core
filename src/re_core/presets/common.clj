@@ -1,6 +1,9 @@
 (ns re-core.presets.common
   "Common preset functions"
   (:require
+   [expound.alpha :as expound]
+   [re-core.specs :as core]
+   [clojure.spec.alpha :as s]
    [re-core.model :refer (figure-virt)]
    [re-core.common :refer (gen-uuid)]))
 
@@ -20,6 +23,11 @@
         (keyword? a) (into-spec (assoc m :type a) (rest args))
         (fn? a) (into-spec (assoc m :fns (conj fns a)) (rest args))))))
 
+(defn validate [spec]
+  (if-not (s/valid? ::core/system spec)
+    (expound/expound ::core/system spec)
+    spec))
+
 (defn with-type [t]
   (fn [instance] (assoc instance :type t)))
 
@@ -32,7 +40,7 @@
         transforms [(with-type type) (with-host hostname) name-gen]
         all (apply conj transforms fns)]
     (map
-     (fn [_] (reduce (fn [m f] (f m)) base all)) (range (or total 1)))))
+     (fn [_] (validate (reduce (fn [m f] (f m)) base all))) (range (or total 1)))))
 
 (defn os [k]
   (fn [instance]
@@ -53,9 +61,7 @@
   (-> instance (ubuntu-18_04_2) (default-machine)))
 
 (defn node [n]
-  (fn [instance]
-    (assoc-in instance [(figure-virt instance) :node] n)))
-
+  (fn [instance] (assoc-in instance [(figure-virt instance) :node] n)))
 (def local (node :localhost))
 
 (def lxc {:lxc {} :machine {}})
@@ -64,4 +70,3 @@
 
 (defn refer-common-presets []
   (require '[re-core.presets.common :as spc :refer [node lxc kvm os ubuntu-18_04_2 defaults local]]))
-
