@@ -2,11 +2,11 @@
   (:require
    [re-core.specs :as core]
    [re-core.fixtures.data :as d]
-   [clojure.spec.alpha :refer (valid?)])
+   [clojure.spec.alpha :as s :refer (valid?)])
   (:use clojure.test))
 
 (deftest legal-systems
-  (is (valid? ::core/system d/redis-aws))
+  (is (valid? ::core/system d/redis-ec2))
   (is (valid? ::core/system d/redis-digital))
   (is (valid? ::core/system d/redis-lxc))
   (is (valid? ::core/system d/redis-physical))
