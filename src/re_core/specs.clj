@@ -6,6 +6,9 @@
    [re-core.presets.instance-types :as types]
    [re-core.model :refer (figure-virt)]))
 
+(defn alpha? [s]
+  (re-matches #"\w+" s))
+
 ; Digital ocean
 (def digital-regions #{"nyc1" "nyc2" "nyc3" "tor1" "sfo1" "sfo2" "sgp1" "lon1"})
 
@@ -23,7 +26,7 @@
 
 (s/def :aws/instance-type (s/and string? instance-types))
 
-(s/def :aws/key-name (s/and string? #(re-matches #"\w+" %)))
+(s/def :aws/key-name (s/and string? alpha?))
 
 (defn region-suffix [r]
   (get {"cn-north-1" "cn" "cn-northwest-1" "cn"} r "com"))
@@ -39,39 +42,45 @@
 
 (s/def :aws/endpoint (s/and string? ec2-endpoints))
 
-(s/def :aws/security-groups (s/coll-of (s/and string? #(re-matches #"\w+" %))))
+(s/def :aws/security-groups (s/coll-of (s/and string? alpha?)))
 
 (s/def :aws/ebs-optimized boolean?)
 
 ; Networking properties
-(def ethernet-address #"^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$")
+(defn ethernet? [s]
+  (re-matches #"^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$" s))
 
-(s/def ::mac (s/and string? #(re-matches ethernet-address %)))
+(s/def ::mac (s/and string? ethernet?))
 
-(def ip #"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$")
+(defn ip? [s]
+  (re-matches #"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$" s))
 
-(s/def ::ip (s/and string? #(re-matches ip %)))
+(s/def ::ip (s/and string? ip?))
 
-(s/def ::broadcast (s/and string? #(re-matches ip %)))
+(s/def ::broadcast (s/and string? ip?))
 
-(def hostname-regex #"([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9])*")
+(defn hostname? [s]
+  (re-matches #"([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9])*" s))
 
-(s/def ::hostname (s/and string? #(re-matches hostname-regex %)))
+(s/def ::hostname (s/and string? hostname?))
 
-(def domain-regex #"([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\\-]*[A-Za-z0-9])")
+(defn domain? [s]
+  (re-matches #"([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\\-]*[A-Za-z0-9])" s))
 
-(s/def ::domain (s/and string? #(re-matches domain-regex %)))
-
-(def user-regex #"^[a-z_]([a-z0-9_-]{0,31}|[a-z0-9_-]{0,30}\$)$")
+(s/def ::domain (s/and string? domain?))
 
 ; Common properties
-(s/def ::node (s/and keyword? #(re-matches #"\w+" (name %))))
+(s/def ::node (s/and keyword? (comp alpha? name)))
 
-(s/def ::user (s/and string? #(re-matches user-regex %)))
+(defn user? [s]
+  (re-matches #"^[a-z_]([a-z0-9_-]{0,31}|[a-z0-9_-]{0,30}\$)$" s))
 
-(def os-regex #"^[a-z]+\-[1-9]{1,2}\.[0-9]{1,2}[\.0-9]{0,2}$")
+(s/def ::user (s/and string? user?))
 
-(s/def ::os (s/and keyword? #(re-matches os-regex (name %))))
+(defn os? [s]
+  (re-matches #"^[a-z]+\-[1-9]{1,2}\.[0-9]{1,2}[\.0-9]{0,2}$" s))
+
+(s/def ::os (s/and keyword? (comp os? name)))
 
 (def valid-cpus (into #{} (map :cpu (vals types/all))))
 
@@ -107,6 +116,8 @@
 ; Common and main specs
 (s/def :common/machine (s/keys :req-un [::hostname ::domain ::user ::os] :opt-un [::ip]))
 
+(s/def ::type (s/and string? alpha?))
+
 (s/def :resource/machine (s/keys :req-un [::os ::cpu ::ram]))
 
-(s/def ::system (s/merge (s/multi-spec system figure-virt) (s/keys :req-un [:common/machine])))
+(s/def ::system (s/merge (s/multi-spec system figure-virt) (s/keys :req-un [:common/machine ::type])))
