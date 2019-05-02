@@ -24,7 +24,7 @@
   {:machine {:hostname "red1" :user "ubuntu"
              :domain "local" :os :ubuntu-18.04.2}
 
-   :aws {:instance-type "t2.micro"
+   :aws {:instance-type "t2-micro"
          :key-name "enceladus"
          :endpoint "ec2.ap-southeast-2.amazonaws.com"
          :security-groups ["default"]
