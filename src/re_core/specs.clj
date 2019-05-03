@@ -88,7 +88,7 @@
 
 (def valid-ram (into #{} (map :ram (vals types/all))))
 
-(s/def ::ram (s/and int? valid-ram))
+(s/def ::ram (s/and number? valid-ram))
 
 ; Hypervisors
 (s/def ::lxc (s/keys :req-un [::node]))
@@ -116,7 +116,7 @@
 ; Common and main specs
 (s/def :common/machine (s/keys :req-un [::hostname ::domain ::user ::os] :opt-un [::ip]))
 
-(s/def ::type (s/and string? alpha?))
+(s/def ::type (s/and keyword? (comp alpha? name)))
 
 (s/def :resource/machine (s/keys :req-un [::os ::cpu ::ram]))
 

@@ -5,20 +5,20 @@
   {:machine {:hostname "red1" :user "re-ops" :domain "local"
              :os :ubuntu-18.04.2 :cpu 4 :ram 1}
    :kvm {:node :localhost}
-   :type "redis"})
+   :type :redis})
 
 (def redis-lxc
   {:machine {:hostname "red1" :user "root" :domain "local"
              :os :ubuntu-18.04.2 :cpu 4 :ram 1}
    :lxc {:node :localhost}
-   :type "redis"})
+   :type :redis})
 
 (def redis-digital
   {:machine {:hostname "red1" :user "root"
              :domain "local" :os :ubuntu-18.04.2}
    :digital-ocean {:region "lon1" :size "512mb"
                    :private_networking false}
-   :type "redis"})
+   :type :redis})
 
 (def redis-ec2
   {:machine {:hostname "red1" :user "ubuntu"
@@ -29,14 +29,14 @@
          :endpoint "ec2.ap-southeast-2.amazonaws.com"
          :security-groups ["default"]
          :ebs-optimized false}
-   :type "redis"})
+   :type :redis})
 
 (def redis-physical
   {:machine {:hostname "red1" :user "ubuntu"  :ip "1.2.3.4"
              :domain "local" :os :ubuntu-18.04.2}
    :physical {:mac "9a:07:e4:bc:79:df"
               :broadcast "192.168.0.255"}
-   :type "redis"})
+   :type :redis})
 
 (def redis-type
   {:puppet {:src "/home/ronen/code/boxes/redis-sandbox/"
@@ -44,6 +44,6 @@
             :args []}
 
    :description "Redis Database"
-   :type "redis"})
+   :type :redis})
 
 (def volume {:device "vdb" :type "qcow2" :size 100 :clear true :pool :default :name "foo.img"})
