@@ -18,6 +18,7 @@
 (defrecord Container [system-id node container user]
   Vm
   (create [this]
+    (debug "creating container")
     (lxc/create node container)
     (debug "container created")
     (lxc/start node container)

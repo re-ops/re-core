@@ -6,7 +6,7 @@
    [clojure.core.strint :refer  (<<)]
    [re-core.repl.base :refer (refer-base)]
    [re-core.repl.systems :refer (refer-systems)]
-   [re-core.presets.common :as sp :refer (into-specs)]
+   [re-core.presets.common :as sp :refer (materialize-preset validate)]
    [re-share.config :as c]
    [re-core.presets.type :as tp]
    [re-core.repl.types :refer (refer-types)])
@@ -153,8 +153,10 @@
 (defn- create-system
   "Create a system internal implementation"
   [base args]
-  (let [specs (into-specs base args)]
-    (run (add- systems specs) | (sys/create) | (async-wait pretty-print "create"))))
+  (let [ms (validate (materialize-preset base args))]
+    (if-not (empty? (ms false))
+      (ms false)
+      (run (add- systems (ms true)) | (sys/create) | (async-wait pretty-print "create")))))
 
 (defn- create-type
   "Create type internal implementation"

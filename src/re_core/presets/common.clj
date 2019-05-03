@@ -23,11 +23,6 @@
         (keyword? a) (into-spec (assoc m :type a) (rest args))
         (fn? a) (into-spec (assoc m :fns (conj fns a)) (rest args))))))
 
-(defn validate [spec]
-  (if-not (s/valid? ::core/system spec)
-    (expound/expound ::core/system spec)
-    spec))
-
 (defn with-type [t]
   (fn [instance] (assoc instance :type t)))
 
@@ -35,12 +30,21 @@
   (fn [{:keys [type] :as instance}]
     (assoc-in instance [:machine :hostname] (or h (name type)))))
 
-(defn into-specs [base args]
+(defn materialize-preset
+  "Convert a preset into a system using provided args (functions, keyswords etc..)"
+  [base args]
   (let [{:keys [fns total type hostname]} (into-spec {} args)
         transforms [(with-type type) (with-host hostname) name-gen]
         all (apply conj transforms fns)]
     (map
-     (fn [_] (validate (reduce (fn [m f] (f m)) base all))) (range (or total 1)))))
+     (fn [_] (reduce (fn [m f] (f m)) base all)) (range (or total 1)))))
+
+(defn validate
+  "Group systems by ::core/system specification validation result
+   Failing results are converted into expound format output string"
+  [sp]
+  (update-in
+   (group-by (partial s/valid? ::core/system) sp) [false] (partial map (partial expound/expound ::core/system))))
 
 (defn os [k]
   (fn [instance]
