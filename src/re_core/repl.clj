@@ -78,12 +78,12 @@
      (clear (by-type :redis)) ; clear systems with redis type
      (clear identity :types) ; clear all types"
   ([]
-   (clear identity))
-  ([f]
-   (clear f :systems))
-  ([f on]
+   (clear identity {}))
+  ([f opts]
+   (clear f :systems opts))
+  ([f on opts]
    (case on
-     :systems (run (ls systems) | (filter-by f) | (rm) | (pretty))
+     :systems (run (ls systems) | (filter-by f) | (ack opts) | (rm) | (pretty))
      :types (run (ls types) | (filter-by f) | (rm) | (pretty)))))
 
 (defn destroy
