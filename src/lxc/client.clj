@@ -1,9 +1,9 @@
 (ns lxc.client
-  "Lxc http client see https://github.com/lxc/lxd/blob/master/doc/rest-api.md
+  "LXC http client see https://github.com/lxc/lxd/blob/master/doc/rest-api.md
 
    Using p12 file format cert that can be created from lxc key and crt files:
 
-     openssl pkcs12 -export -out certificate.p12 -inkey client.key -in client.crt -certfile servercerts/127.0.0.1.cr
+     openssl pkcs12 -export -out certificate.p12 -inkey client.key -in client.crt -certfile servercerts/127.0.0.1.crt
   "
   (:require
    [re-share.core :refer (wait-for)]
