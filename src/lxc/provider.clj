@@ -3,7 +3,7 @@
   (:require
    [taoensso.timbre :as timbre]
    [lxc.client :as lxc]
-   [re-core.model :refer (vconstruct hypervisor* hypervisor)]
+   [re-core.model :refer (vconstruct hypervisor* hypervisor sconstruct)]
    [re-core.provider :refer (selections mappings transform wait-for-ssh os->template into-mb)]
    [re-core.core :refer (Sync Vm)]
    [clojure.spec.alpha :refer (valid?)]
@@ -70,12 +70,22 @@
                   :image (fn [img] (:template ((os->template :lxc) img)))})
       (base)))
 
+(defrecord LXD [nodes opts]
+  Sync
+  (sync [this]
+    #_(apply concat
+             (map
+              (fn [[k n]] (sync-node k (mappings n {:username :user}) opts)) nodes))))
+
 (defmethod vconstruct :lxc [{:keys [lxc machine system-id] :as spec}]
   {:post [(valid? :lxc/container  %)]}
   (let [node (hypervisor :lxc :nodes (lxc :node))
         auth (hypervisor :lxc :auth)
         container (translate machine)]
     (->Container system-id (merge node auth) container (:user machine))))
+
+(defmethod sconstruct :kvm [_ opts]
+  (LXD. (hypervisor :lxc :nodes) opts))
 
 (comment
   (hypervisor :lxc :nodes :localhost))

@@ -7,9 +7,8 @@
   "
   (:require
    [re-share.core :refer (wait-for)]
-   [clojure.string :refer (lower-case join)]
+   [clojure.string :as s :refer (lower-case join)]
    [clojure.data.json :as json]
-   [re-core.model :refer (hypervisor)]
    [less.awful.ssl :refer (ssl-context->engine ssl-p12-context)]
    [clojure.core.strint :refer (<<)]
    [org.httpkit.client :as http])
@@ -75,10 +74,18 @@
   [node {:keys [name]}]
   (async-status node (run http/delete (<< "containers/~{name}") node)))
 
+(defn into-names [{:keys [metadata]}]
+  (map #(s/replace % #"\/1.0\/containers\/" "") metadata))
+
 (defn list
   "List containers in lxd instance"
   [node]
   (run http/get "containers" node))
+
+(defn image
+  "Get image information"
+  [node fingerprint]
+  (run http/get (<< "images/~{fingerprint}") node))
 
 (defn create
   "Create container using http api"
@@ -124,10 +131,12 @@
            (throw e)))))
 
 (comment
+  (require '[re-core.model :refer (hypervisor)])
+
   (def node
     (merge {:host "127.0.0.1" :port "8443"} (hypervisor :lxc :auth)))
 
-  (def m  {:name "red1"
+  (def m  {:name "dev-dc467f3b20"
            :architecture "x86_64"
            :profiles ["default"]
            :devices {}
@@ -143,6 +152,8 @@
 
   (ip node m)
 
-  (pprint (state node m))
+  (pprint (get node m))
 
-  (list node))
+  (pprint (image node "6bdd4ab498605ce6cc8a44220f4664581b1201c448e9c4e1451bc90c2e31084c"))
+
+  (into-names (list node)))
