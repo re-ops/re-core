@@ -1,8 +1,10 @@
 (ns lxc.provider
   "LXC provider for re-core"
   (:require
+   [clojure.data.json :as json]
    [taoensso.timbre :as timbre]
    [lxc.client :as lxc]
+   [lxc.sync :refer (sync-node)]
    [re-core.model :refer (vconstruct hypervisor* hypervisor sconstruct)]
    [re-core.provider :refer (selections mappings transform wait-for-ssh os->template into-mb)]
    [re-core.core :refer (Sync Vm)]
@@ -63,6 +65,12 @@
    :config (select-keys m #{:limits.cpu :limits.ram})
    :source {:type "image" :alias image}})
 
+(defn with-description
+  "Add description to the container used in "
+  [container system]
+  (assoc container :description
+         (json/write-str (dissoc system :system-id))))
+
 (defn translate [machine]
   (-> machine
       (mappings {:os :image :hostname :name :cpu :limits.cpu :ram :limits.memory})
@@ -73,18 +81,18 @@
 (defrecord LXD [nodes opts]
   Sync
   (sync [this]
-    #_(apply concat
-             (map
-              (fn [[k n]] (sync-node k (mappings n {:username :user}) opts)) nodes))))
+    (apply concat
+           (map
+            (fn [[k n]] (sync-node (mappings n {:username :user}))) nodes))))
 
-(defmethod vconstruct :lxc [{:keys [lxc machine system-id] :as spec}]
+(defmethod vconstruct :lxc [{:keys [lxc machine system-id] :as system}]
   {:post [(valid? :lxc/container  %)]}
   (let [node (hypervisor :lxc :nodes (lxc :node))
         auth (hypervisor :lxc :auth)
-        container (translate machine)]
+        container (with-description (translate machine) system)]
     (->Container system-id (merge node auth) container (:user machine))))
 
-(defmethod sconstruct :kvm [_ opts]
+(defmethod sconstruct :lxc [_ opts]
   (LXD. (hypervisor :lxc :nodes) opts))
 
 (comment

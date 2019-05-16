@@ -1,21 +1,12 @@
 (ns lxc.sync
   (:require
-   (lxc.client :as lxc)))
+   [re-core.presets.common :as sp :refer (validate)]
+   [clojure.data.json :as json]
+   [lxc.client :as lxc]))
 
-(def redis-lxc
-  {:machine {:hostname "red1" :user "root" :domain "local"
-             :os :ubuntu-18.04.2 :cpu 4 :ram 1}
-   :lxc {:node :localhost}
-   :type :redis})
-
-(defn into-system [name]
-  (map lxc/state {:name name}))
+(defn into-system [node name]
+  {:post [#(validate %)]}
+  (json/read-str (get-in (lxc/get node {:name name}) [:metadata :description]) :key-fn keyword))
 
 (defn sync-node [node]
-  (map into-system (lxc/into-names (lxc/list node))))
-
-(comment
-  (require '[re-core.model :refer (hypervisor)])
-
-  (def node
-    (merge {:host "127.0.0.1" :port "8443"} (hypervisor :lxc :auth))))
+  (map (partial into-system node) (lxc/into-names (lxc/list node))))

@@ -61,17 +61,19 @@
 (defn get
   "Get container information"
   [node {:keys [name]}]
+  {:pre [name]}
   (run http/get (<< "containers/~{name}") node))
 
 (defn state
   "Get container current state"
   [node {:keys [name]}]
-  (try
-    (run http/get (<< "containers/~{name}/state") node)))
+  {:pre [name]}
+  (run http/get (<< "containers/~{name}/state") node))
 
 (defn delete
   "Get container information"
   [node {:keys [name]}]
+  {:pre [name]}
   (async-status node (run http/delete (<< "containers/~{name}") node)))
 
 (defn into-names [{:keys [metadata]}]
@@ -103,11 +105,13 @@
 (defn start
   "start container"
   [node {:keys [name]}]
+  {:pre [name]}
   (change-state node name "start"))
 
 (defn stop
   "stop container"
   [node {:keys [name]}]
+  {:pre [name]}
   (change-state node name "stop"))
 
 (defn ip [node container]
@@ -136,24 +140,29 @@
   (def node
     (merge {:host "127.0.0.1" :port "8443"} (hypervisor :lxc :auth)))
 
-  (def m  {:name "dev-dc467f3b20"
+  (def m  {:name "test-1"
            :architecture "x86_64"
            :profiles ["default"]
+           :description "{foo:1}"
            :devices {}
            :ephemeral false
            :config {:limits.cpu "1" :limits.memory "500"}
-           :source {:type "image" :alias "ubuntu-18.04"}})
+           :source {:type "image" :alias "ubuntu-18.04.2_node-8.x"}})
 
   (require '[clojure.pprint :refer (pprint)])
 
-  (create node m)
+  (re-core.common/print-e (create node m))
 
-  (stop node m)
+  (list node)
+
+  (delete node m)
 
   (ip node m)
 
   (pprint (get node m))
 
   (pprint (image node "6bdd4ab498605ce6cc8a44220f4664581b1201c448e9c4e1451bc90c2e31084c"))
+
+  (pprint (state node {:name "basic-2721567e8c"}))
 
   (into-names (list node)))
