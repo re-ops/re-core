@@ -34,7 +34,7 @@
    ; re-mote components
    [re-mote.zero.cycle :refer (zero)]
    [re-mote.persist.es :as es :refer (elastic)]
-   [re-share.config :as conf]
+   [re-share.config.core :as conf]
    [re-share.zero.keys :as k]
    [re-share.schedule :as sc]
    [re-mote.publish.riemann :refer (riemann)]
@@ -62,6 +62,7 @@
 (defn start-
   "Starts the current development system."
   []
+  (conf/load-config)
   (setup-logging)
   (k/create-server-keys ".curve")
   (mount/start #'elastic #'zero #'queue #'workers #'riemann)
