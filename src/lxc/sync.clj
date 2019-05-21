@@ -6,7 +6,8 @@
 
 (defn into-system [node name]
   {:post [#(validate %)]}
-  (json/read-str (get-in (lxc/get node {:name name}) [:metadata :description]) :key-fn keyword))
+  (json/read-str
+   (get-in (lxc/get node {:name name}) [:metadata :description]) :key-fn keyword))
 
 (defn sync-node [node]
   (map (partial into-system node) (lxc/into-names (lxc/list node))))

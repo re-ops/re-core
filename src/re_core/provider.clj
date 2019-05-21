@@ -1,12 +1,14 @@
 (ns re-core.provider
-  "common providers functions"
+  "Common logic for all providers"
   (:require
    [taoensso.timbre :refer (refer-timbre)]
    [clojure.core.incubator :refer (dissoc-in)]
    [subs.core :refer (validation when-not-nil)]
    [re-mote.ssh.transport :refer (ssh-up?)]
    [re-core.model :refer (hypervisor)]
-   [re-share.config :refer (get!)]
+   [re-share.config.core :refer (get!)]
+   [re-share.encryption :refer (decrypt encrypt encode decode)]
+   [clojure.data.json :as json]
    [re-share.core :refer (wait-for)]
    [clojure.core.strint :refer (<<)])
   (:import clojure.lang.ExceptionInfo))
@@ -24,7 +26,7 @@
   [res ms]
   (let [mapped ((key-select ms) res)]
     (merge
-     (reduce (fn [r [k v]] (dissoc r k)) res ms)
+     (reduce (fn [r [k _]] (dissoc r k)) res ms)
      (reduce (fn [r [k v]] (apply assoc r (repeates (ms k) v))) {} mapped))))
 
 (defn selections
@@ -89,3 +91,21 @@
   "Convert RAM units to Megabytes"
   [units]
   (int (* 1024 units)))
+
+(defn into-description
+  "Create description string from system"
+  [system]
+  (encode
+   (encrypt
+    (json/write-str (dissoc system :system-id)) (get! :shared :pgp :public))))
+
+(defn read-pass
+  "We cannot use System console in the REPL so this custom solution is required"
+  [])
+
+(defn from-description
+  "Convert description back into a system"
+  [description]
+  (json/read-json
+   (decode
+    (decrypt description (get! :shared :pgp :private) (read-pass)))))
