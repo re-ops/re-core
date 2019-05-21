@@ -1,7 +1,7 @@
 (ns re-core.queue
   "Durable worker queues"
   (:require
-   [re-share.config :refer (get!)]
+   [re-share.config.core :refer (get!)]
    [me.raynes.fs :refer (mkdir)]
    [es.jobs :as jobs]
    [taoensso.timbre :refer (refer-timbre)]

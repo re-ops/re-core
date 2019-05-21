@@ -3,7 +3,7 @@
   (:refer-clojure :exclude [sync])
   (:require
    [clojure.core.strint :refer (<<)]
-   [re-share.config :refer (get!)]
+   [re-share.config.core :refer (get!)]
    [com.rpl.specter :as spec :refer  (MAP-VALS ALL ATOM keypath)]
    [clojure.core.incubator :refer (dissoc-in)]
    [kvm.validations :refer (provider-validation)]

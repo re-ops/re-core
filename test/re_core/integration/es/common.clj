@@ -4,7 +4,7 @@
    [es.types :as t]
    [rubber.core :refer (list-indices delete-index)]
    [es.common :refer (types)]
-   [re-share.config :as conf]
+   [re-share.config.core :as conf]
    [re-share.es.common :as es]
    [re-mote.persist.es :refer (elastic)]
    [es.systems :as s]))

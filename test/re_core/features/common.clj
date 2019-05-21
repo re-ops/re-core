@@ -6,7 +6,7 @@
    [mount.core :as mount]
    [re-core.queue :refer (queue)]
    [re-core.workers :refer (workers)]
-   [re-share.config :as conf]))
+   [re-share.config.core :as conf]))
 
 (defn spec
   ([] (spec {}))

@@ -7,7 +7,7 @@
    [re-core.repl.base :refer (refer-base)]
    [re-core.repl.systems :refer (refer-systems)]
    [re-core.presets.common :as sp :refer (materialize-preset validate)]
-   [re-share.config :as c]
+   [re-share.config.core :as c]
    [re-core.presets.type :as tp]
    [re-core.repl.types :refer (refer-types)])
   (:import
