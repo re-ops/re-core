@@ -19,8 +19,8 @@
                  [com.taoensso/tufte "1.1.1"]
 
                  ; re-ops
-                 [re-mote "0.10.8"]
-                 [re-share "0.10.1"]
+                 [re-mote "0.10.9"]
+                 [re-share "0.11.0"]
 
                  ; Elasticsearch
                  [rubber "0.3.4"]
@@ -55,7 +55,7 @@
                  [com.fasterxml.jackson.core/jackson-core "2.6.4"]
 
                  ; queue
-                 [factual/durable-queue "0.1.5"]
+                 [factual/durable-queue "0.1.5" :exclusions [byte-streams]]
                  [cc.qbits/knit "1.0.0"]
 
                  ; timeunits
