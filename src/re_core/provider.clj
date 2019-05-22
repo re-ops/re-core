@@ -93,19 +93,14 @@
   (int (* 1024 units)))
 
 (defn into-description
-  "Create description string from system"
+  "Create a description string from system, the string is base64 encoded and encrypted"
   [system]
   (encode
    (encrypt
     (json/write-str (dissoc system :system-id)) (get! :shared :pgp :public))))
 
-(defn read-pass
-  "We cannot use System console in the REPL so this custom solution is required"
-  [])
-
 (defn from-description
   "Convert description back into a system"
   [description]
   (json/read-json
-   (decode
-    (decrypt description (get! :shared :pgp :private) (read-pass)))))
+   (decrypt (decode description) (get! :shared :pgp :private) (get! :shared :pgp :pass))))
