@@ -25,3 +25,5 @@ scripts
 .ruby-gemset
 .ruby-version
 dump.edn
+test/resources/secret.gpg
+test/resources/public.gpg
