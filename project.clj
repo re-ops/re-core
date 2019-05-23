@@ -20,7 +20,7 @@
 
                  ; re-ops
                  [re-mote "0.10.9"]
-                 [re-share "0.11.0"]
+                 [re-share "0.11.1"]
 
                  ; Elasticsearch
                  [rubber "0.3.4"]

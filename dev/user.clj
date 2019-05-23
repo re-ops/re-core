@@ -35,6 +35,7 @@
    [re-mote.zero.cycle :refer (zero)]
    [re-mote.persist.es :as es :refer (elastic)]
    [re-share.config.core :as conf]
+   [re-share.config.secret :refer (load-secrets)]
    [re-share.zero.keys :as k]
    [re-share.schedule :as sc]
    [re-mote.publish.riemann :refer (riemann)]
@@ -62,6 +63,7 @@
 (defn start-
   "Starts the current development system."
   []
+  (load-secrets "secrets" "/tmp/secrets.edn" "keys/secret.gpg")
   (conf/load-config)
   (setup-logging)
   (k/create-server-keys ".curve")
