@@ -13,9 +13,9 @@
    [kvm.networking :refer (public-ip nat-ip)]
    [taoensso.timbre :as timbre]
    [es.systems :as s]
-   [re-core.provider :refer (mappings selections transform os->template wait-for-ssh)]
+   [re-core.provider :refer (mappings selections transform os->template wait-for-ssh into-description)]
    [re-share.core :refer (wait-for)]
-   [kvm.sync :refer (descriptive-domains into-system)]
+   [kvm.sync :refer (descriptive-domains sync-node)]
    [kvm.spice :refer (graphics remmina)]
    [hypervisors.networking :refer (set-hostname ssh-able?)]
    [re-core.core :refer (Sync Vm)]
@@ -52,11 +52,11 @@
 (defprotocol Spicy
   (open-spice [this]))
 
-(defrecord Domain [system-id node volumes domain type]
+(defrecord Domain [system-id node volumes domain]
   Vm
   (create [this]
     (with-connection
-      (clone-domain (c) domain {:type type :node node :system-id system-id})
+      (clone-domain (c) domain)
       (debug "clone done")
       (create-volumes (c) (domain :name) volumes)
       (debug "volumes created")
@@ -110,16 +110,15 @@
     (with-connection
       (remmina domain (graphics (c) (domain :name))))))
 
-(defn sync-node [k node opts]
-  (with-connection
-    (map (partial into-system (c)) (descriptive-domains (c)))))
-
 (defrecord Libvirt [nodes opts]
   Sync
   (sync [this]
     (apply concat
            (map
-            (fn [[k n]] (sync-node k (mappings n {:username :user}) opts)) nodes))))
+            (fn [[k n]]
+              (let [node (mappings n {:username :user})]
+                (with-connection
+                  (sync-node (c) k node opts)))) nodes))))
 
 (defn machine-ts
   "Construcuting machine transformations"
@@ -127,7 +126,7 @@
   {:name (fn [hostname] hostname)
    :image (fn [os] ((os->template :kvm) os))})
 
-(defmethod translate :kvm [{:keys [machine kvm] :as spec}]
+(defmethod translate :kvm [{:keys [machine] :as spec}]
   (-> machine
       (mappings {:os :image :hostname :name})
       (transform (machine-ts machine))
@@ -140,12 +139,13 @@
 (defn pool-m [node pool]
   (merge {:id (name pool)} (((node-m node) :pools) pool)))
 
-(defmethod vconstruct :kvm [{:keys [kvm machine system-id type] :as spec}]
-  (let [[domain] (translate spec) {:keys [node volumes]} kvm
+(defmethod vconstruct :kvm [{:keys [kvm system-id] :as system}]
+  (let [domain (assoc (first (translate system)) :description (into-description system))
+        {:keys [node volumes]} kvm
         node* (dissoc (mappings (node-m node) {:username :user}) :pools)
         volumes* (spec/transform [ALL (keypath :pool)] (partial pool-m node) volumes)]
     (provider-validation domain node*)
-    (->Domain system-id node* volumes* domain type)))
+    (->Domain system-id node* volumes* domain)))
 
 (defmethod sconstruct :kvm [_ opts]
   (Libvirt. (hypervisor :kvm :nodes) opts))

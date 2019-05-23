@@ -3,13 +3,15 @@
    [re-core.model :refer (hypervisor)]
    [re-core.provider :refer (from-description)]
    [re-core.presets.common :as sp :refer (validate)]
-   [clojure.data.json :as json]
    [lxc.client :as lxc]))
 
 (defn into-system [node name]
   {:post [#(validate %)]}
-  (from-description
-   (get-in (lxc/get node {:name name}) [:metadata :description])))
+  (let [description (get-in (lxc/get node {:name name}) [:metadata :description])
+        system (from-description description)]
+    (if-let [ip (lxc/ip node {:name name})]
+      (assoc-in system [:machine :ip] ip)
+      system)))
 
 (defn sync-node [node]
   (let [node' (merge node (hypervisor :lxc :auth))]

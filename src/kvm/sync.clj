@@ -5,26 +5,23 @@
    [re-core.model :refer (hypervisor)]
    [clojure.edn :refer (read-string)]
    [clojure.data.zip.xml :as zx]
+   [re-core.provider :refer (from-description)]
    [kvm.common :refer (domain-list get-domain connect domain-zip)]))
 
 (defn active-domains
   [c]
-  (filter
-   (fn [d] (= 1 (.isActive (get-domain c d))))
-   (domain-list c)))
+  (filter (fn [d] (= 1 (.isActive (get-domain c d)))) (domain-list c)))
 
-(defn description-meta
+(defn description
   "Grab domain metadata stored in the description string"
   [c domain]
   (first
-   (zx/xml-> (domain-zip c domain) :description zx/text read-string)))
+   (zx/xml-> (domain-zip c domain) :description zx/text)))
 
 (defn descriptive-domains
   "Domains that have a description string set (we can import them)"
   [c]
-  (filter
-   (fn [d] (not (empty? (description-meta c d))))
-   (domain-list c)))
+  (filter (fn [d] (not (empty? (description c d)))) (domain-list c)))
 
 (defn vcpu
   "read cpu"
@@ -51,9 +48,8 @@
 (defn into-system
   "Convert domain into a system"
   [c d]
-  (let [{:keys [os user node type]} (description-meta c d) root (domain-zip c d)]
-    {:machine {:hostname (hostname root) :user user :os (find-template os)
-               :cpu (Integer/parseInt (vcpu root)) :ram (/ (memory root) 1024)}
-     :kvm {:node node}
-     :type type}))
+  (from-description (description c d)))
+
+(defn sync-node [c k node opts]
+  (map (partial into-system c) (descriptive-domains c)))
 
