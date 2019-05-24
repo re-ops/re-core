@@ -33,7 +33,7 @@
    [re-mote.log :refer (log-hosts)]
    ; re-mote components
    [re-mote.zero.cycle :refer (zero)]
-   [re-mote.persist.es :as es :refer (elastic)]
+   [re-mote.persist.es :as mote-es :refer (elastic)]
    [re-share.config.core :as conf]
    [re-share.config.secret :refer (load-secrets)]
    [re-share.zero.keys :as k]
@@ -68,7 +68,8 @@
   (setup-logging)
   (k/create-server-keys ".curve")
   (mount/start #'elastic #'zero #'queue #'workers #'riemann)
-  (es/initialize))
+  (mote-es/initialize)
+  (core-es/initialize))
 
 (defn stop
   "Shuts down and destroys the current development system."

@@ -11,14 +11,15 @@
                                         :queue {:type "text"}
                                         :start {:type "long"}
                                         :end {:type "long"}}}
-                    :system {:properties {:owner {:type "text"}
-                                          :env {:type "keyword"}
-                                          :machine {:properties {:hostname {:type "keyword"}
-                                                                 :cpus {:type "integer"}}}
+                    :system {:properties {:machine {:type :object
+                                                    :properties {:user {:type "keyword"}
+                                                                 :domain {:type "keyword"}
+                                                                 :os {:type "keyword"}
+                                                                 :hostname {:type "keyword"}
+                                                                 :cpu {:type "long"}
+                                                                 :ram {:type "float"}}}
                                           :type {:type "keyword"}}}
-                    :type {:properties {:puppet {:properties {:src {:type "text"}
-                                                              :tar {:type "text"}}}
-                                        :description {:type "text"}}}})
+                    :type {:properties {:description {:type "text"}}}})
 
 (defn index
   "get re-core index"
