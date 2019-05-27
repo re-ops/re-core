@@ -80,7 +80,7 @@
      :codox {
         :dependencies [[org.clojure/tools.reader "1.1.0"]
                        [codox-theme-rdash "0.1.2"]]
-              :plugins [[lein-codox "0.10.3"]]
+              :plugins [[lein-codox "0.10.7"]]
               :codox {:project {:name "re-core"}
                       :themes [:rdash]
                       :source-paths ["src"]
