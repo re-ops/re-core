@@ -97,5 +97,11 @@
     :ssh {
       :private-key-path "id_rsa"
     }
+
+    :pgp {
+      :public "keys/public.gpg"
+      :private "keys/secret.gpg"
+      :pass #ref [:secrets :pgp :pass]
+    }
   }
 }
