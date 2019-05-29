@@ -26,8 +26,8 @@
       :dev {
         :physical { }
         :aws {
-              :access-key ""
-              :secret-key ""
+           :access-key #ref [:secrets :aws :access-key]
+           :secret-key #ref [:secrets :aws :secret-key]
            :ostemplates {
               :ubuntu-18.04 {:ami "" :flavor :debian}
            }
@@ -48,7 +48,7 @@
         }
 
         :digital-ocean {
-          :token ""
+          :token #ref [:secrets :digital-ocean :token]
           :ssh-key ""
             :ostemplates {
                :ubuntu-18.04  {:image "" :flavor :debian}
@@ -57,7 +57,10 @@
 
         :lxc {
           :auth {
-             :path #join [#env HOME "/.config/lxc"]  :p12 "certificate.p12" :password "" :crt "127.0.0.1.crt"
+             :path #join [#env HOME "/.config/lxc"]
+             :p12 "certificate.p12"
+             :password #ref [:secrets :lxc :pass]
+             :crt "127.0.0.1.crt"
            }
 
           :nodes {
@@ -85,7 +88,7 @@
         :hosts ["https://localhost:9200"]
         :auth {
           :user ""
-          :password ""
+          :password #ref [:secrets :elasticsearch :password]
          }
          :self? true
       }
