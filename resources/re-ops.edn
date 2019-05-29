@@ -82,6 +82,8 @@
   }
 
 
+  :secrets #include #join "/tmp/secrets.edn"
+
   :shared {
     :elasticsearch {
       :default {
