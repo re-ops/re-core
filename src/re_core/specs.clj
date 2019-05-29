@@ -78,7 +78,7 @@
 (s/def ::user (s/and string? user?))
 
 (defn os? [s]
-  (re-matches #"^[a-z]+\-[1-9]{1,2}\.[0-9]{1,2}[\.0-9]{0,2}$" s))
+  (re-matches #"^[a-z]+\-[1-9]{1,2}\.[0-9]{1,2}[\.0-9]{0,2}.*" s))
 
 (s/def ::os (s/and keyword? (comp os? name)))
 
