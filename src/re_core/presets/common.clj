@@ -66,6 +66,7 @@
 
 (defn node [n]
   (fn [instance] (assoc-in instance [(figure-virt instance) :node] n)))
+
 (def local (node :localhost))
 
 (def lxc {:lxc {} :machine {}})
@@ -73,4 +74,4 @@
 (def kvm {:kvm {} :machine {}})
 
 (defn refer-common-presets []
-  (require '[re-core.presets.common :as spc :refer [node lxc kvm os ubuntu-18_04_2 defaults local]]))
+  (require '[re-core.presets.common :as spc :refer [node lxc kvm os ubuntu-18_04_2 defaults local default-machine]]))
