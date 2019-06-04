@@ -30,6 +30,7 @@
    [re-mote.repl :refer :all :exclude (provision)]
    [re-mote.repl.stress :refer (refer-stress)]
    [re-mote.zero.management :refer (refer-zero-manage)]
+   [re-mote.zero.pipeline :refer (refer-zero-pipe)]
    [re-mote.log :refer (log-hosts)]
    ; re-mote components
    [re-mote.zero.cycle :refer (zero)]
@@ -45,6 +46,7 @@
 
 (refer-history)
 (refer-zero-manage)
+(refer-zero-pipe)
 (refer-kvm-presets)
 (refer-aws-presets)
 (refer-digital-presets)
