@@ -100,6 +100,7 @@
    're-core.test.provider
    're-core.test.validations
    're-core.features.digitial
+   're-core.test.specs
    're-core.features.kvm
    're-core.features.lxc
    're-core.features.ec2))
