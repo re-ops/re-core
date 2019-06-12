@@ -1,4 +1,4 @@
-(ns re-core.presets.common
+(ns re-core.presets.systems
   "Common preset functions"
   (:require
    [expound.alpha :as expound]
@@ -43,8 +43,8 @@
   "Group systems by ::core/system specification validation result
    Failing results are converted into expound format output string"
   [sp]
-  (update-in
-   (group-by (partial s/valid? ::core/system) sp) [false] (partial map (partial expound/expound ::core/system))))
+  (update-in (group-by (partial s/valid? ::core/system) sp)
+             [false] (partial map (partial expound/expound ::core/system))))
 
 (defn os [k]
   (fn [instance]
@@ -73,5 +73,5 @@
 
 (def kvm {:kvm {} :machine {}})
 
-(defn refer-common-presets []
-  (require '[re-core.presets.common :as spc :refer [node lxc kvm os ubuntu-18_04_2 defaults local default-machine]]))
+(defn refer-system-presets []
+  (require '[re-core.presets.systems :as spc :refer [node lxc kvm os ubuntu-18_04_2 defaults local default-machine]]))

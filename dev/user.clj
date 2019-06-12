@@ -9,9 +9,9 @@
    [re-core.presets.kvm :refer (refer-kvm-presets)]
    [re-core.presets.digitial :refer (refer-digital-presets)]
    [re-core.presets.aws :refer (refer-aws-presets)]
-   [re-core.presets.common :refer (refer-common-presets)]
+   [re-core.presets.systems :refer (refer-system-presets)]
    [re-core.presets.instance-types :refer (refer-instance-types)]
-   [re-core.presets.type :refer (refer-type-presets)]
+   [re-core.presets.types :refer (refer-type-presets)]
    ; re-core components
    [mount.core :as mount]
    [re-core.queue :refer (queue)]
@@ -50,7 +50,7 @@
 (refer-kvm-presets)
 (refer-aws-presets)
 (refer-digital-presets)
-(refer-common-presets)
+(refer-system-presets)
 (refer-instance-types)
 (refer-type-presets)
 (refer-stress)

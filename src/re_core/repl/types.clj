@@ -22,6 +22,7 @@
     [this {:types (filter f types)}])
 
   (add- [this specs]
+    (println specs)
     (let [f (fn [{:keys [type] :as s}] (when (t/create s) [type s]))]
       [this {:types (map f specs)}]))
 
@@ -41,7 +42,7 @@
     [this ts]))
 
 (defn prefix-key [m]
-  (first (filter #{:puppet :re-conf} (keys m))))
+  (first (filter #{:cog} (keys m))))
 
 (defn provision-type [t]
   (let [type (t/get t)]

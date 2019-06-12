@@ -2,7 +2,7 @@
   "Digitalocean presets"
   (:require
    [re-core.common :refer (hostname)]
-   [re-core.presets.common :as c]))
+   [re-core.presets.systems :as sp]))
 
 (defn region [r]
   (fn [instance]
@@ -35,7 +35,7 @@
 (def lon1 (region "lon1"))
 
 (defn digital-machine []
-  (c/machine "re-ops" "local"))
+  (sp/machine "re-ops" "local"))
 
 (defn droplet
   ([size]

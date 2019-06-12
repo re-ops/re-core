@@ -2,7 +2,8 @@
   (:require
    [clojure.core.strint :refer (<<)]
    [clojure.spec.alpha :as s]
-   [re-share.spec :as re-ops]
+   [re-share.spec :as re-ops :refer (file-path?)]
+   [re-cog.meta :refer (fn-meta)]
    [re-core.presets.instance-types :as types]
    [re-core.model :refer (figure-virt)]))
 
@@ -116,8 +117,24 @@
 ; Common and main specs
 (s/def :common/machine (s/keys :req-un [::hostname ::domain ::user ::os] :opt-un [::ip]))
 
-(s/def ::type (s/and keyword? (comp alpha? name)))
+(s/def :system/type (s/and keyword? (comp alpha? name)))
 
 (s/def :resource/machine (s/keys :req-un [::os ::cpu ::ram]))
 
-(s/def ::system (s/merge (s/multi-spec system figure-virt) (s/keys :req-un [:common/machine ::type])))
+(s/def ::system (s/merge (s/multi-spec system figure-virt) (s/keys :req-un [:common/machine :system/type])))
+
+; Type specs
+(s/def :type/args vector?)
+
+(defn function-exists? [f]
+  (if-let [f' (resolve f)]
+    (not (nil? (-> f' deref fn-meta :name)))
+    false))
+
+(s/def :type/f (s/and symbol? function-exists?))
+
+(s/def :type/sec (s/and string? file-path?))
+
+(s/def ::cog (s/keys :req-un [:type/args :type/f ::src]))
+
+(s/def ::type (s/keys :req-un [::cog]))

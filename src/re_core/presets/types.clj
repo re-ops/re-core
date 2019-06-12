@@ -1,17 +1,18 @@
-(ns re-core.presets.type
+(ns re-core.presets.types
   "Type presets that enable us to create types quickly, for example:
     (create puppet :re-ops default-src \"re-ops instances\") ; default source convention from type name
     (create puppet :re-ops (src  \"re-ops instances\") \"re-ops instances\") ; source specified
   "
   (:require
+   [expound.alpha :as expound]
+   [clojure.spec.alpha :as s]
+   [re-core.specs :as core]
    [clojure.core.strint :refer (<<)]
-   [re-core.repl.types :refer (prefix-key)]
-   [re-core.common :refer (gen-uuid)]))
+   [re-core.repl.types :refer (prefix-key)]))
 
 (def home (System/getProperty "user.home"))
 
-(def puppet {:puppet {:tar "" :args []}})
-(def reconf {:re-conf {:args []}})
+(def cog {:cog {:args []}})
 
 (defn src [s]
   "Set source code location"
@@ -21,13 +22,18 @@
 (defn default-src
   "Using name as a convention source location"
   [instance]
-  ((src (<< "~{home}/code/boxes/~{type}-sandbox/")) instance))
+  ((src (<< "~{home}/code/re-ops/re-cog/resources/~{type}")) instance))
 
 (defn args
   "Set script arguments"
   [& as]
   (fn [instance]
     (assoc-in instance [(prefix-key instance) :args] (into [] as))))
+
+(defn with-f [f]
+  "Set script arguments"
+  (fn [instance]
+    (assoc-in instance [(prefix-key instance) :f] f)))
 
 (defn with-type [t]
   (fn [instance]
@@ -43,7 +49,21 @@
       (cond
         (string? a) (into-spec (assoc m :description a) (rest args))
         (keyword? a) (into-spec (assoc m :type (name a)) (rest args))
+        (symbol? a) (into-spec (assoc m :f a) (rest args))
         (fn? a) (into-spec (assoc m :fns (conj fns a)) (rest args))))))
 
+(defn materialize-preset [base args]
+  (let [{:keys [f fns type description]} (into-spec {} args)
+        transforms [(with-type type) (with-desc description) (with-f f)]]
+    (reduce (fn [m f] (f m)) base (apply conj transforms fns))))
+
+(defn validate
+  "Validate materialized type using ::core/type specification.
+   Failing results are converted into expound format"
+  [type]
+  (if (s/valid? ::core/type type)
+    {true type}
+    {false (expound/expound ::core/type type)}))
+
 (defn refer-type-presets []
-  (require '[re-core.presets.type :as tp :refer [puppet reconf src default-src args]]))
+  (require '[re-core.presets.types :as tp :refer [cog src default-src args]]))

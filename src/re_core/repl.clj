@@ -6,9 +6,9 @@
    [clojure.core.strint :refer  (<<)]
    [re-core.repl.base :refer (refer-base)]
    [re-core.repl.systems :refer (refer-systems)]
-   [re-core.presets.common :as sp :refer (materialize-preset validate)]
+   [re-core.presets.systems :as sp]
+   [re-core.presets.types :as tp]
    [re-share.config.core :as c]
-   [re-core.presets.type :as tp]
    [re-core.repl.types :refer (refer-types)])
   (:import
    [re_mote.repl.base Hosts]
@@ -153,7 +153,7 @@
 (defn- create-system
   "Create a system internal implementation"
   [base args]
-  (let [ms (validate (materialize-preset base args))]
+  (let [ms (sp/validate (sp/materialize-preset base args))]
     (if-not (empty? (ms false))
       (ms false)
       (run (add- systems (ms true)) | (sys/create) | (async-wait pretty-print "create")))))
@@ -161,29 +161,41 @@
 (defn- create-type
   "Create type internal implementation"
   [base args]
-  (let [{:keys [fns type description]} (tp/into-spec {} args)
-        transforms [(tp/with-type type) (tp/with-desc description)]
-        spec (reduce (fn [m f] (f m)) base (apply conj transforms fns))]
-    (run (add- types [spec]) | (pretty))))
+  (let [ms (tp/validate (tp/materialize-preset base args))]
+    (if-not (empty (ms false))
+      (ms false)
+      (run (add- types [(ms true)]) | (pretty)))))
 
 (defn create
-  "A function for creating instances, System instances:
-     (create kvm-small :redis) ; kvm instance that run redis
-     (create kvm-small :redis 5) ; creating 5 in one go
-     (create kvm-small :redis \"furry\") ; with custom hostname (default generated from type)
-     (create kvm-small vol-128G :redis) ; 128G Volume
-     (create kvm-small :redis (os :ubuntu-16.04-dekstop)) ; custom os type
+  "Creating system/type instances by using presets to quickly pick their properties.
+
+   Kvm instance using defaults user using c1-medium ram/cpu allocation:
+
+     (create kvm defaults c1-medium local :redis)
+
+   5 instance in one go:
+
+     (create kvm defaults c1-medium local :redis 5)
+
+   Using a custom hostname:
+
+     (create kvm defaults c1-medium local \"furry\" :redis)
+
+   Using a KVM volume:
+
+     (create kvm defaults c1-medium local vol-128G :redis)
+     (create kvm defaults c1-medium local vol-128G :redis)
+
+     (create kvm :redis (os :ubuntu-18.04-dekstop)) ; custom os type
+     (create lxc defaults :redis ) ; custom os type
    Type instances:
-     (create puppet default-src :redis \"redis type\") ; using default src directory
-     (create puppet (src \"/home/foo/redis-sandbox\") :redis \"redis type\") ; using local src directory
-     (create puppet (args \"--hiera_config\" \"hiera.yml\" \"manifests/default.pp\") :redis \"redis type\") ; with args
+     (create cog 're-cog.recipes.osquery/install default-src :osquery \"osquery type\") ; using default src directory
   "
   [base & args]
   (cond
     (:machine base) (create-system base args)
-    (:puppet base) (create-type base args)
-    (:re-conf base) (create-type base args)
-    :else (throw (ex-info "creation type not found" {:base base :args args}))))
+    (:cog base) (create-type base args)
+    :else (throw (ex-info "No macthing creation logic found" {:base base :args args}))))
 
 (defn add
   "Add existing system instances:

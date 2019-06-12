@@ -2,7 +2,7 @@
   "Presets for AWS https://aws.amazon.com/ec2/instance-types/"
   (:require
    [re-core.common :refer (hostname)]
-   [re-core.presets.common :as c]))
+   [re-core.presets.systems :as sp]))
 
 (defn security
   "Setting security group"
@@ -51,7 +51,7 @@
                   (conj vs {:device device :size size :clear true :volume-type t}))))))
 
 (defn ec2-machine []
-  (c/machine "re-ops" "local"))
+  (sp/machine "re-ops" "local"))
 
 ; regions
 (def sydney (endpoint "ec2.ap-southeast-2.amazonaws.com"))

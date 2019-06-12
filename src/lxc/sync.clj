@@ -2,7 +2,7 @@
   (:require
    [re-core.model :refer (hypervisor)]
    [re-core.provider :refer (from-description)]
-   [re-core.presets.common :as sp :refer (validate)]
+   [re-core.presets.systems :refer (validate)]
    [lxc.client :as lxc]))
 
 (defn into-system [node name]
