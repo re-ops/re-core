@@ -22,7 +22,6 @@
     [this {:types (filter f types)}])
 
   (add- [this specs]
-    (println specs)
     (let [f (fn [{:keys [type] :as s}] (when (t/create s) [type s]))]
       [this {:types (map f specs)}]))
 
