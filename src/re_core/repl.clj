@@ -79,8 +79,10 @@
      (clear identity :types) ; clear all types"
   ([]
    (clear identity {}))
-  ([f opts]
-   (clear f :systems opts))
+  ([f]
+   (clear f :systems {}))
+  ([f on]
+   (clear f on {}))
   ([f on opts]
    (case on
      :systems (run (ls systems) | (filter-by f) | (ack opts) | (rm) | (pretty))
@@ -162,7 +164,7 @@
   "Create type internal implementation"
   [base args]
   (let [ms (tp/validate (tp/materialize-preset base args))]
-    (if-not (empty (ms false))
+    (if-not (empty? (ms false))
       (ms false)
       (run (add- types [(ms true)]) | (pretty)))))
 

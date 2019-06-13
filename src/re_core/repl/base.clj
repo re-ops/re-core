@@ -42,7 +42,14 @@
 
 (defmethod pretty :types [_ {:keys [types]}]
   (table
-   (map (fn [[id t]] (select-keys* (assoc t :id id) [:id] [:description] [:re-conf :src])) types) :style :borderless))
+   (map
+    (fn [[id {:keys [cog] :as m}]]
+      (-> m
+          (select-keys*  [:description])
+          (merge  cog)
+          (assoc :id id)
+          (update :args #(clojure.string/join " " %)))) types)
+   :style :borderless))
 
 (defmacro | [source fun & funs]
   (let [f (first fun) args (rest fun)]

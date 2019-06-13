@@ -124,7 +124,7 @@
 (s/def ::system (s/merge (s/multi-spec system figure-virt) (s/keys :req-un [:common/machine :system/type])))
 
 ; Type specs
-(s/def :type/args vector?)
+(s/def :type/args (s/* string?))
 
 (defn function-exists? [f]
   (if-let [f' (resolve f)]
@@ -135,6 +135,8 @@
 
 (s/def :type/sec (s/and string? file-path?))
 
-(s/def ::cog (s/keys :req-un [:type/args :type/f ::src]))
+(s/def :type/description string?)
+
+(s/def ::cog (s/keys :req-un [:type/args :type/f ::src :type/description]))
 
 (s/def ::type (s/keys :req-un [::cog]))
