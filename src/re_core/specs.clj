@@ -1,5 +1,6 @@
 (ns re-core.specs
   (:require
+   [es.types :as es]
    [clojure.core.strint :refer (<<)]
    [clojure.spec.alpha :as s]
    [re-share.spec :as re-ops :refer (file-path?)]
@@ -117,7 +118,7 @@
 ; Common and main specs
 (s/def :common/machine (s/keys :req-un [::hostname ::domain ::user ::os] :opt-un [::ip]))
 
-(s/def :system/type (s/and keyword? (comp alpha? name)))
+(s/def :system/type (s/and keyword? (comp alpha? name) es/exists?))
 
 (s/def :resource/machine (s/keys :req-un [::os ::cpu ::ram]))
 
@@ -135,8 +136,10 @@
 
 (s/def :type/sec (s/and string? file-path?))
 
+(s/def :type/type string?)
+
 (s/def :type/description string?)
 
-(s/def ::cog (s/keys :req-un [:type/args :type/f ::src :type/description]))
+(s/def ::cog (s/keys :req-un [:type/args :type/f ::src]))
 
-(s/def ::type (s/keys :req-un [::cog]))
+(s/def ::type (s/keys :req-un [::cog :type/description :type/type]))
