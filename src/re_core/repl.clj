@@ -78,7 +78,7 @@
      (clear (by-type :redis)) ; clear systems with redis type
      (clear identity :types) ; clear all types"
   ([]
-   (clear identity {}))
+   (clear identity :systems {}))
   ([f]
    (clear f :systems {}))
   ([f on]
