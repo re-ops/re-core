@@ -62,7 +62,7 @@
                  [fogus/minderbinder "0.2.0"]
 
                  ; wiring
-                 [mount "0.1.13"]
+                 [mount "0.1.16"]
 
                  ; pretty print
                  [rm-hull/table "0.7.0"]
