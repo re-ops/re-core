@@ -23,7 +23,7 @@
                  [re-share "0.11.4"]
 
                  ; Elasticsearch
-                 [rubber "0.3.4"]
+                 [rubber "0.3.5"]
                  [org.apache.httpcomponents/httpclient "4.5.2"]
 
                  ; Api
