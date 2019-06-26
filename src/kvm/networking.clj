@@ -28,7 +28,8 @@
 (defn wait-for-nat
   "Waiting for nat cache to update"
   [c id node timeout]
-  (wait-for {:timeout timeout :sleep [2000 :ms]} #(not (nil? (grab-nat c id node)))
+  (wait-for {:timeout timeout :sleep [2000 :ms]}
+            (fn [] (not (nil? (grab-nat c id node))))
             "Timed out on waiting for arp cache to update"))
 
 (defn nat-ip [c id node]

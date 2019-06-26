@@ -9,8 +9,7 @@
                  [me.raynes/fs "1.4.6"]
                  [org.clojure/core.incubator "0.1.4"]
 
-                 ; templating
-                 [selmer "0.8.2"]
+                 ; bash scripting
                  [com.palletops/stevedore "0.8.0-beta.7"]
 
                  ; logging / profiling
@@ -33,7 +32,7 @@
                  [narkisr/digitalocean "1.3"]
 
                  ; amazon
-                 [amazonica "0.3.94" :exclusions [com.taoensso/nippy com.google.protobuf/protobuf-java]]
+                 [amazonica "0.3.94" :exclusions [com.taoensso/nippy com.google.protobuf/protobuf-java ]]
 
                  ; libvirt
                  [org.clojure/data.xml "0.0.8"]
@@ -52,7 +51,7 @@
                  [com.google.guava/guava "18.0"]
                  [commons-codec "1.10"]
                  [substantiation "0.4.0"]
-                 [com.fasterxml.jackson.core/jackson-core "2.6.4"]
+                 [com.fasterxml.jackson.core/jackson-core "2.9.6"]
 
                  ; queue
                  [factual/durable-queue "0.1.5" :exclusions [byte-streams]]

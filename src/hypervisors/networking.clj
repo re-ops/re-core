@@ -3,24 +3,9 @@
   (:require
    [taoensso.timbre :refer (refer-timbre)]
    [re-mote.ssh.transport :refer (execute)]
-   [selmer.filters :refer (add-filter!)]
-   [clojure.core.strint :refer [<<]]
-   [selmer.parser :refer (render-file)]))
+   [clojure.core.strint :refer [<<]]))
 
 (refer-timbre)
-
-(add-filter! :not-empty? (comp not empty?))
-
-(defn debian-interfaces
-  "Generates a static ip template"
-  [config]
-  (render-file "interfaces.slem" config))
-
-(defn redhat-network-cfg [config]
-  (render-file "network.slem" config))
-
-(defn redhat-ifcfg-eth0 [config]
-  (render-file "ifcfg-eth0.slem" config))
 
 (defn override-hostname
   "sets hostname and hosts file"
