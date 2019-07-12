@@ -32,7 +32,7 @@
                  [narkisr/digitalocean "1.3"]
 
                  ; amazon
-                 [amazonica "0.3.94" :exclusions [com.taoensso/nippy com.google.protobuf/protobuf-java ]]
+                 [amazonica "0.3.94" :exclusions [com.taoensso/nippy com.google.protobuf/protobuf-java]]
 
                  ; libvirt
                  [org.clojure/data.xml "0.0.8"]
