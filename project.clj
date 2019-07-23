@@ -19,10 +19,10 @@
 
                  ; re-ops
                  [re-mote "0.12.0"]
-                 [re-share "0.11.5"]
+                 [re-share "0.11.6"]
 
                  ; Elasticsearch
-                 [rubber "0.3.5"]
+                 [rubber "0.3.6"]
                  [org.apache.httpcomponents/httpclient "4.5.2"]
 
                  ; Api
