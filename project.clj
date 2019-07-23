@@ -18,7 +18,7 @@
                  [com.taoensso/tufte "1.1.1"]
 
                  ; re-ops
-                 [re-mote "0.12.1"]
+                 [re-mote "0.12.2"]
                  [re-share "0.11.6"]
 
                  ; Elasticsearch
