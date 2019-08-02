@@ -8,7 +8,7 @@
    [re-share.config.core :refer  (get!)]
    [clansi.core :refer  (style)]
    [re-core.queue :as q]
-   [re-core.common :refer (gen-uuid)]
+   [re-share.core :refer (gen-uuid)]
    [taoensso.timbre :refer  (refer-timbre)]
    [es.systems :as s]
    [es.jobs :as es]

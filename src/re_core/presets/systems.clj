@@ -5,7 +5,7 @@
    [re-core.specs :as core]
    [clojure.spec.alpha :as s]
    [re-core.model :refer (figure-virt)]
-   [re-core.common :refer (gen-uuid)]))
+   [re-share.core :refer (gen-uuid)]))
 
 (defn name-gen
   "Generating a unique hostname from host/type + uuid"

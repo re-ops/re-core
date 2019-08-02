@@ -30,10 +30,10 @@
   (fn [instance]
     (assoc-in instance [(prefix-key instance) :args] (into [] as))))
 
-(defn with-f [f]
+(defn with-plan [p]
   "Set script arguments"
   (fn [instance]
-    (assoc-in instance [(prefix-key instance) :f] f)))
+    (assoc-in instance [(prefix-key instance) :plan] p)))
 
 (defn with-type [t]
   (fn [instance]
@@ -49,12 +49,12 @@
       (cond
         (string? a) (into-spec (assoc m :description a) (rest args))
         (keyword? a) (into-spec (assoc m :type (name a)) (rest args))
-        (symbol? a) (into-spec (assoc m :f a) (rest args))
+        (symbol? a) (into-spec (assoc m :plan a) (rest args))
         (fn? a) (into-spec (assoc m :fns (conj fns a)) (rest args))))))
 
 (defn materialize-preset [base args]
-  (let [{:keys [f fns type description]} (into-spec {} args)
-        transforms [(with-type type) (with-desc description) (with-f f)]]
+  (let [{:keys [plan fns type description]} (into-spec {} args)
+        transforms [(with-type type) (with-desc description) (with-plan plan)]]
     (reduce (fn [m f] (f m)) base (apply conj transforms fns))))
 
 (defn validate

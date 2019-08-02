@@ -1,7 +1,7 @@
 (ns kvm.spice
   "KVM spice connection"
   (:require
-   [re-core.common :refer  (gen-uuid)]
+   [re-share.core :refer  (gen-uuid)]
    [clojure.core.strint :refer (<<)]
    [clojure.java.shell :refer [sh]]
    [clojure.data.zip.xml :as zx]

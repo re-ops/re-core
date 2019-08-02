@@ -127,12 +127,10 @@
 ; Type specs
 (s/def :type/args (s/* string?))
 
-(defn function-exists? [f]
-  (if-let [f' (resolve f)]
-    (not (nil? (-> f' deref fn-meta :name)))
-    false))
+(defn plan-exists? [p]
+  (resolve p))
 
-(s/def :type/f (s/and symbol? function-exists?))
+(s/def :type/plan (s/and symbol? plan-exists?))
 
 (s/def :type/sec (s/and string? file-path?))
 
@@ -140,6 +138,6 @@
 
 (s/def :type/description string?)
 
-(s/def ::cog (s/keys :req-un [:type/args :type/f ::src]))
+(s/def ::cog (s/keys :req-un [:type/args :type/plan ::src]))
 
 (s/def ::type (s/keys :req-un [::cog :type/description :type/type]))

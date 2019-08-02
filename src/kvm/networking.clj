@@ -5,7 +5,7 @@
    [clojure.core.strint :refer (<<)]
    [re-mote.ssh.transport :refer (execute)]
    [re-mote.log :refer (get-log collect-log)]
-   [re-core.common :refer (gen-uuid)]
+   [re-share.core :refer (gen-uuid)]
    [clojure.java.shell :refer (sh)]
    [clojure.data.zip.xml :as zx]
    [kvm.common :refer (connect domain-zip)]))
