@@ -150,7 +150,7 @@
   ([]
    (provision ip))
   ([f]
-   (run (ls systems) | (filter-by f) | (sys/provision))))
+   (run (ls systems) | (filter-by f) | (sys/provision) | (block-wait))))
 
 (defn- create-system
   "Create a system internal implementation"
