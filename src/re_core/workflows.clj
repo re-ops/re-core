@@ -30,13 +30,13 @@
   "Asserts that a VM is running"
   [vm]
   (assert (= (.status vm) "running")) ; might not match all providers
-)
+  )
 
 (defn not-running!
   "Assert that a vm is not running"
   [vm]
   (assert (not (= (.status vm) "running"))) ; might not match all providers
-)
+  )
 
 (defn reload
   "Reloads a machine if one already exists, will distroy the old one"
@@ -112,9 +112,10 @@
   (info "starting to provision hosts")
   (let [m {:systems (map (fn [m] [(m :system-id) m]) systems)}
         hosts (sys/into-hosts (Systems.) m :ip)
-        into-hostnames (into {} (map (comp (juxt :ip :hostname) :machine) systems))]
-    (mote/provision hosts into-hostnames t)
-    (info "done provisioning hosts")))
+        into-hostnames (into {} (map (comp (juxt :ip :hostname) :machine) systems))
+        result (mote/provision hosts into-hostnames t)]
+    (info "done provisioning hosts")
+    result))
 
 (defn stage
   "create and provision"
