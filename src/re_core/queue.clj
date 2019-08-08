@@ -21,8 +21,8 @@
 
 (defn- save-status
   "marks as succesful"
-  [job topic status start f]
-  (let [job' (merge job (meta f) {:start start :end (now) :topic topic :status status})]
+  [job topic status start f result]
+  (let [job' (merge job (meta f) {:start start :end (now) :topic topic :status status :result result})]
     (jobs/put job')
     (trace "saved status" status job')))
 
@@ -33,12 +33,12 @@
         (let [{:keys [tid args] :as job} (deref task) start (now)]
           (try
             (debug "start processing " topic tid)
-            (apply f args)
-            (save-status job topic :success start f)
+            (let [result (apply f args)]
+              (save-status job topic :success start f result))
             (debug "done processing " topic tid)
             (catch Throwable e
               (error "queue process failed" e)
-              (save-status (assoc job :message (.getMessage e)) topic :failure start f))
+              (save-status (assoc job :message (.getMessage e)) topic :failure start f {}))
             (finally
               (complete! task)))))))
   (debug "worker for" topic "going down"))
