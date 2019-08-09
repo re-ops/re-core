@@ -21,6 +21,7 @@
   (create [this]
     (debug "creating container")
     (lxc/create node container)
+    (lxc/add-description node container)
     (debug "container created")
     (lxc/start node container)
     (debug "container in running state")

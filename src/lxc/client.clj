@@ -89,6 +89,16 @@
   [node fingerprint]
   (run http/get (<< "images/~{fingerprint}") node))
 
+(defn get-metadata
+  "Get container metadata"
+  [node {:keys [name]}]
+  (:metadata (run http/get (<< "containers/~{name}/metadata") node)))
+
+(defn update-metadata
+  "Update container metadata"
+  [node {:keys [name]} m]
+  (run http/put (<< "containers/~{name}/metadata") node (into-body m)))
+
 (defn create
   "Create container using http api"
   [node container]
@@ -134,6 +144,10 @@
          (when-not (= 404 (:status (ex-data e)))
            (throw e)))))
 
+(defn add-description [node {:keys [description] :as container}]
+  (let [m (get-metadata node container)]
+    (update-metadata node container (assoc-in m [:properties :description] description))))
+
 (comment
   (require '[re-core.model :refer (hypervisor)])
 
@@ -147,7 +161,7 @@
            :devices {}
            :ephemeral false
            :config {:limits.cpu "1" :limits.memory "500"}
-           :source {:type "image" :alias "ubuntu-18.04.2_node-8.x"}})
+           :source {:type "image" :alias "ubuntu-18.04.2_corretto-8"}})
 
   (require '[clojure.pprint :refer (pprint)])
 

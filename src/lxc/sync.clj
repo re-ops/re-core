@@ -7,8 +7,8 @@
 
 (defn into-system [node name]
   {:post [#(validate %)]}
-  (let [description (get-in (lxc/get node {:name name}) [:metadata :description])
-        system (from-description description)]
+  (let [{:keys [properties]} (lxc/get-metadata node {:name name})
+        system (from-description (properties :description))]
     (if-let [ip (lxc/ip node {:name name})]
       (assoc-in system [:machine :ip] ip)
       system)))
