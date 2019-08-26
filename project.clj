@@ -1,4 +1,4 @@
-(defproject re-core "0.12.0"
+(defproject re-core "0.12.1"
   :description "A launching pad for virtualized applications"
   :url "https://github.com/re-core-ops/re-core-core"
   :license  {:name "Apache License, Version 2.0" :url "http://www.apache.org/licenses/LICENSE-2.0.html"}
@@ -18,8 +18,8 @@
                  [com.taoensso/tufte "1.1.1"]
 
                  ; re-ops
-                 [re-mote "0.13.0"]
-                 [re-share "0.11.7"]
+                 [re-mote "0.13.2"]
+                 [re-share "0.11.8"]
 
                  ; Elasticsearch
                  [rubber "0.3.6"]
