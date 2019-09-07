@@ -20,9 +20,8 @@
     (assoc-in instance [(prefix-key instance) :src] s)))
 
 (defn default-src
-  "Using name as a convention source location"
   [instance]
-  ((src (<< "~{home}/code/re-ops/re-cog/resources/~{type}")) instance))
+  ((src (<< "~{home}/code/re-ops/re-cog/resources/")) instance))
 
 (defn args
   "Set script arguments"
