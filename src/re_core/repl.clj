@@ -2,6 +2,7 @@
   "Repl Driven re-core"
   (:refer-clojure :exclude [list update sync])
   (:require
+   [re-core.repl.terminal :refer (launch-ssh)]
    [es.history :refer (refer-history)]
    [clojure.core.strint :refer  (<<)]
    [re-core.repl.base :refer (refer-base)]
@@ -241,8 +242,7 @@
    (let [{:keys [auth] :as hs} (hosts f :ip)]
      (doseq [host (:hosts hs)]
        (let [target (<< "~(auth :user)@~{host}") private-key (c/get! :shared :ssh :private-key-path)]
-         (.exec (Runtime/getRuntime)
-                (<< "/usr/bin/x-terminal-emulator --disable-factory -e /usr/bin/ssh ~{target} -i ~{private-key}")))))))
+         (launch-ssh target private-key))))))
 
 (defn spice-into
   "Open remote spice connection to KVM instances (using remmina spice):
