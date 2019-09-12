@@ -50,7 +50,7 @@
   (fn [instance]
     (assoc-in instance [:machine :os] k)))
 
-(def ubuntu-18_04_2 (os :ubuntu-18.04.2))
+(def ubuntu-18_04_3 (os :ubuntu-18.04.3))
 
 (defn machine [user domain]
   (fn [instance]
@@ -62,7 +62,7 @@
 (defn defaults
   "default machine and os settings"
   [instance]
-  (-> instance (ubuntu-18_04_2) (default-machine)))
+  (-> instance (ubuntu-18_04_3) (default-machine)))
 
 (defn node [n]
   (fn [instance] (assoc-in instance [(figure-virt instance) :node] n)))
@@ -74,4 +74,4 @@
 (def kvm {:kvm {} :machine {}})
 
 (defn refer-system-presets []
-  (require '[re-core.presets.systems :as spc :refer [node lxc kvm os ubuntu-18_04_2 defaults local default-machine]]))
+  (require '[re-core.presets.systems :as spc :refer [node lxc kvm os ubuntu-18_04_3 defaults local default-machine]]))
