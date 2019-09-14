@@ -73,5 +73,7 @@
 
 (def kvm {:kvm {} :machine {}})
 
+(def droplet {:digital-ocean {} :machine {}})
+
 (defn refer-system-presets []
-  (require '[re-core.presets.systems :as spc :refer [node lxc kvm os ubuntu-18_04_3 defaults local default-machine]]))
+  (require '[re-core.presets.systems :as spc :refer [node lxc kvm droplet os ubuntu-18_04_3 defaults local default-machine]]))

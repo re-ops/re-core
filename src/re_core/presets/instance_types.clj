@@ -103,9 +103,15 @@
 
 (def all (merge aws simple))
 
-(defn size [k v]
-  (list 'defn (symbol (name k)) '[system]
-        (list 'update-in 'system [:machine] (list 'fn '[m] (list 'merge 'm v)))))
+(defn size [k {:keys [cpu ram] :as  v}]
+  (list 'defn (symbol (name k))
+        (str "A system with " cpu " cpu units and " ram " GB of ram")
+        '[system]
+        (list 'cond
+              (list 'contains? 'system :digital-ocean)
+              (list 'assoc-in 'system [:machine :size] (list 'str "s-" cpu "vcpu-" ram "gb"))
+              :else
+              (list 'update-in 'system [:machine] (list 'fn '[m] (list 'merge 'm v))))))
 
 (defmacro types []
   (let [fns (map (fn [[k v]] (size k v)) all)
