@@ -1,0 +1,866 @@
+[{:vcpus 1,
+  :disk 20,
+  :slug "512mb",
+  :price_monthly 5,
+  :transfer 1,
+  :price_hourly 0.007439999841153622,
+  :regions ["ams2"
+            "ams3"
+            "blr1"
+            "fra1"
+            "lon1"
+            "nyc1"
+            "nyc2"
+            "nyc3"
+            "sfo1"
+            "sfo2"
+            "sgp1"
+            "tor1"],
+  :memory 512,
+  :available true}
+ {:vcpus 1,
+  :disk 25,
+  :slug "s-1vcpu-1gb",
+  :price_monthly 5,
+  :transfer 1,
+  :price_hourly 0.007439999841153622,
+  :regions ["ams2"
+            "ams3"
+            "blr1"
+            "fra1"
+            "lon1"
+            "nyc1"
+            "nyc2"
+            "nyc3"
+            "sfo1"
+            "sfo2"
+            "sgp1"
+            "tor1"],
+  :memory 1024,
+  :available true}
+ {:vcpus 1,
+  :disk 30,
+  :slug "1gb",
+  :price_monthly 10,
+  :transfer 2,
+  :price_hourly 0.01487999968230724,
+  :regions ["ams2"
+            "ams3"
+            "blr1"
+            "fra1"
+            "lon1"
+            "nyc1"
+            "nyc2"
+            "nyc3"
+            "sfo1"
+            "sfo2"
+            "sgp1"
+            "tor1"],
+  :memory 1024,
+  :available true}
+ {:vcpus 1,
+  :disk 50,
+  :slug "s-1vcpu-2gb",
+  :price_monthly 10,
+  :transfer 2,
+  :price_hourly 0.01487999968230724,
+  :regions ["ams2"
+            "ams3"
+            "blr1"
+            "fra1"
+            "lon1"
+            "nyc1"
+            "nyc2"
+            "nyc3"
+            "sfo1"
+            "sfo2"
+            "sgp1"
+            "tor1"],
+  :memory 2048,
+  :available true}
+ {:vcpus 1,
+  :disk 60,
+  :slug "s-1vcpu-3gb",
+  :price_monthly 15,
+  :transfer 3,
+  :price_hourly 0.02232000045478344,
+  :regions ["ams2"
+            "ams3"
+            "blr1"
+            "fra1"
+            "lon1"
+            "nyc1"
+            "nyc2"
+            "nyc3"
+            "sfo1"
+            "sfo2"
+            "sgp1"
+            "tor1"],
+  :memory 3072,
+  :available true}
+ {:vcpus 2,
+  :disk 60,
+  :slug "s-2vcpu-2gb",
+  :price_monthly 15,
+  :transfer 3,
+  :price_hourly 0.02232000045478344,
+  :regions ["ams2"
+            "ams3"
+            "blr1"
+            "fra1"
+            "lon1"
+            "nyc1"
+            "nyc2"
+            "nyc3"
+            "sfo1"
+            "sfo2"
+            "sgp1"
+            "tor1"],
+  :memory 2048,
+  :available true}
+ {:vcpus 3,
+  :disk 60,
+  :slug "s-3vcpu-1gb",
+  :price_monthly 15,
+  :transfer 3,
+  :price_hourly 0.02232000045478344,
+  :regions ["ams2"
+            "ams3"
+            "blr1"
+            "fra1"
+            "lon1"
+            "nyc1"
+            "nyc2"
+            "nyc3"
+            "sfo1"
+            "sfo2"
+            "sgp1"
+            "tor1"],
+  :memory 1024,
+  :available true}
+ {:vcpus 2,
+  :disk 40,
+  :slug "2gb",
+  :price_monthly 20,
+  :transfer 3,
+  :price_hourly 0.02975999936461449,
+  :regions ["ams2"
+            "ams3"
+            "blr1"
+            "fra1"
+            "lon1"
+            "nyc1"
+            "nyc2"
+            "nyc3"
+            "sfo1"
+            "sfo2"
+            "sgp1"
+            "tor1"],
+  :memory 2048,
+  :available true}
+ {:vcpus 2,
+  :disk 80,
+  :slug "s-2vcpu-4gb",
+  :price_monthly 20,
+  :transfer 4,
+  :price_hourly 0.02975999936461449,
+  :regions ["ams2"
+            "ams3"
+            "blr1"
+            "fra1"
+            "lon1"
+            "nyc1"
+            "nyc2"
+            "nyc3"
+            "sfo1"
+            "sfo2"
+            "sgp1"
+            "tor1"],
+  :memory 4096,
+  :available true}
+ {:vcpus 2,
+  :disk 60,
+  :slug "4gb",
+  :price_monthly 40,
+  :transfer 4,
+  :price_hourly 0.05951999872922897,
+  :regions ["ams2"
+            "ams3"
+            "blr1"
+            "fra1"
+            "lon1"
+            "nyc1"
+            "nyc2"
+            "nyc3"
+            "sfo1"
+            "sfo2"
+            "sgp1"
+            "tor1"],
+  :memory 4096,
+  :available true}
+ {:vcpus 2,
+  :disk 25,
+  :slug "c-2",
+  :price_monthly 40,
+  :transfer 4,
+  :price_hourly 0.05999999865889549,
+  :regions ["ams3"
+            "blr1"
+            "fra1"
+            "lon1"
+            "nyc1"
+            "nyc3"
+            "sfo2"
+            "sgp1"
+            "tor1"],
+  :memory 4096,
+  :available true}
+ {:vcpus 1,
+  :disk 40,
+  :slug "m-1vcpu-8gb",
+  :price_monthly 40,
+  :transfer 5,
+  :price_hourly 0.0595237985253334,
+  :regions ["ams2"
+            "ams3"
+            "blr1"
+            "lon1"
+            "nyc1"
+            "nyc2"
+            "nyc3"
+            "sfo1"
+            "sfo2"
+            "tor1"],
+  :memory 8192,
+  :available true}
+ {:vcpus 4,
+  :disk 160,
+  :slug "s-4vcpu-8gb",
+  :price_monthly 40,
+  :transfer 5,
+  :price_hourly 0.05951999872922897,
+  :regions ["ams2"
+            "ams3"
+            "blr1"
+            "fra1"
+            "lon1"
+            "nyc1"
+            "nyc2"
+            "nyc3"
+            "sfo1"
+            "sfo2"
+            "sgp1"
+            "tor1"],
+  :memory 8192,
+  :available true}
+ {:vcpus 2,
+  :disk 25,
+  :slug "g-2vcpu-8gb",
+  :price_monthly 60,
+  :transfer 4,
+  :price_hourly 0.0892857015132904,
+  :regions ["ams3" "fra1" "nyc1" "nyc3" "sfo2" "sgp1"],
+  :memory 8192,
+  :available true}
+ {:vcpus 2,
+  :disk 50,
+  :slug "gd-2vcpu-8gb",
+  :price_monthly 65,
+  :transfer 4,
+  :price_hourly 0.0967262014746666,
+  :regions ["ams3" "fra1" "nyc3" "sfo2" "sgp1"],
+  :memory 8192,
+  :available true}
+ {:vcpus 2,
+  :disk 60,
+  :slug "m-16gb",
+  :price_monthly 75,
+  :transfer 5,
+  :price_hourly 0.1116070002317429,
+  :regions ["ams2"
+            "ams3"
+            "blr1"
+            "lon1"
+            "nyc1"
+            "nyc2"
+            "nyc3"
+            "sfo1"
+            "sfo2"
+            "sgp1"
+            "tor1"],
+  :memory 16384,
+  :available true}
+ {:vcpus 4,
+  :disk 80,
+  :slug "8gb",
+  :price_monthly 80,
+  :transfer 5,
+  :price_hourly 0.1190500035881996,
+  :regions ["ams2"
+            "ams3"
+            "blr1"
+            "fra1"
+            "lon1"
+            "nyc1"
+            "nyc2"
+            "nyc3"
+            "sfo1"
+            "sfo2"
+            "sgp1"
+            "tor1"],
+  :memory 8192,
+  :available true}
+ {:vcpus 4,
+  :disk 50,
+  :slug "c-4",
+  :price_monthly 80,
+  :transfer 5,
+  :price_hourly 0.1190000027418137,
+  :regions ["ams3"
+            "blr1"
+            "fra1"
+            "lon1"
+            "nyc1"
+            "nyc3"
+            "sfo2"
+            "sgp1"
+            "tor1"],
+  :memory 8192,
+  :available true}
+ {:vcpus 6,
+  :disk 320,
+  :slug "s-6vcpu-16gb",
+  :price_monthly 80,
+  :transfer 6,
+  :price_hourly 0.1190500035881996,
+  :regions ["ams2"
+            "ams3"
+            "blr1"
+            "fra1"
+            "lon1"
+            "nyc1"
+            "nyc2"
+            "nyc3"
+            "sfo1"
+            "sfo2"
+            "sgp1"
+            "tor1"],
+  :memory 16384,
+  :available true}
+ {:vcpus 2,
+  :disk 50,
+  :slug "m-2vcpu-16gb",
+  :price_monthly 90,
+  :transfer 4,
+  :price_hourly 0.1339289993047714,
+  :regions ["ams3" "nyc3"],
+  :memory 16384,
+  :available true}
+ {:vcpus 2,
+  :disk 150,
+  :slug "m3-2vcpu-16gb",
+  :price_monthly 110,
+  :transfer 4,
+  :price_hourly 0.1636900007724762,
+  :regions ["ams3" "nyc3"],
+  :memory 16384,
+  :available true}
+ {:vcpus 4,
+  :disk 50,
+  :slug "g-4vcpu-16gb",
+  :price_monthly 120,
+  :transfer 5,
+  :price_hourly 0.1785710006952286,
+  :regions ["ams3" "fra1" "nyc1" "nyc3" "sfo2" "sgp1"],
+  :memory 16384,
+  :available true}
+ {:vcpus 4,
+  :disk 100,
+  :slug "gd-4vcpu-16gb",
+  :price_monthly 130,
+  :transfer 5,
+  :price_hourly 0.193452000617981,
+  :regions ["ams3" "fra1" "nyc3" "sfo2" "sgp1"],
+  :memory 16384,
+  :available true}
+ {:vcpus 2,
+  :disk 300,
+  :slug "m6-2vcpu-16gb",
+  :price_monthly 140,
+  :transfer 4,
+  :price_hourly 0.2083330005407333,
+  :regions ["ams3" "nyc3"],
+  :memory 16384,
+  :available true}
+ {:vcpus 4,
+  :disk 90,
+  :slug "m-32gb",
+  :price_monthly 150,
+  :transfer 5,
+  :price_hourly 0.2232140004634857,
+  :regions ["ams2"
+            "ams3"
+            "blr1"
+            "lon1"
+            "nyc1"
+            "nyc2"
+            "nyc3"
+            "sfo1"
+            "sfo2"
+            "tor1"],
+  :memory 32768,
+  :available true}
+ {:vcpus 8,
+  :disk 160,
+  :slug "16gb",
+  :price_monthly 160,
+  :transfer 6,
+  :price_hourly 0.2381000071763992,
+  :regions ["ams1"
+            "ams2"
+            "ams3"
+            "blr1"
+            "fra1"
+            "lon1"
+            "nyc1"
+            "nyc2"
+            "nyc3"
+            "sfo1"
+            "sfo2"
+            "sgp1"
+            "tor1"],
+  :memory 16384,
+  :available true}
+ {:vcpus 8,
+  :disk 100,
+  :slug "c-8",
+  :price_monthly 160,
+  :transfer 6,
+  :price_hourly 0.2380000054836273,
+  :regions ["ams3"
+            "blr1"
+            "fra1"
+            "lon1"
+            "nyc1"
+            "nyc3"
+            "sfo2"
+            "sgp1"
+            "tor1"],
+  :memory 16384,
+  :available true}
+ {:vcpus 8,
+  :disk 640,
+  :slug "s-8vcpu-32gb",
+  :price_monthly 160,
+  :transfer 7,
+  :price_hourly 0.2381000071763992,
+  :regions ["ams2"
+            "ams3"
+            "blr1"
+            "fra1"
+            "lon1"
+            "nyc1"
+            "nyc2"
+            "nyc3"
+            "sfo1"
+            "sfo2"
+            "sgp1"
+            "tor1"],
+  :memory 32768,
+  :available true}
+ {:vcpus 4,
+  :disk 100,
+  :slug "m-4vcpu-32gb",
+  :price_monthly 180,
+  :transfer 6,
+  :price_hourly 0.2678569853305817,
+  :regions ["ams3" "nyc3"],
+  :memory 32768,
+  :available true}
+ {:vcpus 4,
+  :disk 300,
+  :slug "m3-4vcpu-32gb",
+  :price_monthly 220,
+  :transfer 6,
+  :price_hourly 0.3273810148239136,
+  :regions ["ams3" "nyc3"],
+  :memory 32768,
+  :available true}
+ {:vcpus 12,
+  :disk 960,
+  :slug "s-12vcpu-48gb",
+  :price_monthly 240,
+  :transfer 8,
+  :price_hourly 0.3571400046348572,
+  :regions ["ams2"
+            "ams3"
+            "blr1"
+            "fra1"
+            "lon1"
+            "nyc1"
+            "nyc2"
+            "nyc3"
+            "sfo1"
+            "sfo2"
+            "sgp1"
+            "tor1"],
+  :memory 49152,
+  :available true}
+ {:vcpus 8,
+  :disk 100,
+  :slug "g-8vcpu-32gb",
+  :price_monthly 240,
+  :transfer 6,
+  :price_hourly 0.3571430146694183,
+  :regions ["ams3" "fra1" "nyc1" "nyc3" "sfo2" "sgp1"],
+  :memory 32768,
+  :available true}
+ {:vcpus 8,
+  :disk 200,
+  :slug "gd-8vcpu-32gb",
+  :price_monthly 260,
+  :transfer 6,
+  :price_hourly 0.3869050145149231,
+  :regions ["ams3" "fra1" "nyc3" "sfo2" "sgp1"],
+  :memory 32768,
+  :available true}
+ {:vcpus 4,
+  :disk 600,
+  :slug "m6-4vcpu-32gb",
+  :price_monthly 280,
+  :transfer 6,
+  :price_hourly 0.4166670143604279,
+  :regions ["ams3" "nyc3"],
+  :memory 32768,
+  :available true}
+ {:vcpus 8,
+  :disk 200,
+  :slug "m-64gb",
+  :price_monthly 300,
+  :transfer 5,
+  :price_hourly 0.4464290142059326,
+  :regions ["ams3" "blr1" "lon1" "nyc1" "nyc3" "sfo2" "tor1"],
+  :memory 65536,
+  :available true}
+ {:vcpus 12,
+  :disk 320,
+  :slug "32gb",
+  :price_monthly 320,
+  :transfer 7,
+  :price_hourly 0.4761900007724762,
+  :regions ["ams2"
+            "ams3"
+            "blr1"
+            "fra1"
+            "lon1"
+            "nyc1"
+            "nyc2"
+            "nyc3"
+            "sfo1"
+            "sfo2"
+            "sgp1"
+            "tor1"],
+  :memory 32768,
+  :available true}
+ {:vcpus 16,
+  :disk 200,
+  :slug "c-16",
+  :price_monthly 320,
+  :transfer 7,
+  :price_hourly 0.4760000109672546,
+  :regions ["ams3"
+            "blr1"
+            "fra1"
+            "lon1"
+            "nyc1"
+            "nyc3"
+            "sfo2"
+            "sgp1"
+            "tor1"],
+  :memory 32768,
+  :available true}
+ {:vcpus 16,
+  :disk 1280,
+  :slug "s-16vcpu-64gb",
+  :price_monthly 320,
+  :transfer 9,
+  :price_hourly 0.4761900007724762,
+  :regions ["ams3"
+            "blr1"
+            "fra1"
+            "lon1"
+            "nyc1"
+            "nyc3"
+            "sfo2"
+            "sgp1"
+            "tor1"],
+  :memory 65536,
+  :available true}
+ {:vcpus 8,
+  :disk 200,
+  :slug "m-8vcpu-64gb",
+  :price_monthly 360,
+  :transfer 7,
+  :price_hourly 0.5357139706611633,
+  :regions ["ams3" "nyc3"],
+  :memory 65536,
+  :available true}
+ {:vcpus 8,
+  :disk 600,
+  :slug "m3-8vcpu-64gb",
+  :price_monthly 440,
+  :transfer 7,
+  :price_hourly 0.6547620296478271,
+  :regions ["ams3" "nyc3"],
+  :memory 65536,
+  :available true}
+ {:vcpus 16,
+  :disk 480,
+  :slug "48gb",
+  :price_monthly 480,
+  :transfer 8,
+  :price_hourly 0.7142900228500366,
+  :regions ["ams2"
+            "ams3"
+            "blr1"
+            "fra1"
+            "lon1"
+            "nyc1"
+            "nyc2"
+            "nyc3"
+            "sfo1"
+            "sfo2"
+            "tor1"],
+  :memory 49152,
+  :available true}
+ {:vcpus 20,
+  :disk 1920,
+  :slug "s-20vcpu-96gb",
+  :price_monthly 480,
+  :transfer 10,
+  :price_hourly 0.7142900228500366,
+  :regions ["ams3"
+            "blr1"
+            "fra1"
+            "lon1"
+            "nyc1"
+            "nyc3"
+            "sfo2"
+            "sgp1"
+            "tor1"],
+  :memory 98304,
+  :available true}
+ {:vcpus 16,
+  :disk 200,
+  :slug "g-16vcpu-64gb",
+  :price_monthly 480,
+  :transfer 7,
+  :price_hourly 0.7142860293388367,
+  :regions ["ams3" "fra1" "nyc1" "nyc3" "sfo2" "sgp1"],
+  :memory 65536,
+  :available true}
+ {:vcpus 16,
+  :disk 400,
+  :slug "gd-16vcpu-64gb",
+  :price_monthly 520,
+  :transfer 7,
+  :price_hourly 0.7738100290298462,
+  :regions ["ams3" "fra1" "nyc3" "sfo2" "sgp1"],
+  :memory 65536,
+  :available true}
+ {:vcpus 8,
+  :disk 1200,
+  :slug "m6-8vcpu-64gb",
+  :price_monthly 560,
+  :transfer 7,
+  :price_hourly 0.8333330154418945,
+  :regions ["ams3" "nyc3"],
+  :memory 65536,
+  :available true}
+ {:vcpus 16,
+  :disk 340,
+  :slug "m-128gb",
+  :price_monthly 600,
+  :transfer 5,
+  :price_hourly 0.892857015132904,
+  :regions ["ams3" "blr1" "lon1" "nyc1" "nyc3" "tor1"],
+  :memory 131072,
+  :available true}
+ {:vcpus 20,
+  :disk 640,
+  :slug "64gb",
+  :price_monthly 640,
+  :transfer 9,
+  :price_hourly 0.9523800015449524,
+  :regions ["ams3" "blr1" "fra1" "lon1" "nyc1" "nyc3" "sfo2" "tor1"],
+  :memory 65536,
+  :available true}
+ {:vcpus 32,
+  :disk 400,
+  :slug "c-32",
+  :price_monthly 640,
+  :transfer 9,
+  :price_hourly 0.9520000219345093,
+  :regions ["ams3" "blr1" "fra1" "lon1" "nyc1" "nyc3" "sfo1" "tor1"],
+  :memory 65536,
+  :available true}
+ {:vcpus 24,
+  :disk 2560,
+  :slug "s-24vcpu-128gb",
+  :price_monthly 640,
+  :transfer 11,
+  :price_hourly 0.9523800015449524,
+  :regions ["ams3"
+            "blr1"
+            "fra1"
+            "lon1"
+            "nyc1"
+            "nyc3"
+            "sfo2"
+            "sgp1"
+            "tor1"],
+  :memory 131072,
+  :available true}
+ {:vcpus 16,
+  :disk 400,
+  :slug "m-16vcpu-128gb",
+  :price_monthly 720,
+  :transfer 8,
+  :price_hourly 1.071429967880249,
+  :regions ["ams3" "nyc3"],
+  :memory 131072,
+  :available true}
+ {:vcpus 16,
+  :disk 1200,
+  :slug "m3-16vcpu-128gb",
+  :price_monthly 880,
+  :transfer 8,
+  :price_hourly 1.30952000617981,
+  :regions ["ams3" "nyc3"],
+  :memory 131072,
+  :available true}
+ {:vcpus 32,
+  :disk 3840,
+  :slug "s-32vcpu-192gb",
+  :price_monthly 960,
+  :transfer 12,
+  :price_hourly 1.428570032119751,
+  :regions ["ams3"
+            "blr1"
+            "fra1"
+            "lon1"
+            "nyc1"
+            "nyc3"
+            "sfo2"
+            "sgp1"
+            "tor1"],
+  :memory 196608,
+  :available true}
+ {:vcpus 32,
+  :disk 400,
+  :slug "g-32vcpu-128gb",
+  :price_monthly 960,
+  :transfer 8,
+  :price_hourly 1.428570032119751,
+  :regions ["ams3" "fra1" "nyc1" "nyc3" "sfo2" "sgp1"],
+  :memory 131072,
+  :available true}
+ {:vcpus 32,
+  :disk 800,
+  :slug "gd-32vcpu-128gb",
+  :price_monthly 1040,
+  :transfer 8,
+  :price_hourly 1.547620058059692,
+  :regions ["fra1" "sgp1"],
+  :memory 131072,
+  :available true}
+ {:vcpus 24,
+  :disk 600,
+  :slug "m-24vcpu-192gb",
+  :price_monthly 1080,
+  :transfer 9,
+  :price_hourly 1.607139945030212,
+  :regions ["ams3" "nyc3"],
+  :memory 196608,
+  :available true}
+ {:vcpus 32,
+  :disk 500,
+  :slug "m-224gb",
+  :price_monthly 1100,
+  :transfer 5,
+  :price_hourly 1.636899948120117,
+  :regions ["ams3" "blr1" "lon1" "nyc1" "nyc3" "tor1"],
+  :memory 229376,
+  :available true}
+ {:vcpus 16,
+  :disk 2400,
+  :slug "m6-16vcpu-128gb",
+  :price_monthly 1120,
+  :transfer 8,
+  :price_hourly 1.666669964790344,
+  :regions ["ams3" "nyc3"],
+  :memory 131072,
+  :available true}
+ {:vcpus 40,
+  :disk 500,
+  :slug "g-40vcpu-160gb",
+  :price_monthly 1200,
+  :transfer 9,
+  :price_hourly 1.785709977149963,
+  :regions ["nyc3" "sfo2"],
+  :memory 163840,
+  :available true}
+ {:vcpus 40,
+  :disk 1000,
+  :slug "gd-40vcpu-160gb",
+  :price_monthly 1300,
+  :transfer 9,
+  :price_hourly 1.93452000617981,
+  :regions ["ams3" "nyc3"],
+  :memory 163840,
+  :available true}
+ {:vcpus 24,
+  :disk 1800,
+  :slug "m3-24vcpu-192gb",
+  :price_monthly 1320,
+  :transfer 9,
+  :price_hourly 1.964290022850037,
+  :regions ["ams3" "nyc3"],
+  :memory 196608,
+  :available true}
+ {:vcpus 32,
+  :disk 800,
+  :slug "m-32vcpu-256gb",
+  :price_monthly 1440,
+  :transfer 10,
+  :price_hourly 2.142859935760498,
+  :regions ["ams3" "nyc3"],
+  :memory 262144,
+  :available true}
+ {:vcpus 24,
+  :disk 3600,
+  :slug "m6-24vcpu-192gb",
+  :price_monthly 1680,
+  :transfer 9,
+  :price_hourly 2.5,
+  :regions ["ams3" "nyc3"],
+  :memory 196608,
+  :available true}
+ {:vcpus 32,
+  :disk 2400,
+  :slug "m3-32vcpu-256gb",
+  :price_monthly 1760,
+  :transfer 10,
+  :price_hourly 2.619050025939941,
+  :regions ["ams3" "nyc3"],
+  :memory 262144,
+  :available true}
+ {:vcpus 32,
+  :disk 4800,
+  :slug "m6-32vcpu-256gb",
+  :price_monthly 2240,
+  :transfer 10,
+  :price_hourly 3.333329916000366,
+  :regions ["ams3" "nyc3"],
+  :memory 262144,
+  :available true}]
