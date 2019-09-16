@@ -1,8 +1,5 @@
 (ns re-core.presets.digitial
-  "Digitalocean presets"
-  (:require
-   [re-core.common :refer (hostname)]
-   [re-core.presets.systems :as sp]))
+  "Digitalocean presets")
 
 (defn region [r]
   (fn [instance]
@@ -11,6 +8,10 @@
 (defn private [t]
   (fn [instance]
     (assoc-in instance [:digital-ocean :private_networking] t)))
+
+(defn defaults [instance]
+  (update instance :digital-ocean
+          (fn [m] (merge m {:private_networking false :region "nyc1"}))))
 
 (def nyc1 (region "nyc1"))
 

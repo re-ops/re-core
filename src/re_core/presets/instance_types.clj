@@ -128,9 +128,10 @@
         '[system]
         (list 'let ['virt (list re-core.model/figure-virt 'system)]
               (list 'when-not (list supports 'virt)
-                    (list 'throw (list 'ex-info (str "size isn't supported for " 'virt) {k v})))
+                    (list 'throw (list 'ex-info (list str "Provided size " k " does not support " 'virt) {})))
               (list 'case 'virt
-                    :digital-ocean (list 'assoc-in 'system [:machine :size] (name k))
+                    :digital-ocean (list 'assoc-in 'system [:digital-ocean :size] (name k))
+                    :aws (list 'assoc-in 'system [:aws :instance-type] (name k))
                     (list 'update-in 'system [:machine] (list 'fn '[m] (list 'merge 'm v)))))))
 
 (defmacro types []
