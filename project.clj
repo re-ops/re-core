@@ -1,4 +1,4 @@
-(defproject re-core "0.12.1"
+(defproject re-core "0.12.2"
   :description "A launching pad for virtualized applications"
   :url "https://github.com/re-core-ops/re-core-core"
   :license  {:name "Apache License, Version 2.0" :url "http://www.apache.org/licenses/LICENSE-2.0.html"}
