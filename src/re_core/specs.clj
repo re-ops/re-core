@@ -14,7 +14,7 @@
 ; Digital ocean
 (def digital-regions #{"nyc1" "nyc2" "nyc3" "tor1" "sfo1" "sfo2" "sgp1" "lon1"})
 
-(def droplet-sizes #{"s-1vcpu-1gb" "s-1vcpu-2gb" "s-1vcpu-3gb" "s-2vcpu-2gb" "512mb"})
+(def droplet-sizes (into #{} (map :size (vals types/slugs))))
 
 (s/def :digital/region (s/and string? digital-regions))
 
