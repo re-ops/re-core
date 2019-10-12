@@ -132,8 +132,6 @@
 
 (s/def :type/plan (s/and symbol? plan-exists?))
 
-(s/def :type/sec (s/and string? file-path?))
-
 (s/def :type/type string?)
 
 (s/def :type/description string?)
