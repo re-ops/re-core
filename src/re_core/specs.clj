@@ -1,10 +1,10 @@
 (ns re-core.specs
   (:require
+   [me.raynes.fs :as fs]
    [es.types :as es]
    [clojure.core.strint :refer (<<)]
    [clojure.spec.alpha :as s]
    [re-share.spec :as re-ops :refer (file-path?)]
-   [re-cog.meta :refer (fn-meta)]
    [re-core.presets.instance-types :as types]
    [re-core.model :refer (figure-virt)]))
 
@@ -138,6 +138,8 @@
 
 (s/def :type/description string?)
 
-(s/def ::cog (s/keys :req-un [:type/args :type/plan ::src]))
+(s/def :type/src (s/and string? fs/exists?))
+
+(s/def ::cog (s/keys :req-un [:type/args :type/plan :type/src]))
 
 (s/def ::type (s/keys :req-un [::cog :type/description :type/type]))
