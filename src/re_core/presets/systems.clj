@@ -87,6 +87,8 @@
 
 (def ec2 {:aws {} :machine {}})
 
+(def physical {:physical {} :machine {}})
+
 (def droplet {:digital-ocean {} :machine {}})
 
 (defn refer-system-presets []
