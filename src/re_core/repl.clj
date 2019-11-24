@@ -188,8 +188,9 @@
 
      (create kvm defaults c1-medium local vol-128G :redis)
 
-   Custom os:
-     (create kvm defaults c1-medium (os :ubuntu-18.04-dekstop) :redis)
+   Custom os (using default machine):
+
+     (create kvm default-machine c1-medium (os :ubuntu-18.04-dekstop) :redis)
 
    Type instances:
      (create cog 're-cog.recipes.osquery/install default-src :osquery \"osquery type\") ; using default src directory
