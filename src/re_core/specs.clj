@@ -120,9 +120,11 @@
 
 (s/def :system/type (s/and keyword? (comp alpha? name) es/exists?))
 
+(s/def :system/description string?)
+
 (s/def :resource/machine (s/keys :req-un [::os ::cpu ::ram]))
 
-(s/def ::system (s/merge (s/multi-spec system figure-virt) (s/keys :req-un [:common/machine :system/type])))
+(s/def ::system (s/merge (s/multi-spec system figure-virt) (s/keys :req-un [:common/machine :system/type :system/description])))
 
 ; Type specs
 (s/def :type/args (s/* string?))

@@ -38,7 +38,7 @@
    (map
     (fn [[id s]]
       (select-keys* (merge s {:id id :hypervisor (figure-virt s)})
-                    [:id] [:machine :hostname] [:type] [:machine :os] [:hypervisor] [:machine :ip])) systems) :style :borderless))
+                    [:id] [:machine :hostname] [:type] [:machine :os] [:hypervisor] [:machine :ip] [:description])) systems) :style :borderless))
 
 (defmethod pretty :types [_ {:keys [types]}]
   (table

@@ -22,23 +22,26 @@
     m
     (let [a (first args) {:keys [fns]} m]
       (cond
-        (string? a) (into-spec (assoc m :hostname a) (rest args))
+        (string? a) (into-spec (assoc m :description a) (rest args))
         (number? a) (into-spec (assoc m :total a) (rest args))
         (keyword? a) (into-spec (assoc m :type a) (rest args))
         (fn? a) (into-spec (assoc m :fns (conj fns a)) (rest args))))))
 
+(defn with-description [d]
+  (fn [instance] (assoc instance :description d)))
+
 (defn with-type [t]
   (fn [instance] (assoc instance :type t)))
 
-(defn with-host [h]
+(defn with-host [t]
   (fn [{:keys [type] :as instance}]
-    (assoc-in instance [:machine :hostname] (or h (name type)))))
+    (assoc-in instance [:machine :hostname] (name type))))
 
 (defn materialize-preset
   "Convert a preset into a system using provided args (functions, keyswords etc..)"
   [base args]
-  (let [{:keys [fns total type hostname]} (into-spec {} args)
-        transforms [(with-type type) (with-host hostname) name-gen]
+  (let [{:keys [fns total type description hostname]} (into-spec {} args)
+        transforms [(with-type type) (with-host type) name-gen (with-description description)]
         all (apply conj transforms fns)]
     (map
      (fn [_] (reduce (fn [m f] (f m)) base all)) (range (or total 1)))))

@@ -22,6 +22,7 @@
   #{:reload :destroy :provision :stage :create :start :stop :clear :clone})
 
 (defn figure-virt [spec]
+  "Find hypervisor type from a system"
   (first (filter hypervizors (keys spec))))
 
 (defn hypervisor

@@ -2,6 +2,7 @@
   "Repl Driven re-core"
   (:refer-clojure :exclude [list update sync])
   (:require
+   [re-core.model :refer (figure-virt)]
    [re-core.repl.terminal :refer (launch-ssh)]
    [es.history :refer (refer-history)]
    [clojure.core.strint :refer  (<<)]
@@ -23,11 +24,18 @@
 (def systems (Systems.))
 (def types (Types.))
 
-; filtering functions
+; Filtering functions
 
-(defn by-type
+(defn hyp
+  "Get instances by hypervisor type:
+     (start (hyp :lxc))"
+  [v]
+  (fn [[_ m]]
+    (= (figure-virt m) v)))
+
+(defn typed
   "Get instances by type:
-     (reload (by-type :redis))"
+     (start (by-type :redis))"
   [t]
   (fn [[_ {:keys [type] :as m}]] (=  type t)))
 
@@ -38,7 +46,7 @@
   (machine :ip))
 
 (defn with-ids
-  "Pick systems using unique ids:
+  "Pick systems using multiple ids:
      (provision (with-ids \"Bar\" \"Foo\"))"
   [& ids]
   (fn [[id _]]
@@ -48,6 +56,7 @@
   "Match instances by partial id matching (ala git):
      (provision (matching \"A17_\"))"
   [part]
+  {:pre [(not (clojure.string/blank? part))]}
   (fn [[id _]] (.contains id part)))
 
 (defn hostname
@@ -136,9 +145,18 @@
 
 (defn hosts
   "Convert systems into re-mote hosts:
-     (hosts) ; all systems using ip address
-     (cpu-persist (hosts ip :hostname))) ; use re-gent addresses by grabbing hostname
-     (hosts (by-type :redis) :hostname) ; all redis instances using hostname"
+
+    All systems using ip address:
+
+     (hosts)
+
+    Use re-gent addresses by grabbing hostname
+
+     (cpu-persist (hosts ip :hostname)))
+
+    All redis instances using hostname
+
+     (hosts (by-type :redis) :hostname) "
   ([]
    (hosts ip :ip))
   ([f k]
@@ -146,12 +164,19 @@
 
 (defn provision
   "Provision VM:
-    (provision) ; run provision on all running instances
-    (provision (fn [{:keys [type]] (= type :redis))) ; provision using filter fn"
+
+    Provision all running instances:
+
+     (provision)
+
+    Provision using filter fn:
+
+     (provision (fn [{:keys [type]] (= type :redis)))
+   "
   ([]
    (provision ip))
   ([f]
-   (run (ls systems) | (filter-by f) | (sys/provision) | (block-wait))))
+   (run (ls systems) | (filter-by f) | (sys/provision) | (async-wait pretty-print "provision"))))
 
 (defn- create-system
   "Create a system internal implementation"
