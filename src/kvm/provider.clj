@@ -16,7 +16,7 @@
    [re-core.provider :refer (mappings selections transform os->template wait-for-ssh into-description)]
    [re-share.core :refer (wait-for)]
    [kvm.sync :refer (descriptive-domains sync-node)]
-   [kvm.spice :refer (graphics remmina)]
+   [kvm.spice :refer (graphics remmina manager-view)]
    [hypervisors.networking :refer (set-hostname ssh-able?)]
    [re-core.core :refer (Sync Vm)]
    [re-core.model :refer (translate vconstruct sconstruct hypervisor* hypervisor)])
@@ -26,8 +26,11 @@
 
 (declare ^:dynamic *libvirt-connection*)
 
-(defn connection [{:keys [host user port]}]
-  (connect (<< "qemu+ssh://~{user}@~{host}:~{port}/system")))
+(defn qemu-url [{:keys [host user port]}]
+  (<< "qemu+ssh://~{user}@~{host}:~{port}/system"))
+
+(defn connection [node]
+  (connect (qemu-url node)))
 
 (defn c [] *libvirt-connection*)
 
@@ -108,7 +111,7 @@
   Spicy
   (open-spice [this]
     (with-connection
-      (remmina domain (graphics (c) (domain :name))))))
+      (manager-view (qemu-url node) (domain :name)))))
 
 (defrecord Libvirt [nodes opts]
   Sync

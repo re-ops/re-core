@@ -21,3 +21,6 @@
     (spit file server :append true)
     (spit file name :append true)
     (sh "/usr/bin/remmina" "-c" file)))
+
+(defn manager-view [connection domain]
+  (sh "/usr/bin/virt-manager" "--connect" connection "--show-domain-console" domain))
