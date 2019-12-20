@@ -3,6 +3,7 @@
   (:require
    [expound.alpha :as expound]
    [re-core.specs :as core]
+   [re-core.presets.instance-types :refer (c1-medium c4-large)]
    [clojure.spec.alpha :as s]
    [re-core.model :refer (figure-virt)]
    [re-core.presets.digitial :as d]
@@ -93,6 +94,9 @@
 (def physical {:physical {} :machine {}})
 
 (def droplet {:digital-ocean {} :machine {}})
+
+(defn dispoable-instance []
+  (validate (materialize-preset kvm [default-machine local (os :ubuntu-desktop-18.04.3) c4-large :disposable "A temporary sandbox"])))
 
 (defn refer-system-presets []
   (require '[re-core.presets.systems :as spc :refer [node lxc kvm droplet ec2 os ubuntu-18_04_3 defaults local default-machine]]))

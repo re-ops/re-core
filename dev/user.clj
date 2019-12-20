@@ -4,35 +4,36 @@
    [clojure.java.io :as io]
    [clojure.repl :refer :all]
    [clojure.tools.namespace.repl :refer (refresh refresh-all)]
-   ; re-core
+   ; Re-core
    [re-core.repl :refer :all]
+   [re-core.dispoable :refer :all]
    [re-core.presets.kvm :refer (refer-kvm-presets)]
    [re-core.presets.digitial :refer (refer-digital-presets)]
    [re-core.presets.aws :refer (refer-aws-presets)]
    [re-core.presets.systems :refer (refer-system-presets)]
    [re-core.presets.instance-types :refer (refer-instance-types)]
    [re-core.presets.types :refer (refer-type-presets)]
-   ; re-core components
+   ; Re-core components
    [mount.core :as mount]
    [re-core.queue :refer (queue)]
    [re-core.workers :refer (workers)]
    [es.common :as core-es]
-   ; utilities
+   ; Utilities
    [es.history :refer (refer-history)]
    [re-core.repl.fixtures :refer :all]
    [me.raynes.fs :refer (extension file?)]
-   ; logging
+   ; Logging
    [re-share.log :refer (redirect-output debug-on debug-off)]
    [re-core.log :refer (setup-logging)]
    ; Elasticsearch
    [rubber.core :refer :all :exclude (clear get create call)]
-   ; re-mote
+   ; Re-mote
    [re-mote.repl :refer :all :exclude (provision)]
    [re-mote.repl.stress :refer (refer-stress)]
    [re-mote.zero.management :refer (refer-zero-manage)]
    [re-mote.zero.pipeline :refer (refer-zero-pipe)]
    [re-mote.log :refer (log-hosts)]
-   ; re-mote components
+   ; Re-mote components
    [re-mote.zero.cycle :refer (zero)]
    [re-mote.persist.es :as mote-es :refer (elastic)]
    [re-share.config.core :as conf]
@@ -40,7 +41,7 @@
    [re-share.zero.keys :as k]
    [re-share.schedule :as sc]
    [re-mote.publish.riemann :refer (riemann)]
-   ; testing
+   ; Testing
    [clojure.test])
   (:import re_mote.repl.base.Hosts))
 
