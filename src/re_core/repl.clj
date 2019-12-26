@@ -176,7 +176,7 @@
   ([]
    (provision ip))
   ([f]
-   (run (ls systems) | (filter-by f) | (sys/provision) | (async-wait pretty-print "provision"))))
+   (run (ls systems) | (filter-by f) | (sys/provision) | (block-wait))))
 
 (defn- create-system
   "Create a system internal implementation"

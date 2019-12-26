@@ -29,6 +29,7 @@
    [rubber.core :refer :all :exclude (clear get create call)]
    ; Re-mote
    [re-mote.repl :refer :all :exclude (provision)]
+   [re-mote.repl.base :refer (sync-)]
    [re-mote.repl.stress :refer (refer-stress)]
    [re-mote.zero.management :refer (refer-zero-manage)]
    [re-mote.zero.pipeline :refer (refer-zero-pipe)]
