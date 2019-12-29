@@ -43,7 +43,10 @@
        (zx/xml-> root :devices :disk :driver (zx/attr= :name "qemu") (zx/attr :type))))
 
 (defn into-volume [c [dev file type]]
-  {:device dev :file file :type type :volume (find-volume c file)})
+  (let [volume (find-volume c file)]
+    (when (nil? volume)
+      (throw (ex-info "volume not found please check that the pool is started" {:dev dev :file file :type type})))
+    {:device dev :file file :type type :volume volume}))
 
 (defn volume-xml
   "A libvirt volume XML"
