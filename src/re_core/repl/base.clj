@@ -5,11 +5,6 @@
    [table.core :refer (table)]
    [clojure.set :refer (intersection)]))
 
-(def admin {:username "admin" :password "foo"
-            :envs [:dev :qa :prod]
-            :roles #{:re-core.roles/admin}
-            :operations []})
-
 (defprotocol Repl
   "Repl functions on re-core model types"
   (ls [this] [this & opts])
