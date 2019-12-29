@@ -83,7 +83,7 @@
    (run (ls systems) | (filter-by f) | (sys/reload) | (async-wait pretty-print "reload"))))
 
 (defn clear
-  "Clear model only (VM won't be deleted):
+  "Clear only the model (VM won't be deleted):
      (clear) ; clear all systems (both runnging and non running)
      (clear (by-type :redis)) ; clear systems with redis type
      (clear identity :types) ; clear all types"
