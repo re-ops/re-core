@@ -35,3 +35,6 @@
      ~f
      (catch Exception e#
        (println e#))))
+
+(defn stack-trace [e]
+  (with-out-str (clojure.stacktrace/print-cause-trace e)))
