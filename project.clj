@@ -140,7 +140,9 @@
 
   :repl-options {
     :init-ns user
-    :prompt (fn [ns] (str "\u001B[35m[\u001B[34m" "re-core" "\u001B[35m]\u001B[33mλ:\u001B[m " ))
+    :prompt (fn [ns]
+              (let [hostname (.getHostName (java.net.InetAddress/getLocalHost))]
+                (str "\u001B[35m[\u001B[34m" "re-core" "\u001B[31m" "@" "\u001B[36m" hostname "\u001B[35m]\u001B[33mλ:\u001B[m ")))
     :welcome (println "Welcome to re-core!" )
     :timeout 120000
   }
