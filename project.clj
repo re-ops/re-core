@@ -14,12 +14,15 @@
 
                  ; logging / profiling
                  [com.taoensso/timbre "4.10.0"]
-                 [com.fzakaria/slf4j-timbre "0.3.7"]
                  [com.taoensso/tufte "1.1.1"]
-
+                 [timbre-ns-pattern-level "0.1.2"]
+                 [com.fzakaria/slf4j-timbre "0.3.17"]
+                 [org.clojure/tools.trace "0.7.9"]
+ 
                  ; re-ops
-                 [re-mote "0.3.20"]
-                 [re-share "0.11.9"]
+                 [re-share "0.11.10"]
+                 [re-cog "0.2.4"]
+                 [re-scan "0.2.1"]
 
                  ; Elasticsearch
                  [rubber "0.3.7"]
@@ -63,8 +66,48 @@
                  ; wiring
                  [mount "0.1.16"]
 
-                 ; pretty print
+                 [me.raynes/conch "0.8.0"]
+                 [org.clojure/core.async "0.3.443"]
+                 [com.rpl/specter "1.1.2"]
+                 [org.clojure/core.match "0.3.0-alpha4"]
+
+                  ; persistency
+                 [org.apache.httpcomponents/httpclient "4.5.2"]
+
+                  ; pretty output
+                 [fipp "0.6.14"]
+                 [narkisr/clansi "1.2.0"]
+                 [mvxcvi/puget "1.1.0"]
                  [rm-hull/table "0.7.0"]
+
+                  
+                 ; pretty printing
+                 [io.aviso/pretty "0.1.37"]
+
+                 ; serialization
+                 [serializable-fn "1.1.4"]
+                 [org.clojure/data.codec "0.1.1"]
+                 [com.taoensso/nippy "2.14.0"]
+                 [cheshire "5.9.0"]
+                 [com.mikesamuel/json-sanitizer "1.2.0"]
+
+                 ; remote execution
+                 [com.hierynomus/sshj "0.27.0" :exclusions [org.slf4j/slf4j-api]]
+                 [org.zeromq/jeromq "0.5.1"]
+
+                 ; model
+                 [clj-time/clj-time "0.15.1"]
+
+                 ; email
+                 [com.draines/postal "2.0.3"]
+                 [hiccup "1.0.5"]
+
+                 ; monitoring
+                 [riemann-clojure-client "0.5.0"]
+
+                 ; spec
+                 [expound "0.8.4"]
+                 [org.clojure/test.check "0.10.0"] 
                ]
 
   :exclusions [org.clojure/clojure com.taoensso/timbre commons-codec]
@@ -90,10 +133,6 @@
      :dev {
         :source-paths  ["dev" "test" "data"]
         :resource-paths  ["src/main/resources/"]
-        :dependencies [
-          [org.clojure/tools.trace "0.7.9"]
-          [org.clojure/test.check "0.7.0"]
-        ]
         :set-version {
            :updates [
              {:path "project.clj" :search-regex #"\"target\/re-core-\d+\.\d+\.\d+\.jar"}
