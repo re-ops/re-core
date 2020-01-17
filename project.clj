@@ -18,7 +18,7 @@
                  [timbre-ns-pattern-level "0.1.2"]
                  [com.fzakaria/slf4j-timbre "0.3.17"]
                  [org.clojure/tools.trace "0.7.9"]
- 
+
                  ; re-ops
                  [re-share "0.11.10"]
                  [re-cog "0.2.4"]
@@ -139,7 +139,7 @@
              {:path "src/re-core/common.clj" :search-regex #"\"\d+\.\d+\.\d+\""}]}
 
      }
-    }
+ }
 
 
   :jvm-opts ^:replace ["-Djava.library.path=/usr/lib:/usr/local/lib" "-Xms2g" "-Xmx2g"]
