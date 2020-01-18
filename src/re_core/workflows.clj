@@ -10,6 +10,7 @@
    ; cloning
    aws.model
    [re-core.repl.systems :as sys]
+   [es.types :as t]
    [re-mote.repl :as mote]
    [es.systems :as s]
    [clojure.core.strint :refer (<<)]
@@ -107,14 +108,15 @@
   (info "deleted system with id" system-id))
 
 (defn provision
-  "provision a group of systems"
-  [systems t]
+  "provision a single system"
+  [{:keys [machine type] :as spec}]
   (info "starting to provision hosts")
-  (let [m {:systems (map (fn [m] [(m :system-id) m]) systems)}
+  (let [m {:systems [[(spec :system-id) spec]]}
         hosts (sys/into-hosts (Systems.) m :ip)
-        into-hostnames (into {} (map (comp (juxt :ip :hostname) :machine) systems))
-        result (mote/provision hosts into-hostnames t)]
-    (info "done provisioning hosts")
+        into-hostnames {(machine :ip) (machine :hostname)}
+        {:keys [cog]} (t/get! type)
+        result (mote/provision hosts into-hostnames cog)]
+    (info "done provisioning system")
     result))
 
 (defn stage

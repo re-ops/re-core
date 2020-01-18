@@ -13,7 +13,6 @@
    [es.systems :as s]
    [es.jobs :as es]
    [re-mote.repl :refer (host-hardware-info host-os-info)]
-   [re-core.repl.types :refer (provision-type)]
    [com.rpl.specter :refer [transform ALL multi-path select MAP-VALS nthpath]]
    [re-core.repl.base :as base :refer [Repl Report select-keys* pretty]])
   (:import
@@ -129,9 +128,7 @@
     [this (schedule m "create" systems)])
 
   (provision [this {:keys [systems] :as m}]
-    (let [by-type (group-by (comp :type second) systems)
-          into-args (fn [[t ms]] [(flatten (mapv with-id ms)) (provision-type t)])]
-      [this (schedule m "provision" by-type into-args)]))
+    [this (schedule m "provision" systems)])
 
   (reload [this {:keys [systems] :as m}]
     [this (schedule m "reload" systems)])
