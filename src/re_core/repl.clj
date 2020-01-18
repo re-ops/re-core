@@ -86,7 +86,9 @@
   "Clear only the model (VM won't be deleted):
      (clear) ; clear all systems (both runnging and non running)
      (clear (by-type :redis)) ; clear systems with redis type
-     (clear identity :types) ; clear all types"
+     (clear identity :types) ; clear all types
+     (clear (fn [[t _]] (= t  \"redis\") :types)) ; clear the redis type
+  "
   ([]
    (clear identity :systems {}))
   ([f]
