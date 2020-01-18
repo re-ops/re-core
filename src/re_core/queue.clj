@@ -1,6 +1,7 @@
 (ns re-core.queue
   "Durable worker queues"
   (:require
+   [re-core.common :refer (stack-trace)]
    [re-share.config.core :refer (get!)]
    [me.raynes.fs :refer (mkdir)]
    [es.jobs :as jobs]
@@ -37,7 +38,7 @@
               (save-status job topic :success start f result))
             (debug "done processing " topic tid)
             (catch Throwable e
-              (error "queue process failed" e)
+              (error "queue process failed" (stack-trace e))
               (save-status (assoc job :message (.getMessage e)) topic :failure start f {}))
             (finally
               (complete! task)))))))
