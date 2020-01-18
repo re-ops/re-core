@@ -6,6 +6,7 @@
    [re-core.repl :refer (spice-into matching systems hosts destroy typed)]
    [re-core.repl.systems :as sys :refer (refer-systems)]
    [re-core.repl.base :refer (refer-base)]
+   [es.types :as t]
    [re-core.presets.systems :as sp]
    [re-mote.repl :refer (open-file)])
   (:import
@@ -44,8 +45,9 @@
       (map fs idx))))
 
 (defn dispoable
-  "Open a file/url in a dispoable VM"
+  "Open a file/url in a dispoable VM, make sure to have a disposable type before using this function"
   [root & {:keys [type] :or {type pdfs}}]
+  {:pre [(t/exists? "disposable")]}
   (let [fs (pick-files root type)
         ms (sp/dispoable-instance)
         [_ m] (run (add- systems (ms true)) | (sys/create) | (block-wait))
