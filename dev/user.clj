@@ -5,6 +5,7 @@
    [clojure.repl :refer :all]
    [clojure.tools.namespace.repl :refer (refresh refresh-all)]
    ; Re-core
+   [re-core.repl.results :refer (refer-results)]
    [re-core.repl :refer :all]
    [re-core.dispoable :refer :all]
    [re-core.presets.kvm :refer (refer-kvm-presets)]
@@ -56,6 +57,7 @@
 (refer-instance-types)
 (refer-type-presets)
 (refer-stress)
+(refer-results)
 
 (defn into-hosts [auth hosts]
   (Hosts. auth hosts))

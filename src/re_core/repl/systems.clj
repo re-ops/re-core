@@ -14,7 +14,8 @@
    [es.jobs :as es]
    [re-mote.repl :refer (host-hardware-info host-os-info)]
    [com.rpl.specter :refer [transform ALL multi-path select MAP-VALS nthpath]]
-   [re-core.repl.base :as base :refer [Repl Report select-keys* pretty]])
+   [re-core.repl.base :as base :refer [Repl Report select-keys* pretty]]
+   [re-core.repl.results :as r])
   (:import
    [re_mote.repl.base Hosts]
    [re_core.repl.base Systems]))
@@ -112,7 +113,9 @@
 (defn result [{:keys [job]}]
   (merge (es/get (job :tid)) job))
 
-(defn add-results [this jobs]
+(defn add-results
+  "Add the job result from ES"
+  [this jobs]
   (let [{:keys [success] :as results} (group-by (comp keyword :status) (map result jobs))]
     {:systems (map :systems success) :results results}))
 
@@ -154,7 +157,9 @@
             (when (< (count done) (count jobs))
               (Thread/sleep 100)
               (recur (filter-done (status this js)))))
-          (apply f (into [this (add-results this jobs)] args))))))
+          (let [result (add-results this jobs)]
+            (r/append result)
+            (apply f (into [this result] args)))))))
 
   (pretty-print [this {:keys [results chain] :as m} message]
     (let [{:keys [success failure]} results]
@@ -249,4 +254,5 @@
       [this (assoc m :systems updated)])))
 
 (defn refer-systems []
-  (require '[re-core.repl.systems :as sys :refer [status into-hosts block-wait async-wait pretty-print spice synch detect-host-info update-systems]]))
+  (require '[re-core.repl.systems :as sys :refer
+             [status into-hosts block-wait async-wait pretty-print spice synch detect-host-info update-systems]]))
