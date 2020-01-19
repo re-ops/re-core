@@ -47,8 +47,8 @@
 
 (defn with-ids
   "Pick systems using multiple ids:
-     (provision (with-ids \"Bar\" \"Foo\"))"
-  [& ids]
+     (provision (with-ids [\"Bar\" \"Foo\"]))"
+  [ids]
   (fn [[id _]]
     ((into #{} (map str ids)) (str id))))
 
