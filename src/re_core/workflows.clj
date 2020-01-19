@@ -1,6 +1,7 @@
 (ns re-core.workflows
   "Main workflows"
   (:require
+   [clojure.core.strint :refer (<<)]
    ; loading defmethods
    lxc.provider
    kvm.provider
@@ -117,7 +118,11 @@
         {:keys [cog]} (t/get! type)
         result (mote/provision hosts into-hostnames cog)]
     (info "done provisioning system")
-    result))
+    (let [{:keys [failure]} (second result)]
+      (if-not (empty? failure)
+        (let [{:keys [error] :as e} (-> failure vals first first)]
+          (throw (ex-info (<< "~(error :type): ~(error :err)") e)))
+        result))))
 
 (defn stage
   "create and provision"

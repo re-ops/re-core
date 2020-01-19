@@ -3,7 +3,7 @@
   (:require
    kvm.provider
    [clojure.string :refer (lower-case split)]
-   [clojure.core.strint :refer  (<<)]
+   [clojure.core.strint :refer (<<)]
    [re-core.model :refer (vconstruct sconstruct)]
    [re-share.config.core :refer  (get!)]
    [clansi.core :refer  (style)]
