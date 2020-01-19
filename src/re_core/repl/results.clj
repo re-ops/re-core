@@ -17,7 +17,8 @@
 (defn *last
   "Last system captured"
   []
-  (map (comp first :args) (-> @repl-results last :results :success)))
+  (map (comp first :args)
+       (filter identity (flatten ((juxt :success :failure) (-> (*all) :results))))))
 
 (defn *ids
   "Last system ids captured"
