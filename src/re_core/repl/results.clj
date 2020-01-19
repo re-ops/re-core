@@ -9,6 +9,11 @@
   (swap! repl-results (fn [r] (if (> (count r) 5) (subvec (conj r m) 1) (conj r m))))
   m)
 
+(defn *all
+  "The entire last result captured"
+  []
+  (last @repl-results))
+
 (defn *last
   "Last system captured"
   []
