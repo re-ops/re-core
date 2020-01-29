@@ -121,6 +121,7 @@
     (let [{:keys [failure]} (second result)]
       (if-not (empty? failure)
         (let [{:keys [error] :as e} (-> failure vals first first)]
+          (error e)
           (throw (ex-info (<< "~(error :type): ~(error :err)") e)))
         result))))
 
