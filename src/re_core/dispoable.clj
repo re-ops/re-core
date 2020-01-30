@@ -2,13 +2,15 @@
   "Dispoable VMs functions"
   (:require
    [clojure.core.strint :refer (<<)]
+   [me.raynes.fs :as fs]
+   [clojure.core.strint :refer (<<)]
    [clojure.java.io :refer (file)]
    [re-core.repl :refer (spice-into matching systems hosts destroy typed)]
    [re-core.repl.systems :as sys :refer (refer-systems)]
    [re-core.repl.base :refer (refer-base)]
    [es.types :as t]
    [re-core.presets.systems :as sp]
-   [re-mote.repl :refer (open-file)])
+   [re-mote.repl :refer (open-file browse-to)])
   (:import
    [re_mote.repl.base Hosts]
    [re_core.repl.base Types Systems]))
@@ -44,9 +46,15 @@
           idx (map (fn [i] (Integer. i)) (clojure.string/split input #"\,"))]
       (map fs idx))))
 
-(defn dispoable
-  "Open a file/url in a dispoable VM, make sure to have a disposable type before using this function"
-  [root & {:keys [type] :or {type pdfs}}]
+(defn url? [s]
+  (try
+    (.toURI (java.net.URL. s))
+    (catch Exception e
+      false)))
+
+(defn open-files
+  "Open a file from a provided root directory"
+  [root {:keys [type] :or {type pdfs}}]
   {:pre [(t/exists? "disposable")]}
   (let [fs (pick-files root type)
         ms (sp/dispoable-instance)
@@ -55,6 +63,25 @@
     (spice-into (matching system-id))
     (doseq [f fs]
       (open-file (hosts (matching system-id) :ip) f))))
+
+(defn open-url
+  "Open a file from a provided root directory"
+  [url]
+  {:pre [(t/exists? "disposable")]}
+  (let [ms (sp/dispoable-instance)
+        [_ m] (run (add- systems (ms true)) | (sys/create) | (block-wait))
+        {:keys [system-id]} (-> m :results :success first :args first)]
+    (spice-into (matching system-id))
+    (browse-to (hosts (matching system-id) :ip) url)))
+
+(defn disposable
+  "Open a file/url in a dispoable VM, make sure to have a disposable type before using this function"
+  [root & m]
+  {:pre [(t/exists? "disposable")]}
+  (cond
+    (url? root) (open-url root)
+    (fs/exists? root) (open-files root m)
+    :else (throw (ex-info (<< "no matching disposable handler found for ~{root}") {:root root :m m}))))
 
 (defn dispose
   "Clear all dispoable instances"
