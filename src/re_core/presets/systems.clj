@@ -63,12 +63,14 @@
 
 (def ubuntu-18_04_3 (os :ubuntu-18.04.3))
 
-(defn machine [user domain]
+(defn machine
+  "A base machine template with only user and domain populated"
+  [user domain]
   (fn [instance]
     (update instance :machine
             (fn [m] (merge m {:user user :domain domain})))))
 
-(def default-machine (machine "re-ops" "local"))
+(def ^{:doc "A default base machine with user and domain"} default-machine (machine "re-ops" "local"))
 
 (defn defaults
   "Applying default setting for our preset check the matching aws/defaults and digital-ocean/defaults for details per hypervisor information"
@@ -79,23 +81,30 @@
       :aws (amz/defaults base)
       base)))
 
-(defn node [n]
+(defn node
+  "Selecting a node to create the instance under:
+  
+    (create <hypervisor> (node :remote-node) ....)
+  "
+  [n]
   (fn [instance]
     (assoc-in instance [(figure-virt instance) :node] n)))
 
-(def local (node :localhost))
+(def ^{:doc "Selecting localhost hypervisor node"} local (node :localhost))
 
-(def lxc {:lxc {} :machine {}})
+(def ^{:doc "Creating an lxc container (create lxc ...)"} lxc {:lxc {} :machine {}})
 
-(def kvm {:kvm {} :machine {}})
+(def ^{:doc "Creating a kvm VM: (create kvm ...)"} kvm {:kvm {} :machine {}})
 
-(def ec2 {:aws {} :machine {}})
+(def ^{:doc "Creating a ec2 VM: (create ec2 ...)"} ec2 {:aws {} :machine {}})
 
-(def physical {:physical {} :machine {}})
+(def ^{:doc "Adding a physical machine: (add physical  ...)"} physical {:physical {} :machine {}})
 
-(def droplet {:digital-ocean {} :machine {}})
+(def ^{:doc "Creating a ec2 VM: (create ec2 ...)"} droplet {:digital-ocean {} :machine {}})
 
-(defn dispoable-instance []
+(defn dispoable-instance
+  "Creating a default Ubuntu desktop c4-large instance"
+  []
   (validate (materialize-preset kvm [default-machine local (os :ubuntu-desktop-18.04.3) c4-large :disposable "A temporary sandbox"])))
 
 (defn refer-system-presets []
