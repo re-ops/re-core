@@ -30,7 +30,7 @@
   []
   (if (= (count (*ids)) 1)
     (first (*ids))
-    (throw (ex-info "ids captured in last run cannot be addressed with *1" {:ids *ids}))))
+    (throw (ex-info "No IDs are present from last run" {:ids *ids}))))
 
 (defn refer-results []
   (require '[re-core.repl.results :as results :refer [*last *ids *1]]))
