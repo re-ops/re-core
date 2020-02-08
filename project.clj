@@ -20,8 +20,8 @@
                  [org.clojure/tools.trace "0.7.9"]
 
                  ; re-ops
-                 [re-share "0.12.0"]
-                 [re-cog "0.2.4"]
+                 [re-share "0.13.0"]
+                 [re-cog "0.3.1"]
                  [re-scan "0.2.1"]
 
                  ; Elasticsearch
