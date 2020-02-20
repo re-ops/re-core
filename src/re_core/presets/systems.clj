@@ -61,7 +61,7 @@
   (fn [instance]
     (assoc-in instance [:machine :os] k)))
 
-(def ubuntu-18_04_3 (os :ubuntu-18.04.3))
+(def ubuntu-19_10 (os :ubuntu-19.10))
 
 (defn machine
   "A base machine template with only user and domain populated"
@@ -75,7 +75,7 @@
 (defn defaults
   "Applying default setting for our preset check the matching aws/defaults and digital-ocean/defaults for details per hypervisor information"
   [instance]
-  (let [base (-> instance (ubuntu-18_04_3) (default-machine))]
+  (let [base (-> instance (ubuntu-19_10) (default-machine))]
     (case (figure-virt base)
       :digital-ocean (d/defaults base)
       :aws (amz/defaults base)
@@ -105,7 +105,7 @@
 (defn dispoable-instance
   "Creating a default Ubuntu desktop c4-large instance"
   []
-  (validate (materialize-preset kvm [default-machine local (os :ubuntu-desktop-18.04.3) c4-large :disposable "A temporary sandbox"])))
+  (validate (materialize-preset kvm [default-machine local (os :ubuntu-desktop-19.10) c4-large :disposable "A temporary sandbox"])))
 
 (defn refer-system-presets []
-  (require '[re-core.presets.systems :as spc :refer [node lxc kvm droplet ec2 os ubuntu-18_04_3 defaults local default-machine]]))
+  (require '[re-core.presets.systems :as spc :refer [node lxc kvm droplet ec2 os ubuntu-19_10 defaults local default-machine]]))
