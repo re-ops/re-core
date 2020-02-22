@@ -107,7 +107,7 @@
 (s/def ::success
   (s/coll-of
    (s/keys
-    :opt-un [::uuid ::profile ::result]
+    :opt-un [::uuid ::profile ::result ::f]
     :req-un [::code ::host])))
 
 (s/def ::error
