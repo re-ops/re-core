@@ -1,11 +1,14 @@
 # Intro
 
-Re-core is a live functional environment for setting up VM instances in a consistent and reliable way across multiple providers (AWS, DigitalOcean and Native KVM).
+This repository includes two main components:
 
-It is a part of the [Re-ops](https://re-ops.github.io/re-ops/) project that offers a live coding environment for configuration management.
+* Re-core is a live functional environment for setting up VM instances in a consistent and reliable way across multiple providers (AWS, DigitalOcean,KVM and LXC).
 
+* Re-mote a remote management swiss knife that supports SSH and ZeroMQ (using [Re-gent](https://github.com/re-ops/re-gent)) enabling provisioning, security auditing and metric collection using distributed Clojure functions.
 
-For more detailed information please follow the [setup](https://re-ops.github.io/re-docs/setup/re-core.html#intro) and [usage](https://re-ops.github.io/re-docs/usage/#re-core) guides.
+Both components are a part of the [Re-ops](https://re-ops.github.io/re-ops/) project that offers a live coding environment for configuration management.
+
+For more detailed information please follow the [setup](https://re-ops.github.io/re-docs/setup/) and [usage](https://re-ops.github.io/re-docs/usage/) guides.
 
 [![Build Status](https://travis-ci.org/re-ops/re-core.png)](https://travis-ci.org/re-ops/re-core)
 
@@ -17,7 +20,7 @@ Re-core enables us to create and manipulate VMs quickly from the REPL using a fa
 
 # Copyright and license
 
-Copyright [2018] [Ronen Narkis]
+Copyright [2020] [Ronen Narkis]
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
