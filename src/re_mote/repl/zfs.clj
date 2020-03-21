@@ -28,12 +28,16 @@
      ("exit" 0))))
 
 (defn purging
-  "purge script"
+  "Purge snapshots script this requires the user to have the following zfs permissions delegated to him:
+      zfs allow -u <your user> destroy,hold,mount pool/dataset
+   "
   [pool dataset n]
   (let [n+ (str "+" n) from (str pool "/" dataset)]
     (script
      (pipe
-      (pipe ("zfs" "list" "-H" "-t" "snapshot" "-o" "name" "-S" "creation" "-d1" ~from) ("tail" "-n" ~n+))
+      (pipe
+       ("zfs" "list" "-H" "-t" "snapshot" "-o" "name" "-S" "creation" "-d1" ~from)
+       ("tail" "-n" ~n+))
       ("xargs" "-r" "-n" "1" "zfs" "destroy" "-r")))))
 
 (defn health [hs pool]
