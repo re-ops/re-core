@@ -17,7 +17,7 @@
   (require '[re-mote.zero.functions :as fns]))
 
 (defn call
-  "Launch a remote clojure serializable functions on zeromq hosts"
+  "Launch a remote serialized functions on a list of hosts running re-gent"
   [f args zhs]
   {:pre [(not (nil? zhs))]}
   (let [uuid (gen-uuid)]
