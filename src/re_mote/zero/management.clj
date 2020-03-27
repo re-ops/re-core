@@ -40,8 +40,8 @@
     (match [request]
       [{:request "register"}] (register address)
       [{:request "unregister"}] (unregister address)
-      [{:reply "execute" :result "failed" :name name :uuid id :error e}] (add-result hostname id e)
-      [{:reply "execute" :result r :time t :name name :uuid id}] (add-result hostname id r t)
+      [{:reply "execute" :result "failed" :uuid id :error e}] (add-result hostname id e)
+      [{:reply "execute" :result r :time t :uuid id}] (add-result hostname id r t)
       :else (do
               (error "no handling clause found for request" request)
               (fail request "no handling clause found for request")))

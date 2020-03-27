@@ -9,7 +9,6 @@
    [re-mote.zero.management :refer (refer-zero-manage)]
    [re-mote.zero.results :refer (refer-zero-results)]
    [re-mote.zero.functions :refer (call)]
-   [re-cog.meta :refer (fn-meta)]
    [re-mote.zero.cycle :refer (ctx)]
    [re-share.core :refer (wait-for)]))
 
@@ -33,14 +32,13 @@
 
 (defn collect
   "Collect results from the zmq hosts blocking until all results are back or timeout end"
-  [hosts k uuid timeout]
+  [hosts uuid timeout]
   (try
     (wait-for {:timeout timeout :sleep [100 :ms]}
               (fn [] (get-results hosts uuid)) "Failed to collect all hosts")
     (catch Exception e
       (warn "Failed to get results"
-            (merge (ex-data e)
-                   {:missing (missing-results hosts uuid) :k k :uuid uuid}))))
+            (merge (ex-data e) {:missing (missing-results hosts uuid) :uuid uuid}))))
   (let [rs (with-codes (get-results hosts uuid) uuid)]
     (clear-results uuid)
     rs))
@@ -57,13 +55,14 @@
   (transform [MAP-VALS ALL] (fn [m] (rename-keys m {:result :error})) errors))
 
 (defn run-hosts
+  "Run a function f on hosts using re-gent"
   ([hs f args]
    (run-hosts hs f args [10 :second]))
   ([hs f args timeout]
    {:post [(valid? ::re-spec/operation-result %)]}
    (let [hosts (into-zmq-hosts hs)
          uuid (call f args hosts)
-         results (collect (keys hosts) (-> f fn-meta :name keyword) uuid timeout)
+         results (collect (keys hosts) uuid timeout)
          down (non-reachable hs hosts uuid)
          grouped (group-by :code (vals (merge results down)))
          success (or (grouped 0) [])

@@ -4,7 +4,6 @@
    [re-mote.zero.send :refer (send-)]
    [re-share.core :refer (gen-uuid)]
    [clojure.java.shell :refer [sh]]
-   [re-cog.meta :refer (fn-meta)]
    [serializable.fn :as s]
    [me.raynes.fs :refer (list-dir tmpdir exists? file)]))
 
@@ -20,10 +19,10 @@
 (defn call
   "Launch a remote clojure serializable functions on zeromq hosts"
   [f args zhs]
-  {:pre [(not (nil? zhs)) (or (= f ping) (-> f fn-meta :name))]}
+  {:pre [(not (nil? zhs))]}
   (let [uuid (gen-uuid)]
     (doseq [[hostname address] zhs]
-      (send- address {:request :execute :uuid  uuid :fn f :args args :name (-> f fn-meta :name keyword)}))
+      (send- address {:request :execute :uuid  uuid :fn f :args args}))
     uuid))
 
 (comment
