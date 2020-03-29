@@ -21,7 +21,7 @@
 
 (defn default-src
   [instance]
-  ((src (<< "~{home}/code/re-ops/re-cog/resources/")) instance))
+  ((src (<< "~{home}/code/re-ops/re-cipes/resources/")) instance))
 
 (defn args
   "Set script arguments"
