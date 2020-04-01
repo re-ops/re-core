@@ -2,14 +2,11 @@
   "Types persistency"
   (:refer-clojure :exclude [get partial type])
   (:require
-   [com.rpl.specter :refer [select transform ALL multi-path]]
    [qbits.spandex :as s]
    [es.common :refer (index)]
    [rubber.core :as z]
    [rubber.node :refer (connection)]
-   [clojure.core.strint :refer (<<)]
-   [taoensso.timbre :refer (refer-timbre)]
-   [re-core.model :as model]))
+   [taoensso.timbre :refer (refer-timbre)]))
 
 (refer-timbre)
 
@@ -23,9 +20,8 @@
    (try
      (= (:status (s/request (connection) {:url [(index :type) :type (type :type)] :method :post :body (dissoc type :type)})) 200)
      (catch Exception e
-       (error e
-              (ex-data e)
-              (throw e))))))
+       (error e (ex-data e))
+       (throw e)))))
 
 (defn put
   "Update a type"
