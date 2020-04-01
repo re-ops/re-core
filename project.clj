@@ -81,7 +81,6 @@
                  [mvxcvi/puget "1.1.0"]
                  [rm-hull/table "0.7.0"]
 
-                  
                  ; pretty printing
                  [io.aviso/pretty "0.1.37"]
 
@@ -108,10 +107,14 @@
 
                  ; spec
                  [expound "0.8.4"]
-                 [org.clojure/test.check "0.10.0"] 
+                 [org.clojure/test.check "0.10.0"]
+
+                 ; rules
+                 [com.cerner/clara-rules "0.20.0"]
+                 [prismatic/schema "1.1.6"]
                ]
 
-  :exclusions [org.clojure/clojure com.taoensso/timbre commons-codec]
+  :exclusions [org.clojure/clojure com.taoensso/timbre commons-codec prismatic/schema]
 
   :plugins  [[lein-cljfmt "0.5.6"]
              [lein-ancient "0.6.15" :exclusions [org.clojure/clojure]]
