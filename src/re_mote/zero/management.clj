@@ -49,6 +49,9 @@
       (fail request e)
       (error-m e))))
 
+(defn registered? [host]
+  (@zmq-hosts host))
+
 (defn registered-hosts []
   (table (vals @zmq-hosts) :style :borderless))
 
