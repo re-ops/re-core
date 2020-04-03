@@ -1,5 +1,5 @@
-(ns re-flow.core
-  "Persistent flow engine"
+(ns re-flow.creation
+  "Creation flow"
   (:require
    [taoensso.timbre :refer (refer-timbre)]
    [re-mote.zero.management :refer (registered?)]
@@ -22,12 +22,12 @@
   (select [ALL (keypath :results :success) ALL :args ALL :system-id] @f))
 
 (derive ::creating ::state)
-(derive ::creation-failed ::state)
-(derive ::provisioned ::state)
+(derive ::created ::state)
+(derive ::not-created ::state)
 (derive ::registered ::state)
-(derive ::registeration-failed ::state)
-(derive ::provisioning-failed ::state)
-(ancestors ::registered)
+(derive ::not-registered ::state)
+(derive ::provisioned ::state)
+(derive ::not-provisioned ::state)
 
 (defrule creating
   "Create systems"
@@ -36,7 +36,7 @@
   (let [ids (successful-ids (create kvm defaults local c1-medium :backup "restore flow instance"))]
     (if-not (empty? ids)
       (insert! (assoc ?e :state ::created :ids ids))
-      (insert! (assoc ?e :state ::creation-failed :failure true)))))
+      (insert! (assoc ?e :state ::not-created :failure true)))))
 
 (defn registraion-successful [ids]
   (let [hs (hosts (with-ids ids) :hostname)]
@@ -57,7 +57,7 @@
     (deploy (hosts (with-ids ids) :ip) gent)
     (if (registraion-successful ids)
       (insert! (assoc ?e :state ::registered))
-      (insert! (assoc ?e :state ::registration-failed :failure true)))))
+      (insert! (assoc ?e :state ::not-registered :failure true)))))
 
 (defrule provisioning
   "Provisioning"
@@ -68,7 +68,7 @@
     (let [provisioned (successful-ids (provision (with-ids ids)))]
       (if (= provisioned ids)
         (insert! (assoc ?e :state ::provisioned))
-        (insert! (assoc ?e :state ::provisioning-failed :failure true))))))
+        (insert! (assoc ?e :state ::not-provisioned :failure true))))))
 
 (defquery get-failures
   "Find all failures"
@@ -80,10 +80,15 @@
   []
   [?p <- ::provisioned])
 
+(def session (atom (mk-session 're-flow.core :fact-type-fn :state)))
+
+(defn create! [f]
+  (future
+    (info "Starting to the creation process" f)
+    (reset! session (-> @session (insert {:state ::creating :flow f}) (fire-rules)))
+    (info "Finished running creation process" f)))
+
 (comment
-  (def state
-    (-> (mk-session 're-flow.core :fact-type-fn :state)
-        (insert {:state ::creating :flow :restore})
-        (fire-rules)))
-  (query state get-provisioned)
-  (query state get-failures))
+  (create! :dummy)
+  (query @session get-provisioned)
+  (query @session get-failures))
