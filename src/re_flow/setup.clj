@@ -1,5 +1,5 @@
-(ns re-flow.creation
-  "Creation flow"
+(ns re-flow.setup
+  "Setting up a machine from creation to agent deployment and provisioning so its ready to be used"
   (:require
    [taoensso.timbre :refer (refer-timbre)]
    [re-mote.zero.management :refer (registered?)]
@@ -82,11 +82,11 @@
 
 (def session (atom (mk-session 're-flow.core :fact-type-fn :state)))
 
-(defn create! [f]
+(defn setup! [f]
   (future
-    (info "Starting to the creation process" f)
+    (info "Starting the setup process" f)
     (reset! session (-> @session (insert {:state ::creating :flow f}) (fire-rules)))
-    (info "Finished running creation process" f)))
+    (info "Finished setup process" f)))
 
 (comment
   (create! :dummy)
