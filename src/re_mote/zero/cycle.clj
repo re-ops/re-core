@@ -3,7 +3,7 @@
   (:require
    [taoensso.timbre :refer  (refer-timbre)]
    [re-share.zero.common :refer  (context close!)]
-   [re-share.core :refer  (enable-waits stop-waits)]
+   [re-share.wait :refer  (enable-waits stop-waits)]
    [re-mote.zero.management :as mgmt]
    [re-mote.zero.results :as res]
    [re-mote.zero.events :refer (handle)]
