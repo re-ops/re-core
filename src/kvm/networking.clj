@@ -1,6 +1,6 @@
 (ns kvm.networking
   (:require
-   [re-share.core :refer (wait-for)]
+   [re-share.wait :refer (wait-for)]
    [taoensso.timbre :as timbre]
    [clojure.core.strint :refer (<<)]
    [re-mote.ssh.transport :refer (execute)]

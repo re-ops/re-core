@@ -14,7 +14,7 @@
    [taoensso.timbre :as timbre]
    [es.systems :as s]
    [re-core.provider :refer (mappings selections transform os->template wait-for-ssh into-description)]
-   [re-share.core :refer (wait-for)]
+   [re-share.wait :refer (wait-for)]
    [kvm.sync :refer (descriptive-domains sync-node)]
    [kvm.spice :refer (graphics remmina manager-view)]
    [hypervisors.networking :refer (set-hostname ssh-able?)]

@@ -5,7 +5,7 @@
    [clojure.core.strint :refer (<<)]
    [re-core.model :refer (translate vconstruct hypervisor*)]
    [re-core.provider :refer (mappings transform selections os->template wait-for-ssh wait-for-start wait-for-stop)]
-   [re-share.core :refer (wait-for)]
+   [re-share.wait :refer (wait-for)]
    [es.systems :as s :refer (system-val)]
    [taoensso.timbre :refer (refer-timbre)]
    [re-core.core :refer (Vm)]

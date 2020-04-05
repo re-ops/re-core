@@ -3,7 +3,7 @@
   (:require
    [taoensso.timbre :refer (refer-timbre)]
    [re-mote.zero.management :refer (registered?)]
-   [re-share.core :refer (wait-for)]
+   [re-share.wait :refer (wait-for)]
    [re-mote.repl :refer :all :exclude (provision)]
    [com.rpl.specter :refer [select ALL keypath]]
    [re-core.presets.instance-types :refer (refer-instance-types)]
