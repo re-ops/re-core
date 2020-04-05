@@ -9,7 +9,7 @@
    [clojure.core.strint :refer (<<)]
    [clojure.core.incubator :refer (dissoc-in)]
    [re-core.provider :refer (wait-for-ssh map-key)]
-   [re-share.core :refer (wait-for)]
+   [re-share.wait :refer (wait-for)]
    [re-core.core :refer (Vm)]
    [taoensso.timbre :as timbre]
    [es.systems :as s]

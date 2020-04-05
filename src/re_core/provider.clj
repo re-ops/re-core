@@ -9,7 +9,7 @@
    [re-share.config.core :refer (get!)]
    [re-share.encryption :refer (decrypt encrypt encode decode)]
    [clojure.data.json :as json]
-   [re-share.core :refer (wait-for)]
+   [re-share.wait :refer (wait-for)]
    [clojure.core.strint :refer (<<)])
   (:import clojure.lang.ExceptionInfo))
 

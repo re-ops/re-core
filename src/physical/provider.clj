@@ -8,7 +8,7 @@
    [es.systems :as s]
    [physical.validations :refer (validate-provider)]
    [re-core.provider :refer (wait-for-ssh mappings)]
-   [re-share.core :refer (wait-for)]
+   [re-share.wait :refer (wait-for)]
    [re-core.common :refer (bash-)]
    [clojure.core.strint :refer (<<)]
    [re-mote.ssh.transport :refer (ssh-up? execute)]

@@ -6,7 +6,7 @@
      openssl pkcs12 -export -out certificate.p12 -inkey client.key -in client.crt -certfile servercerts/127.0.0.1.crt
   "
   (:require
-   [re-share.core :refer (wait-for)]
+   [re-share.wait :refer (wait-for)]
    [clojure.string :as s :refer (lower-case join)]
    [clojure.data.json :as json]
    [less.awful.ssl :refer (ssl-context->engine ssl-p12-context)]

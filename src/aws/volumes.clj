@@ -1,6 +1,6 @@
 (ns aws.volumes
   (:require
-   [re-share.core :refer (wait-for)]
+   [re-share.wait :refer (wait-for)]
    [amazonica.aws.ec2 :as ec2]
    [es.systems :as s]
    [aws.common :refer (with-ctx instance-desc creds image-id)]
