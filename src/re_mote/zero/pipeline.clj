@@ -1,6 +1,7 @@
 (ns re-mote.zero.pipeline
   "Base ns for zeromq pipeline support"
   (:require
+   [re-mote.zero.callback :refer (register-callback)]
    [clojure.set :refer (rename-keys)]
    [re-mote.spec :as re-spec :refer (valid?)]
    [clojure.core.match :refer [match]]
@@ -9,39 +10,11 @@
    [re-mote.zero.management :refer (refer-zero-manage)]
    [re-mote.zero.results :refer (refer-zero-results)]
    [re-mote.zero.functions :refer (call)]
-   [re-mote.zero.cycle :refer (ctx)]
-   [re-share.core :refer (wait-for)]))
+   [re-mote.zero.cycle :refer (ctx)]))
 
 (refer-timbre)
 (refer-zero-manage)
 (refer-zero-results)
-
-(defn codes [v]
-  "Mapping result to exit code, keeping compatible with ssh pipeline:
-    1. if exit status is present we use that (function terminated with exit code)
-    2. we return 256 in a case that an exception was thrown from the function (to keep compatible output)
-    Else we return 0 (success)"
-  (match [v]
-    [{:result {:exit e}}] e
-    [{:result {:out _ :exception e}}] (do (info e) 256)
-    :else 0))
-
-(defn with-codes
-  [m uuid]
-  (transform [ALL] (fn [[h v]] [h (merge {:host h :code (codes v) :uuid uuid} v)]) m))
-
-(defn collect
-  "Collect results from the zmq hosts blocking until all results are back or timeout end"
-  [hosts uuid timeout]
-  (try
-    (wait-for {:timeout timeout :sleep [100 :ms]}
-              (fn [] (get-results hosts uuid)) "Failed to collect all hosts")
-    (catch Exception e
-      (warn "Failed to get results"
-            (merge (ex-data e) {:missing (missing-results hosts uuid) :uuid uuid}))))
-  (let [rs (with-codes (get-results hosts uuid) uuid)]
-    (clear-results uuid)
-    rs))
 
 (defn non-reachable
   "Adding non reachable hosts"
@@ -54,23 +27,39 @@
 (defn add-error [errors]
   (transform [MAP-VALS ALL] (fn [m] (rename-keys m {:result :error})) errors))
 
+(defn into-results
+  "Create the results map combining results with down hosts"
+  [hs hosts uuid results]
+  {:post [(valid? ::re-spec/operation-result %)]}
+  (let [down (non-reachable hs hosts uuid)
+        grouped (group-by :code (vals (merge results down)))
+        success (or (grouped 0) [])
+        failure (add-error (dissoc grouped 0))]
+    {:hosts (keys hosts) :success success :failure failure}))
+
 (defn run-hosts
-  "Run a function f on hosts using re-gent"
+  "Run function f with provided args on all hosts using Re-gent and collect results:
+
+     ; Run sync and timeout after 10 second if not all results are back
+     (run-hosts (hosts (matching (*1))  :hostname) re-cog.facts.security/cpu-vulns [] [10 :second])
+
+    ; Run async and invoke callback when all results are back or timeout has reached
+     (run-hosts (hosts (matching (*1))  :hostname) re-cog.facts.security/cpu-vulns [] [10 :second] (fn [timeout? {:keys [success failure]] ...))
+  "
   ([hs f args]
    (run-hosts hs f args [10 :second]))
   ([hs f args timeout]
    {:post [(valid? ::re-spec/operation-result %)]}
    (let [hosts (into-zmq-hosts hs)
-         uuid (call f args hosts)
-         results (collect (keys hosts) uuid timeout)
-         down (non-reachable hs hosts uuid)
-         grouped (group-by :code (vals (merge results down)))
-         success (or (grouped 0) [])
-         failure (add-error (dissoc grouped 0))]
-     {:hosts (keys hosts) :success success :failure failure})))
+         uuid (call f args hosts)]
+     (into-results hs hosts uuid (collect (keys hosts) uuid timeout))))
+  ([hs f args timeout callback]
+   (let [hosts (into-zmq-hosts hs)
+         uuid (call f args hosts)]
+     (register-callback hosts uuid timeout callback))))
 
 (defn refer-zero-pipe []
-  (require '[re-mote.zero.pipeline :as zpipe :refer (collect run-hosts)]))
+  (require '[re-mote.zero.pipeline :as zpipe :refer (run-hosts)]))
 
 (comment
   (send- (send-socket @ctx) {:address 1234 :content {:request :execute}}))

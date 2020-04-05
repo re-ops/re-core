@@ -80,7 +80,7 @@
   []
   [?p <- ::provisioned])
 
-(def session (atom (mk-session 're-flow.core :fact-type-fn :state)))
+(def session (atom (mk-session 're-flow.setup :fact-type-fn :state)))
 
 (defn setup! [f]
   (future

@@ -29,6 +29,7 @@
    ; Elasticsearch
    [rubber.core :refer :all :exclude (clear get create call)]
    ; Re-mote
+   [re-mote.zero.callback :refer (start-watch)]
    [re-mote.repl :refer :all :exclude (provision)]
    [re-mote.repl.base :refer (sync-)]
    [re-mote.repl.stress :refer (refer-stress)]
@@ -74,6 +75,7 @@
   (setup-logging)
   (k/create-server-keys ".curve")
   (mount/start #'elastic #'zero #'queue #'workers #'riemann)
+  (start-watch)
   (mote-es/initialize)
   (core-es/initialize))
 
