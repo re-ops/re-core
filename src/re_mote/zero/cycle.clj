@@ -1,10 +1,11 @@
-(ns
- re-mote.zero.cycle
+(ns re-mote.zero.cycle
+  "Managing all zero related components"
   (:require
    [taoensso.timbre :refer  (refer-timbre)]
    [re-share.zero.common :refer  (context close!)]
    [re-share.wait :refer  (enable-waits stop-waits)]
    [re-mote.zero.management :as mgmt]
+   [re-mote.zero.callback :as clb]
    [re-mote.zero.results :as res]
    [re-mote.zero.events :refer (handle)]
    [re-mote.zero.server :as srv]
@@ -26,7 +27,9 @@
   (srv/start @ctx ".curve/server-private.key")
   (evn/start @ctx handle)
   (wrk/start @ctx 4)
-  (enable-waits))
+  (enable-waits)
+  (clb/callback-watch)
+  #_(res/prune-watch))
 
 (defn stop []
   (stop-waits)
