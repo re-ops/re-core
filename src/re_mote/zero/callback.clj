@@ -21,7 +21,9 @@
         (future (f true {}))
         (swap! callbacks dissoc uuid)))))
 
-(defn start-watch []
+(defn callback-watch
+  "Initalize callback processing job"
+  []
   (watch :callback-processing (seconds 1) check-results))
 
 (defn register-callback [hosts uuid timeout f]
