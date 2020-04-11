@@ -10,7 +10,9 @@
 
 (def callbacks (atom {}))
 
-(defn check-results []
+(defn check-results
+  "Check if results are available for the callback within the provided timeout, if timeout has passed empty results and timeout = true will be passed into the callback"
+  []
   (doseq [[uuid {:keys [f timeout stamp hosts]}] @callbacks]
     (if-let [results (collect (keys hosts) uuid)]
       (do

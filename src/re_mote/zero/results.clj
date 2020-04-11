@@ -22,7 +22,9 @@
 (defn bucket [uuid]
   (results (mod (BigInteger. uuid 16) buckets)))
 
-(defn ttl []
+(defn ttl
+  "The minimum time that this result will be kept in the bucket"
+  []
   (wait-time (curr-time) [10 :minute]))
 
 (defn add-result
@@ -63,21 +65,30 @@
    (let [r (result uuid)] (r host))))
 
 ; Prunning
-;; (filter (comp not empty?) (select [MAP-VALS ATOM (multi-path MAP-KEYS (subselect [MAP-VALS MAP-VALS :ttl]))] results))
 
-;; (defn expired? [[uuid rs]]
-;;   (< (curr-time) (max (map :ttl rs))))
-;;
-;; (defn prune []
-;;   (let [t (curr-time)]
-;;     (doseq [[_ b] results]
-;;       (filter expired? b))))
-;;
-;; (defn prune-watch
-;;   "Prunning expired ttl results"
-;;   []
-;;   (watch :callback-processing (seconds 30) prune-ttl))
-;;
+(defn all-ttl
+  "Get all ttl values from the results"
+  []
+  (apply hash-map
+         (filter (comp not empty?)
+                 (select [MAP-VALS ATOM (multi-path MAP-KEYS (subselect [MAP-VALS MAP-VALS :ttl]))] results))))
+
+(defn expired
+  "Get UUID's for results with expired ttl values for all items"
+  [curr]
+  (map first (filter (fn [[_ ts]] (every? (fn [t] (> curr t)) ts)) (all-ttl))))
+
+(defn prune []
+  (debug "running result prunning")
+  (doseq [uuid (expired (curr-time))]
+    (debug uuid "have expired ttl and will be cleared")
+    (clear-results uuid)))
+
+(defn prune-watch
+  "A scheduled job that prunes all expired results based on ttl"
+  []
+  (watch :callback-processing (seconds 30) prune))
+
 ; Result collection
 (defn codes [v]
   "Mapping result to exit code, keeping compatible with ssh pipeline:
