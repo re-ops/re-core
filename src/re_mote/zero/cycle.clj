@@ -29,7 +29,7 @@
   (wrk/start @ctx 4)
   (enable-waits)
   (clb/callback-watch)
-  #_(res/prune-watch))
+  (res/prune-watch))
 
 (defn stop []
   (stop-waits)
