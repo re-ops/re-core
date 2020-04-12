@@ -6,34 +6,32 @@
    [re-share.wait :refer (wait-for)]
    [re-mote.repl :refer :all :exclude (provision)]
    [com.rpl.specter :refer [select ALL keypath]]
-   [re-core.presets.instance-types :refer (refer-instance-types)]
-   [re-core.presets.kvm :refer (refer-kvm-presets)]
-   [re-core.presets.systems :refer (refer-system-presets)]
    [re-core.repl :refer :all]
    [clara.rules :refer :all])
   (:import clojure.lang.ExceptionInfo))
 
-(refer-kvm-presets)
-(refer-system-presets)
-(refer-instance-types)
 (refer-timbre)
 
 (defn successful-ids [f]
   (select [ALL (keypath :results :success) ALL :args ALL :system-id] @f))
 
-(derive ::creating ::state)
-(derive ::created ::state)
-(derive ::not-created ::state)
-(derive ::registered ::state)
-(derive ::not-registered ::state)
-(derive ::provisioned ::state)
-(derive ::not-provisioned ::state)
+(defn create-instance [base args]
+  (apply create base args))
+
+(derive ::creating :re-flow.core/state)
+(derive ::created :re-flow.core/state)
+(derive ::not-created :re-flow.core/state)
+(derive ::registered :re-flow.core/state)
+(derive ::not-registered :re-flow.core/state)
+(derive ::provisioned :re-flow.core/state)
+(derive ::not-provisioned :re-flow.core/state)
 
 (defrule creating
   "Create systems"
   [?e <- ::creating []]
   =>
-  (let [ids (successful-ids (create kvm defaults local c1-medium :backup "restore flow instance"))]
+  (let [{:keys [base args]} (:spec ?e)
+        ids (successful-ids (create-instance base args))]
     (if-not (empty? ids)
       (insert! (assoc ?e :state ::created :ids ids))
       (insert! (assoc ?e :state ::not-created :failure true)))))
@@ -69,26 +67,3 @@
       (if (= provisioned ids)
         (insert! (assoc ?e :state ::provisioned))
         (insert! (assoc ?e :state ::not-provisioned :failure true))))))
-
-(defquery get-failures
-  "Find all failures"
-  []
-  [?f <- ::state (= true (this :failure))])
-
-(defquery get-provisioned
-  "Find all failures"
-  []
-  [?p <- ::provisioned])
-
-(def session (atom (mk-session 're-flow.setup :fact-type-fn :state)))
-
-(defn setup! [f]
-  (future
-    (info "Starting the setup process" f)
-    (reset! session (-> @session (insert {:state ::creating :flow f}) (fire-rules)))
-    (info "Finished setup process" f)))
-
-(comment
-  (create! :dummy)
-  (query @session get-provisioned)
-  (query @session get-failures))
