@@ -8,6 +8,7 @@
    [re-core.repl.results :refer (refer-results)]
    [re-core.repl :refer :all]
    [re-core.dispoable :refer :all]
+   [re-core.clipboard :refer (read-clipboard)]
    [re-core.presets.kvm :refer (refer-kvm-presets)]
    [re-core.presets.digitial :refer (refer-digital-presets)]
    [re-core.presets.aws :refer (refer-aws-presets)]
