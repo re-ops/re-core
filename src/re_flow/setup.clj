@@ -5,15 +5,12 @@
    [re-mote.zero.management :refer (registered?)]
    [re-share.wait :refer (wait-for)]
    [re-mote.repl :refer :all :exclude (provision)]
-   [com.rpl.specter :refer [select ALL keypath]]
    [re-core.repl :refer :all]
+   [re-flow.common :refer (successful-systems)]
    [clara.rules :refer :all])
   (:import clojure.lang.ExceptionInfo))
 
 (refer-timbre)
-
-(defn successful-ids [f]
-  (select [ALL (keypath :results :success) ALL :args ALL :system-id] @f))
 
 (defn create-instance [base args]
   (apply create base args))
@@ -31,7 +28,7 @@
   [?e <- ::creating []]
   =>
   (let [{:keys [base args]} (:spec ?e)
-        ids (successful-ids (create-instance base args))]
+        ids (successful-systems (create-instance base args))]
     (if-not (empty? ids)
       (insert! (assoc ?e :state ::created :ids ids))
       (insert! (assoc ?e :state ::not-created :failure true)))))
@@ -63,7 +60,7 @@
   =>
   (let [{:keys [ids]} ?e]
     (info "provisioning" ids)
-    (let [provisioned (successful-ids (provision (with-ids ids)))]
+    (let [provisioned (successful-systems (provision (with-ids ids)))]
       (if (= provisioned ids)
         (insert! (assoc ?e :state ::provisioned))
         (insert! (assoc ?e :state ::not-provisioned :failure true))))))

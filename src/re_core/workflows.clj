@@ -10,6 +10,7 @@
    physical.provider
    ; cloning
    aws.model
+   [re-share.core :refer (error-m)]
    [re-core.repl.systems :as sys]
    [es.types :as t]
    [re-mote.repl :as mote]
@@ -112,18 +113,22 @@
   "provision a single system"
   [{:keys [machine type] :as spec}]
   (info "starting to provision hosts")
-  (let [m {:systems [[(spec :system-id) spec]]}
-        hosts (sys/into-hosts (Systems.) m :ip)
-        into-hostnames {(machine :ip) (machine :hostname)}
-        {:keys [cog]} (t/get! type)
-        result (mote/provision hosts into-hostnames cog)]
-    (info "done provisioning system")
-    (let [{:keys [failure]} (second result)]
-      (if-not (empty? failure)
-        (let [{:keys [error] :as e} (-> failure vals first first)]
-          (error e)
-          (throw (ex-info (<< "~(error :type): ~(error :err)") e)))
-        result))))
+  (try
+    (let [m {:systems [[(spec :system-id) spec]]}
+          hosts (sys/into-hosts (Systems.) m :ip)
+          into-hostnames {(machine :ip) (machine :hostname)}
+          {:keys [cog]} (t/get! type)
+          result (mote/provision hosts into-hostnames cog)]
+      (info "done provisioning system")
+      (let [{:keys [failure]} (second result)]
+        (if-not (empty? failure)
+          (let [{:keys [error] :as e} (-> failure vals first first)]
+            (error e)
+            (throw (ex-info (<< "~(error :type): ~(error :err)") e)))
+          result)))
+    (catch Exception e
+      (error-m e)
+      (throw e))))
 
 (defn stage
   "create and provision"
