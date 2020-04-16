@@ -54,13 +54,16 @@
       (insert! (assoc ?e :state ::registered))
       (insert! (assoc ?e :state ::not-registered :failure true)))))
 
+(defn run-provisioning [ids]
+  (provision (with-ids ids)))
+
 (defrule provisioning
   "Provisioning"
   [?e <- ::registered []]
   =>
   (let [{:keys [ids]} ?e]
     (info "provisioning" ids)
-    (let [provisioned (successful-systems (provision (with-ids ids)))]
+    (let [provisioned (successful-systems (run-provisioning ids))]
       (if (= provisioned ids)
         (insert! (assoc ?e :state ::provisioned))
         (insert! (assoc ?e :state ::not-provisioned :failure true))))))
