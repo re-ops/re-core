@@ -15,6 +15,8 @@
    [re-core.presets.systems :refer (refer-system-presets)]
    [re-core.presets.instance-types :refer (refer-instance-types)]
    [re-core.presets.types :refer (refer-type-presets)]
+   ; profiles
+   [re-cipes.profiles]
    ; Re-core components
    [mount.core :as mount]
    [re-core.queue :refer (queue)]
