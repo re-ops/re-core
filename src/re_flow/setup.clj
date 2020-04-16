@@ -17,11 +17,8 @@
 
 (derive ::creating :re-flow.core/state)
 (derive ::created :re-flow.core/state)
-(derive ::not-created :re-flow.core/state)
 (derive ::registered :re-flow.core/state)
-(derive ::not-registered :re-flow.core/state)
 (derive ::provisioned :re-flow.core/state)
-(derive ::not-provisioned :re-flow.core/state)
 
 (defrule creating
   "Create systems"
@@ -29,9 +26,7 @@
   =>
   (let [{:keys [base args]} (:spec ?e)
         ids (successful-systems (create-instance base args))]
-    (if-not (empty? ids)
-      (insert! (assoc ?e :state ::created :ids ids))
-      (insert! (assoc ?e :state ::not-created :failure true)))))
+    (insert! (assoc ?e :state ::created :ids ids :failure (empty? ids)))))
 
 (defn registraion-successful [ids]
   (let [hs (hosts (with-ids ids) :hostname)]
@@ -50,9 +45,7 @@
         {:keys [ids]} ?e]
     (info "deploying agent to" ids)
     (deploy (hosts (with-ids ids) :ip) gent)
-    (if (registraion-successful ids)
-      (insert! (assoc ?e :state ::registered))
-      (insert! (assoc ?e :state ::not-registered :failure true)))))
+    (insert! (assoc ?e :state ::registered :failure (not (registraion-successful ids))))))
 
 (defn run-provisioning [ids]
   (provision (with-ids ids)))
@@ -64,6 +57,4 @@
   (let [{:keys [ids]} ?e]
     (info "provisioning" ids)
     (let [provisioned (successful-systems (run-provisioning ids))]
-      (if (= provisioned ids)
-        (insert! (assoc ?e :state ::provisioned))
-        (insert! (assoc ?e :state ::not-provisioned :failure true))))))
+      (insert! (assoc ?e :state ::provisioned :failure (not= provisioned ids))))))

@@ -34,7 +34,6 @@
   "Run Re-mote pipeline on system ids provided by ?e and check if all were successful"
   [f {:keys [ids] :as ?e} & args]
   (let [result (apply (partial f (hosts (with-ids ids) :hostname)) args)]
-    (info (successful-ids result))
     (= (into #{} ids) (successful-ids result))))
 
 (defrule initialize-volume
@@ -42,8 +41,6 @@
   [?e <- :re-flow.setup/provisioned (= ?flow ::restore)]
   =>
   (info "Preparing volume for restoration")
-  (if-not (run-?e disk/partition- ?e "/dev/vdb")
-    (insert! (assoc ?e :state ::partitioning :failure true))
-    (if-not (run-?e disk/mount ?e "/dev/vdb" "/media")
-      (insert! (assoc ?e :state ::mounting :failure true))
-      (insert! (assoc ?e :state ::initialized)))))
+  (insert! (assoc ?e :state ::partitioning :failure (not (run-?e disk/partition- ?e "/dev/vdb"))))
+  (insert! (assoc ?e :state ::mounting :failure (not (run-?e disk/mount ?e "/dev/vdb" "/media"))))
+  (insert! (assoc ?e :state ::initialized)))
