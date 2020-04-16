@@ -16,7 +16,7 @@
 (defquery get-success
   "Find all failures"
   []
-  [?f <- ::state (nil? (this :failure))])
+  [?f <- ::state (or (nil? (this :failure)) (not (this :failure)))])
 
 (defquery get-provisioned
   "Find provisioned hosts"
