@@ -7,7 +7,7 @@
    [re-core.presets.instance-types :refer (refer-instance-types)]
    [re-core.presets.systems :refer (refer-system-presets)]
    [taoensso.timbre :refer (refer-timbre)]
-   [re-flow.common :refer (successful-hosts)]
+   [re-flow.common :refer (successful-hosts successful-ids)]
    [clara.rules :refer :all]))
 
 (refer-timbre)
@@ -19,6 +19,7 @@
 (derive ::start :re-flow.core/state)
 (derive ::restore :re-flow.core/state)
 (derive ::validate :re-flow.core/state)
+(derive ::initialized :re-flow.core/state)
 
 (def instance {:base kvm :args [defaults local c1-medium :backup "restore flow instance" (kvm-volume 128 :restore)]})
 
@@ -29,10 +30,20 @@
   (info "Starting to run setup instance" ?e)
   (insert! (assoc ?e :state :re-flow.setup/creating :spec instance)))
 
+(defn run-?e
+  "Run Re-mote pipeline on system ids provided by ?e and check if all were successful"
+  [f {:keys [ids] :as ?e} & args]
+  (let [result (apply (partial f (hosts (with-ids ids) :hostname)) args)]
+    (info (successful-ids result))
+    (= (into #{} ids) (successful-ids result))))
+
 (defrule initialize-volume
   "Prepare volume for restoration"
   [?e <- :re-flow.setup/provisioned (= ?flow ::restore)]
   =>
-  (info "Preparing volume for restoration" ?e)
-  (disk/partition- (hosts (with-ids (?e :ids)) :hostname) "/dev/vdb")
-  (disk/mount (hosts (with-ids (?e :ids)) :hostname) "/dev/vdb" "/media"))
+  (info "Preparing volume for restoration")
+  (if-not (run-?e disk/partition- ?e "/dev/vdb")
+    (insert! (assoc ?e :state ::partitioning :failure true))
+    (if-not (run-?e disk/mount ?e "/dev/vdb" "/media")
+      (insert! (assoc ?e :state ::mounting :failure true))
+      (insert! (assoc ?e :state ::initialized)))))
