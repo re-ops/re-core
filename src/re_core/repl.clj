@@ -59,11 +59,11 @@
   {:pre [(not (clojure.string/blank? part))]}
   (fn [[id _]] (.contains id part)))
 
-(defn hostname
+(defn named
   "Match instances by hostname matching:
-     (provision (hostname \"foo\"))"
-  [name]
-  (fn [[_ {:keys [machine]}]] (=  (machine :hostname) name)))
+     (provision (named \"foo\"))"
+  [names]
+  (fn [[_ {:keys [machine]}]] ((into #{} names)  (machine :hostname))))
 
 (defn match-kv
   "Match instances by kv pair:
@@ -135,15 +135,21 @@
   "List available instances:
      (list) ; list all systems
      (list ip) ; list all systems that have an ip (running)
-     (list identity :types) ; list all types"
+     (list identity :types) ; list all types
+     (list ip :systems print? false); return matched systems without printing them
+  "
   ([]
    (list identity :systems))
   ([f]
    (list f :systems))
-  ([f on]
-   (case on
-     :systems (run (ls systems) | (filter-by f) | (pretty))
-     :types (run (ls types) | (pretty)))))
+  ([f on & {:keys [print?] :or {print? true}}]
+   (if print?
+     (case on
+       :systems (run (ls systems) | (filter-by f) | (pretty))
+       :types (run (ls types) | (pretty)))
+     (case on
+       :systems (run (ls systems) | (filter-by f))
+       :types (ls types)))))
 
 (defn hosts
   "Convert systems into re-mote hosts:
