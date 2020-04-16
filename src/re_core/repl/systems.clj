@@ -89,7 +89,7 @@
       [this {:systems (map f specs)}])))
 
 (defn filter-done [sts]
-  (into #{} (filter (fn [{:keys [status]}] (not (nil? status))) sts)))
+  (into #{} (doall (filter (fn [{:keys [status]}] (not (nil? status))) sts))))
 
 (defn with-id
   [[id system]]
