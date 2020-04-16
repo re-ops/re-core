@@ -13,6 +13,11 @@
   []
   [?f <- ::state (= true (this :failure))])
 
+(defquery get-success
+  "Find all failures"
+  []
+  [?f <- ::state (nil? (this :failure))])
+
 (defquery get-provisioned
   "Find provisioned hosts"
   []
@@ -20,7 +25,7 @@
 
 (def session (atom (mk-session 're-flow.core 're-flow.setup 're-flow.restore :fact-type-fn :state)))
 
-(defn run [& facts]
+(defn trigger [& facts]
   (future
     (info "Starting to insert facts")
     (try
@@ -31,6 +36,7 @@
         (error-m e)))))
 
 (comment
-  (run {:state :re-flow.restore/start :flow :re-flow.restore/restore})
+  (trigger {:state :re-flow.restore/start :flow :re-flow.restore/restore})
   (query @session get-provisioned)
+  (query @session get-success)
   (query @session get-failures))
