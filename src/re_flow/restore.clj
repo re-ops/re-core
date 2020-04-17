@@ -19,7 +19,8 @@
 (derive ::start :re-flow.core/state)
 (derive ::restore :re-flow.core/state)
 (derive ::validate :re-flow.core/state)
-(derive ::initialized :re-flow.core/state)
+(derive ::partitioning :re-flow.core/state)
+(derive ::mounting :re-flow.core/state)
 
 (def instance {:base kvm :args [defaults local c1-medium :backup "restore flow instance" (kvm-volume 128 :restore)]})
 
@@ -38,9 +39,8 @@
 
 (defrule initialize-volume
   "Prepare volume for restoration"
-  [?e <- :re-flow.setup/provisioned (= ?flow ::restore)]
+  [?e <- :re-flow.setup/provisioned (= ?flow ::restore) (= ?failure false)]
   =>
   (info "Preparing volume for restoration")
   (insert! (assoc ?e :state ::partitioning :failure (not (run-?e disk/partition- ?e "/dev/vdb"))))
-  (insert! (assoc ?e :state ::mounting :failure (not (run-?e disk/mount ?e "/dev/vdb" "/media"))))
-  (insert! (assoc ?e :state ::initialized)))
+  (insert! (assoc ?e :state ::mounting :failure (not (run-?e disk/mount ?e "/dev/vdb" "/media")))))

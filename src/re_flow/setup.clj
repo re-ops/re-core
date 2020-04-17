@@ -39,7 +39,7 @@
 
 (defrule registing
   "Registering"
-  [?e <- ::created []]
+  [?e <- ::created (= ?failure false)]
   =>
   (let [gent "/home/ronen/code/re-ops/re-gent/target/re-gent"
         {:keys [ids]} ?e]
@@ -52,7 +52,7 @@
 
 (defrule provisioning
   "Provisioning"
-  [?e <- ::registered []]
+  [?e <- ::registered (= ?failure false)]
   =>
   (let [{:keys [ids]} ?e]
     (info "provisioning" ids)

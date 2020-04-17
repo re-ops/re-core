@@ -4,6 +4,8 @@
    [clojure.java.io :as io]
    [clojure.repl :refer :all]
    [clojure.tools.namespace.repl :refer (refresh refresh-all)]
+   ; Re-flow
+   [re-flow.core :refer (trigger)]
    ; Re-core
    [re-core.repl.results :refer (refer-results)]
    [re-core.repl :refer :all]
