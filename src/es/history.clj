@@ -56,4 +56,4 @@
     (create (history-m))))
 
 (defn refer-history []
-  (require '[es.history :as hist :refer [restore save]]))
+  (require '[es.history :as hist]))

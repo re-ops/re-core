@@ -18,7 +18,7 @@
    [re-mote.repl.publish :refer (refer-publish)]
    [re-mote.repl.spec :refer (refer-spec)]
    [re-mote.repl.octo :refer (refer-octo)]
-   [re-mote.repl.restic :refer (refer-restic)]
+   [re-mote.zero.restic :refer (refer-restic)]
    [re-mote.zero.stats :refer (refer-stats)]
    [re-mote.zero.security :refer (refer-security)]
    [re-mote.zero.sensors :refer (refer-zero-sensors)]

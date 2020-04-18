@@ -6,6 +6,7 @@
    [clojure.tools.namespace.repl :refer (refresh refresh-all)]
    ; Re-flow
    [re-flow.core :refer (trigger)]
+   [re-flow.session :refer (session facts-updater)]
    ; Re-core
    [re-core.repl.results :refer (refer-results)]
    [re-core.repl :refer :all]
@@ -78,7 +79,7 @@
   (conf/load-config)
   (setup-logging)
   (k/create-server-keys ".curve")
-  (mount/start #'elastic #'zero #'queue #'workers #'riemann)
+  (mount/start #'elastic #'zero #'queue #'workers #'riemann #'session #'facts-updater)
   (mote-es/initialize)
   (core-es/initialize))
 
