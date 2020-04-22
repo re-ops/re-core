@@ -1,7 +1,7 @@
 (ns re-mote.zero.osquery
   (:require
    [re-mote.zero.pipeline :refer (run-hosts)]
-   [re-cog.facts.query :refer (osquery)]
+   [re-cog.facts.osquery :refer (osquery)]
    re-mote.repl.base)
   (:import [re_mote.repl.base Hosts]))
 
