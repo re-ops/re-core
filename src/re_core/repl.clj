@@ -226,7 +226,7 @@
      (create kvm default-machine c1-medium (os :ubuntu-18.04-dekstop) :redis)
 
    Type instances:
-     (create cog 're-cog.recipes.osquery/install default-src :osquery \"osquery type\") ; using default src directory
+     (create cog 're-cipes.profiles/osquery default-src :osquery \"osquery type\") ; using default src directory
   "
   [base & args]
   (cond
