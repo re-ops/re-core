@@ -1,13 +1,14 @@
 (ns re-flow.restore
   "Restore a backup"
   (:require
-   [re-mote.zero.disk :as disk]
+   [clojure.core.strint :refer (<<)]
    [re-mote.zero.restic :as restic]
+   [re-mote.zero.datalog :as datalog]
    [re-core.presets.kvm :refer (refer-kvm-presets)]
    [re-core.presets.instance-types :refer (refer-instance-types)]
-   [re-core.presets.systems :refer (refer-system-presets)]
+   [re-core.presets.systems :refer (refer-system-presets materialize-preset)]
    [taoensso.timbre :refer (refer-timbre)]
-   [re-flow.common :refer (run-?e run-?e-non-block)]
+   [re-flow.common :refer (run-?e run-?e-non-block results successful-ids)]
    [clara.rules :refer :all]))
 
 (refer-timbre)
@@ -19,11 +20,11 @@
 (derive ::start :re-flow.core/state)
 (derive ::restoring :re-flow.core/state)
 (derive ::validate :re-flow.core/state)
-(derive ::partitioned :re-flow.core/state)
-(derive ::mounted :re-flow.core/state)
+(derive ::volume-ready :re-flow.core/state)
+(derive ::restored :re-flow.core/state)
 (derive ::restored :re-flow.core/state)
 
-(def instance {:base kvm :args [defaults local c1-medium :backup "restore flow instance" (kvm-volume 128 :restore)]})
+(def instance {:base kvm :args [defaults local c1-medium :restore "restore flow instance" (kvm-volume 128 :restore)]})
 
 (defrule start
   "Start the restore process by triggering the creation of the instance"
@@ -32,22 +33,20 @@
   (info "Starting to run setup instance")
   (insert! (assoc ?e :state :re-flow.setup/creating :spec instance)))
 
-(defrule initialize-volume
-  "Prepare volume for restoration"
+(defrule check-volume
+  "Check that our volume is ready and has enough capacity"
   [?e <- :re-flow.setup/provisioned [{:keys [flow failure]}] (= flow ::restore) (= failure false)]
   =>
-  (info "Preparing volume for restoration")
-  (insert!
-   (assoc ?e :state ::partitioned :failure (not (run-?e disk/partition- ?e "/dev/vdb")))
-   (assoc ?e :state ::mounted :failure (not (run-?e disk/mount ?e "/dev/vdb" "/media")))))
+  (let [r (run-?e datalog/query ?e '[:find ?s :where [?e :disk-stores/name "/dev/vdb"] [?e :disk-stores/size ?s]])
+        size (-> r results flatten first (/ (Math/pow 1024 3)))]
+    (insert! {:state ::volume-ready :failure (and (= (successful-ids r) (?e :ids)) (= size 128.0))})))
 
 (defrule volume-ready
   "Trigger actual restore if all prequisits are met (volume is ready)"
-  [::partitioned [{:keys [failure]}] (= failure false)]
-  [?e <- ::mounted [{:keys [failure]}] (= failure false)]
+  [?e <- ::volume-ready [{:keys [failure]}] (= failure false)]
   =>
-  (info "Initiating the restoration process")
-  (run-?e-non-block restic/restore ?e ::restored [1 :hour] (fn [m] (not= (-> m vals first :code) 0)) (?e :bckp) "/media"))
+  (info (<< "Initiating the restoration process into ~(?e :target)"))
+  (run-?e-non-block restic/restore ?e ::restored [1 :hour] (fn [m] (not= (-> m vals first :code) 0)) (?e :bckp) (?e :target)))
 
 (defrule restoration-successful
   "Processing the restoration result"
