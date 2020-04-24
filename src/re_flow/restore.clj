@@ -39,7 +39,8 @@
   =>
   (let [r (run-?e datalog/query ?e '[:find ?s :where [?e :disk-stores/name "/dev/vdb"] [?e :disk-stores/size ?s]])
         size (-> r results flatten first (/ (Math/pow 1024 3)))]
-    (insert! {:state ::volume-ready :failure (and (= (successful-ids r) (?e :ids)) (= size 128.0))})))
+    (insert!
+     (assoc ?e :state ::volume-ready :failure (and (= (successful-ids r) (?e :ids)) (= size 128.0))))))
 
 (defrule volume-ready
   "Trigger actual restore if all prequisits are met (volume is ready)"
