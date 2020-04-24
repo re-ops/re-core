@@ -27,7 +27,6 @@
    [re-mote.zero.osquery :refer (refer-osquery)]
    [re-mote.zero.process :refer (refer-process)]
    [re-mote.zero.git :refer (refer-git)]
-   [re-mote.zero.disk :refer (refer-disk)]
    [re-mote.zero.pkg :refer (refer-zero-pkg)]
    [re-mote.repl.pkg :refer (refer-pkg)]
    [re-mote.log :refer (setup-logging)]
@@ -51,7 +50,6 @@
 (refer-restic)
 (refer-regent)
 (refer-git)
-(refer-disk)
 (refer-es-persist)
 (refer-desktop)
 (refer-stress)
