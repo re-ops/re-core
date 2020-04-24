@@ -5,11 +5,11 @@
    re-mote.repl.base)
   (:import [re_mote.repl.base Hosts]))
 
-(defprotocol Query
+(defprotocol OsQuery
   (query [this q]))
 
 (extend-type Hosts
-  Query
+  OsQuery
   (query [this q]
     [this (run-hosts this osquery [q])]))
 
