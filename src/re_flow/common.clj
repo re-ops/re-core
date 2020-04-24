@@ -15,8 +15,13 @@
   [f]
   (select [ALL (keypath :results :success) ALL :args ALL :system-id] @f))
 
+(defn results
+  "Get the successful hosts results from a Re-mote pipeline result"
+  [hs]
+  (select [ALL (keypath :success) ALL :result] hs))
+
 (defn successful-hosts
-  "Get the successful hots ids from a Re-mote pipeline result"
+  "Get the successful hosts ids from a Re-mote pipeline result"
   [hs]
   (select [ALL (keypath :success) ALL :host] hs))
 
@@ -27,8 +32,7 @@
 (defn run-?e
   "Run Re-mote pipeline on system ids provided by ?e and check if all were successful"
   [f {:keys [ids] :as ?e} & args]
-  (let [result (apply (partial f (hosts (with-ids ids) :hostname)) args)]
-    (= (into #{} ids) (successful-ids result))))
+  (apply (partial f (hosts (with-ids ids) :hostname)) args))
 
 (defn fact-callback [fact pred]
   (fn [timeout m]
