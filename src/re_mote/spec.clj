@@ -79,7 +79,7 @@
   (s/map-of keyword? ::cpu-vulns))
 
 (s/def :datalog/fact
-  (s/or :string string? :number number?))
+  (s/or :string string? :number number? :sequence sequential?))
 
 (s/def :datalog/facts
   (s/coll-of :datalog/fact))
