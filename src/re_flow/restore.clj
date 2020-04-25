@@ -42,12 +42,18 @@
     (insert!
      (assoc ?e :state ::volume-ready :failure (and (= (successful-ids r) (?e :ids)) (= size 128.0))))))
 
+(defn restored? [m]
+  (let [{:keys [code]} (-> m vals first)]
+    (when-not (= code 0)
+      (warn m))
+    (not= code 0)))
+
 (defrule volume-ready
   "Trigger actual restore if all prequisits are met (volume is ready)"
   [?e <- ::volume-ready [{:keys [failure]}] (= failure false)]
   =>
   (info (<< "Initiating the restoration process into ~(?e :target)"))
-  (run-?e-non-block restic/restore ?e ::restored [1 :hour] (fn [m] (not= (-> m vals first :code) 0)) (?e :bckp) (?e :target)))
+  (run-?e-non-block restic/restore ?e ::restored [1 :hour] restored? (?e :bckp) (?e :target)))
 
 (defrule restoration-successful
   "Processing the restoration result"
