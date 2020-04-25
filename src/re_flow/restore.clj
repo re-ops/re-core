@@ -1,6 +1,10 @@
 (ns re-flow.restore
   "Restore a backup"
   (:require
+   [re-mote.spec :refer (valid?)]
+   [clojure.spec.alpha :as s]
+   [expound.alpha :as expound]
+   [clojure.edn :as edn]
    [clojure.core.strint :refer (<<)]
    [re-mote.zero.restic :as restic]
    [re-mote.zero.datalog :as datalog]
@@ -18,6 +22,7 @@
 (refer-instance-types)
 
 (derive ::start :re-flow.core/state)
+(derive ::spec :re-flow.core/state)
 (derive ::restoring :re-flow.core/state)
 (derive ::validate :re-flow.core/state)
 (derive ::volume-ready :re-flow.core/state)
@@ -26,12 +31,27 @@
 
 (def instance {:base kvm :args [defaults local c1-medium :restore "restore flow instance" (kvm-volume 128 :restore)]})
 
-(defrule start
-  "Start the restore process by triggering the creation of the instance"
+(s/def ::backups string?)
+
+(s/def ::key keyword?)
+
+(s/def ::target string?)
+
+(s/def ::restore
+  (s/keys :req [::backups ::key ::target]))
+
+(defrule check
+  "Check that the fact is matching the ::restore spec"
   [?e <- ::start]
   =>
+  (insert! (assoc ?e :state ::spec :failure (not (s/valid? ::restore ?e)) :message (expound/expound-str ::restore ?e))))
+
+(defrule create
+  "Triggering the creation of the instance"
+  [?e <- ::spec [{:keys [failure]}] (= failure false)]
+  =>
   (info "Starting to run setup instance")
-  (insert! (assoc ?e :state :re-flow.setup/creating :spec instance)))
+  (insert!  (assoc ?e :state :re-flow.setup/creating :spec instance)))
 
 (defrule check-volume
   "Check that our volume is ready and has enough capacity"
@@ -53,8 +73,9 @@
   "Trigger actual restore if all prequisits are met (volume is ready)"
   [?e <- ::volume-ready [{:keys [failure]}] (= failure false)]
   =>
-  (info (<< "Initiating the restoration process into ~(?e :target)"))
-  (run-?e-non-block restic/restore ?e ::restored [1 :hour] restored? (?e :bckp) (?e :target)))
+  (let [backups (edn/read-string (slurp (?e ::backups)))]
+    (info (<< "Initiating the restoration process into ~(?e ::target)"))
+    (run-?e-non-block restic/restore ?e ::restored [1 :hour] restored? (backups (?e ::key)) (?e ::target))))
 
 (defrule restoration-successful
   "Processing the restoration result"

@@ -4,6 +4,7 @@
    re-flow.setup
    re-flow.queries
    re-flow.restore
+   re-flow.notification
    [taoensso.timbre :refer (refer-timbre)]
    [mount.core :as mount :refer (defstate)]
    [clara.rules :refer :all]
@@ -13,7 +14,7 @@
 (refer-timbre)
 
 (defn initialize []
-  (atom (mk-session 're-flow.queries 're-flow.setup 're-flow.restore :fact-type-fn :state :cache false)))
+  (atom (mk-session 're-flow.queries 're-flow.setup 're-flow.restore 're-flow.notification :fact-type-fn :state :cache false)))
 
 (def session (initialize))
 
