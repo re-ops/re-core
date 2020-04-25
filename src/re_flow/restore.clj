@@ -44,8 +44,9 @@
 
 (defn restored? [m]
   (let [{:keys [code]} (-> m vals first)]
-    (when-not (= code 0)
-      (warn m))
+    (if-not (= code 0)
+      (warn m)
+      (debug m))
     (not= code 0)))
 
 (defrule volume-ready
