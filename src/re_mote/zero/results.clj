@@ -6,7 +6,6 @@
    [com.rpl.specter :refer (select transform MAP-VALS MAP-KEYS ALL VAL ATOM multi-path subselect)]
    [re-share.wait :refer (wait-for wait-time curr-time)]
    [taoensso.timbre :refer  (refer-timbre)]
-   [clojure.core.incubator :refer (dissoc-in)]
    [puget.printer :as puget]))
 
 (refer-timbre)
@@ -17,7 +16,7 @@
   (into {} (map (fn [i] [i (ref {})]) (range buckets))))
 
 (defn capacity []
-  (map (fn [[k v]] (count @v)) results))
+  (map (fn [[_ v]] (count @v)) results))
 
 (defn bucket [uuid]
   (results (mod (BigInteger. uuid 16) buckets)))
@@ -69,9 +68,10 @@
 (defn all-ttl
   "Get all ttl values from the results"
   []
-  (apply hash-map
-         (filter (comp not empty?)
-                 (select [MAP-VALS ATOM (multi-path MAP-KEYS (subselect [MAP-VALS MAP-VALS :ttl]))] results))))
+  (let [buckets-ttls (select [MAP-VALS ATOM (multi-path MAP-KEYS (subselect [MAP-VALS MAP-VALS :ttl]))] results)
+        ; some buckets return only uuid with no subselected ttls
+        pairs (filter (fn [[k v]] (and (string? k) (vector? v))) (partition 2 1 buckets-ttls))]
+    (apply hash-map (apply concat pairs))))
 
 (defn expired
   "Get UUID's for results with expired ttl values for all items"
@@ -87,7 +87,7 @@
 (defn prune-watch
   "A scheduled job that prunes all expired results based on ttl"
   []
-  (watch :callback-processing (seconds 30) prune))
+  (watch :result-ttl-prunning (seconds 30) prune))
 
 ; Result collection
 (defn codes [v]
