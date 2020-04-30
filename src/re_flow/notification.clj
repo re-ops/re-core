@@ -1,7 +1,6 @@
 (ns re-flow.notification
   "Notification rules"
   (:require
-   [re-cog.facts.datalog :refer (desktop?)]
    [clojure.core.strint :refer (<<)]
    [clara.rules :refer :all]
    [clojure.java.shell :refer (sh)]
@@ -10,12 +9,20 @@
 (refer-timbre)
 
 (defn notify [m]
-  (when (desktop?)
-    (sh "notify-send" "-t" "5000" m)))
+  (sh "notify-send" "-t" "5000" m))
 
-(defrule osd-notify-failures
+(defrule osd-notify
   "Notify using OSD on all errors if running in a desktop machine"
   [?e <- :re-flow.core/state (= true (this :failure)) (not (nil? (this :message)))]
+  [:re-flow.session/type (= true (this :desktop))]
   =>
-  (notify (<< "Flow ~(:flow ?e) failed in ~(:state ?e) step"))
-  (info (:message ?e)))
+  (let [{:keys [flow state]} ?e]
+    (notify (<< "Flow ~{flow} failed in ~{state} step"))))
+
+(defrule email-notify
+  "Notify using email if available"
+  [?e <- :re-flow.core/state (= true (this :failure)) (not (nil? (this :message)))]
+  [:re-flow.session/type (= true (this :desktop))]
+  =>
+  (let [{:keys [flow state]} ?e]
+    (notify (<< "Flow ~{flow} failed in ~{state} step"))))

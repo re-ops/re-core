@@ -5,6 +5,7 @@
    re-flow.queries
    re-flow.restore
    re-flow.notification
+   [re-cog.facts.datalog :refer (desktop?)]
    [taoensso.timbre :refer (refer-timbre)]
    [mount.core :as mount :refer (defstate)]
    [clara.rules :refer :all]
@@ -13,8 +14,11 @@
 
 (refer-timbre)
 
+(defn fact-type [fact]
+  (or (:state fact) (:type fact)))
+
 (defn initialize []
-  (atom (mk-session 're-flow.queries 're-flow.setup 're-flow.restore 're-flow.notification :fact-type-fn :state :cache false)))
+  (atom (mk-session 're-flow.queries 're-flow.setup 're-flow.restore 're-flow.notification :fact-type-fn fact-type :cache false)))
 
 (def session (initialize))
 
@@ -22,8 +26,18 @@
   (let [new-facts (reduce (fn [s fact] (insert s fact)) @session facts)]
     (reset! session (fire-rules new-facts))))
 
+(derive ::system :re-flow.session/type)
+
+(defn populate-system-facts
+  "Adding system information facts on initialize"
+  []
+  (info "adding system facts")
+  (update-
+   [{:type ::system :desktop (desktop?)}]))
+
 (defn start- []
   (let [e (executor :fixed {:num-threads 20})]
+    (populate-system-facts)
     (info "starting facts processor")
     (knit/future
       (process
@@ -49,7 +63,7 @@
   (update-
    [{:state :re-flow.setup/provisioned :flow :re-flow.restore/restore :failure false :timeout true}])
   (update-
-   [{:state :re-flow.restore/restored :failure false :timeout false}])
+   [{:state :re-flow.restore/restored :flow :re-flow.restore/restore :failure true :timeout false :message "foo"}])
   (update-
    [{:state :re-flow.restore/partitioned :failure false}
     {:state :re-flow.restore/mounted :failure false}]))
