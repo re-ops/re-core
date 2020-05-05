@@ -105,5 +105,9 @@
       :private "keys/secret.gpg"
       :pass #ref [:secrets :pgp :pass]
     }
+
+    :email {
+      :to "narkisr@gmail.com" :from "gookup@gmail.com"
+    }
   }
 }

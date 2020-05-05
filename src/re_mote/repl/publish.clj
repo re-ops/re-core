@@ -16,7 +16,7 @@
 (refer-timbre)
 
 (defprotocol Publishing
-  (email [this m e])
+  (email [this m address sub])
   (riemann [this m]))
 
 (defn save-fails [{:keys [failure]}]
@@ -29,11 +29,11 @@
 
 (extend-type Hosts
   Publishing
-  (email [this m e]
+  (email [this m address sub]
     (let [body {:type "text/html" :content (template m)}
           attachment (fn [f] {:type :attachment :content (file f)})
           files (map attachment (filter (fn [f] (.exists (file f))) (save-fails m)))
-          message (merge e {:body (into [:alternative body] files)})]
+          message (merge address sub {:body (into [:alternative body] files)})]
       (send-message (conf/get! :re-mote :smtp) message)
       [this m]))
 
@@ -46,5 +46,13 @@
         (send-event (merge e {:tags ["failure"] :code code}))))
     [this m]))
 
+(defn tofrom
+  "Email configuration used to send emails"
+  []
+  (merge (conf/get! :shared :email)))
+
+(defn subject [m desc]
+  (assoc :m {:subject (<< "Running ~{desc} results")}))
+
 (defn refer-publish []
-  (require '[re-mote.repl.publish :as pub :refer (email riemann)]))
+  (require '[re-mote.repl.publish :as pub :refer (email riemann tofrom subject)]))

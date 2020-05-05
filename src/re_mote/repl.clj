@@ -3,6 +3,7 @@
    For more info check https://re-ops.github.io/re-ops/"
   (:refer-clojure :exclude  [update])
   (:require
+   [re-share.config.core :as conf]
    [me.raynes.fs :as fs]
    [clojure.core.strint :refer (<<)]
    [re-mote.repl.cog :refer (refer-cog)]
@@ -152,11 +153,6 @@
   [hs]
   (run> (load-avg hs) | (enrich "load") | (persist) | (riemann)))
 
-(defn tofrom
-  "Email configuration used to send emails"
-  [desc]
-  {:to "narkisr@gmail.com" :from "gookup@gmail.com" :subject (<< "Running ~{desc} results")})
-
 ; Packaging
 (defn- update-
   "Update with downgrading"
@@ -173,14 +169,14 @@
      (update hs)
   "
   [hs]
-  (run (update- hs) | (email (tofrom "package update")) | (enrich "update") | (persist)))
+  (run (update- hs) | (email (tofrom) (subject "package update")) | (enrich "update") | (persist)))
 
 (defn ^{:category :packaging} upgrade
   "Run package update followed by an upgrade on hosts that were updated successfully:
      (upgrade hs)
     "
   [hs]
-  (run (update- hs) | (pick successful) | (upgrade-) | (pretty "upgrade") | (email (tofrom "package upgrade")) | (enrich "upgrade") | (persist)))
+  (run (update- hs) | (pick successful) | (upgrade-) | (pretty "upgrade") | (email (tofrom) (subject "package upgrade")) | (enrich "upgrade") | (persist)))
 
 (defn ^{:category :packaging} install
   "Install a package on hosts:
