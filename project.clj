@@ -20,7 +20,7 @@
                  [org.clojure/tools.trace "0.7.9"]
 
                  ; re-ops
-                 [re-share "0.14.0"]
+                 [re-share "0.15.0"]
                  [re-cog "0.4.5"]
                  [re-cipes "0.1.3"]
                  [re-scan "0.2.1"]
@@ -62,7 +62,7 @@
                  [cc.qbits/knit "1.0.0"]
 
                  ; timeunits
-                 [fogus/minderbinder "0.2.0"]
+                 [fogus/minderbinder "0.3.0"]
 
                  ; wiring
                  [mount "0.1.16"]
