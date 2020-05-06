@@ -27,15 +27,18 @@
             (spit stderr (str host ": " error "\n") :append true))))
     [stdout stderr]))
 
+(defn send-email [m address sub]
+  (let [body {:type "text/html" :content (template m)}
+        attachment (fn [f] {:type :attachment :content (file f)})
+        files (map attachment (filter (fn [f] (.exists (file f))) (save-fails m)))
+        message (merge address sub {:body (into [:alternative body] files)})]
+    (send-message (conf/get! :re-mote :smtp) message)))
+
 (extend-type Hosts
   Publishing
   (email [this m address sub]
-    (let [body {:type "text/html" :content (template m)}
-          attachment (fn [f] {:type :attachment :content (file f)})
-          files (map attachment (filter (fn [f] (.exists (file f))) (save-fails m)))
-          message (merge address sub {:body (into [:alternative body] files)})]
-      (send-message (conf/get! :re-mote :smtp) message)
-      [this m]))
+    (send-email m address sub)
+    [this m])
 
   (riemann [this {:keys [success failure] :as m}]
     (doseq [v success]
