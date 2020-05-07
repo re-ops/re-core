@@ -1,8 +1,7 @@
 (ns re-mote.repl.publish
   (:require
    ; publishing
-   [postal.core :as p :refer (send-message)]
-   [re-mote.publish.email :refer (template)]
+   [re-mote.publish.email :refer (send-email tofrom)]
    [re-mote.publish.riemann :refer (send-event into-events)]
    [re-share.config.core :as conf]
    [clojure.java.io :refer (file)]
@@ -10,13 +9,15 @@
    [taoensso.timbre :refer (refer-timbre)]
    [re-share.core :refer (gen-uuid)]
    [re-mote.log :refer (get-logs)]
-   [re-mote.repl.base :refer (refer-base)])
+   [re-mote.repl.base :refer (refer-base)]
+   [hiccup.core :refer [html]]
+   [hiccup.page :refer [html5 include-js include-css]])
   (:import [re_mote.repl.base Hosts]))
 
 (refer-timbre)
 
 (defprotocol Publishing
-  (email [this m address sub])
+  (email [this m desc])
   (riemann [this m]))
 
 (defn save-fails [{:keys [failure]}]
@@ -27,17 +28,38 @@
             (spit stderr (str host ": " error "\n") :append true))))
     [stdout stderr]))
 
-(defn send-email [m address sub]
-  (let [body {:type "text/html" :content (template m)}
-        attachment (fn [f] {:type :attachment :content (file f)})
-        files (map attachment (filter (fn [f] (.exists (file f))) (save-fails m)))
-        message (merge address sub {:body (into [:alternative body] files)})]
-    (send-message (conf/get! :re-mote :smtp) message)))
+(defn summarize [^String s]
+  (let [l (.length s)]
+    (if (< l 50) s (.substring s (- l 50) l))))
+
+(defn template
+  "Success and failure template"
+  [{:keys [success failure]}]
+  (html
+   (html5
+    [:head]
+    [:body
+     [:h3 "Success:"]
+     [:ul
+      (for [{:keys [host out]} success] [:li " &#10003;" host])]
+     [:h3 "Failure:"]
+     [:ul
+      (for [[c rs] failure]
+        (for [{:keys [host error out]} (get-logs rs)]
+          [:li " &#x2717;" " " host " - " (if out (str c ",") "") (or error (summarize out))]))]
+     [:p "For more information please check you local log provider."]])))
+
+(defn attachments [m]
+  (let [attachment (fn [f] {:type :attachment :content (file f)})]
+    (map attachment (filter (fn [f] (.exists (file f))) (save-fails m)))))
+
+(defn body [m]
+  {:type "text/html" :content (template m)})
 
 (extend-type Hosts
   Publishing
-  (email [this m address sub]
-    (send-email m address sub)
+  (email [this m desc]
+    (send-email (<< "Running ~{desc} results") (tofrom) (body m))
     [this m])
 
   (riemann [this {:keys [success failure] :as m}]
@@ -49,13 +71,5 @@
         (send-event (merge e {:tags ["failure"] :code code}))))
     [this m]))
 
-(defn tofrom
-  "Email configuration used to send emails"
-  []
-  (merge (conf/get! :shared :email)))
-
-(defn subject [m desc]
-  (assoc :m {:subject (<< "Running ~{desc} results")}))
-
 (defn refer-publish []
-  (require '[re-mote.repl.publish :as pub :refer (email riemann tofrom subject)]))
+  (require '[re-mote.repl.publish :as pub :refer (email riemann)]))

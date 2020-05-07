@@ -169,14 +169,14 @@
      (update hs)
   "
   [hs]
-  (run (update- hs) | (email (tofrom) (subject "package update")) | (enrich "update") | (persist)))
+  (run (update- hs) | (email "package update") | (enrich "update") | (persist)))
 
 (defn ^{:category :packaging} upgrade
   "Run package update followed by an upgrade on hosts that were updated successfully:
      (upgrade hs)
     "
   [hs]
-  (run (update- hs) | (pick successful) | (upgrade-) | (pretty "upgrade") | (email (tofrom) (subject "package upgrade")) | (enrich "upgrade") | (persist)))
+  (run (update- hs) | (pick successful) | (upgrade-) | (pretty "upgrade") | (email "package upgrade") | (enrich "upgrade") | (persist)))
 
 (defn ^{:category :packaging} install
   "Install a package on hosts:

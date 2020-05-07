@@ -3,7 +3,7 @@
   (:require
    [clojure.core.strint :refer (<<)]
    [re-mote.repl.base :refer (refer-base)]
-   [re-mote.repl.publish :refer (email tofrom subject)]
+   [re-mote.repl.publish :refer (email)]
    [pallet.stevedore :refer (script)]))
 
 (refer-base)
@@ -15,8 +15,8 @@
     ("/usr/bin/octo" "push" ~f)
     ("/usr/bin/octo" "pull" ~f))))
 
-(defn full-cycle [host f tofrom]
-  (run (exec host (octo-script f)) | (email (tofrom) (subject (<< "octo ~{f} sync")))))
+(defn full-cycle [host f]
+  (run (exec host (octo-script f)) | (email (<< "octo ~{f} sync"))))
 
 (defn refer-octo []
   (require '[re-mote.repl.octo :as octo :refer (full-cycle)]))

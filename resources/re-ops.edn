@@ -109,5 +109,13 @@
     :email {
       :to "narkisr@gmail.com" :from "gookup@gmail.com"
     }
+
+    :smtp {
+      :host "smtp.gmail.com"   
+      :user ""  
+      :pass #ref [:secrets :smtp :pass]
+      :ssl :yes!!!11
+    }
+
   }
 }

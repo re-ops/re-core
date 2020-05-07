@@ -1,25 +1,23 @@
 (ns re-mote.publish.email
   "Generating run result html email"
   (:require
-   [re-mote.log :refer (get-logs)]
-   [hiccup.core :refer [html]]
-   [hiccup.page :refer [html5 include-js include-css]]))
+   [clojure.core.strint :refer (<<)]
+   [re-share.config.core :as conf]
+   [postal.core :as p :refer (send-message)]
+   [re-mote.log :refer (get-logs)]))
 
-(defn summarize [^String s]
-  (let [l (.length s)]
-    (if (< l 50) s (.substring s (- l 50) l))))
+(defn tofrom
+  "Email configuration used to send emails"
+  []
+  (merge (conf/get! :shared :email)))
 
-(defn template [{:keys [success failure]}]
-  (html
-   (html5
-    [:head]
-    [:body
-     [:h3 "Success:"]
-     [:ul
-      (for [{:keys [host out]} success] [:li " &#10003;" host])]
-     [:h3 "Failure:"]
-     [:ul
-      (for [[c rs] failure]
-        (for [{:keys [host error out]} (get-logs rs)]
-          [:li " &#x2717;" " " host " - " (if out (str c ",") "") (or error (summarize out))]))]
-     [:p "For more information please check you local log provider."]])))
+(defn send-email
+  ([subject address body]
+   (send-email body address subject nil))
+  ([subject address body attachments]
+   (let [body' (if-not attachments {:body body} {:body (into [:alternative body] attachments)})
+         message (merge address {:subject subject} body')]
+     (send-message (conf/get! :shared :smtp) message))))
+
+(comment
+  (send-email "foo" (tofrom) "hello"))
