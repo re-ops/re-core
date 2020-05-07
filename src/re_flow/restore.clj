@@ -82,7 +82,7 @@
   "Processing the restoration result"
   [?e <- ::restored [{timeout :timeout failure :failure :or {timeout false failure false}}] (and (= timeout false) (= failure false))]
   =>
-  (insert! (assoc ?e :message "Restoration flow was successful"))
+  (insert! (-> ?e (dissoc :timeout) (assoc :message "Restoration flow was successful")))
   (info "restoration was successful"))
 
 (defrule restoration-failed
