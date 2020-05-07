@@ -44,7 +44,8 @@
   "Check that the fact is matching the ::restore spec"
   [?e <- ::start]
   =>
-  (insert! (assoc ?e :state ::spec :failure (not (s/valid? ::restore ?e)) :message (expound/expound-str ::restore ?e))))
+  (let [failed? (not (s/valid? ::restore ?e))]
+    (insert! (assoc ?e :state ::spec :failure failed? :message (when failed? (expound/expound-str ::restore ?e))))))
 
 (defrule create
   "Triggering the creation of the instance"
@@ -81,6 +82,7 @@
   "Processing the restoration result"
   [?e <- ::restored [{timeout :timeout failure :failure :or {timeout false failure false}}] (and (= timeout false) (= failure false))]
   =>
+  (insert! (assoc ?e :message "Restoration flow was successful"))
   (info "restoration was successful"))
 
 (defrule restoration-failed
