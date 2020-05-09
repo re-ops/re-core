@@ -15,9 +15,9 @@
   ([subject address body]
    (send-email body address subject nil))
   ([subject address body attachments]
-   (let [body' (if-not attachments {:body body} {:body (into [:alternative body] attachments)})
+   (let [body' (if-not attachments {:body body} {:body (into [:alternative {:type "text/html" :content body}] attachments)})
          message (merge address {:subject subject} body')]
      (send-message (conf/get! :shared :smtp) message))))
 
 (comment
-  (send-email "foo" (tofrom) "hello"))
+  (send-email "foo" (tofrom)))

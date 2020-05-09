@@ -53,13 +53,10 @@
   (let [attachment (fn [f] {:type :attachment :content (file f)})]
     (map attachment (filter (fn [f] (.exists (file f))) (save-fails m)))))
 
-(defn body [m]
-  {:type "text/html" :content (template m)})
-
 (extend-type Hosts
   Publishing
   (email [this m desc]
-    (send-email (<< "Running ~{desc} results") (tofrom) (body m))
+    (send-email (<< "Running ~{desc} results") (tofrom) (template m) (attachments m))
     [this m])
 
   (riemann [this {:keys [success failure] :as m}]
