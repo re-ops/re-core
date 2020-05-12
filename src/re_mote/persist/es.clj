@@ -4,7 +4,7 @@
    [clj-time.core :as t]
    [com.rpl.specter :refer (transform ALL MAP-VALS multi-path)]
    [re-share.es.common :as es :refer (day-index get-es!)]
-   [rubber.core :refer (create)]
+   [rubber.core :refer (create bulk-create)]
    [rubber.node :as node]
    [rubber.template :refer (template-exists? add-template)]
    [mount.core :as mount :refer (defstate)]
@@ -59,10 +59,11 @@
   Elasticsearch
   (persist
     ([this {:keys [success failure] :as m} t]
-     (doseq [s success]
-       (create (day-index :re-mote :result) t s))
-     (doseq [fail (flatten (vals failure))]
-       (create (day-index :re-mote :result) t fail))
+     (when-not (empty? success)
+       (bulk-create (day-index :re-mote :result) t success))
+     (let [fail (flatten (vals failure))]
+       (when-not (empty? fail)
+         (bulk-create (day-index :re-mote :result) t fail)))
      [this m])
     ([this m]
      (persist this m :result))))

@@ -16,7 +16,7 @@
                  [com.taoensso/timbre "4.10.0"]
                  [com.taoensso/tufte "1.1.1"]
                  [timbre-ns-pattern-level "0.1.2"]
-                 [com.fzakaria/slf4j-timbre "0.3.17"]
+                 [com.fzakaria/slf4j-timbre "0.3.19"]
                  [org.clojure/tools.trace "0.7.9"]
 
                  ; re-ops
@@ -26,7 +26,7 @@
                  [re-scan "0.2.1"]
 
                  ; Elasticsearch
-                 [rubber "0.3.7"]
+                 [rubber "0.4.0"]
                  [org.apache.httpcomponents/httpclient "4.5.2"]
 
                  ; Api
@@ -51,7 +51,7 @@
 
                  ; model
                  [com.rpl/specter "1.1.2"]
-                 [com.brunobonacci/safely "0.2.4"]
+                 [com.brunobonacci/safely "0.5.0"]
                  [com.google.guava/guava "18.0"]
                  [commons-codec "1.10"]
                  [substantiation "0.4.0"]
@@ -68,7 +68,7 @@
                  [mount "0.1.16"]
 
                  [me.raynes/conch "0.8.0"]
-                 [org.clojure/core.async "0.3.443"]
+                 [org.clojure/core.async "1.2.603"]
                  [com.rpl/specter "1.1.2"]
                  [org.clojure/core.match "0.3.0-alpha4"]
 
