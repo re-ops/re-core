@@ -64,12 +64,12 @@
       (wait-for-status this "running" timeout)
       (debug "in running state")
       (let [ip (.ip this) flavor (get-in domain [:image :flavor])
-            {:keys [user name hostname]} domain]
+            {:keys [user name hostname fqdn]} domain]
         (wait-for-ssh ip user timeout)
         ; hotpluging volumes require guest kernel to be up
         (create-volumes (c) (domain :name) volumes)
         (debug "volumes created")
-        (set-hostname hostname name {:user user :host ip :ssh-key (key-)} flavor)
+        (set-hostname hostname fqdn {:user user :host ip :ssh-key (key-)} flavor)
         (s/update-ip system-id ip)
         this)))
 
@@ -135,7 +135,8 @@
       (mappings {:os :image :hostname :name})
       (transform (machine-ts machine))
       (assoc :hostname (machine :hostname))
-      (selections [[:name :user :image :cpu :ram :hostname]])))
+      (assoc :fqdn (<< "~(machine :hostname).~(machine :domain)"))
+      (selections [[:name :user :image :cpu :ram :hostname :fqdn]])))
 
 (defn node-m [node]
   (assoc (hypervisor* :kvm :nodes node) :name node))
