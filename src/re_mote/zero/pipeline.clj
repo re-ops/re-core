@@ -4,7 +4,6 @@
    [re-mote.zero.callback :refer (register-callback)]
    [clojure.set :refer (rename-keys)]
    [re-mote.spec :as re-spec :refer (valid?)]
-   [clojure.core.match :refer [match]]
    [taoensso.timbre :refer  (refer-timbre)]
    [com.rpl.specter :refer (transform MAP-VALS ALL VAL)]
    [re-mote.zero.management :refer (refer-zero-manage)]
