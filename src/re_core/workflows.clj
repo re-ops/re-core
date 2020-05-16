@@ -17,7 +17,8 @@
    [es.systems :as s]
    [clojure.core.strint :refer (<<)]
    [re-core.model :refer (vconstruct)]
-   [taoensso.timbre :refer (refer-timbre)])
+   [taoensso.timbre :refer (refer-timbre)]
+   [clojure.core.match :refer (match)])
   (:import
    [re_core.repl.base Systems]))
 
@@ -109,22 +110,27 @@
   (s/delete system-id)
   (info "deleted system with id" system-id))
 
+(defn error-message [{:keys [error]}]
+  (match [error]
+    [{:err err :type t}]  (<< "~{t}: ~{err}")
+    [{:out out :exception ex}]  (<< "~{ex}: ~{out}")
+    :else "Failed to resolve error message please check the error logs!"))
+
 (defn provision
-  "provision a single system"
+  "provision a single! system"
   [{:keys [machine type] :as spec}]
-  (info "starting to provision hosts")
+  (info "starting to provision host" machine)
   (try
     (let [m {:systems [[(spec :system-id) spec]]}
-          hosts (sys/into-hosts (Systems.) m :ip)
+          host (sys/into-hosts (Systems.) m :ip)
           into-hostnames {(machine :ip) (machine :hostname)}
           {:keys [cog]} (t/get! type)
-          result (mote/provision hosts into-hostnames cog)]
+          result (mote/provision host into-hostnames cog)]
       (info "done provisioning system")
       (let [{:keys [failure]} (second result)]
         (if-not (empty? failure)
-          (let [{:keys [error] :as e} (-> failure vals first first)]
-            (error e)
-            (throw (ex-info (<< "~(error :type): ~(error :err)") e)))
+          (let [e (-> failure vals first first)]
+            (throw (ex-info (error-message e) e)))
           result)))
     (catch Exception e
       (error-m e)
