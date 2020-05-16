@@ -114,6 +114,7 @@
   (match [error]
     [{:err err :type t}]  (<< "~{t}: ~{err}")
     [{:out out :exception ex}]  (<< "~{ex}: ~{out}")
+    [{:out out}] out
     :else "Failed to resolve error message please check the error logs!"))
 
 (defn provision
