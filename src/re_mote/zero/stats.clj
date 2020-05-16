@@ -95,14 +95,14 @@
     ([this]
      (into-dec (multi-nav :blocks :used :available)
                (zip this
-                    (run-hosts this shell (shell-args du-script) timeout)
+                    (run-hosts this shell (shell-args du-script :cached? true) timeout)
                     :stats :du :filesystem :type :blocks :used :available :perc :mount)))
     ([this _]
      (du this)))
 
   (entropy
     ([this]
-     (into-dec (zip this (run-hosts this shell (shell-args entropy-script) timeout) :stats :entropy :available)))
+     (into-dec (zip this (run-hosts this shell (shell-args entropy-script :cached? true) timeout) :stats :entropy :available)))
     ([this _]
      (entropy this)))
 
@@ -111,23 +111,23 @@
      (net this))
     ([this]
      (into-dec
-      (zip this (run-hosts this shell (shell-args net-script) timeout)
+      (zip this (run-hosts this shell (shell-args net-script :cached? true) timeout)
            :stats :net :rxpck/s :txpck/s :rxkB/s :txkB/s :rxcmp/s :txcmp/s :rxmcst/s :ifutil))))
   (cpu
     ([this]
-     (into-dec (zip this (run-hosts this shell (shell-args cpu-script) timeout) :stats :cpu :usr :sys :idle)))
+     (into-dec (zip this (run-hosts this shell (shell-args cpu-script :cached? true) timeout) :stats :cpu :usr :sys :idle)))
     ([this _]
      (cpu this)))
 
   (free
     ([this]
-     (into-dec (zip this (run-hosts this shell (shell-args free-script) timeout) :stats :free :total :used :free :shared :buff-cache :available)))
+     (into-dec (zip this (run-hosts this shell (shell-args free-script :cached? true) timeout) :stats :free :total :used :free :shared :buff-cache :available)))
     ([this _]
      (free this)))
 
   (load-avg
     ([this]
-     (into-dec (zip this (run-hosts this shell (shell-args load-script) timeout) :stats :load :one :five :fifteen :cores)))
+     (into-dec (zip this (run-hosts this shell (shell-args load-script :cached? true) timeout) :stats :load :one :five :fifteen :cores)))
     ([this _]
      (free this)))
 
