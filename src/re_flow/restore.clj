@@ -28,6 +28,7 @@
 (derive ::volume-ready :re-flow.core/state)
 (derive ::restored :re-flow.core/state)
 (derive ::restored :re-flow.core/state)
+(derive ::done :re-flow.core/state)
 
 (def instance {:base kvm :args [defaults local c1-medium :restore "restore flow instance" (kvm-volume 128 :restore)]})
 
@@ -82,7 +83,7 @@
   "Processing the restoration result"
   [?e <- ::restored [{timeout :timeout failure :failure :or {timeout false failure false}}] (and (= timeout false) (= failure false))]
   =>
-  (insert! (-> ?e (dissoc :timeout) (assoc :message "Restoration flow was successful")))
+  (insert! (-> ?e (dissoc :timeout) (assoc :state ::done :message "Restoration flow was successful")))
   (info "restoration was successful"))
 
 (defrule restoration-failed
