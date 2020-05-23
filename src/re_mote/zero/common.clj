@@ -29,7 +29,7 @@
      (catch Exception e
        (error-m e))))
   ([socket address content]
-   (debug "sending" address content)
+   (trace "sending" address content)
    (try
      (.send socket (freeze address) ZMQ/SNDMORE)
      (.send socket (freeze content) 0)
