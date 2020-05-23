@@ -51,7 +51,7 @@
 
 (defn handle-sends [socket]
   (when-let [[address content] (take-)]
-    (debug "sending" address content)
+    (trace "sending" address content)
     (send- socket address content)
     true))
 
