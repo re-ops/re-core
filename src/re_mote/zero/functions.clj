@@ -3,9 +3,7 @@
    [taoensso.timbre :refer  (refer-timbre)]
    [re-mote.zero.send :refer (send-)]
    [re-share.core :refer (gen-uuid)]
-   [clojure.java.shell :refer [sh]]
-   [serializable.fn :as s]
-   [me.raynes.fs :refer (list-dir tmpdir exists? file)]))
+   [serializable.fn :as s]))
 
 (refer-timbre)
 
@@ -21,7 +19,7 @@
   [f args zhs]
   {:pre [(not (nil? zhs))]}
   (let [uuid (gen-uuid)]
-    (doseq [[hostname address] zhs]
+    (doseq [[_ address] zhs]
       (send- address {:request :execute :uuid  uuid :fn f :args args}))
     uuid))
 

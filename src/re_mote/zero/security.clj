@@ -3,10 +3,9 @@
   (:require
    [re-mote.zero.pipeline :refer (run-hosts)]
    [taoensso.timbre :refer (refer-timbre)]
-   [re-cog.scripts.common :refer (shell-args)]
+   [re-cog.scripts.common :refer (shell-args shell)]
    [re-mote.zero.stats :refer (zip comma)]
    [re-cog.scripts.security :refer (ufw-script ssh-connections)]
-   [re-cog.resources.exec :refer (shell)]
    [re-cog.facts.security :refer (scan-hosts scan-ports)]
    re-mote.repl.base)
   (:import [re_mote.repl.base Hosts]))

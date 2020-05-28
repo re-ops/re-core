@@ -1,12 +1,9 @@
 (ns re-mote.zero.sensors
   "Sensors monitoring using agent"
   (:require
-   [clojure.spec.alpha :as s]
    [clojure.string :refer (split join trim replace-first)]
-   [re-cog.scripts.common :refer (shell-args)]
+   [re-cog.scripts.common :refer (shell-args shell)]
    [re-mote.zero.stats :refer (safe-dec)]
-   [com.rpl.specter :refer (transform select MAP-VALS ALL multi-path)]
-   [re-cog.resources.exec :refer (shell)]
    [re-mote.zero.pipeline :refer (run-hosts)]
    [re-cog.scripts.sensors :refer (temp-script)]
    re-mote.repl.base)

@@ -11,8 +11,7 @@
    [com.rpl.specter :as s :refer (transform select MAP-VALS ALL ATOM keypath multi-path)]
    [clj-time.core :as t]
    [clj-time.coerce :refer (to-long)]
-   [re-cog.scripts.common :refer (shell-args)]
-   [re-cog.resources.exec :refer (shell)]
+   [re-cog.scripts.common :refer (shell-args shell)]
    [re-share.schedule :refer (watch seconds)]
    re-mote.repl.base)
   (:import re_mote.repl.base.Hosts))

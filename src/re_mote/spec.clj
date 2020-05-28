@@ -146,9 +146,8 @@
 
 (defn valid? [s v]
   (if-not (s/valid? s v)
-    (let [e (expound/expound s v)]
-      (error "spec failed:" e)
-      (puget/cprint e)
+    (do
+      (info "value is not valid" v)
       false)
     true))
 

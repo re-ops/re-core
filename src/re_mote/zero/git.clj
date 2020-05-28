@@ -1,8 +1,7 @@
 (ns re-mote.zero.git
   "Git actions"
   (:require
-   [re-cog.scripts.common :refer (shell-args)]
-   [re-cog.resources.exec :refer (shell)]
+   [re-cog.scripts.common :refer (shell-args shell)]
    [re-mote.zero.pipeline :refer (run-hosts)]
    [pallet.stevedore :refer (script)]
    re-mote.repl.base)

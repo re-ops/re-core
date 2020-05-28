@@ -1,9 +1,8 @@
 (ns re-mote.zero.restic
   "Restic https://restic.net/ operations"
   (:require
-   [re-cog.scripts.common :refer (shell-args)]
+   [re-cog.scripts.common :refer (shell-args shell)]
    [re-cog.scripts.restic :as restic]
-   [re-cog.resources.exec :refer (shell)]
    [re-mote.zero.pipeline :refer (run-hosts)]
    re-mote.repl.base)
 
