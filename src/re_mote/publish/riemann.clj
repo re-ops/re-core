@@ -10,7 +10,7 @@
 
 (refer-timbre)
 
-(defstate riemann
+(defstate ^{:on-reload :noop} riemann
   :start (r/tcp-client (conf/get! :riemann))
   :stop (r/close! riemann))
 

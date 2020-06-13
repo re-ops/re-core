@@ -62,7 +62,7 @@
   (reset! run false)
   (reset! q nil))
 
-(defstate queue
+(defstate ^{:on-reload :noop} queue
   :start (start-)
   :stop (stop-))
 
