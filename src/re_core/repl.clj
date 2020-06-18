@@ -120,7 +120,9 @@
   ([]
    (halt ip))
   ([f]
-   (run (ls systems) | (filter-by f) | (sys/stop) | (async-wait pretty-print "halt"))))
+   (halt ip {}))
+  ([f opts]
+   (run (ls systems) | (filter-by f) | (ack opts) | (sys/stop) | (async-wait pretty-print "halt"))))
 
 (defn start
   "Start instances:
