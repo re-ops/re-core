@@ -120,7 +120,7 @@
   ([]
    (halt ip))
   ([f]
-   (halt ip {}))
+   (halt f {}))
   ([f opts]
    (run (ls systems) | (filter-by f) | (ack opts) | (sys/stop) | (async-wait pretty-print "halt"))))
 
