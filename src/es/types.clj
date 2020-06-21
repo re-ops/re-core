@@ -12,13 +12,13 @@
 
 (defn exists?
   [id]
-  (z/exists? (index :type) :type id))
+  (z/exists? (index :type) id))
 
 (defn create
   "create a type with id type"
   ([type]
    (try
-     (= (:status (s/request (connection) {:url [(index :type) :type (type :type)] :method :post :body (dissoc type :type)})) 200)
+     (= (:status (s/request (connection) {:url [(index :type) :_doc (type :type)] :method :post :body (dissoc type :type)})) 200)
      (catch Exception e
        (error e (ex-data e))
        (throw e)))))
@@ -26,17 +26,17 @@
 (defn put
   "Update a type"
   [type]
-  (z/put (index :type) :type (type :type) type))
+  (z/put (index :type) (type :type) type))
 
 (defn delete
   "delete a type from ES"
   [t]
-  (z/delete (index :type) :type t))
+  (z/delete (index :type) t))
 
 (defn get
   "Grabs a type by its name"
   [t]
-  (z/get (index :type) :type t))
+  (z/get (index :type) t))
 
 (defn get!
   "Grabs a type by an id"

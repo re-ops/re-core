@@ -68,14 +68,14 @@
     ([this m]
      (persist this m :result))))
 
-(def ^:const types {:result {:properties {:timestamp {:type "date" :format "epoch_millis"}
-                                          :host {:type "keyword"}
-                                          :type {:type "keyword"}}}})
+(def ^:const types {:properties {:timestamp {:type "text"}
+                                 :host {:type "text"}
+                                 :type {:type "text"}}})
 
 (defn initialize
   "setup Elasticsearch types and mappings for re-mote"
   []
-  (es/initialize :re-mote types true)
+  (es/initialize :re-mote {:result types} true)
   (when-not (template-exists? "re-mote-result")
     (add-template "re-mote-result" ["re-mote*"] {:number_of_shards 1} types)))
 

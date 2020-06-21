@@ -8,6 +8,7 @@
 
 (def ^:const types {:jobs {:properties {:env {:type "keyword"}
                                         :status {:type "text"}
+                                        :tid {:type "text"}
                                         :queue {:type "text"}
                                         :start {:type "long"}
                                         :end {:type "long"}}}
