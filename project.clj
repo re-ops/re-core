@@ -20,13 +20,13 @@
                  [org.clojure/tools.trace "0.7.9"]
 
                  ; re-ops
-                 [re-share "0.15.0"]
+                 [re-share "0.15.1"]
                  [re-cog "0.4.14"]
                  [re-cipes "0.1.20"]
                  [re-scan "0.2.1"]
 
                  ; Elasticsearch
-                 [rubber "0.4.0"]
+                 [rubber "0.4.1"]
                  [org.apache.httpcomponents/httpclient "4.5.2"]
 
                  ; Api
