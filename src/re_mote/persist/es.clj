@@ -60,17 +60,17 @@
   (persist
     ([this {:keys [success failure] :as m} t]
      (when-not (empty? success)
-       (bulk-create (day-index :re-mote :result) t success))
+       (bulk-create (day-index :re-mote :result) success))
      (let [fail (flatten (vals failure))]
        (when-not (empty? fail)
-         (bulk-create (day-index :re-mote :result) t fail)))
+         (bulk-create (day-index :re-mote :result) fail)))
      [this m])
     ([this m]
      (persist this m :result))))
 
-(def ^:const types {:properties {:timestamp {:type "text"}
-                                 :host {:type "text"}
-                                 :type {:type "text"}}})
+(def types {:properties {:timestamp {:type "date" :format "epoch_millis"}
+                         :host {:type "keyword"}
+                         :type {:type "keyword"}}})
 
 (defn initialize
   "setup Elasticsearch types and mappings for re-mote"
