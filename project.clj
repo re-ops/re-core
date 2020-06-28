@@ -20,7 +20,7 @@
                  [org.clojure/tools.trace "0.7.9"]
 
                  ; re-ops
-                 [re-share "0.15.1"]
+                 [re-share "0.15.2"]
                  [re-cog "0.4.15"]
                  [re-cipes "0.1.23"]
                  [re-scan "0.2.1"]
