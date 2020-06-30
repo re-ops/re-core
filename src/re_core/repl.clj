@@ -257,11 +257,6 @@
   ([hyp opts]
    (run (synch systems hyp opts) | (pretty))))
 
-(defn detect
-  "Detect systems information automaticly"
-  [f opts]
-  (run (ls systems) | (filter-by f) | (detect-host-info opts)))
-
 (defn fill
   "fill systems information from provided ks v pair
     (fill identity [:machine :os] :ubuntu-18.04)

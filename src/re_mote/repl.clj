@@ -213,6 +213,12 @@
   [hs]
   (run (kill-agent hs) | (pretty "kill agent")))
 
+(defn ^{:category :re-gent} unregister
+  "Unregister hosts from our ZMQ registry, (doesn't close any connection):
+     (kill hs)"
+  [hs]
+  (run (unregister-hosts hs) | (pretty "unregister hosts")))
+
 (defn ^{:category :re-gent} launch
   "Start a re-gent process on hosts:
      (launch hs)
@@ -226,24 +232,6 @@
      (pull hs {:repo \"re-core\" :branch \"master\" :remote \"git://github.com/re-ops/re-mote.git\"})"
   [hs {:keys [repo remote branch]}]
   (run (git/pull hs repo remote branch) | (pretty "git pull")))
-
-(defn filter-hosts
-  "Filter a sub group out of the provided hosts, the filtering function gets OS information:
-     (filter-hosts hs (fn [os] TODO ))"
-  [hs f]
-  (run (os-info hs) | (pick (partial results-filter f)) | (pretty "filter hosts")))
-
-(defn host-os-info
-  "Hosts information using oshi:
-    (host-info hs)"
-  [hs]
-  (run> (os-info hs) | (pretty "filter hosts")))
-
-(defn host-hardware-info
-  "Hosts information using oshi:
-    (host-info hs)"
-  [hs]
-  (run> (hardware-info hs) | (pretty "filter hosts")))
 
 ; basic tasks
 (defn copy-file
