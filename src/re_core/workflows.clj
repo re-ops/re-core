@@ -88,11 +88,14 @@
 (defn destroy
   "Deletes a system"
   [{:keys [system-id machine] :as spec}]
-  (let [vm (vconstruct spec)]
+  (let [vm (vconstruct spec)
+        {:keys [host]} machine
+        m {:systems [[(spec :system-id) spec]]}]
     (when (.status vm)
       (when (= (.status vm) "running") (.stop vm))
       (.delete vm))
     (s/delete system-id)
+    (mote/unregister (sys/into-hosts (Systems.) m :hostname))
     (info "system destruction done")))
 
 (defn clone

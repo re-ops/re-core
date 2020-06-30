@@ -12,7 +12,6 @@
    [taoensso.timbre :refer  (refer-timbre)]
    [es.systems :as s]
    [es.jobs :as es]
-   [re-mote.repl :refer (host-hardware-info host-os-info)]
    [com.rpl.specter :refer [transform ALL multi-path select MAP-VALS nthpath]]
    [re-core.repl.base :as base :refer [Repl Report select-keys* pretty]]
    [re-core.repl.results :as r])
@@ -46,8 +45,6 @@
   "Synching existing systems into re-core"
   (synch
     [this hyp opts])
-  (detect-host-info
-    [this systems opts])
   (update-systems
     [this systems ks v]))
 
@@ -237,16 +234,6 @@
           systems (persist-synched (.sync syncher))]
       [this {:systems systems}]))
 
-  (detect-host-info
-    [this {:keys [systems] :as m} {:keys [subnet]}]
-    (let [hs (into-hosts this m :hostname)
-          versions (os-versions (host-os-info hs))
-          ips (hosts-ip subnet (host-hardware-info hs))
-          updated (add-os systems versions)]
-      (doseq [[id system] updated]
-        (s/put id system))
-      [this {:systems updated}]))
-
   (update-systems [this {:keys [systems] :as m} ks v]
     (let [updated (map (fn [[id system]] [id (assoc-in system ks v)]) systems)]
       (doseq [[id system] updated]
@@ -255,4 +242,4 @@
 
 (defn refer-systems []
   (require '[re-core.repl.systems :as sys :refer
-             [status into-hosts block-wait async-wait pretty-print spice synch detect-host-info update-systems]]))
+             [status into-hosts block-wait async-wait pretty-print spice synch update-systems]]))

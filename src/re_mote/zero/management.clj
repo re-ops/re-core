@@ -16,6 +16,9 @@
 (defn all-hosts []
   @zmq-hosts)
 
+(defn get-address [host]
+  (@zmq-hosts host))
+
 (defn fail [request e]
   {:response :fail :on request :cause e})
 
@@ -50,7 +53,7 @@
       (error-m e))))
 
 (defn registered? [host]
-  (@zmq-hosts host))
+  (not (nil? (@zmq-hosts host))))
 
 (defn registered-hosts []
   (table (vals @zmq-hosts) :style :borderless))

@@ -1,11 +1,13 @@
 (ns re-mote.repl.re-gent
   "Copy .curve server public key and run agent remotly"
   (:require
+   [re-share.core :refer (gen-uuid)]
    [re-cog.scripts.common :refer (validate!)]
    [clojure.java.shell :refer (sh with-sh-dir)]
    [pallet.stevedore :refer (script chained-script)]
    [clojure.core.strint :refer (<<)]
    [re-mote.zero.server :refer (used-port)]
+   [re-mote.zero.management :as zm]
    [re-mote.ssh.pipeline :refer (run-hosts)]
    re-mote.repl.base)
   (:import [re_mote.repl.base Hosts]))
@@ -14,6 +16,8 @@
   (kill-agent
     [this]
     [this m])
+  (unregister-hosts
+    [this])
   (start-agent
     [this home]
     [this m home]))
@@ -52,7 +56,13 @@
      (kill-agent this {}))
     ([this _]
      [this (run-hosts this (kill-script))]))
-
+  (unregister-hosts [this]
+    (let [registery-status (group-by zm/registered? (:hosts this))
+          failures (mapv (fn [host] {:host host :code -1 :uuid (gen-uuid) :error {:out "host not registered"}}) (registery-status false))
+          success (mapv (fn [host] {:host host :code 0}) (registery-status true))]
+      (doseq [host (registery-status true)]
+        (zm/unregister (zm/get-address host)))
+      [this {:failure {-1 failures} :success success :hosts (:hosts this)}]))
   (start-agent
     ([this home]
      (start-agent this nil home))
@@ -60,5 +70,4 @@
      [this (run-hosts this (start-script (used-port) home "info"))])))
 
 (defn refer-regent []
-  (require '[re-mote.repl.re-gent :as re-gent :refer (start-agent kill-agent build)]))
-
+  (require '[re-mote.repl.re-gent :as re-gent :refer (start-agent kill-agent build unregister-hosts)]))
