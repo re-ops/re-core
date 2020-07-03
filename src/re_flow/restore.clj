@@ -84,10 +84,12 @@
   [?e <- ::restored [{timeout :timeout failure :failure :or {timeout false failure false}}] (and (= timeout false) (= failure false))]
   =>
   (insert! (-> ?e (dissoc :timeout) (assoc :state ::done :message "Restoration flow was successful")))
+  (insert! (assoc ?e :state :re-flow.setup/cleanup))
   (info "restoration was successful"))
 
 (defrule restoration-failed
   "Processing the restoration result"
   [?e <- ::restored [{:keys [timeout failure]}] (or (= timeout true) (= failure true))]
   =>
+  (insert! (assoc ?e :state :re-flow.setup/cleanup))
   (info "restoration failed!"))

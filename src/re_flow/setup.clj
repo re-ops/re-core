@@ -17,6 +17,8 @@
 
 (derive ::creating :re-flow.core/state)
 (derive ::created :re-flow.core/state)
+(derive ::cleanup :re-flow.core/state)
+(derive ::purged :re-flow.core/state)
 (derive ::registered :re-flow.core/state)
 (derive ::provisioned :re-flow.core/state)
 
@@ -58,3 +60,14 @@
     (info "provisioning" ids)
     (let [provisioned (successful-systems (run-provisioning ids))]
       (insert! (assoc ?e :state ::provisioned :failure (not= provisioned ids))))))
+
+(defn purge-instances [ids]
+  (destroy (with-ids ids) {:force true}))
+
+(defrule cleanup
+  "Cleanup instance"
+  [?e <- ::cleanup]
+  =>
+  (let [{:keys [ids]} ?e
+        ids (successful-systems (purge-instances ids))]
+    (insert! (assoc ?e :state ::purged :ids ids :failure (empty? ids)))))
