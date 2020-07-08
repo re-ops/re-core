@@ -2,6 +2,7 @@
   "Repl systems access"
   (:require
    kvm.provider
+   [re-core.presets.systems :as sp]
    [clojure.string :refer (lower-case split)]
    [clojure.core.strint :refer (<<)]
    [re-core.model :refer (vconstruct sconstruct)]
@@ -81,9 +82,13 @@
   (grep [this {:keys [systems] :as m} k v]
     [this {:systems (filter (partial grep-system k v) (systems :systems))}])
 
-  (add- [this specs]
+  (valid? [this base args]
+    (let [validated (sp/validate (sp/materialize-preset base args))]
+      [this {:systems (validated true) :results {:failure (validated false)}}]))
+
+  (add- [this {:keys [systems] :as m}]
     (let [f (fn [s] (let [id (s/create s)] [id (assoc (s/get id) :system-id id)]))]
-      [this {:systems (map f specs)}])))
+      [this (assoc m :systems (map f systems))])))
 
 (defn filter-done [sts]
   (into #{} (doall (filter (fn [{:keys [status]}] (not (nil? status))) sts))))
@@ -112,9 +117,9 @@
 
 (defn add-results
   "Add the job result from ES"
-  [this jobs]
+  [this jobs prev-results]
   (let [{:keys [success] :as results} (group-by (comp keyword :status) (map result jobs))]
-    {:systems (map :systems success) :results results}))
+    {:systems (map :systems success) :results (merge-with merge results prev-results)}))
 
 (extend-type Systems
   Jobs
@@ -139,14 +144,14 @@
   (status [this {:keys [jobs]}]
     (map (fn [{:keys [job]}] (assoc job :status (q/status job))) jobs))
 
-  (block-wait [this {:keys [jobs systems] :as js}]
+  (block-wait [this {:keys [jobs systems results] :as js}]
     (loop [done (filter-done (status this js))]
       (when (< (count done) (count jobs))
         (Thread/sleep 100)
         (recur (filter-done (status this js)))))
-    [this (add-results this jobs)])
+    [this (add-results this jobs results)])
 
-  (async-wait [this {:keys [jobs systems] :as js} f & args]
+  (async-wait [this {:keys [jobs systems results] :as js} f & args]
     (let [out *out*]
       (future
         (binding [*out* out]
@@ -154,7 +159,7 @@
             (when (< (count done) (count jobs))
               (Thread/sleep 100)
               (recur (filter-done (status this js)))))
-          (let [result (add-results this jobs)]
+          (let [result (add-results this jobs results)]
             (r/append result)
             (apply f (into [this result] args)))))))
 

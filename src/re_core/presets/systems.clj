@@ -51,9 +51,11 @@
   "Group systems by ::core/system specification validation result
    Failing results are converted into expound format output string"
   [sp]
-  (update-in
-   (group-by (partial s/valid? ::core/system) sp)
-   [false] (partial map (partial expound/expound ::core/system))))
+  (let [by-valid (group-by (partial s/valid? ::core/system) sp)
+        output-spec {:print-specs? false :show-valid-values? false}]
+    (update-in by-valid [false]
+               (fn [failures]
+                 (map (fn [m] {:message (expound/expound-str ::core/system m output-spec) :args [m]}) failures)))))
 
 (defn os
   "Set the os version"

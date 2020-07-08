@@ -191,10 +191,7 @@
 (defn- create-system
   "Create a system internal implementation"
   [base args]
-  (let [ms (sp/validate (sp/materialize-preset base args))]
-    (if-not (empty? (ms false))
-      (ms false)
-      (run (add- systems (ms true)) | (sys/create) | (async-wait pretty-print "create")))))
+  (run (valid? systems base args) | (add-) | (sys/create) | (async-wait pretty-print "create")))
 
 (defn- create-type
   "Create type internal implementation"
@@ -244,7 +241,7 @@
         transforms [(sp/with-type type) (sp/with-host hostname)]
         all (apply conj transforms fns)
         specs (map  (fn [_] (reduce (fn [m f] (f m)) base all)) (range (or total 1)))]
-    (run (add- systems specs) | (pretty-print "add"))))
+    (run (valid? systems base args) | (add-) | (pretty-print "add"))))
 
 (defn sync
   "Sync existing instances into re-core systems:

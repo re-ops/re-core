@@ -21,14 +21,22 @@
 (derive ::purged :re-flow.core/state)
 (derive ::registered :re-flow.core/state)
 (derive ::provisioned :re-flow.core/state)
+(derive ::done :re-flow.core/state)
 
 (defrule creating
   "Create systems"
   [?e <- ::creating []]
   =>
   (let [{:keys [base args]} (:spec ?e)
-        ids (successful-systems (create-instance base args))]
-    (insert! (assoc ?e :state ::created :ids ids :failure (empty? ids)))))
+        result (create-instance base args)
+        ids (successful-systems result)]
+    (insert! (assoc ?e :state ::created :result @result :ids ids :failure (empty? ids)))))
+
+(defrule creation-failed
+  "Creation failure"
+  [?e <- ::created [{:keys [failure result]}] (= failure true)]
+  =>
+  (info "creation failed due to:\n" (clojure.string/join "\n" (map :message (-> ?e :result second :results :failure)))))
 
 (defn registraion-successful [ids]
   (let [hs (hosts (with-ids ids) :hostname)]
@@ -41,7 +49,7 @@
 
 (defrule registing
   "Registering"
-  [?e <- ::created (= ?failure false)]
+  [?e <- ::created [{:keys [failure]}] (= failure false)]
   =>
   (let [gent "/home/ronen/code/re-ops/re-gent/target/re-gent"
         {:keys [ids]} ?e]
@@ -54,7 +62,7 @@
 
 (defrule provisioning
   "Provisioning"
-  [?e <- ::registered (= ?failure false)]
+  [?e <- ::registered [{:keys [failure]}] (= failure false)]
   =>
   (let [{:keys [ids]} ?e]
     (info "provisioning" ids)
