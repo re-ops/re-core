@@ -34,15 +34,15 @@
   [f {:keys [ids] :as ?e} & args]
   (apply (partial f (hosts (with-ids ids) :hostname)) args))
 
-(defn fact-callback [fact pred]
+(defn fact-callback [fact pred ?e]
   (fn [timeout m]
-    (enqueue :re-flow.session/facts {:tid (gen-uuid) :args [[{:state fact :timeout timeout :failure (pred m)}]]})))
+    (enqueue :re-flow.session/facts {:tid (gen-uuid) :args [[{:state fact :timeout timeout :ids (?e :ids) :failure (pred m)}]]})))
 
 (defn run-?e-non-block
   "Run a Hosts function on system ids provided by ?e without blocking for the result.
    Once the run is done the provided fact will be inserted with :failure set according to provided predicate."
   [f {:keys [ids] :as ?e} fact timeout pred & args]
-  (apply (partial f (hosts (with-ids ids) :hostname)) (concat args [timeout (fact-callback fact pred)])))
+  (apply (partial f (hosts (with-ids ids) :hostname)) (concat args [timeout (fact-callback fact pred ?e)])))
 
 (comment
   (enqueue :re-flow.session/facts {:tid "1234" :args [[{:state :re-flow.restore/restored :timeout true :failure false}]]}))
