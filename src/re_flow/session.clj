@@ -35,7 +35,9 @@
   (update-
    [{:type ::system :desktop (desktop?)}]))
 
-(defn start- []
+(defn start-
+  "A worker for processing fact results from async processes"
+  []
   (let [e (executor :fixed {:num-threads 20})]
     (populate-system-facts)
     (info "starting facts processor")
