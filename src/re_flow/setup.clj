@@ -77,5 +77,6 @@
   [?e <- ::cleanup]
   =>
   (let [{:keys [ids]} ?e
-        ids (successful-systems (purge-instances ids))]
-    (insert! (assoc ?e :state ::purged :ids ids :failure (empty? ids)))))
+        purged (successful-systems (purge-instances ids))]
+    (info "purged instances" purged)
+    (insert! (assoc ?e :state ::purged :purged purged :failure (not= purged ids)))))
