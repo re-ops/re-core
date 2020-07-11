@@ -53,7 +53,7 @@
   [?e <- ::spec [{:keys [failure]}] (= failure false)]
   =>
   (info "Starting to run setup instance")
-  (insert!  (assoc ?e :state :re-flow.setup/creating :spec instance)))
+  (insert! (assoc ?e :state :re-flow.setup/creating :spec instance)))
 
 (defrule check-volume
   "Check that our volume is ready and has enough capacity"
