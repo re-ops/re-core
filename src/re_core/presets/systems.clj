@@ -104,10 +104,8 @@
 
 (def ^{:doc "Creating a ec2 VM: (create ec2 ...)"} droplet {:digital-ocean {} :machine {}})
 
-(defn dispoable-instance
-  "Creating a default Ubuntu desktop c4-large instance"
-  []
-  (validate (materialize-preset kvm [default-machine local (os :ubuntu-desktop-20.04) c4-large :disposable "A temporary sandbox"])))
+(def dispoable-instance
+  [default-machine local (os :ubuntu-desktop-20.04) c4-large :disposable "A temporary sandbox"])
 
 (defn refer-system-presets []
   (require '[re-core.presets.systems :as spc :refer [node lxc kvm droplet ec2 os ubuntu-20_04 defaults local default-machine]]))

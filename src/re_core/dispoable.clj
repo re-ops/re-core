@@ -3,13 +3,12 @@
   (:require
    [clojure.core.strint :refer (<<)]
    [me.raynes.fs :as fs]
-   [clojure.core.strint :refer (<<)]
    [clojure.java.io :refer (file)]
    [re-core.repl :refer (spice-into matching systems hosts destroy typed)]
    [re-core.repl.systems :as sys :refer (refer-systems)]
    [re-core.repl.base :refer (refer-base)]
    [es.types :as t]
-   [re-core.presets.systems :as sp]
+   [re-core.presets.systems :refer (dispoable-instance kvm)]
    [re-mote.repl :refer (open-file browse-to)])
   (:import
    [re_mote.repl.base Hosts]
@@ -57,8 +56,8 @@
   [root {:keys [type] :or {type pdfs}}]
   {:pre [(t/exists? "disposable")]}
   (let [fs (pick-files root type)
-        ms (sp/dispoable-instance)
-        [_ m] (run (add- systems (ms true)) | (sys/create) | (block-wait))
+        args dispoable-instance
+        [_ m] (run (valid? systems kvm args) | (add-) | (sys/create) | (block-wait))
         {:keys [system-id]} (-> m :results :success first :args first)]
     (spice-into (matching system-id))
     (doseq [f fs]
@@ -68,8 +67,8 @@
   "Open a file from a provided root directory"
   [url]
   {:pre [(t/exists? "disposable")]}
-  (let [ms (sp/dispoable-instance)
-        [_ m] (run (add- systems (ms true)) | (sys/create) | (block-wait))
+  (let [args dispoable-instance
+        [_ m] (run (valid? systems kvm args) | (add-) | (sys/create) | (block-wait))
         {:keys [system-id]} (-> m :results :success first :args first)]
     (spice-into (matching system-id))
     (browse-to (hosts (matching system-id) :ip) url)))
