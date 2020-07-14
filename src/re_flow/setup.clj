@@ -74,7 +74,7 @@
 
 (defrule cleanup
   "Cleanup instance"
-  [?e <- ::cleanup]
+  [?e <- ::cleanup [{:keys [::purge]}] (= purge true)]
   =>
   (let [{:keys [ids]} ?e
         purged (successful-systems (purge-instances ids))]

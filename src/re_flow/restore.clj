@@ -30,7 +30,8 @@
 (derive ::restored :re-flow.core/state)
 (derive ::done :re-flow.core/state)
 
-(def instance {:base kvm :args [defaults local c1-medium :restore "restore flow instance" (kvm-volume 128 :restore)]})
+(defn instance [size]
+  {:base kvm :args [defaults local c1-medium :restore "restore flow instance" (kvm-volume size :restore)]})
 
 (s/def ::backups string?)
 
@@ -38,8 +39,12 @@
 
 (s/def ::target string?)
 
+(s/def ::size integer?)
+
+(s/def ::timeout integer?)
+
 (s/def ::restore
-  (s/keys :req [::backups ::key ::target]))
+  (s/keys :req [::backups ::key ::target ::size ::timeout]))
 
 (defrule check
   "Check that the fact is matching the ::restore spec"
@@ -53,16 +58,16 @@
   [?e <- ::spec [{:keys [failure]}] (= failure false)]
   =>
   (info "Starting to run setup instance")
-  (insert! (assoc ?e :state :re-flow.setup/creating :spec instance)))
+  (insert! (assoc ?e :state :re-flow.setup/creating :spec (instance (?e ::size)))))
 
 (defrule check-volume
   "Check that our volume is ready and has enough capacity"
   [?e <- :re-flow.setup/provisioned [{:keys [flow failure]}] (= flow ::restore) (= failure false)]
   =>
   (let [r (run-?e datalog/query ?e '[:find ?s :where [?e :disk-stores/name "/dev/vdb"] [?e :disk-stores/size ?s]])
-        size (-> r results flatten first (/ (Math/pow 1024 3)))]
+        size (-> r results flatten first (/ (Math/pow 1024 3) int))]
     (insert!
-     (assoc ?e :state ::volume-ready :failure (and (= (successful-ids r) (?e :ids)) (= size 128.0))))))
+     (assoc ?e :state ::volume-ready :failure (and (= (successful-ids r) (?e :ids)) (= size (?e ::size)))))))
 
 (defn restored? [m]
   (let [{:keys [code]} (-> m vals first)]
@@ -77,7 +82,7 @@
   =>
   (let [backups (edn/read-string (slurp (?e ::backups)))]
     (info (<< "Initiating the restoration process into ~(?e ::target)"))
-    (run-?e-non-block restic/restore ?e ::restored [1 :hour] restored? (backups (?e ::key)) (?e ::target))))
+    (run-?e-non-block restic/restore ?e ::restored [(?e ::timeout) :hour] restored? (backups (?e ::key)) (?e ::target))))
 
 (defrule restoration-successful
   "Processing the restoration result"
