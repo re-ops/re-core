@@ -30,8 +30,8 @@
 (derive ::restored :re-flow.core/state)
 (derive ::done :re-flow.core/state)
 
-(defn instance [size]
-  {:base kvm :args [defaults local c1-medium :restore "restore flow instance" (kvm-volume size :restore)]})
+(defn instance [{:keys [::size ::key]}]
+  {:base kvm :args [defaults local c1-medium :restore (<< "restoring ~{key}") (kvm-volume size :restore)]})
 
 (s/def ::backups string?)
 
@@ -58,14 +58,14 @@
   [?e <- ::spec [{:keys [failure]}] (= failure false)]
   =>
   (info "Starting to run setup instance")
-  (insert! (assoc ?e :state :re-flow.setup/creating :spec (instance (?e ::size)))))
+  (insert! (assoc ?e :state :re-flow.setup/creating :spec (instance ?e))))
 
 (defrule check-volume
   "Check that our volume is ready and has enough capacity"
   [?e <- :re-flow.setup/provisioned [{:keys [flow failure]}] (= flow ::restore) (= failure false)]
   =>
   (let [r (run-?e datalog/query ?e '[:find ?s :where [?e :disk-stores/name "/dev/vdb"] [?e :disk-stores/size ?s]])
-        size (-> r results flatten first (/ (Math/pow 1024 3) int))]
+        size (-> r results flatten first (/ (Math/pow 1024 3)) int)]
     (insert!
      (assoc ?e :state ::volume-ready :failure (and (= (successful-ids r) (?e :ids)) (= size (?e ::size)))))))
 
