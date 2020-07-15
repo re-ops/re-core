@@ -34,9 +34,11 @@
   [f {:keys [ids] :as ?e} & args]
   (apply (partial f (hosts (with-ids ids) :hostname)) args))
 
-(defn fact-callback [fact pred ?e]
+(defn fact-callback
+  [fact pred ?e]
   (fn [timeout m]
-    (enqueue :re-flow.session/facts {:tid (gen-uuid) :args [[{:state fact :timeout timeout :ids (?e :ids) :failure (pred m)}]]})))
+    ;dissociating :result and :spec to bypass serializaion issue with the queue
+    (enqueue :re-flow.session/facts {:tid (gen-uuid) :args [[(merge (dissoc ?e :result :spec) {:state fact :timeout timeout :failure (pred m)})]]})))
 
 (defn run-?e-non-block
   "Run a Hosts function on system ids provided by ?e without blocking for the result.
