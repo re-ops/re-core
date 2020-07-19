@@ -1,4 +1,4 @@
-(ns re-share.config.spec
+(ns re-ops.config.spec
   "Re-ops configuration file spec"
   (:require
    [clojure.spec.alpha :as s]

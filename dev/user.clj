@@ -44,7 +44,7 @@
    ; Re-mote components
    [re-mote.zero.cycle :refer (zero)]
    [re-mote.persist.es :as mote-es :refer (elastic)]
-   [re-share.config.core :as conf]
+   [re-ops.config.core :as conf]
    [re-share.config.secret :refer (load-secrets)]
    [re-share.zero.keys :as k]
    [re-share.schedule :as sc]
