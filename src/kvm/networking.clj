@@ -44,7 +44,7 @@
 
 (defn inet-line
   [lines]
-  (first (filter #(.contains % "inet addr") lines)))
+  (first (filter #(.contains % "inet") lines)))
 
 (defn public-ip
   [c user node id & {:keys [public-nic] :or {public-nic "eth1"}}]
@@ -52,7 +52,6 @@
         cmd (<< "ssh ~{ignore-authenticity} ~{user}@~{nat} -C 'ifconfig ~{public-nic}'")]
     (execute cmd node :out-fn (collect-log uuid))
     (let [log (or (inet-line (get-log uuid)) "")]
-      (if-let [ip (second (re-matches #".*addr\:(\d+\.\d+\.\d+\.\d+).*" log))]
+      (if-let [ip (second (re-matches #".*inet (\d+\.\d+\.\d+\.\d+).*" log))]
         ip
         (throw (ex-info "Failed to grab domain public IP" {:user user :node node :id id :output log}))))))
-
