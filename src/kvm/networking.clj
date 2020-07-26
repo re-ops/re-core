@@ -48,6 +48,7 @@
 
 (defn public-ip
   [c user node id & {:keys [public-nic] :or {public-nic "eth1"}}]
+  (wait-for-nat c id node [1 :minute])
   (let [uuid (gen-uuid) nat (nat-ip c id node)
         cmd (<< "ssh ~{ignore-authenticity} ~{user}@~{nat} -C 'ifconfig ~{public-nic}'")]
     (execute cmd node :out-fn (collect-log uuid))
