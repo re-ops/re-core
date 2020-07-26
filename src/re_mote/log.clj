@@ -23,8 +23,9 @@
 (defn log-output
   "Output log stream"
   [out host]
-  (doseq [line (line-seq (reader out))]
-    (debug  (<< "[~{host}]:") line)))
+  (with-open [r (reader out)]
+    (doseq [line (line-seq r)]
+      (debug  (<< "[~{host}]:") line))))
 
 (defn process-line
   "process a single log line"
@@ -35,8 +36,9 @@
   "Collect log output into logs atom"
   [uuid]
   (fn [out host]
-    (let [lines (doall (map (partial process-line host) (line-seq (reader out))))]
-      (swap! logs (fn [m] (assoc m uuid  {:ts (t/now) :lines lines}))))))
+    (with-open [r (reader out)]
+      (let [lines (doall (map (partial process-line host) (line-seq r)))]
+        (swap! logs (fn [m] (assoc m uuid  {:ts (t/now) :lines lines})))))))
 
 (defn get-log
   "Getting log entry and clearing it"
