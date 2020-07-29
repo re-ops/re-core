@@ -56,33 +56,33 @@
           (throw (ex-info (<< "Async operation failed due to '~(metadata :err)'") metadata))
           :success)
         (recur
-         (:metadata (run http/get (subs operation 4) node)) (+ 1 attempts))))))
+         (:metadata (run http/get (subs operation 5) node)) (+ 1 attempts))))))
 
 (defn get
   "Get container information"
   [node {:keys [name]}]
   {:pre [name]}
-  (run http/get (<< "containers/~{name}") node))
+  (run http/get (<< "instances/~{name}") node))
 
 (defn state
   "Get container current state"
   [node {:keys [name]}]
   {:pre [name]}
-  (run http/get (<< "containers/~{name}/state") node))
+  (run http/get (<< "instances/~{name}/state") node))
 
 (defn delete
   "Get container information"
   [node {:keys [name]}]
   {:pre [name]}
-  (async-status node (run http/delete (<< "containers/~{name}") node)))
+  (async-status node (run http/delete (<< "instances/~{name}") node)))
 
 (defn into-names [{:keys [metadata]}]
-  (map #(s/replace % #"\/1.0\/containers\/" "") metadata))
+  (map #(s/replace % #"\/1.0\/instances\/" "") metadata))
 
 (defn list
-  "List containers in lxd instance"
+  "List instances in lxd instance"
   [node]
-  (run http/get "containers" node))
+  (run http/get "instances" node))
 
 (defn image
   "Get image information"
@@ -92,17 +92,17 @@
 (defn get-metadata
   "Get container metadata"
   [node {:keys [name]}]
-  (:metadata (run http/get (<< "containers/~{name}/metadata") node)))
+  (:metadata (run http/get (<< "instances/~{name}/metadata") node)))
 
 (defn update-metadata
   "Update container metadata"
   [node {:keys [name]} m]
-  (run http/put (<< "containers/~{name}/metadata") node (into-body m)))
+  (run http/put (<< "instances/~{name}/metadata") node (into-body m)))
 
 (defn create
   "Create container using http api"
   [node container]
-  (async-status node (run http/post "containers" node (into-body container))))
+  (async-status node (run http/post "instances" node (into-body container))))
 
 (defn action [op]
   {:action op :timeout 5000 :force false :stateful false})
@@ -110,7 +110,7 @@
 (defn change-state
   "Change container state"
   [node name op]
-  (async-status node (run http/put (<< "containers/~{name}/state") node (into-body (action op)))))
+  (async-status node (run http/put (<< "instances/~{name}/state") node (into-body (action op)))))
 
 (defn start
   "start container"
@@ -161,7 +161,7 @@
            :devices {}
            :ephemeral false
            :config {:limits.cpu "1" :limits.memory "500"}
-           :source {:type "image" :alias "ubuntu-18.04.2_corretto-8"}})
+           :source {:type "image" :alias "ubuntu-20.04_corretto-8"}})
 
   (require '[clojure.pprint :refer (pprint)])
 
