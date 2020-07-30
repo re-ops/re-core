@@ -6,6 +6,7 @@
   }
 
   :re-mote {
+    :port 9000
     :elasticsearch {
       :index "re-mote"
     }
