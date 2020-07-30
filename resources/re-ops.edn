@@ -30,21 +30,22 @@
            :access-key #ref [:secrets :aws :access-key]
            :secret-key #ref [:secrets :aws :secret-key]
            :ostemplates {
-              :ubuntu-18.04 {:ami "" :flavor :debian}
+              :ubuntu-20.04 {:ami "" :flavor :debian}
            }
         }
 
         :kvm {
           :nodes {
             :localhost {
-              :username "ronen" :host "localhost" :port 22
+              :username "re-ops" :host "localhost" :port 22
               :pools {
                  :default {:path "/var/lib/libvirt/images/"}
               }
             }
           }
           :ostemplates {
-            :ubuntu-18.04.2 {:template "ubuntu-18.04.2" :flavor :debian}
+            :ubuntu-20.04 {:template "ubuntu-20.04_corretto-8" :flavor :debian}
+
           }
         }
 
@@ -52,7 +53,7 @@
           :token #ref [:secrets :digital-ocean :token]
           :ssh-key ""
             :ostemplates {
-               :ubuntu-18.04  {:image "" :flavor :debian}
+               :ubuntu-20.04  {:image "" :flavor :debian}
             }
         }
 
@@ -71,7 +72,7 @@
           }
 
           :ostemplates {
-            :ubuntu-18.04 {:template "ubuntu-18.04.2" :flavor :debian}
+            :ubuntu-20.04 {:template "ubuntu-20.04_corretto-8" :flavor :debian}
           }
          }
        }
@@ -90,7 +91,7 @@
       :default {
         :hosts ["https://localhost:9200"]
         :auth {
-          :user ""
+          :user "elastic"
           :password #ref [:secrets :elasticsearch :password]
          }
          :self? true
