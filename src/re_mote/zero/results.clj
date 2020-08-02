@@ -51,7 +51,7 @@
 (defn get-results [hosts uuid]
   (let [ks (set (keys (result uuid)))]
     (when (every? ks hosts)
-      (debug "got all results for" uuid)
+      (trace "got all results for" uuid)
       (result uuid))))
 
 (defn missing-results [hosts uuid]
