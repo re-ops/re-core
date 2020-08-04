@@ -59,7 +59,7 @@
 
         :lxc {
           :auth {
-             :path #join [#env HOME "/.config/lxc"]
+             :path #join [#env HOME "/snap/lxd/current/.config/lxc"]
              :p12 "certificate.p12"
              :password #ref [:secrets :lxc :pass]
              :crt "127.0.0.1.crt"
@@ -99,7 +99,7 @@
     }
 
     :ssh {
-      :private-key-path "id_rsa"
+      :private-key-path "/home/re-ops/.ssh/id_rsa"
     }
 
     :pgp {
