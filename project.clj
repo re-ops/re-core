@@ -21,7 +21,7 @@
 
                  ; re-ops
                  [re-share "0.16.4"]
-                 [re-cog "0.4.18"]
+                 [re-cog "0.4.19"]
                  [re-cipes "0.1.26"]
                  [re-scan "0.2.1"]
 
