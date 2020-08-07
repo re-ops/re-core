@@ -6,6 +6,7 @@
    [clojure.tools.namespace.repl :refer (refresh refresh-all)]
    ; Re-flow
    [re-flow.core :refer (trigger)]
+   [re-flow.common :refer (create-fact)]
    [re-flow.session :refer (session facts-updater)]
    ; Re-core
    [re-core.repl.results :refer (refer-results)]

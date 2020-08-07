@@ -10,6 +10,9 @@
 
 (refer-timbre)
 
+(defn create-fact [base & args]
+  {:state :re-flow.setup/creating :spec {:base base :args args}})
+
 (defn successful-systems
   "Get the successful system ids from a Re-core pipeline result"
   [f]
