@@ -67,7 +67,7 @@
   (let [{:keys [ids]} ?e]
     (info "provisioning" ids)
     (let [provisioned (successful-systems (run-provisioning ids))]
-      (insert! (assoc ?e :state ::provisioned :failure (not= provisioned ids))))))
+      (insert! (assoc ?e :state ::provisioned :failure (not= provisioned ids) :message "instance provisioned successfully")))))
 
 (defn purge-instances [ids]
   (destroy (with-ids ids) {:force true}))
