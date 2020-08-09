@@ -5,9 +5,19 @@
    [re-share.spec :as re-ops]))
 
 ; Shared
+
+(defn complex? [p]
+  "Password complexity requirements:
+     1. Minimum of eight characters.
+     2. Minimum of:
+         * One small letter.
+         * One upercase letter.
+         * One number.
+         * One special character."
+  (re-matches #"^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$" p))
+
 (s/def ::password
-  ; Minimum eight characters, at least one letter, one number and one special character:
-  (s/and string? #(re-matches #"^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$" %)))
+  (s/and string? complex?))
 
 (s/def ::index string?)
 
