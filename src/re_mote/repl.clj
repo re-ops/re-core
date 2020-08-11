@@ -154,29 +154,19 @@
   (run> (load-avg hs) | (enrich "load") | (persist) | (riemann)))
 
 ; Packaging
-(defn- update-
-  "Update with downgrading"
-  [hs]
-  (run> (zpkg/update hs) | (downgrade pkg/update) | (pretty "update")))
-
-(defn- upgrade-
-  "Run upgrade with downgrading (private)"
-  [hs m]
-  (run> (zpkg/upgrade hs) | (downgrade pkg/upgrade)))
-
 (defn ^{:category :packaging} update
   "Update the package repository of the hosts:
      (update hs)
   "
   [hs]
-  (run (update- hs) | (email "package update") | (enrich "update") | (persist)))
+  (run (zpkg/update hs) | (email "package update") | (enrich "update") | (persist)))
 
 (defn ^{:category :packaging} upgrade
   "Run package update followed by an upgrade on hosts that were updated successfully:
      (upgrade hs)
     "
   [hs]
-  (run (update- hs) | (pick successful) | (upgrade-) | (pretty "upgrade") | (email "package upgrade") | (enrich "upgrade") | (persist)))
+  (run (zpkg/update hs) | (pick successful) |  (zpkg/upgrade) | (pretty "upgrade") | (email "package upgrade") | (enrich "upgrade") | (persist)))
 
 (defn ^{:category :packaging} install
   "Install a package on hosts:
