@@ -8,7 +8,10 @@ This repository includes two main components:
 
 Both components are a part of the [Re-ops](https://re-ops.github.io/re-ops/) project that offers a live coding environment for configuration management.
 
-For more detailed information please follow the [setup](https://re-ops.github.io/re-docs/setup/) and [usage](https://re-ops.github.io/re-docs/usage/) guides.
+For more detailed information please follow:
+  * [Quickstart](https://re-ops.github.io/re-docs/quickstart/) for getting LXC and Re-core running quickly on a local machine
+  * [Usage](https://re-ops.github.io/re-docs/usage/) in order to learn how to utilize the different components.
+  * [Configuration](https://re-ops.github.io/re-docs/configuration/) in order to learn how to utilize the different components.
 
 [![Build Status](https://travis-ci.org/re-ops/re-core.png)](https://travis-ci.org/re-ops/re-core)
 
