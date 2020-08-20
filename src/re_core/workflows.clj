@@ -15,9 +15,9 @@
    [es.types :as t]
    [re-mote.repl :as mote]
    [es.systems :as s]
-   [clojure.core.strint :refer (<<)]
    [re-core.model :refer (vconstruct)]
    [taoensso.timbre :refer (refer-timbre)]
+   [com.rpl.specter :refer (transform select ALL)]
    [clojure.core.match :refer (match)])
   (:import
    [re_core.repl.base Systems]))
@@ -120,6 +120,11 @@
     [{:out out}] out
     :else "Failed to resolve error message please check the error logs!"))
 
+(defn purge-args
+  "Removing args from result in order to avoid persistence into ES"
+  [result]
+  (transform [1 :success ALL :result ALL :resources ALL] (fn [m] (dissoc m :args)) result))
+
 (defn provision
   "provision a single! system"
   [{:keys [machine type] :as spec}]
@@ -131,11 +136,12 @@
           {:keys [cog]} (t/get! type)
           result (mote/provision host into-hostnames cog)]
       (info "done provisioning system")
+
       (let [{:keys [failure]} (second result)]
         (if-not (empty? failure)
           (let [e (-> failure vals first first)]
             (throw (ex-info (error-message e) e)))
-          result)))
+          (purge-args result))))
     (catch Exception e
       (error-m e)
       (throw e))))
