@@ -123,7 +123,8 @@
 (defn purge-args
   "Removing args from result in order to avoid persistence into ES"
   [result]
-  (transform [1 :success ALL :result ALL :resources ALL] (fn [m] (dissoc m :args)) result))
+  (transform [1 :success ALL :result ALL :resources ALL :args]
+             (fn [args] (map str (flatten (map (fn [a] (if (map? a) (seq a) a)) args)))) result))
 
 (defn provision
   "provision a single! system"
