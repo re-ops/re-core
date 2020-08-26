@@ -26,6 +26,9 @@
 (defmethod into-events :cpu cpu-events [m]
   (stat-events m))
 
+(defmethod into-events :usb usb-events [m]
+  [(merge m {:ttl 60 :service "usb"})])
+
 (defmethod into-events :load load-events [{:keys [type stats timestamp] :as m}]
   (let [cores (select-keys (stats (keyword type)) #{:cores})]
     (map
