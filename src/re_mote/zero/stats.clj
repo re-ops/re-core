@@ -1,19 +1,17 @@
 (ns re-mote.zero.stats
   "General machine stats"
   (:require
-   [re-mote.repl.base]
+   re-mote.repl.base
    [re-cog.scripts.stats :refer (net-script cpu-script free-script load-script du-script entropy-script)]
    [clojure.core.strint :refer (<<)]
    [clojure.string :refer (split split-lines)]
-   [clojure.tools.trace :as tr]
    [re-mote.zero.pipeline :refer (run-hosts)]
    [taoensso.timbre :refer (refer-timbre)]
    [com.rpl.specter :as s :refer (transform select MAP-VALS ALL ATOM keypath multi-path)]
    [clj-time.core :as t]
    [clj-time.coerce :refer (to-long)]
    [re-cog.scripts.common :refer (shell-args shell)]
-   [re-share.schedule :refer (watch seconds)]
-   re-mote.repl.base)
+   [re-share.schedule :refer (watch seconds)])
   (:import re_mote.repl.base.Hosts))
 
 (refer-timbre)

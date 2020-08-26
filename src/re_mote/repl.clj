@@ -20,6 +20,7 @@
    [re-mote.repl.spec :refer (refer-spec)]
    [re-mote.repl.octo :refer (refer-octo)]
    [re-mote.zero.restic :refer (refer-restic)]
+   [re-mote.zero.devices :refer (refer-devices)]
    [re-mote.zero.stats :refer (refer-stats)]
    [re-mote.zero.security :refer (refer-security)]
    [re-mote.zero.sensors :refer (refer-zero-sensors)]
@@ -40,6 +41,7 @@
 (refer-base)
 (refer-out)
 (refer-stats)
+(refer-devices)
 (refer-security)
 (refer-zero-sensors)
 (refer-pkg)
@@ -152,6 +154,15 @@
    "
   [hs]
   (run> (load-avg hs) | (enrich "load") | (persist) | (riemann)))
+
+; Device tracking
+
+(defn ^{:category :stats} usb-devices
+  "Read average load and persist is (metrics collection):
+     (load-persist hs)
+   "
+  [hs]
+  (run> (usb hs) | (enrich "usb") | (riemann)))
 
 ; Packaging
 (defn ^{:category :packaging} update
