@@ -23,7 +23,7 @@
 (defn grab-nat [c id node]
   (let [[nic mac] (first (macs c id))
         uuid (gen-uuid)
-        code (execute (<< "arp -i ~{nic}") node :out-fn (collect-log uuid))]
+        code (execute (<< "arp -n -i ~{nic}") node :out-fn (collect-log uuid))]
     (when (= code 127)
       (throw (ex-info "arp is missing, please install net-tools" {})))
     (let [addresses (map (fn [line] (zipmap [:address :type :hwaddress] (split line #"\s+"))) (get-log uuid))
