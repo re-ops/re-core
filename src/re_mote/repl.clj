@@ -264,3 +264,18 @@
   "
   [hs target]
   (run> (processes hs target) | (pretty "process-matching")))
+
+; backup
+(defn run-backups
+  ([hs bs]
+   (run-backups hs bs [24 :hours]))
+  ([hs bs t]
+   (map
+    (fn [[k b]] (run> (backup hs b t) | (email (<< "restic backup of ~{k}")))) bs)))
+
+(defn check-backups
+  ([hs bs]
+   (check-backups hs bs [2 :hours]))
+  ([hs bs t]
+   (map
+    (fn [[k b]] (run (check hs b t) | (email (<< "restic check of ~{k}")))) bs)))
