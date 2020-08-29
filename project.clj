@@ -116,7 +116,7 @@
 
   :exclusions [org.clojure/clojure com.taoensso/timbre commons-codec prismatic/schema]
 
-  :plugins  [[lein-cljfmt "0.5.6"]
+  :plugins  [[lein-cljfmt "0.6.8"]
              [lein-ancient "0.6.15" :exclusions [org.clojure/clojure]]
              [self-build "0.0.9"]
              [lein-tag "0.1.0"]
@@ -161,13 +161,12 @@
        "re-core.integration.es.systems"
       ]
       "travis" [
-        "with-profile" "test" "do" "unit," "integration," "cljfmt" "check"
+        "with-profile" "test" "do" "unit," "integration"
       ]
       "docs" [
          "with-profile" "codox" "do" "codox"
       ]
    }
-
 
   :repositories  {"bintray"  "https://dl.bintray.com/content/narkisr/narkisr-jars"
                   "sonatype" "https://oss.sonatype.org/content/repositories/releases"
