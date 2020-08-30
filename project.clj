@@ -21,7 +21,7 @@
 
                  ; re-ops
                  [re-share "0.16.4"]
-                 [re-cog "0.4.23"]
+                 [re-cog "0.5.0"]
                  [re-cipes "0.1.30"]
                  [re-scan "0.2.1"]
 
@@ -161,7 +161,7 @@
        "re-core.integration.es.systems"
       ]
       "travis" [
-        "with-profile" "test" "do" "unit," "integration"
+        "with-profile" "test" "do" "unit," "integration, cljfmt check"
       ]
       "docs" [
          "with-profile" "codox" "do" "codox"

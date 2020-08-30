@@ -14,7 +14,7 @@
   Devices
   (usb
     ([this]
-     [this (run-hosts this run-query  ['[:find ?v :where [_ :usb-devices/connected-devices/name ?v]]] [5 :second])])
+     [this (run-hosts this run-query  ['[:find ?v :where [_ :usb-devices/connected-devices.name ?v]]] [5 :second])])
     ([this _]
      (usb this))))
 

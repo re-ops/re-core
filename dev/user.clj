@@ -139,7 +139,7 @@
    're-core.features.lxc
    ;; 're-core.features.ec2
    ;; 're-core.features.digital
-))
+   ))
 
 (defn es-switch
   "Switch ES connection"
