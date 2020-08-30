@@ -161,7 +161,7 @@
        "re-core.integration.es.systems"
       ]
       "travis" [
-        "with-profile" "test" "do" "unit," "integration, cljfmt check"
+        "with-profile" "test" "do" "unit," "integration," "cljfmt" "check"
       ]
       "docs" [
          "with-profile" "codox" "do" "codox"
