@@ -32,7 +32,7 @@
    [me.raynes.fs :refer (extension file?)]
    ; Logging
    [re-share.log :refer (redirect-output debug-on debug-off)]
-   [re-core.log :refer (setup-logging)]
+   [re-core.log :refer (setup-logging disable-coloring)]
    ; Elasticsearch
    [rubber.core :refer :all :exclude (clear get create call)]
    ; Re-mote
@@ -79,6 +79,7 @@
   (load-secrets "secrets" "/tmp/secrets.edn" "keys/secret.gpg")
   (conf/load-config)
   (setup-logging)
+  (disable-coloring)
   (k/create-server-keys ".curve")
   (mount/start #'elastic #'zero #'queue #'workers #'riemann #'session #'facts-updater)
   (mote-es/initialize)
