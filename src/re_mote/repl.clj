@@ -270,8 +270,8 @@
   ([hs bs]
    (run-backups hs bs [24 :hours]))
   ([hs bs t]
-   (map
-    (fn [[k b]] (run> (backup hs b t) | (email (<< "restic backup of ~{k}")))) bs)))
+   (doseq [[k b] bs]
+     (run (backup hs b t) | (email (<< "restic backup of ~{k}"))))))
 
 (defn check-backups
   ([hs bs]
