@@ -19,6 +19,6 @@
     - log level
   "
   [& {:keys [interval level] :or {interval 10 level :info}}]
-  (log/setup "re-core" ["net.schmizz.*" "org.elasticsearch.*" "org.apache.http.*"] ["re-mote.output"])
+  (log/setup "re-core" ["net.schmizz.*" "org.elasticsearch.*" "org.apache.http.*" "com.hierynomus.sshj.userauth.keyprovider.*"] ["re-mote.output"])
   (set-level! level))
 
