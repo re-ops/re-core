@@ -18,9 +18,12 @@
   (or (:state fact) (:type fact)))
 
 (defn initialize []
-  (atom (mk-session 're-flow.queries 're-flow.setup 're-flow.restore 're-flow.notification :fact-type-fn fact-type :cache false)))
+  (atom
+   (mk-session 're-flow.queries 're-flow.setup 're-flow.restore 're-flow.notification :fact-type-fn fact-type :cache false)))
 
-(def session (initialize))
+(defstate session
+  :start (initialize)
+  :stop (reset! session nil))
 
 (defn update- [facts]
   (let [new-facts (reduce (fn [s fact] (insert s fact)) @session facts)]
