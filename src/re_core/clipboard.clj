@@ -10,3 +10,7 @@
     (-> clipboard
         (.getContents nil)
         (.getTransferData (DataFlavor/stringFlavor)))))
+
+(defn set-clipboard [s]
+  (let [clipboard (.getSystemClipboard (java.awt.Toolkit/getDefaultToolkit))]
+    (.setContents clipboard (StringSelection. s) nil)))
