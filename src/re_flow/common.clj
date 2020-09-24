@@ -41,7 +41,9 @@
   [fact pred ?e]
   (fn [timeout m]
     ;dissociating :result and :spec to bypass serializaion issue with the queue
-    (enqueue :re-flow.session/facts {:tid (gen-uuid) :args [[(merge (dissoc ?e :result :spec) {:state fact :timeout timeout :failure (pred m)})]]})))
+    (enqueue :re-flow.session/facts
+             {:tid (gen-uuid)
+              :args [[(merge (dissoc ?e :result :spec) {:state fact :timeout timeout :failure (pred m)})]]})))
 
 (defn run-?e-non-block
   "Run a Hosts function on system ids provided by ?e without blocking for the result.
