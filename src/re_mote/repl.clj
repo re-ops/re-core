@@ -236,17 +236,21 @@
 
 ; basic tasks
 (defn copy-to
-  "Copy a local file into remote hosts"
+  "Copy a local file into remote hosts:
+    (copy-to (hosts (matching  \"foo\") :ip) \"/tmp/1\" \"/home/re-ops/bar\")
+  "
   [hs src dest]
   (run (scp-into hs src dest) | (pretty "file copied")))
 
 (defn copy-from
-  "Copy a file from remote hosts locally"
+  "Copy a file from remote hosts locally:
+    (copy-from (hosts (matching  \"foo\") :ip) \"/home/re-ops/bar\" \"/tmp/1\")
+  "
   [hs src dest]
   (run (scp-from hs src dest) | (pretty "file downloaded")))
 
 (defn copy-from-to
-  "Copy a file from a single host and then copy them into other set of remote hosts (file distribution)
+  "Copy a file from a single host and then copy it into other set of remote hosts (file distribution)
     (copy-from-to (hosts (matching  \"foo\") :ip) (hosts (matching  \"foo\") :ip) \"/home/re-ops/bar\" \"/tmp/1\")
    "
   [src-host dst-hosts src dest]
