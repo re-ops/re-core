@@ -235,17 +235,29 @@
   (run (git/pull hs repo remote branch) | (pretty "git pull")))
 
 ; basic tasks
-(defn copy-file-to
-  "Copy a local file to hosts"
+(defn copy-to
+  "Copy a local file into remote hosts"
   [hs src dest]
   (run (scp-into hs src dest) | (pretty "file copied")))
 
-(defn copy-file-from
-  "Copy a file from hosts locally"
+(defn copy-from
+  "Copy a file from remote hosts locally"
   [hs src dest]
   (run (scp-from hs src dest) | (pretty "file downloaded")))
 
-; desktop
+(defn copy-from-to
+  "Copy a file from a single host and then copy them into other set of remote hosts (file distribution)
+    (copy-from-to (hosts (matching  \"foo\") :ip) (hosts (matching  \"foo\") :ip) \"/home/re-ops/bar\" \"/tmp/1\")
+   "
+  [src-host dst-hosts src dest]
+  (let [file (last (clojure.string/split src #"\/"))]
+    (run (scp-from src-host src (<< "/tmp/")) | (pretty "file downloaded from host"))
+    (run (scp-into dst-hosts (<< "/tmp/~{file}") dest) | (pretty "file uploaded into hosts"))
+    (me.raynes.fs/delete (<< "/tmp/~{file}"))))
+
+; Desktop
+
+
 (defn browse-to
   "Open a browser url:
     (browse-to hs \"github.com\")
