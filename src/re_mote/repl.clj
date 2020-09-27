@@ -204,9 +204,9 @@
      (deploy hs \"re-gent/target/re-gent\")"
   [{:keys [auth] :as hs} bin]
   (let [{:keys [user]} auth home (<< "/home/~{user}") dest (<< "~{home}/.curve")]
-    (run (mkdir hs dest "-p") | (scp ".curve/server-public.key" dest) | (pretty "curve copy"))
+    (run (mkdir hs dest "-p") | (scp-into ".curve/server-public.key" dest) | (pretty "curve copy"))
     (run (kill-agent hs) | (pretty "kill agent"))
-    (run> (scp hs bin home) | (pick successful) | (start-agent home) | (pretty "scp"))))
+    (run> (scp-into hs bin home) | (pick successful) | (start-agent home) | (pretty "scp"))))
 
 (defn ^{:category :re-gent} kill
   "Kill a re-gent process on all of the hosts:
@@ -235,10 +235,15 @@
   (run (git/pull hs repo remote branch) | (pretty "git pull")))
 
 ; basic tasks
-(defn copy-file
+(defn copy-file-to
   "Copy a local file to hosts"
   [hs src dest]
-  (run (scp hs src dest) | (pretty "file opened")))
+  (run (scp-into hs src dest) | (pretty "file copied")))
+
+(defn copy-file-from
+  "Copy a file from hosts locally"
+  [hs src dest]
+  (run (scp-from hs src dest) | (pretty "file downloaded")))
 
 ; desktop
 (defn browse-to
@@ -254,7 +259,7 @@
    "
   [hs src]
   (let [dest (<< "/tmp/~(fs/base-name src)")]
-    (run (scp hs src dest) | (browse dest) | (pretty "file opened"))))
+    (run (scp-into hs src dest) | (browse dest) | (pretty "file opened"))))
 
 ; process management
 

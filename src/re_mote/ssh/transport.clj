@@ -74,6 +74,13 @@
         (reportProgress [transferred]
           (debug (<< "transferred ~(int (/ (* transferred 100) size))% of ~{name*}")))))))
 
+(defn download
+  [src dst remote]
+  (with-ssh remote
+    (let [scp (.newSCPFileTransfer ssh)]
+      (.setTransferListener scp listener)
+      (.download scp src (FileSystemFile. dst)))))
+
 (defn upload
   [src dst remote]
   (when-not (.exists (io/file src))

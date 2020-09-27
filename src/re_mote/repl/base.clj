@@ -5,7 +5,7 @@
    [clojure.core.strint :refer (<<)]
    [taoensso.timbre :refer (refer-timbre)]
    [clojure.core.incubator :refer (dissoc-in)]
-   [re-mote.ssh.pipeline :refer (run-hosts upload-hosts)]
+   [re-mote.ssh.pipeline :refer (run-hosts upload-hosts download-hosts)]
    [re-mote.spec :refer (pipeline!)]
    [re-cog.scripts.common :refer (bind-bash)]
    [pallet.stevedore :refer (script)]))
@@ -66,7 +66,10 @@
   (ping [this target]))
 
 (defprotocol Copy
-  (scp
+  (scp-into
+    [this src dest]
+    [this m src dest])
+  (scp-from
     [this src dest]
     [this m src dest])
   (sync-2
@@ -163,11 +166,17 @@
     [this (run-hosts this (script ("tar" "-xzf" ~archive "-C" ~target)))])
 
   Copy
-  (scp [this _ src target]
-    (scp this src target))
+  (scp-into [this _ src target]
+    (scp-into this src target))
 
-  (scp [this src target]
+  (scp-into [this src target]
     [this (upload-hosts this src target)])
+
+  (scp-from [this _ src target]
+    (scp-from this src target))
+
+  (scp-from [this src target]
+    [this (download-hosts this src target)])
 
   (sync- [this _ src target]
     (sync- this src target))
@@ -192,6 +201,6 @@
 
 (defn refer-base []
   (require '[re-mote.repl.base :as base :refer
-             (run> run | initialize pick successful ping ls convert
-                   exec scp extract rm nohup mkdir sync- sync-2 downgrade null)]))
+             (run> run | initialize pick successful ping ls convert exec scp-into
+                   scp-from extract rm nohup mkdir sync- sync-2 downgrade null)]))
 

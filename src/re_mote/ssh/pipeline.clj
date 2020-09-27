@@ -5,7 +5,7 @@
    [re-mote.spec :as re-spec :refer (valid?)]
    [clojure.core.strint :refer (<<)]
    [me.raynes.fs :as fs]
-   [re-mote.ssh.transport :refer (execute upload)]
+   [re-mote.ssh.transport :refer (execute upload download)]
    [re-mote.log :refer (collect-log get-log)]
    [clojure.core.async :refer (<!! thread-call) :as async]))
 
@@ -25,6 +25,17 @@
   [f ms]
   (<!! (async/into [] (async/merge (map #(thread-call (bound-fn []  (f %))) ms)))))
 
+(defn- host-download
+  "Download a single file"
+  [auth src dest h]
+  {:pre [(fs/directory? dest)]}
+  (let [uuid (gen-uuid)]
+    (try
+      (download src dest (merge {:host h} auth))
+      {:host h :code 0 :uuid uuid}
+      (catch Throwable e
+        {:host h :code 1 :error {:out (or (.getMessage e) (str e))} :uuid uuid}))))
+
 (defn- host-upload
   "Upload a single file"
   [auth src dest h]
@@ -35,6 +46,14 @@
       {:host h :code 0 :uuid uuid}
       (catch Throwable e
         {:host h :code 1 :error {:out (or (.getMessage e) (str e))} :uuid uuid}))))
+
+(defn download-hosts [{:keys [auth hosts]} src dest]
+  {:post [(valid? ::re-spec/operation-result %)]}
+  (when-not (fs/exists? dest)
+    (throw (ex-info (<< "missing destination folder to download file into ~{dest}") {:dest dest})))
+  (let [results (map-async (partial host-download auth src dest) hosts)
+        grouped (group-by :code results)]
+    {:hosts hosts :success (or (grouped 0) []) :failure (dissoc grouped 0)}))
 
 (defn upload-hosts [{:keys [auth hosts]} src dest]
   {:post [(valid? ::re-spec/operation-result %)]}
