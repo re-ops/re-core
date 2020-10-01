@@ -3,12 +3,10 @@
    For more info check https://re-ops.github.io/re-ops/"
   (:refer-clojure :exclude  [update])
   (:require
-   [re-share.config.core :as conf]
    [me.raynes.fs :as fs]
    [clojure.core.strint :refer (<<)]
    [re-mote.repl.cog :refer (refer-cog)]
    [re-mote.validate :refer (check-entropy check-jce)]
-   [clojure.pprint :refer (pprint)]
    [taoensso.timbre :refer (refer-timbre)]
    [re-mote.repl.base :refer (refer-base)]
    [re-mote.persist.es :refer (refer-es-persist)]
@@ -72,7 +70,7 @@
   [h & m]
   (Hosts. (merge {:user "re-ops"} (first m)) [h]))
 
-; security
+; Security
 
 (defn ^{:category :security} ports-persist
   "Scan for open ports and persist into ES:
@@ -104,8 +102,7 @@
   [hs]
   (run> (security/ssh-sessions hs) | (enrich "ssh-sessions") | (persist)))
 
-; persistent stats
-
+; Persistent stats
 
 (defn ^{:category :stats} du-persist
   "Collect disk usage with persist (metrics collection):
@@ -165,6 +162,7 @@
   (run> (usb hs) | (enrich "usb") | (riemann)))
 
 ; Packaging
+
 (defn ^{:category :packaging} update
   "Update the package repository of the hosts:
      (update hs)
@@ -187,6 +185,7 @@
   (run (zpkg/install hs pkg) | (downgrade pkg/install [pkg]) | (pretty "package install")))
 
 ; Re-cog
+
 (defn ^{:category :re-cog} provision
   "Provision hosts copying local file resources and then applying  a provisioning plan:
      (provision hs into-hostnames {:src src :plan p :args args})
@@ -199,6 +198,7 @@
     (run> (rm hs dest "-rf") | (sync- src dest) | (pick successful) | (convert into-hostnames) | (run-plan plan args))))
 
 ; Re-gent
+
 (defn ^{:category :re-gent} deploy
   "Deploy re-gent and setup .curve remotely:
      (deploy hs \"re-gent/target/re-gent\")"
@@ -234,7 +234,8 @@
   [hs {:keys [repo remote branch]}]
   (run (git/pull hs repo remote branch) | (pretty "git pull")))
 
-; basic tasks
+; Basic tasks
+
 (defn copy-to
   "Copy a local file into remote hosts:
     (copy-to (hosts (matching  \"foo\") :ip) \"/tmp/1\" \"/home/re-ops/bar\")
@@ -261,7 +262,6 @@
 
 ; Desktop
 
-
 (defn browse-to
   "Open a browser url:
     (browse-to hs \"github.com\")
@@ -277,7 +277,7 @@
   (let [dest (<< "/tmp/~(fs/base-name src)")]
     (run (scp-into hs src dest) | (browse dest) | (pretty "file opened"))))
 
-; process management
+; Process management
 
 (defn process-matching
   "Find processes matching target name:
@@ -286,7 +286,8 @@
   [hs target]
   (run> (processes hs target) | (pretty "process-matching")))
 
-; backup
+; Backup
+
 (defn run-backups
   ([hs bs]
    (run-backups hs bs [24 :hours]))
