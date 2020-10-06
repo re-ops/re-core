@@ -7,6 +7,7 @@
    [re-mote.repl :refer :all :exclude (provision)]
    [re-core.repl :refer :all]
    [re-flow.common :refer (successful-systems)]
+   [clojure.core.strint :refer (<<)]
    [clara.rules :refer :all])
   (:import clojure.lang.ExceptionInfo))
 
@@ -67,7 +68,10 @@
   (let [{:keys [ids]} ?e]
     (info "provisioning" ids)
     (let [provisioned (successful-systems (run-provisioning ids))]
-      (insert! (assoc ?e :state ::provisioned :failure (not= provisioned ids) :message "instance provisioned successfully")))))
+      (doseq [id provisioned]
+        (insert! (assoc ?e :state ::provisioned :failure false :id id :message (<< "instance ~{id} provisioned successfully"))))
+      (doseq [id (filter (comp not (into #{} provisioned)) ids)]
+        (insert! (assoc ?e :state ::provisioned :failure true :id id :message (<< "instance ~{id} failed to provision")))))))
 
 (defn purge-instances [ids]
   (destroy (with-ids ids) {:force true}))
