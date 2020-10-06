@@ -67,7 +67,9 @@
   (let [r (run-?e datalog/query ?e '[:find ?s :where [?e :disk-stores/name "/dev/vdb"] [?e :disk-stores/size ?s]])
         size (-> r results flatten first (/ (Math/pow 1024 3)) int)]
     (insert!
-     (assoc ?e :state ::volume-ready :failure (and (= (successful-ids r) (?e :ids)) (= size (?e ::size)))))))
+     (-> ?e
+         (dissoc :message :failure)
+         (assoc :state ::volume-ready :failure (and (= (successful-ids r) (?e :ids)) (= size (?e ::size))))))))
 
 (defn restored? [m]
   (let [{:keys [code]} (-> m vals first)]
