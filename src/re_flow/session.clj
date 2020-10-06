@@ -26,8 +26,7 @@
   :stop (reset! session nil))
 
 (defn update- [facts]
-  (let [new-facts (reduce (fn [s fact] (insert s fact)) @session facts)]
-    (reset! session (fire-rules new-facts))))
+  (reset! session (fire-rules (insert-all @session facts))))
 
 (derive ::system :re-flow.session/type)
 
