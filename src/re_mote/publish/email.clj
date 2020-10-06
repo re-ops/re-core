@@ -13,7 +13,7 @@
 
 (defn send-email
   ([subject address body]
-   (send-email body address subject nil))
+   (send-email subject address body nil))
   ([subject address body attachments]
    (let [body' (if-not attachments {:body body} {:body (into [:alternative {:type "text/html" :content body}] attachments)})
          message (merge address {:subject subject} body')]
