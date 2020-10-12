@@ -90,19 +90,19 @@
   (watch :result-ttl-prunning (seconds 30) prune))
 
 ; Result collection
-(defn codes [v]
+(defn codes [host v]
   "Mapping result to exit code, keeping compatible with ssh pipeline:
     1. if exit status is present we use that (function terminated with exit code)
     2. we return 256 in a case that an exception was thrown from the function (to keep compatible output)
     Else we return 0 (success)"
   (match [v]
     [{:result {:exit e}}] e
-    [{:result {:out _ :exception e}}] (do (info e) 256)
+    [{:result {:out _ :exception e}}] (do (info "got exception from" host e) 256)
     :else 0))
 
 (defn with-codes
   [m uuid]
-  (transform [ALL] (fn [[h v]] [h (merge {:host h :code (codes v) :uuid uuid} v)]) m))
+  (transform [ALL] (fn [[host v]] [host (merge {:host host :code (codes host v) :uuid uuid} v)]) m))
 
 (defn collect
   "Collect returned results if timeout is provided the collection will run until timeout has reached or all results are back"
