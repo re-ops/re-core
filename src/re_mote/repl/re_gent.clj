@@ -23,20 +23,8 @@
     [this m home]))
 
 (defn kill-script []
-  (let [flags "" position ""]
-    (script
-     (pipe ("cat" "/var/run/dmesg.boot") ("grep" "FreeBSD"))
-     (if (= $? 0)
-       (pipe
-        (pipe
-         (pipe ("ps" "-f") ("grep" "'[r]e-gent'")) ("awk" "'{print $1}'"))
-        ("xargs" "kill" "-9")))
-     (pipe ("cat" "/proc/version") ("grep" "Linux"))
-     (if (= $? 0)
-       (pipe
-        (pipe
-         (pipe ("ps" "ux") ("grep" "'[r]e-gent'")) ("awk" "'{print $2}'"))
-        ("xargs" "-r" "kill" "-9"))))))
+  (script
+   ("/usr/bin/systemctl" "--user" "stop" "re-gent.service")))
 
 (defn start-script [port home level]
   (let [bin (<< "~{home}/re-gent") cmd (<< "\"~{bin} ${IP} ~{port} ~{level} &\"")]
@@ -44,6 +32,20 @@
      (set! IP @(pipe ("echo" "$SSH_CLIENT") ("awk" "'{print $1}'")))
      ("chmod" "+x"  ~bin)
      ("nohup" "sh" "-c" ~cmd "&>/dev/null"))))
+
+(defn start-script [port home level]
+  (let [bin (<< "~{home}/re-gent") env (<< "~{home}/.re-gent.env")]
+    (script
+     (set! IP @(pipe ("echo" "$SSH_CLIENT") ("awk" "'{print $1}'")))
+     (set! PORT ~port)
+     (set! LOG ~level)
+     ("rm" ~env "-f")
+     ("touch" ~env)
+     ("echo" "SERVER=$IP" ">>" ~env)
+     ("echo" "PORT=$PORT" ">>" ~env)
+     ("echo" "LOG=$LOG" ">>" ~env)
+     ("chmod" "+x" ~bin)
+     ("/usr/bin/systemctl" "--user" "start" "re-gent.service"))))
 
 (defn build []
   (with-sh-dir "../re-gent"
