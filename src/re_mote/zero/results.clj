@@ -3,7 +3,7 @@
   (:require
    [re-share.schedule :refer [watch seconds]]
    [clojure.core.match :refer [match]]
-   [com.rpl.specter :refer (select transform MAP-VALS MAP-KEYS ALL VAL ATOM multi-path subselect)]
+   [com.rpl.specter :as sp :refer (select transform MAP-VALS ALL ATOM)]
    [re-share.wait :refer (wait-for wait-time curr-time)]
    [taoensso.timbre :refer  (refer-timbre)]
    [puget.printer :as puget]))
@@ -68,10 +68,7 @@
 (defn all-ttl
   "Get all ttl values from the results"
   []
-  (let [buckets-ttls (select [MAP-VALS ATOM (multi-path MAP-KEYS (subselect [MAP-VALS MAP-VALS :ttl]))] results)
-        ; some buckets return only uuid with no subselected ttls
-        pairs (filter (fn [[k v]] (and (string? k) (vector? v))) (partition 2 1 buckets-ttls))]
-    (apply hash-map (apply concat pairs))))
+  (map (fn [[k v]] [k (map :ttl (vals v))]) (select [MAP-VALS ATOM ALL] results)))
 
 (defn expired
   "Get UUID's for results with expired ttl values for all items"
