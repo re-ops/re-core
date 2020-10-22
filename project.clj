@@ -112,6 +112,9 @@
                  ; rules
                  [com.cerner/clara-rules "0.20.0"]
                  [prismatic/schema "1.1.6"]
+                 
+                 ; folder watch
+                 [juxt/dirwatch "0.2.5"]
                ]
 
   :exclusions [org.clojure/clojure com.taoensso/timbre commons-codec prismatic/schema]

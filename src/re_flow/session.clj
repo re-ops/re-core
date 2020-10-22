@@ -5,6 +5,7 @@
    re-flow.queries
    re-flow.restore
    re-flow.notification
+   re-flow.disposable
    [re-cog.facts.datalog :refer (desktop?)]
    [taoensso.timbre :refer (refer-timbre)]
    [mount.core :as mount :refer (defstate)]
@@ -19,7 +20,8 @@
 
 (defn initialize []
   (atom
-   (mk-session 're-flow.queries 're-flow.setup 're-flow.restore 're-flow.notification :fact-type-fn fact-type :cache false)))
+   (mk-session
+    're-flow.queries 're-flow.setup 're-flow.restore 're-flow.notification 're-flow.disposable :fact-type-fn fact-type :cache false)))
 
 (defstate session
   :start (initialize)
