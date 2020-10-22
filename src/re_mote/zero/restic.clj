@@ -25,4 +25,4 @@
     [this (run-hosts this shell (shell-args (restic/restore bckp dest)) timeout callback)]))
 
 (defn refer-restic []
-  (require '[re-mote.zero.restic :as rst :refer (backup check restore)]))
+  (require '[re-mote.zero.restic :as rst :refer (backup check restore unlock)]))
