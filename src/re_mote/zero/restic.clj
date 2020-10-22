@@ -9,6 +9,7 @@
 
 (defprotocol Restic
   (backup [this bckp timeout])
+  (unlock [this bckp timeout])
   (check [this bckp timeout])
   (restore [this bckp dest timeout callback]))
 
@@ -17,7 +18,9 @@
   (check [this bckp timeout]
     [this (run-hosts this shell (shell-args (restic/check bckp)) timeout)])
   (backup [this bckp timeout]
-    [this (run-hosts this shell (shell-args (restic/backup bckp)) timeout)])
+    [this (run-hosts this shell (shell-args (restic/run "backup" bckp)) timeout)])
+  (unlock [this bckp timeout]
+    [this (run-hosts this shell (shell-args (restic/run "unlock" bckp)) timeout)])
   (restore [this bckp dest timeout callback]
     [this (run-hosts this shell (shell-args (restic/restore bckp dest)) timeout callback)]))
 
