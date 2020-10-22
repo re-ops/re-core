@@ -301,3 +301,10 @@
   ([hs bs t]
    (doseq [[k b] bs]
      (run (check hs b t) | (email (<< "restic check of ~{k}"))))))
+
+(defn unlock-backups
+  ([hs bs]
+   (unlock-backups hs bs [1 :minutes]))
+  ([hs bs t]
+   (doseq [[k b] bs]
+     (run (unlock hs b t) | (email (<< "restic unlocking of ~{k}"))))))
