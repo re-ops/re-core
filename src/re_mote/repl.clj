@@ -274,10 +274,14 @@
      (open-file hs \"/home/foo/bar.pdf\")
    "
   [hs src]
-  (let [dest (<< "/tmp/~(fs/base-name src)")]
-    (run (scp-into hs src dest) | (browse dest) | (pretty "file opened"))))
+  (let [dest (<< "/tmp/~(fs/base-name src)")
+        ext (fs/extension src)]
+    (cond
+      (#{".pdf" ".html"} ext) (run (scp-into hs src dest) | (browse dest) | (pretty "file opened"))
+      (#{".doc" ".docx" ".odt"} ext) (run (scp-into hs src dest) | (writer dest) | (pretty "file opened")))))
 
 ; Process management
+
 
 (defn process-matching
   "Find processes matching target name:

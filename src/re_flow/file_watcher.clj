@@ -1,6 +1,7 @@
 (ns re-flow.file-watcher
   "Trigger facts based on file watch events"
   (:require
+   [me.raynes.fs :as fs]
    [clojure.core.strint :refer (<<)]
    [re-share.config.core :refer (get!)]
    [mount.core :refer (defstate)]
@@ -12,9 +13,10 @@
 
 (defn watch [{:keys [directory role] :as m}]
   (info (<< "file watching ~{directory} with role ~{role}"))
-  (watch-dir (fn [e]
-               (debug e)
-               (update- [(merge e m {:state ::file})])) (clojure.java.io/file directory)))
+  (watch-dir
+   (fn [{:keys [file] :as e}]
+     (debug e)
+     (update- [(merge e m {:state ::file :extension (fs/extension (.getPath file))})])) (clojure.java.io/file directory)))
 
 (defstate watchers
   :start (doall (map watch (get! :shared :watch)))

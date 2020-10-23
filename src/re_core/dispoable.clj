@@ -51,8 +51,17 @@
     (catch Exception e
       false)))
 
+(defn open-single
+  "Open a single file in a disposable instance"
+  [f]
+  {:pre [(t/exists? "disposable")]}
+  (let [[_ m] (run (valid? systems kvm dispoable-instance) | (add-) | (sys/create) | (block-wait))
+        {:keys [system-id]} (-> m :results :success first :args first)]
+    (spice-into (matching system-id))
+    (open-file (hosts (matching system-id) :ip) f)))
+
 (defn open-files
-  "Open a file from a provided root directory"
+  "Pick a set file types from a root directory and open them in disposable vms"
   [root {:keys [type] :or {type pdfs}}]
   {:pre [(t/exists? "disposable")]}
   (let [fs (pick-files root type)
