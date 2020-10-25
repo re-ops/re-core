@@ -28,21 +28,28 @@
         (keyword? a) (into-spec (assoc m :type a) (rest args))
         (fn? a) (into-spec (assoc m :fns (conj fns a)) (rest args))))))
 
-(defn with-description [d]
+(defn with-description
+  "Setting system desciption (by default the string arg)"
+  [d]
   (fn [instance] (assoc instance :description d)))
 
-(defn with-type [t]
+(defn with-type
+  "The system type (default uses the keyword type)"
+  [t]
   (fn [instance] (assoc instance :type t)))
 
-(defn with-host [t]
-  (fn [{:keys [type] :as instance}]
-    (assoc-in instance [:machine :hostname] (name type))))
+(defn with-host
+  "Set system host (default is type)"
+  [hostname]
+  (fn [instance]
+    (assoc-in instance [:machine :hostname] hostname)))
 
 (defn materialize-preset
   "Convert a preset into a system using provided args (functions, keyswords etc..)"
   [base args]
-  (let [{:keys [fns total type description hostname]} (into-spec {} args)
-        transforms [(with-type type) (with-host type) name-gen (with-description description)]
+  (let [{:keys [fns total type description]} (into-spec {} args)
+        transforms [(with-type type) (with-host (name type)) name-gen (with-description description)]
+        ; user provided transform will override these by ordering (will be applied last)
         all (apply conj transforms fns)]
     (map
      (fn [_] (reduce (fn [m f] (f m)) base all)) (range (or total 1)))))
@@ -108,4 +115,4 @@
   [default-machine local (os :ubuntu-desktop-20.04) c4-large :disposable "A temporary sandbox"])
 
 (defn refer-system-presets []
-  (require '[re-core.presets.systems :as spc :refer [node lxc kvm droplet ec2 os ubuntu-20_04 defaults local default-machine]]))
+  (require '[re-core.presets.systems :as spc :refer [node lxc kvm droplet ec2 os ubuntu-20_04 defaults local default-machine with-host]]))
