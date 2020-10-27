@@ -48,12 +48,6 @@
    (dosync
     (alter (bucket uuid) dissoc uuid))))
 
-(defn get-results [hosts uuid]
-  (let [ks (set (keys (result uuid)))]
-    (when (every? ks hosts)
-      (trace "got all results for" uuid)
-      (result uuid))))
-
 (defn missing-results [hosts uuid]
   (filter (comp not (result uuid)) hosts))
 
@@ -101,19 +95,34 @@
   [m uuid]
   (transform [ALL] (fn [[host v]] [host (merge {:host host :code (codes host v) :uuid uuid} v)]) m))
 
+(defn all-ready?
+  "Checks if all the results for an operation came back and are ready"
+  [hosts uuid]
+  (every? (set (keys (result uuid))) hosts))
+
+(defn add-timeout
+  "Set timeout result for a given host"
+  [m host]
+  (assoc m host {:result {:err "failed to get result within timeout range" :exit -1 :out ""}}))
+
+(defn get-results
+  "Grab available results, hosts which are missing are assumed to have timed out (to be used from a polling function with all-ready?)"
+  [hosts uuid]
+  (let [present (set (keys (result uuid)))
+        missing (clojure.set/difference (into #{} hosts) present)
+        result (reduce add-timeout (result uuid) missing)]
+    (clear-results uuid)
+    (with-codes result uuid)))
+
 (defn collect
-  "Collect returned results if timeout is provided the collection will run until timeout has reached or all results are back"
-  ([hosts uuid]
-   (when-let [results (get-results hosts uuid)]
-     (clear-results uuid)
-     (with-codes results uuid)))
-  ([hosts uuid timeout]
-   (try
-     (wait-for {:timeout timeout :sleep [100 :ms]} (fn [] (get-results hosts uuid)) "Failed to collect all hosts")
-     (catch Exception e
-       (warn "Failed to get results"
-             (merge (ex-data e) {:missing (missing-results hosts uuid) :uuid uuid}))))
-   (collect hosts uuid)))
+  "Collect all results by busy waiting until either all results are back or timeout has been reached (in which case missing hosts will be marked to match)."
+  [hosts uuid timeout]
+  (try
+    (wait-for {:timeout timeout :sleep [100 :ms]} (fn [] (all-ready? hosts uuid)) "Failed to collect all hosts")
+    (catch Exception e
+      (warn "Failed to get results within specified timeout range"
+            (merge (ex-data e) {:missing (missing-results hosts uuid) :uuid uuid :timeout timeout}))))
+  (get-results hosts uuid))
 
 (defn refer-zero-results []
   (require '[re-mote.zero.results :as zerors :refer (collect pretty-result clear-results add-result get-results missing-results capacity)]))
