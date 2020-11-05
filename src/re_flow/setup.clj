@@ -82,5 +82,5 @@
   =>
   (let [{:keys [ids]} ?e
         purged (successful-systems (purge-instances ids))]
-    (info "purged instances" purged)
+    (info "purged ids include" ids "successfull purged instances include" purged)
     (insert! (assoc ?e :state ::purged :purged purged :failure (not= purged ids)))))

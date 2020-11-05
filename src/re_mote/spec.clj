@@ -157,7 +157,7 @@
   (when (nil? v)
     (throw (ex-info "Pipeline function returned a nil value!" {})))
   (if-not (s/valid? ::pipeline v)
-    (let [exp (expound/expound ::pipeline v)]
+    (let [exp (expound/expound-str ::pipeline v)]
       (throw (ex-info (<< "Pipline function output does not conform to the spec ~{exp}") {:explain exp :value v})))
     v))
 

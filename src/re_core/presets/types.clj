@@ -62,7 +62,7 @@
   [type]
   (if (s/valid? ::core/type type)
     {true type}
-    {false (expound/expound ::core/type type)}))
+    {false (expound/expound-str ::core/type type)}))
 
 (defn refer-type-presets []
   (require '[re-core.presets.types :as tp :refer [cog src default-src args]]))
