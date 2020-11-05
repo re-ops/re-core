@@ -27,7 +27,8 @@
 (derive ::validate :re-flow.core/state)
 (derive ::volume-ready :re-flow.core/state)
 (derive ::restored :re-flow.core/state)
-(derive ::restored :re-flow.core/state)
+(derive ::timedout :re-flow.core/state)
+(derive ::failed :re-flow.core/state)
 (derive ::done :re-flow.core/state)
 
 (defn instance [{:keys [::size ::key]}]
@@ -87,7 +88,7 @@
     (run-?e-non-block restic/restore ?e ::restored [(?e ::timeout) :hour] restored? (backups (?e ::key)) (?e ::target))))
 
 (defrule restoration-successful
-  "Processing the restoration result"
+  "Restoration was successful"
   [?e <- ::restored [{timeout :timeout failure :failure :or {timeout false failure false}}] (and (= timeout false) (= failure false))]
   =>
   (let [{:keys [::key]} ?e]
@@ -96,9 +97,17 @@
     (info (<< "restoration of ~{key} was successful"))))
 
 (defrule restoration-failed
-  "Processing the restoration result"
-  [?e <- ::restored [{:keys [timeout failure]}] (or (= timeout true) (= failure true))]
+  "Restoration failed"
+  [?e <- ::restored [{:keys [failure timeout]}] (= failure true) (= timeout false)]
   =>
   (let [{:keys [::key]} ?e]
-    (insert! (assoc ?e :state :re-flow.setup/cleanup))
+    (insert! (assoc ?e :state ::failed :message (<< "Restoration of ~{key} failed!")))
     (info (<< "restoration of ~{key} failed!"))))
+
+(defrule restoration-timeout
+  "Processing the restoration result"
+  [?e <- ::restored [{:keys [timeout failure]}] (= failure true) (= timeout true)]
+  =>
+  (let [{:keys [::key]} ?e]
+    (insert! (assoc ?e :state ::timedout :message (<< "Restoration of ~{key} has timed out")))
+    (info (<< "restoration of ~{key} has timed out"))))
