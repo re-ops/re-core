@@ -58,7 +58,7 @@
   "Triggering the creation of the instance"
   [?e <- ::spec [{:keys [failure]}] (= failure false)]
   =>
-  (info "Starting to run setup instance")
+  (info "starting to create system")
   (insert! (assoc ?e :state :re-flow.setup/creating :spec (instance ?e))))
 
 (defrule check-volume
@@ -84,7 +84,7 @@
   [?e <- ::volume-ready [{:keys [failure]}] (= failure false)]
   =>
   (let [backups (edn/read-string (slurp (?e ::backups)))]
-    (info (<< "Initiating the restoration process into ~(?e ::target)"))
+    (info (<< "initiating the restoration process into ~(?e ::target)"))
     (run-?e-non-block restic/restore ?e ::restored [(?e ::timeout) :hour] restored? (backups (?e ::key)) (?e ::target))))
 
 (defrule restoration-successful

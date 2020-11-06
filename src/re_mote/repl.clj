@@ -252,7 +252,7 @@
 
 (defn copy-from-to
   "Copy a file from a single host and then copy it into other set of remote hosts (file distribution)
-    (copy-from-to (hosts (matching  \"foo\") :ip) (hosts (matching  \"foo\") :ip) \"/home/re-ops/bar\" \"/tmp/1\")
+    (copy-from-to (hosts (matching \"foo\") :ip) (hosts (matching \"foo\") :ip) \"/home/re-ops/bar\" \"/tmp/1\")
    "
   [src-host dst-hosts src dest]
   (let [file (last (clojure.string/split src #"\/"))]
