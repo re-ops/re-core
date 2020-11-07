@@ -12,6 +12,14 @@
 (defn notify [m]
   (sh "notify-send" "-t" "5000" m))
 
+(defrule failure-osd
+  "Notify using OSD on all errors if running in a desktop machine and message is present"
+  [?e <- :re-flow.core/state (= true (this :failure)) (not (nil? (this :message)))]
+  [:re-flow.session/type (= true (this :desktop))]
+  =>
+  (let [{:keys [message]} ?e]
+    (notify message)))
+
 (defrule default-failure-osd
   "A catch all osd notification is message is missing"
   [?e <- :re-flow.core/state (= true (this :failure)) (nil? (this :message))]
@@ -19,14 +27,6 @@
   =>
   (let [{:keys [flow state]} ?e]
     (notify (<< "Flow ~{flow} failed in ~{state} step"))))
-
-(defrule failure-osd
-  "Notify using OSD on all errors if running in a desktop machine and message is present"
-  [?e <- :re-flow.core/state (= true (this :failure)) (nil? (this :message))]
-  [:re-flow.session/type (= true (this :desktop))]
-  =>
-  (let [{:keys [message]} ?e]
-    (notify message)))
 
 (defrule success-osd
   "Notify OSD if message is present"
