@@ -20,6 +20,7 @@
    [re-mote.zero.restic :refer (refer-restic)]
    [re-mote.zero.devices :refer (refer-devices)]
    [re-mote.zero.stats :refer (refer-stats)]
+   [re-mote.zero.certs :refer (refer-certs)]
    [re-mote.zero.security :refer (refer-security)]
    [re-mote.zero.sensors :refer (refer-zero-sensors)]
    [re-mote.repl.re-gent :refer (refer-regent)]
@@ -39,6 +40,7 @@
 (refer-base)
 (refer-out)
 (refer-stats)
+(refer-certs)
 (refer-devices)
 (refer-security)
 (refer-zero-sensors)
@@ -312,3 +314,16 @@
   ([hs bs t]
    (doseq [[k b] bs]
      (run (unlock hs b t) | (email (<< "restic unlocking of ~{k}"))))))
+
+; Certs
+
+(defn ^{:category :security} cert-renew
+  "Cert renewal"
+  [hs user token]
+  (run> (renew hs user token) | (pretty "cert renwal")))
+
+(defn ^{:category :security} setup-domains
+  "Cert domains setup"
+  [hs domains]
+  (run> (set-domains hs domains) | (pretty "domain certs set")))
+

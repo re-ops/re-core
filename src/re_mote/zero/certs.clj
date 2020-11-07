@@ -22,15 +22,5 @@
   (renew [this user token]
     [this (run-hosts this shell (shell-args (update-certs user token)) [5 :minute])]))
 
-(defn ^{:category :security} cert-renew
-  "Cert renewal"
-  [hs user token]
-  (run> (renew hs user token) | (pretty "cert renwal")))
-
-(defn ^{:category :security} setup-domains
-  "Cert domains setup"
-  [hs domains]
-  (run> (set-domains hs domains) | (pretty "domain certs set")))
-
 (defn refer-certs []
-  (require '[re-mote.zero.certs :as crt :refer (renew setup-domains)]))
+  (require '[re-mote.zero.certs :as crt :refer (renew set-domains)]))
