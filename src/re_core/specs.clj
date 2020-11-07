@@ -62,7 +62,7 @@
 (s/def ::broadcast (s/and string? ip?))
 
 (defn hostname? [s]
-  (re-matches #"([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9])*" s))
+  (re-matches #"([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9]|[\\.])*" s))
 
 (s/def ::hostname (s/and string? hostname?))
 
@@ -93,6 +93,7 @@
 (s/def ::ram (s/and number? valid-ram))
 
 ; Hypervisors
+
 (s/def ::lxc (s/keys :req-un [::node]))
 
 (s/def ::kvm (s/keys :req-un [::node]))
