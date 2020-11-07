@@ -52,7 +52,8 @@
   [?e <- ::start]
   =>
   (let [failed? (not (s/valid? ::restore ?e))]
-    (insert! (assoc ?e :state ::spec :failure failed? :message (when failed? (expound/expound-str ::restore ?e))))))
+    (info (expound/expound-str ::restore ?e))
+    (insert! (assoc ?e :state ::spec :failure failed? :message (when failed? "Failed to validate restore spec")))))
 
 (defrule create
   "Triggering the creation of the instance"
