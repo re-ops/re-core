@@ -4,6 +4,7 @@
    re-flow.setup
    re-flow.queries
    re-flow.restore
+   re-flow.certs
    re-flow.notification
    re-flow.disposable
    [re-cog.facts.datalog :refer (desktop?)]
@@ -21,7 +22,7 @@
 (defn initialize []
   (atom
    (mk-session
-    're-flow.queries 're-flow.setup 're-flow.restore 're-flow.notification 're-flow.disposable :fact-type-fn fact-type :cache false)))
+    're-flow.queries 're-flow.setup 're-flow.restore 're-flow.certs 're-flow.notification 're-flow.disposable :fact-type-fn fact-type :cache false)))
 
 (defstate session
   :start (initialize)
@@ -69,7 +70,7 @@
   (update-
    [{:state :re-flow.setup/provisioned :flow :re-flow.restore/restore :failure false :timeout true}])
   (update-
-   [{:state :re-flow.restore/restored :flow :re-flow.restore/restore :failure true :timeout false :message "foo"}])
+   [{:state :re-flow.certs/spec :flow :re-flow.certs/certs :failure true :message "bla"}])
   (update-
    [{:state :re-flow.restore/partitioned :failure false}
     {:state :re-flow.restore/mounted :failure false}]))
