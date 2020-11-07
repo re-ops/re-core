@@ -11,7 +11,7 @@
 
 (defn trigger [& facts]
   (future
-    (info "Triggering flow")
+    (info "Triggering the following flows" (mapv :flow facts))
     (with-open [file (clojure.java.io/writer (java.io.File/createTempFile "flow-" ".out"))]
       (binding [*out* file]
         (try
@@ -21,7 +21,7 @@
             (error-m e)))))))
 
 (comment
-  (trigger {:state :re-flow.restore/start :flow :re-flow.restore/restore})
+  (trigger {:state :re-flow.certs/start :flow :re-flow.certs/certs})
   (run-query get-provisioned)
   (run-query get-success)
   (run-query get-failures))
