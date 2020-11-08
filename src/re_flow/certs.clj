@@ -44,7 +44,7 @@
 (s/def ::distribution (s/map-of :re-mote.spec/host ::delivery))
 
 (s/def ::certs
-  (s/keys :req [::domains ::user ::token ::distribution]))
+  (s/keys :req-un [::domains ::user ::token ::distribution]))
 
 (def instance
   {:base kvm :args [defaults local small :letsencrypt (<< "letsencrypt cert generation and distribution")]})
@@ -75,8 +75,11 @@
   "Renew the certificates"
   [?e <- ::domains-ready [{:keys [flow failure]}] (= flow ::certs) (= failure false)]
   =>
-  (let [r (run-?e renew ?e [(?e :user) (?e :token)])]
-    (insert! (assoc ?e :state ::renewed :failure (= (successful-ids r) (?e :ids))))))
+  (let [r (run-?e renew ?e (?e :user) (?e :token))
+        failure? (= (successful-ids r) (?e :ids))]
+    (when-not failure?
+      (info "renewed certs was successful"))
+    (insert! (assoc ?e :state ::renewed :failure failure?))))
 
 #_(defrule distribute
     "Distribute certificates to remote hosts"
