@@ -34,8 +34,8 @@
 
 (defn run-?e
   "Run Re-mote pipeline on system ids provided by ?e and check if all were successful"
-  [f {:keys [ids] :as ?e} & args]
-  (apply (partial f (hosts (with-ids ids) :hostname)) args))
+  [f {:keys [ids pick-by] :as ?e :or {pick-by :hostname}} & args]
+  (apply (partial f (hosts (with-ids ids) pick-by)) args))
 
 (defn fact-callback
   [fact pred ?e]
@@ -50,6 +50,9 @@
    Once the run is done the provided fact will be inserted with :failure set according to provided predicate."
   [f {:keys [ids] :as ?e} fact timeout pred & args]
   (apply (partial f (hosts (with-ids ids) :hostname)) (concat args [timeout (fact-callback fact pred ?e)])))
+
+(defn failure? [r ?e]
+  (= (successful-ids r) (?e :ids)))
 
 (comment
   (enqueue :re-flow.session/facts {:tid "1234" :args [[{:state :re-flow.restore/restored :timeout true :failure false}]]}))
