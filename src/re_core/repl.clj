@@ -62,8 +62,8 @@
 (defn named
   "Match instances by hostname matching:
      (provision (named \"foo\"))"
-  [& names]
-  (fn [[_ {:keys [machine]}]] ((into #{} names)  (machine :hostname))))
+  [names]
+  (fn [[_ {:keys [machine]}]] ((into #{} names) (machine :hostname))))
 
 (defn match-kv
   "Match instances by kv pair:

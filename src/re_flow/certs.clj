@@ -93,8 +93,6 @@
     (info "copying" (<< "/srv/dehydrated/certs/~{domain}/privkey.pem"))
     (let [r1 (run-?e scp-from (assoc ?e :pick-by :ip) (<< "/srv/dehydrated/certs/~{domain}/privkey.pem") "/tmp/certs/")
           r2 (run-?e scp-from (assoc ?e :pick-by :ip) (<< "/srv/dehydrated/certs/~{domain}/cert.csr") "/tmp/certs/")]
-      (info r1)
-      (info r2)
       (insert! (assoc ?e :state ::copied :copied-domain domain :failure (or (failure? r1 ?e) (failure? r2 ?e)))))))
 
 (defrule deliver-

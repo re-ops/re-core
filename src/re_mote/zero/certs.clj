@@ -20,7 +20,7 @@
   (set-domains [this domains]
     [this (run-hosts this shell (shell-args (apply-domains domains)) [5 :second])])
   (renew [this user token]
-    [this (run-hosts this shell (shell-args (update-certs user token)) [5 :minute])]))
+    [this (run-hosts this shell (shell-args (update-certs user token)) [20 :minute])]))
 
 (defn refer-certs []
   (require '[re-mote.zero.certs :as crt :refer (renew set-domains)]))

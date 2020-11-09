@@ -52,7 +52,7 @@
   (apply (partial f (hosts (with-ids ids) :hostname)) (concat args [timeout (fact-callback fact pred ?e)])))
 
 (defn failure? [r ?e]
-  (= (successful-ids r) (?e :ids)))
+  (not (= (seq (successful-ids r)) (seq (?e :ids)))))
 
 (comment
   (enqueue :re-flow.session/facts {:tid "1234" :args [[{:state :re-flow.restore/restored :timeout true :failure false}]]}))
