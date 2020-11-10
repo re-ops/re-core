@@ -18,6 +18,11 @@
   [f]
   (select [ALL (keypath :results :success) ALL :args ALL :system-id] @f))
 
+(defn hosts-results*
+  "Get the successful hosts results from a Re-mote pipeline result"
+  [hs]
+  (select [(keypath :success) ALL :host] hs))
+
 (defn results
   "Get the successful hosts results from a Re-mote pipeline result"
   [hs]

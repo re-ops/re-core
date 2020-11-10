@@ -105,6 +105,7 @@
 
 (defn require-tests []
   (require
+   're-flow.integration.certs
    're-core.integration.es.jobs
    're-core.integration.es.systems
    're-core.test.aws
