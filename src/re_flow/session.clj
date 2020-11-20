@@ -24,7 +24,7 @@
    (mk-session
     're-flow.queries 're-flow.setup 're-flow.restore 're-flow.certs 're-flow.notification 're-flow.disposable :fact-type-fn fact-type :cache false)))
 
-(defstate session
+(defstate ^{:on-reload :noop} session
   :start (initialize)
   :stop (reset! session nil))
 

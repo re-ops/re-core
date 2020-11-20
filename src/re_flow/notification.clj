@@ -1,6 +1,7 @@
 (ns re-flow.notification
   "Notification rules"
   (:require
+   [re-flow.pubsub :refer (publish-?e)]
    [clojure.core.strint :refer (<<)]
    [clara.rules :refer :all]
    [clojure.java.shell :refer (sh)]
@@ -59,3 +60,10 @@
   =>
   (let [{:keys [flow message]} ?e]
     (send-email (<< "Flow ~{flow} result") (tofrom) message)))
+
+(defrule notify-promise
+  "Email if message is present"
+  [?e <- :re-flow.core/state]
+  =>
+  (debug "publishing" ?e)
+  (publish-?e ?e))

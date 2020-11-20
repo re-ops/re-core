@@ -8,6 +8,7 @@
    [re-flow.core :refer (trigger)]
    [re-flow.common :refer (create-fact)]
    [re-flow.session :refer (session facts-updater)]
+   [re-flow.pubsub :refer (pubsub)]
    [re-flow.file-watcher :refer (watchers)]
    ; Re-core
    [re-core.repl.results :refer (refer-results)]
@@ -82,7 +83,7 @@
   (setup-logging)
   (disable-coloring)
   (k/create-server-keys ".curve")
-  (mount/start #'elastic #'zero #'queue #'workers #'riemann #'session #'watchers #'facts-updater)
+  (mount/start #'elastic #'zero #'queue #'workers #'riemann #'session #'pubsub #'watchers #'facts-updater)
   (mote-es/initialize)
   (core-es/initialize))
 

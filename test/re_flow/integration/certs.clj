@@ -1,50 +1,68 @@
 (ns re-flow.integration.certs
   (:require
-   re-flow.setup
-   re-flow.certs
-   [re-core.repl :refer :all]
+   [clojure.core.strint :refer (<<)]
    [re-mote.zero.pipeline :refer (run-hosts)]
-   [re-cog.resources.file :refer (file)]
+   [re-cog.resources.file :refer (file directory)]
    [re-core.presets.systems :refer (kvm defaults local)]
    [re-core.presets.instance-types :refer (large)]
+   [re-flow.pubsub :refer (subscribe-?e)]
    [re-flow.core :refer (trigger)]
-   [re-flow.session :refer (fact-type session update-)]
+   [re-flow.actions :refer (run)]
    [taoensso.timbre :refer (info)]
-   [clara.rules :refer :all]
-   [re-flow.common :refer (run-?e failure? successful-ids hosts-results*)]
-   [re-flow.common :refer (create-fact)])
+   [re-core.repl :refer :all]
+   [re-flow.session :refer (update-)]
+   [re-core.repl.results :as results]
+   [clojure.core.async :refer (chan <!! <! go timeout alts!! close!)]
+   [re-flow.common :refer (run-?e failure? successful-ids hosts-results* create-fact)])
   (:use clojure.test))
 
-(defn plugged-session
-  "A session that is plugged to capture testing related facts"
-  []
-  (mk-session
-   're-flow.setup 're-flow.certs 're-flow.integration.certs :fact-type-fn fact-type :cache false))
+(defn cert-files
+  "Creating cert files to pull"
+  [{:keys [ids]} f]
+  (hosts-results*
+   (run-hosts (hosts (with-ids ids) :hostname) file [f :present] [1 :second])))
 
-(def fact (promise))
+(defn cert-directory
+  "Creating cert containing directory"
+  [{:keys [ids]} d]
+  (hosts-results*
+   (run-hosts (hosts (with-ids ids) :hostname) directory [d :present] [1 :second])))
 
-(defn create-file [ids f]
-  (hosts-results* (run-hosts (hosts (with-ids ids) :hostname) file [f :present] [1 :second])))
-
-(defrule domains
-  "Setup the domains we will generate certs for"
-  [?e <- :re-flow.setup/provisioned [{:keys [failure]}] (= failure false)]
-  [?f <- :re-flow.integration/files]
-  =>
-  (let [{:keys [ids]} ?e
-        r (mapv (partial create-file ids) (?f :files))]
-    (deliver fact r)))
+(def five-min (* 5 60 1000))
 
 (defn setup
-  "This test assumes an up an running system"
+  "This test requires an up and running system"
   [f]
-  (reset! session (plugged-session))
-  (f))
+  (let [output (subscribe-?e :re-flow.setup/provisioned (chan))]
+    (trigger
+     (create-fact kvm defaults local large :letsencrypt "cert generation"))
+    (let [[?e c] (alts!! [output (timeout five-min)])]
+      (try
+        (if (= c output)
+          (f)
+          (throw (ex-info "Failed to create target system" {})))
+        (finally
+          (close! output)
+          (destroy (matching (results/*1)) {:force true}))))))
+
+(defn assert-success
+  [result {:keys [ids]}]
+  (let [systems (:systems (second (list (with-ids ids) :systems :print? false)))
+        names (mapv (fn [[_ m]] (get-in m [:machine :hostname])) systems)]
+    (is (= names result))))
 
 (deftest cert-distribution
-  (update- [{:type :re-flow.integration/files :files ["/tmp/1" "/tmp/2"]}])
-  (trigger (create-fact kvm defaults local large :letsencrypt "cert generation"))
-  (let [r (deref fact)]
-    (info "got result back" r)))
+  (let [domain "example.com"
+        parent "/srv/dehydrated/certs/"
+        files []
+        ?e {:ids [(results/*1)]}]
+    (assert-success (cert-directory ?e parent) ?e)
+    (assert-success (cert-directory ?e (<< "~{parent}/~{domain}")) ?e)
+    (assert-success (cert-files ?e (<< "~{parent}/~{domain}/privkey.pem")) ?e)
+    (assert-success (cert-files ?e (<< "~{parent}/~{domain}/cert.csr")) ?e)
+    (update- [(assoc ?e :state :re-flow.certs/renewed :failure false :domains [domain])])
+    (let [output (subscribe-?e :re-flow.setup/copied (chan))
+          [?e c] (alts!! [output (timeout (* 10 1000))])]
+      (is (= c output)))))
 
 (use-fixtures :once setup)
