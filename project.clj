@@ -46,7 +46,7 @@
 
                  ; lxc
                  [http-kit "2.3.0"]
-                 [less-awful-ssl "1.0.4"]
+                 [less-awful-ssl "1.0.6"]
                  [org.clojure/data.json "0.2.6" ]
 
                  ; model
@@ -58,7 +58,7 @@
                  [com.fasterxml.jackson.core/jackson-core "2.9.6"]
 
                  ; queue
-                 [factual/durable-queue "0.1.5" :exclusions [byte-streams]]
+                 [factual/durable-queue "0.1.6" :exclusions [byte-streams]]
                  [cc.qbits/knit "1.0.0"]
 
                  ; timeunits
@@ -68,15 +68,15 @@
                  [mount "0.1.16"]
 
                  [me.raynes/conch "0.8.0"]
-                 [org.clojure/core.async "1.2.603"]
-                 [com.rpl/specter "1.1.2"]
+                 [org.clojure/core.async "1.3.610"]
+                 [com.rpl/specter "1.1.3"]
                  [org.clojure/core.match "0.3.0-alpha4"]
 
                   ; persistency
                  [org.apache.httpcomponents/httpclient "4.5.2"]
 
                   ; pretty output
-                 [fipp "0.6.14"]
+                 [fipp "0.6.23"]
                  [narkisr/clansi "1.2.0"]
                  [mvxcvi/puget "1.1.0"]
                  [rm-hull/table "0.7.0"]
@@ -93,10 +93,10 @@
 
                  ; remote execution
                  [com.hierynomus/sshj "0.27.0" :exclusions [org.slf4j/slf4j-api]]
-                 [org.zeromq/jeromq "0.5.1"]
+                 [org.zeromq/jeromq "0.5.2"]
 
                  ; model
-                 [clj-time/clj-time "0.15.1"]
+                 [clj-time/clj-time "0.15.2"]
 
                  ; email
                  [com.draines/postal "2.0.3"]
@@ -106,13 +106,13 @@
                  [riemann-clojure-client "0.5.0"]
 
                  ; spec
-                 [expound "0.8.4"]
+                 [expound "0.8.6"]
                  [org.clojure/test.check "0.10.0"]
 
                  ; rules
-                 [com.cerner/clara-rules "0.20.0"]
+                 [com.cerner/clara-rules "0.21.0"]
                  [prismatic/schema "1.1.6"]
-                 
+
                  ; folder watch
                  [juxt/dirwatch "0.2.5"]
                ]
