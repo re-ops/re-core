@@ -24,8 +24,8 @@
 (derive ::spec :re-flow.core/state)
 (derive ::domains-ready :re-flow.core/state)
 (derive ::renewed :re-flow.core/state)
-(derive ::copied :re-flow.core/state)
-(derive ::distribute :re-flow.core/state)
+(derive ::downloaded :re-flow.core/state)
+(derive ::delivered :re-flow.core/state)
 (derive ::timedout :re-flow.core/state)
 (derive ::failed :re-flow.core/state)
 (derive ::done :re-flow.core/state)
@@ -77,30 +77,29 @@
 
 (defrule run-renewal
   "Renew the certificates"
-  [?e <- ::domains-ready [{:keys [flow failure]}] (= flow ::certs) (= failure false)]
+  [?e <- ::domains-ready [{:keys [failure]}] (= failure false)]
   =>
   (let [r (run ::renew ?e (?e :user) (?e :token))]
     (insert! (assoc ?e :state ::renewed :failure (failure? r ?e)))))
 
 (defrule download-certs
   "Download certs and trigger delivery for each host"
-  [?e <- ::renewed [{:keys [flow failure]}] (= flow ::certs) (= failure false)]
+  [?e <- ::renewed [{:keys [failure]}] (= failure false)]
   =>
   (let [m1 (run ::mkdir ?e "/tmp/certs")]
-    (doseq [[domain target] (?e :domains)]
+    (doseq [[domain {:keys [id dest]}] (?e :domains)]
+      (debug "downloading cert" domain)
       (let [m2 (run ::mkdir ?e (<< "/tmp/certs/~{domain}"))
             d1 (run ::download ?e domain "privkey.pem")
             d2 (run ::download ?e domain "cert.csr")
-            failure (or (failure? d1 ?e) (failure? d2 ?e) m1 m2)]
-        (insert! (assoc ?e :state ::downloaded :domain domain :target target :failure failure))))))
+            failure (or (failure? d1 ?e) (failure? d2 ?e) (not m1) (not m2))]
+        (insert! (assoc ?e :state ::downloaded :domain domain :ids [id] :dest dest :failure failure))))))
 
 (defrule deliver-host-certs
   "Deliver a domain cert pair to a single host under a specified dest"
-  [?e <- ::copied [{:keys [flow failure]}] (= flow ::certs) (= failure false)]
+  [?e <- ::downloaded [{:keys [failure]}] (= failure false)]
   =>
-  (let [{:keys [domain target]} ?e
-        {:keys [host dest]} target
-        r1 (run ::upload ?e host dest domain "privkey.pem")
-        r2 (run ::upload ?e host dest domain "cert.csr")]
-    (insert! (assoc ?e :state ::delivered :failure (or (failure? r1 ?e) (failure? r2 ?e)))))
-  (info "copied cert" (?e :copied-domain)))
+  (let [{:keys [domain dest]} ?e
+        r1 (run ::upload ?e dest domain "privkey.pem")
+        r2 (run ::upload ?e dest domain "cert.csr")]
+    (insert! (assoc ?e :state ::delivered :failure (or (failure? r1 ?e) (failure? r2 ?e))))))
