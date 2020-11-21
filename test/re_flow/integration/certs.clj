@@ -1,5 +1,6 @@
 (ns re-flow.integration.certs
   (:require
+   [me.raynes.fs :refer (delete-dir)]
    [clojure.core.strint :refer (<<)]
    [re-mote.zero.pipeline :refer (run-hosts)]
    [re-cog.resources.file :refer (file directory)]
@@ -7,7 +8,6 @@
    [re-core.presets.instance-types :refer (large)]
    [re-flow.pubsub :refer (subscribe-?e)]
    [re-flow.core :refer (trigger)]
-   [re-flow.actions :refer (run)]
    [taoensso.timbre :refer (info)]
    [re-core.repl :refer :all]
    [re-flow.session :refer (update-)]
@@ -43,9 +43,10 @@
           (throw (ex-info "Failed to create target system" {})))
         (finally
           (close! output)
-          (destroy (matching (results/*1)) {:force true}))))))
+          (destroy (matching (results/*1)) {:force true})
+          (delete-dir "/tmp/certs/"))))))
 
-(defn assert-success
+(defn is-success
   [result {:keys [ids]}]
   (let [systems (:systems (second (list (with-ids ids) :systems :print? false)))
         names (mapv (fn [[_ m]] (get-in m [:machine :hostname])) systems)]
@@ -56,13 +57,15 @@
         parent "/srv/dehydrated/certs/"
         files []
         ?e {:ids [(results/*1)]}]
-    (assert-success (cert-directory ?e parent) ?e)
-    (assert-success (cert-directory ?e (<< "~{parent}/~{domain}")) ?e)
-    (assert-success (cert-files ?e (<< "~{parent}/~{domain}/privkey.pem")) ?e)
-    (assert-success (cert-files ?e (<< "~{parent}/~{domain}/cert.csr")) ?e)
-    (update- [(assoc ?e :state :re-flow.certs/renewed :failure false :domains [domain])])
-    (let [output (subscribe-?e :re-flow.setup/copied (chan))
-          [?e c] (alts!! [output (timeout (* 10 1000))])]
-      (is (= c output)))))
+    (is-success (cert-directory ?e parent) ?e)
+    (is-success (cert-directory ?e (<< "~{parent}/~{domain}")) ?e)
+    (is-success (cert-files ?e (<< "~{parent}/~{domain}/privkey.pem")) ?e)
+    (is-success (cert-files ?e (<< "~{parent}/~{domain}/cert.csr")) ?e)
+    (let [output (subscribe-?e :re-flow.certs/copied (chan))]
+      (update- [(assoc ?e :state :re-flow.certs/renewed :flow :re-flow.certs/certs :failure false :domains [domain])])
+      (let [[?e c] (alts!! [output (timeout (* 30 1000))])]
+        (is (= c output))
+        (is (= (?e :failure) false))
+        (close! output)))))
 
 (use-fixtures :once setup)
