@@ -39,7 +39,7 @@
      (try
        (do ~@body)
        (finally
-         (debug "status code for close libvirt connection" (.close *libvirt-connection*))))))
+         (trace "status code for close libvirt connection" (.close *libvirt-connection*))))))
 
 (defn wait-for-status
   "Waiting for VM status (timeout is in milliseconds)"
