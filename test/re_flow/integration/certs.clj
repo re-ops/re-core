@@ -47,7 +47,7 @@
         (finally
           (close! output)
           #_(destroy (matching (results/*1)) {:force true})
-          #_(delete-dir "/tmp/certs/"))))))
+          (delete-dir "/tmp/certs/"))))))
 
 (defn is-success
   "Assert that a hosts-results are successful"
@@ -61,12 +61,12 @@
   [input-c wait]
   (let [[?e c] (alts!! [input-c (timeout (* 10 1000))])]
     (is (= c input-c))
-    (is (= (?e :failure) false))
+    (is (and (not (nil? ?e)) (= (?e :failure) false)))
     (close! c)))
 
 (deftest cert-distribution
   (let [domain "example.com"
-        domains {domain {:host (results/*1) :dest "/tmp/"}}
+        domains {domain {:id (results/*1) :dest "/tmp/"}}
         parent "/srv/dehydrated/certs/"
         ?e {:ids [(results/*1)]}]
     (is-success (cert-directory ?e parent) ?e)
