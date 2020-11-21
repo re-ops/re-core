@@ -10,16 +10,21 @@
 (refer-timbre)
 (refer-certs)
 
-(defn cert-scp-?e [?e [domain file]]
-  (debug "copying" (<< "/srv/dehydrated/certs/~{domain}/~{file}"))
-  (run-?e scp-from (assoc ?e :pick-by :ip) (<< "/srv/dehydrated/certs/~{domain}/~{file}") "/tmp/certs/"))
+(defn download-cert-?e [?e [domain file]]
+  (debug "downloading" (<< "/srv/dehydrated/certs/~{domain}/~{file}"))
+  (run-?e scp-from (assoc ?e :pick-by :ip) (<< "/srv/dehydrated/certs/~{domain}/~{file}") (<< "/tmp/certs/~{domain}")))
+
+(defn upload-cert-?e [?e [host dest domain file]]
+  (debug "uploading" (<< "/srv/dehydrated/certs/~{domain}/~{file}"))
+  (run-?e scp-into (assoc ?e :pick-by :ip) (<< "/srv/dehydrated/certs/~{domain}/~{file}") "/tmp/certs/"))
 
 (def actions
   (atom
    {:re-flow.certs/set-domain (fn [?e _] (run-?e set-domains ?e (?e :domains)))
     :re-flow.certs/renew (fn [?e [user token]] (run-?e renew ?e user token))
     :re-flow.certs/mkdir (fn [_ [dir]] (mkdir "/tmp/certs"))
-    :re-flow.certs/scp cert-scp-?e}))
+    :re-flow.certs/download download-cert-?e
+    :re-flow.certs/upload upload-cert-?e}))
 
 (defn run
   "Run a side effect function from within a rule"

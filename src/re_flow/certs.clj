@@ -1,6 +1,7 @@
 (ns re-flow.certs
   "Lets encrypt cert renewal flow"
   (:require
+   [clojure.core.strint :refer (<<)]
    [re-mote.zero.certs :refer (refer-certs)]
    [re-flow.actions :refer (run)]
    [clojure.spec.alpha :as s]
@@ -81,19 +82,25 @@
   (let [r (run ::renew ?e (?e :user) (?e :token))]
     (insert! (assoc ?e :state ::renewed :failure (failure? r ?e)))))
 
-(defrule copy-certs
-  "Grab certs back"
+(defrule download-certs
+  "Download certs and trigger delivery for each host"
   [?e <- ::renewed [{:keys [flow failure]}] (= flow ::certs) (= failure false)]
   =>
-  (info "renewed certs was successful")
-  (run ::mkdir ?e "/tmp/certs")
-  (doseq [domain (?e :domains)]
-    (let [r1 (run ::scp ?e domain "privkey.pem")
-          r2 (run ::scp ?e domain "cert.csr")]
-      (insert! (assoc ?e :state ::copied :copied-domain domain :failure (or (failure? r1 ?e) (failure? r2 ?e)))))))
+  (let [m1 (run ::mkdir ?e "/tmp/certs")]
+    (doseq [[domain target] (?e :domains)]
+      (let [m2 (run ::mkdir ?e (<< "/tmp/certs/~{domain}"))
+            d1 (run ::download ?e domain "privkey.pem")
+            d2 (run ::download ?e domain "cert.csr")
+            failure (or (failure? d1 ?e) (failure? d2 ?e) m1 m2)]
+        (insert! (assoc ?e :state ::downloaded :domain domain :target target :failure failure))))))
 
-(defrule deliver-
-  "Deliver cert to host"
+(defrule deliver-host-certs
+  "Deliver a domain cert pair to a single host under a specified dest"
   [?e <- ::copied [{:keys [flow failure]}] (= flow ::certs) (= failure false)]
   =>
+  (let [{:keys [domain target]} ?e
+        {:keys [host dest]} target
+        r1 (run ::upload ?e host dest domain "privkey.pem")
+        r2 (run ::upload ?e host dest domain "cert.csr")]
+    (insert! (assoc ?e :state ::delivered :failure (or (failure? r1 ?e) (failure? r2 ?e)))))
   (info "copied cert" (?e :copied-domain)))

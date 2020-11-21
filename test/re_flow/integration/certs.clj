@@ -1,4 +1,7 @@
 (ns re-flow.integration.certs
+  "In this test we check that our renewl process works correctly, We don't run the actual renewl in order to not trigger rate limits, instead we create empty cert files and trigger the rules to see that the system functions correctly.
+
+   We \"generate\" the certs and distribute them into the same instance in order to simplify our code."
   (:require
    [me.raynes.fs :refer (delete-dir)]
    [clojure.core.strint :refer (<<)]
@@ -36,36 +39,44 @@
   (let [output (subscribe-?e :re-flow.setup/provisioned (chan))]
     (trigger
      (create-fact kvm defaults local large :letsencrypt "cert generation"))
-    (let [[?e c] (alts!! [output (timeout five-min)])]
+    (let [[_ c] (alts!! [output (timeout five-min)])]
       (try
         (if (= c output)
           (f)
           (throw (ex-info "Failed to create target system" {})))
         (finally
           (close! output)
-          (destroy (matching (results/*1)) {:force true})
-          (delete-dir "/tmp/certs/"))))))
+          #_(destroy (matching (results/*1)) {:force true})
+          #_(delete-dir "/tmp/certs/"))))))
 
 (defn is-success
+  "Assert that a hosts-results are successful"
   [result {:keys [ids]}]
   (let [systems (:systems (second (list (with-ids ids) :systems :print? false)))
         names (mapv (fn [[_ m]] (get-in m [:machine :hostname])) systems)]
     (is (= names result))))
 
+(defn is-sub-success
+  "Checking that a subscription channel didn't time out and that ?e didn't fail"
+  [input-c wait]
+  (let [[?e c] (alts!! [input-c (timeout (* 10 1000))])]
+    (is (= c input-c))
+    (is (= (?e :failure) false))
+    (close! c)))
+
 (deftest cert-distribution
   (let [domain "example.com"
+        domains {domain {:host (results/*1) :dest "/tmp/"}}
         parent "/srv/dehydrated/certs/"
-        files []
         ?e {:ids [(results/*1)]}]
     (is-success (cert-directory ?e parent) ?e)
     (is-success (cert-directory ?e (<< "~{parent}/~{domain}")) ?e)
     (is-success (cert-files ?e (<< "~{parent}/~{domain}/privkey.pem")) ?e)
     (is-success (cert-files ?e (<< "~{parent}/~{domain}/cert.csr")) ?e)
-    (let [output (subscribe-?e :re-flow.certs/copied (chan))]
-      (update- [(assoc ?e :state :re-flow.certs/renewed :flow :re-flow.certs/certs :failure false :domains [domain])])
-      (let [[?e c] (alts!! [output (timeout (* 30 1000))])]
-        (is (= c output))
-        (is (= (?e :failure) false))
-        (close! output)))))
+    (let [downloads (subscribe-?e :re-flow.certs/downloaded (chan))
+          uploads (subscribe-?e :re-flow.certs/delivered (chan))]
+      (update- [(assoc ?e :state :re-flow.certs/renewed :flow :re-flow.certs/certs :failure false :domains domains)])
+      (is-sub-success downloads (* 10 1000))
+      (is-sub-success uploads (* 10 1000)))))
 
 (use-fixtures :once setup)
