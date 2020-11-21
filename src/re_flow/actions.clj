@@ -14,15 +14,15 @@
   (debug "downloading" (<< "/srv/dehydrated/certs/~{domain}/~{file}"))
   (run-?e scp-from (assoc ?e :pick-by :ip) (<< "/srv/dehydrated/certs/~{domain}/~{file}") (<< "/tmp/certs/~{domain}")))
 
-(defn upload-cert-?e [?e [host dest domain file]]
+(defn upload-cert-?e [?e [dest domain file]]
   (debug "uploading" (<< "/srv/dehydrated/certs/~{domain}/~{file}"))
-  (run-?e scp-into (assoc ?e :pick-by :ip) (<< "/srv/dehydrated/certs/~{domain}/~{file}") "/tmp/certs/"))
+  (run-?e scp-into (assoc ?e :pick-by :ip) (<< "/tmp/certs/~{domain}/~{file}") dest))
 
 (def actions
   (atom
    {:re-flow.certs/set-domain (fn [?e _] (run-?e set-domains ?e (?e :domains)))
     :re-flow.certs/renew (fn [?e [user token]] (run-?e renew ?e user token))
-    :re-flow.certs/mkdir (fn [_ [dir]] (mkdir "/tmp/certs"))
+    :re-flow.certs/mkdir (fn [_ [dir]] (mkdir dir))
     :re-flow.certs/download download-cert-?e
     :re-flow.certs/upload upload-cert-?e}))
 
