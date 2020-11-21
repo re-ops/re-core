@@ -1,11 +1,12 @@
 (ns re-flow.common
   "common flow functions"
   (:require
+   [re-core.specs :refer (ip?)]
    [re-share.core :refer (gen-uuid)]
    [re-core.queue :refer [enqueue]]
    [re-core.repl :refer (hosts with-ids)]
    [taoensso.timbre :refer (refer-timbre)]
-   [re-core.repl :refer (named) :as repl]
+   [re-core.repl :refer (named with-ips) :as repl]
    [com.rpl.specter :refer [select ALL keypath]]))
 
 (refer-timbre)
@@ -33,8 +34,19 @@
   [hs]
   (select [ALL (keypath :success) ALL :host] hs))
 
-(defn successful-ids [hs]
-  (let [systems (repl/list (named (successful-hosts hs)) :systems :print? false)]
+(defn list-by-fn
+  "Check if the list of addresses composed from ips or hostnames and returns the matching filering function"
+  [addresses]
+  (cond
+    (every? ip? addresses) with-ips
+    (not-any? ip? addresses) named
+    :else (throw (ex-info "mixed ips and hostnames list are not supported!" {:addresses addresses}))))
+
+(defn successful-ids
+  "Get successful system ids from a pipeline result by using hostnames or ip addresses"
+  [result]
+  (let [addresses (successful-hosts result)
+        systems (repl/list ((list-by-fn addresses) addresses) :systems :print? false)]
     (into #{} (->> systems second :systems (map first)))))
 
 (defn run-?e

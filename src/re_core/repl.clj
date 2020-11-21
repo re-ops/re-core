@@ -40,10 +40,17 @@
   (fn [[_ {:keys [type] :as m}]] (=  type t)))
 
 (defn ip
-  "Pick systems with an ip (they are running):
+  "Pick systems that has ip addresses (they are running) 
      (stop ip)"
   [[_ {:keys [machine] :as m}]]
   (machine :ip))
+
+(defn with-ips
+  "Pick systems with specific ips:
+     (stop (with-ip \"10.0.0.4\"))"
+  [ips]
+  (fn [[_ {:keys [machine]}]]
+    ((into #{} ips) (machine :ip))))
 
 (defn with-ids
   "Pick systems using multiple ids:
