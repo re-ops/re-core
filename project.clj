@@ -92,7 +92,7 @@
                  [com.mikesamuel/json-sanitizer "1.2.0"]
 
                  ; remote execution
-                 [com.hierynomus/sshj "0.27.0" :exclusions [org.slf4j/slf4j-api]]
+                 [com.hierynomus/sshj "0.30.0" :exclusions [org.slf4j/slf4j-api]]
                  [org.zeromq/jeromq "0.5.2"]
 
                  ; model
