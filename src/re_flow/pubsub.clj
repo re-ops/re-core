@@ -20,6 +20,7 @@
 (defn publish-?e
   "Publish an ?e"
   [?e]
+  {:pre [(isa? (?e :state) :re-flow.core/state)]}
   (>!! (pubsub :input) ?e))
 
 (defn subscribe-?e
