@@ -20,7 +20,7 @@
 
 (def actions
   (atom
-   {:re-flow.certs/set-domain (fn [?e _] (run-?e set-domains ?e (keys (?e :domains))))
+   {:re-flow.certs/set-domain (fn [?e _] (run-?e set-domains ?e (into [] (keys (?e :domains)))))
     :re-flow.certs/renew (fn [?e [user token]] (run-?e renew ?e user token))
     :re-flow.certs/mkdir (fn [_ [dir]] (mkdir dir))
     :re-flow.certs/download download-cert-?e
