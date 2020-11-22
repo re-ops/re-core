@@ -10,17 +10,17 @@
 (refer-timbre)
 (refer-certs)
 
-(defn download-cert-?e [?e [domain file]]
+(defn download-cert-?e [?e [domain dest file]]
   (debug "downloading" (<< "/srv/dehydrated/certs/~{domain}/~{file}"))
-  (run-?e scp-from (assoc ?e :pick-by :ip) (<< "/srv/dehydrated/certs/~{domain}/~{file}") (<< "/tmp/certs/~{domain}")))
+  (run-?e scp-from (assoc ?e :pick-by :ip) (<< "/srv/dehydrated/certs/~{domain}/~{file}") dest))
 
 (defn upload-cert-?e [?e [dest domain file]]
   (debug "uploading" (<< "/srv/dehydrated/certs/~{domain}/~{file}"))
-  (run-?e scp-into (assoc ?e :pick-by :ip) (<< "/tmp/certs/~{domain}/~{file}") dest))
+  (run-?e scp-into (assoc ?e :pick-by :ip) file dest))
 
 (def actions
   (atom
-   {:re-flow.certs/set-domain (fn [?e _] (run-?e set-domains ?e (?e :domains)))
+   {:re-flow.certs/set-domain (fn [?e _] (run-?e set-domains ?e (keys (?e :domains))))
     :re-flow.certs/renew (fn [?e [user token]] (run-?e renew ?e user token))
     :re-flow.certs/mkdir (fn [_ [dir]] (mkdir dir))
     :re-flow.certs/download download-cert-?e
