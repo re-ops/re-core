@@ -88,20 +88,22 @@
   "Download certs and trigger delivery for each host"
   [?e <- ::renewed [{:keys [failure]}] (= failure false)]
   =>
-  (let [m1 (run ::mkdir ?e "/tmp/certs")]
-    (doseq [[domain {:keys [id dest]}] (?e :domains)]
+  (let [{:keys [intermediary domains]} ?e
+        m1 (run ::mkdir ?e intermediary)]
+    (doseq [[domain {:keys [id dest]}] domains
+            :let [inter-target (<< "~{intermediary}/~{domain}")]]
       (debug "downloading cert" domain)
-      (let [m2 (run ::mkdir ?e (<< "/tmp/certs/~{domain}"))
-            d1 (run ::download ?e domain "privkey.pem")
-            d2 (run ::download ?e domain "cert.csr")
+      (let [m2 (run ::mkdir ?e inter-target)
+            d1 (run ::download ?e domain inter-target "privkey.pem")
+            d2 (run ::download ?e domain inter-target "cert.pem")
             failure (or (failure? d1 ?e) (failure? d2 ?e) (not m1) (not m2))]
         (insert! (assoc ?e :state ::downloaded :domain domain :ids [id] :dest dest :failure failure))))))
 
 (defrule deliver-host-certs
-  "Deliver a domain cert pair to a single host under a specified dest"
-  [?e <- ::downloaded [{:keys [failure]}] (= failure false)]
+  "Deliver a domain cert pair to a single host under a specified dest (if they are provided)"
+  [?e <- ::downloaded [{:keys [failure dest ids]}] (= failure false) (not (nil? dest)) (not (empty? (filter identity ids)))]
   =>
-  (let [{:keys [domain dest]} ?e
-        r1 (run ::upload ?e dest domain "privkey.pem")
-        r2 (run ::upload ?e dest domain "cert.csr")]
+  (let [{:keys [domain dest intermediary]} ?e
+        r1 (run ::upload ?e dest domain (<< "~{intermediary}/~{domain}/privkey.pem"))
+        r2 (run ::upload ?e dest domain (<< "~{intermediary}/~{domain}/cert.pem"))]
     (insert! (assoc ?e :state ::delivered :failure (or (failure? r1 ?e) (failure? r2 ?e))))))
