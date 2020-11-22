@@ -36,16 +36,18 @@
 
 (s/def ::domain :re-core.specs/hostname)
 
-(s/def ::domains (s/coll-of ::domain))
+(s/def ::intermediary string?)
 
-(s/def ::destination string?)
+(s/def ::dest string?)
 
-(s/def ::delivery (s/keys :req-un [::destination ::domain]))
+(s/def ::id (s/and string? #(= (.length %) 20)))
 
-(s/def ::distribution (s/map-of :re-mote.spec/host ::delivery))
+(s/def ::delivery (s/keys :req-un [::id ::dest]))
+
+(s/def ::domains (s/map-of ::domain ::delivery))
 
 (s/def ::certs
-  (s/keys :req-un [::domains ::user ::token ::distribution]))
+  (s/keys :req-un [::domains ::user ::token ::intermediary]))
 
 (def instance
   {:base kvm :args [defaults local small :letsencrypt "letsencrypt cert generation and distribution"]})
