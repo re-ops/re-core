@@ -46,7 +46,7 @@
           (throw (ex-info "Failed to create target system" {})))
         (finally
           (close! output)
-          #_(destroy (matching (results/*1)) {:force true})
+          (destroy (matching (results/*1)) {:force true})
           (delete-dir "/tmp/certs/"))))))
 
 (defn is-success
@@ -72,10 +72,11 @@
     (is-success (cert-directory ?e parent) ?e)
     (is-success (cert-directory ?e (<< "~{parent}/~{domain}")) ?e)
     (is-success (cert-files ?e (<< "~{parent}/~{domain}/privkey.pem")) ?e)
-    (is-success (cert-files ?e (<< "~{parent}/~{domain}/cert.csr")) ?e)
+    (is-success (cert-files ?e (<< "~{parent}/~{domain}/cert.pem")) ?e)
     (let [downloads (subscribe-?e :re-flow.certs/downloaded (chan))
           uploads (subscribe-?e :re-flow.certs/delivered (chan))]
-      (update- [(assoc ?e :state :re-flow.certs/renewed :flow :re-flow.certs/certs :failure false :domains domains)])
+      (update- [(assoc ?e :state :re-flow.certs/renewed :flow :re-flow.certs/certs
+                       :failure false :domains domains :intermediary "/tmp/certs")])
       (is-sub-success downloads (* 10 1000))
       (is-sub-success uploads (* 10 1000)))))
 
