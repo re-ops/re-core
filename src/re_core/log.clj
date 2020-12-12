@@ -19,6 +19,7 @@
     - log level
   "
   [& {:keys [interval level] :or {interval 10 level :info}}]
-  (log/setup "re-core" ["net.schmizz.*" "org.elasticsearch.*" "org.apache.http.*" "com.hierynomus.sshj.userauth.keyprovider.*"] ["re-mote.output"])
+  (let [blacklist ["net.schmizz" "org.elasticsearch" "org.apache.http" "com.hierynomus.sshj.userauth.keyprovider"]]
+    (log/setup "re-core" blacklist))
   (set-level! level))
 

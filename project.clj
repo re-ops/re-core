@@ -13,21 +13,19 @@
                  [com.palletops/stevedore "0.8.0-beta.7"]
 
                  ; logging / profiling
-                 [com.taoensso/timbre "4.10.0"]
-                 [com.taoensso/tufte "1.1.1"]
+                 [com.taoensso/timbre "5.1.0"]
                  [timbre-ns-pattern-level "0.1.2"]
-                 [com.fzakaria/slf4j-timbre "0.3.19"]
-                 [org.clojure/tools.trace "0.7.9"]
+                 [com.fzakaria/slf4j-timbre "0.3.20"]
 
                  ; re-ops
-                 [re-share "0.16.7"]
-                 [re-cog "0.5.16"]
-                 [re-cipes "0.2.8"]
+                 [re-share "0.17.0"]
+                 [re-cog "0.5.17"]
+                 [re-cipes "0.3.0"]
                  [re-scan "0.2.1"]
 
                  ; Elasticsearch
                  [rubber "0.4.1"]
-                 [org.apache.httpcomponents/httpclient "4.5.2"]
+                 [org.apache.httpcomponents/httpclient "4.5.13"]
 
                  ; Api
                  [clj-yaml "0.4.0"]
@@ -40,22 +38,22 @@
 
                  ; libvirt
                  [org.clojure/data.xml "0.0.8"]
-                 [org.clojure/data.zip "0.1.2"]
-                 [net.java.dev.jna/jna "4.2.0"]
-                 [org.libvirt/libvirt "0.5.1"]
+                 [org.clojure/data.zip "1.0.0"]
+                 [net.java.dev.jna/jna "5.6.0"]
+                 [org.libvirt/libvirt "0.5.2"]
 
                  ; lxc
                  [http-kit "2.3.0"]
                  [less-awful-ssl "1.0.6"]
-                 [org.clojure/data.json "0.2.6" ]
+                 [org.clojure/data.json "1.0.0" ]
 
                  ; model
-                 [com.rpl/specter "1.1.2"]
+                 [com.rpl/specter "1.1.3"]
                  [com.brunobonacci/safely "0.5.0"]
-                 [com.google.guava/guava "18.0"]
-                 [commons-codec "1.10"]
+                 [com.google.guava/guava "23.0"]
+                 [commons-codec "1.15"]
                  [substantiation "0.4.0"]
-                 [com.fasterxml.jackson.core/jackson-core "2.9.6"]
+                 [com.fasterxml.jackson.core/jackson-core "2.12.0"]
 
                  ; queue
                  [factual/durable-queue "0.1.6" :exclusions [byte-streams]]
@@ -70,16 +68,16 @@
                  [me.raynes/conch "0.8.0"]
                  [org.clojure/core.async "1.3.610"]
                  [com.rpl/specter "1.1.3"]
-                 [org.clojure/core.match "0.3.0-alpha4"]
+                 [org.clojure/core.match "1.0.0"]
 
                   ; persistency
-                 [org.apache.httpcomponents/httpclient "4.5.2"]
+                 [org.apache.httpcomponents/httpclient "4.5.13"]
 
                   ; pretty output
                  [fipp "0.6.23"]
                  [narkisr/clansi "1.2.0"]
-                 [mvxcvi/puget "1.1.0"]
-                 [rm-hull/table "0.7.0"]
+                 [mvxcvi/puget "1.3.1"]
+                 [rm-hull/table "0.7.1"]
 
                  ; pretty printing
                  [io.aviso/pretty "0.1.37"]
@@ -88,8 +86,8 @@
                  [serializable-fn "1.1.4"]
                  [org.clojure/data.codec "0.1.1"]
                  [com.taoensso/nippy "2.14.0"]
-                 [cheshire "5.9.0"]
-                 [com.mikesamuel/json-sanitizer "1.2.0"]
+                 [cheshire "5.10.0"]
+                 [com.mikesamuel/json-sanitizer "1.2.1"]
 
                  ; remote execution
                  [com.hierynomus/sshj "0.30.0" :exclusions [org.slf4j/slf4j-api]]
@@ -99,19 +97,19 @@
                  [clj-time/clj-time "0.15.2"]
 
                  ; email
-                 [com.draines/postal "2.0.3"]
+                 [com.draines/postal "2.0.4"]
                  [hiccup "1.0.5"]
 
                  ; monitoring
-                 [riemann-clojure-client "0.5.0"]
+                 [riemann-clojure-client "0.5.1"]
 
                  ; spec
-                 [expound "0.8.6"]
-                 [org.clojure/test.check "0.10.0"]
+                 [expound "0.8.7"]
+                 [org.clojure/test.check "1.1.0"]
 
                  ; rules
                  [com.cerner/clara-rules "0.21.0"]
-                 [prismatic/schema "1.1.6"]
+                 [prismatic/schema "1.1.12"]
 
                  ; folder watch
                  [juxt/dirwatch "0.2.5"]
@@ -127,7 +125,7 @@
 
   :profiles {
      :codox {
-        :dependencies [[org.clojure/tools.reader "1.1.0"]
+        :dependencies [[org.clojure/tools.reader "1.3.4"]
                        [codox-theme-rdash "0.1.2"]]
               :plugins [[lein-codox "0.10.7"]]
               :codox {:project {:name "re-core"}
