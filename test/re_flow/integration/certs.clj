@@ -71,6 +71,7 @@
         ?e {:ids [(results/*1)]}]
     (is-success (cert-directory ?e parent) ?e)
     (is-success (cert-directory ?e (<< "~{parent}/~{domain}")) ?e)
+    (is-success (cert-files ?e (<< "~{parent}/~{domain}/fullchain.pem")) ?e)
     (is-success (cert-files ?e (<< "~{parent}/~{domain}/privkey.pem")) ?e)
     (is-success (cert-files ?e (<< "~{parent}/~{domain}/cert.pem")) ?e)
     (let [downloads (subscribe-?e :re-flow.certs/downloaded (chan))

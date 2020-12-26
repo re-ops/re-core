@@ -95,8 +95,9 @@
       (debug "downloading cert" domain)
       (let [m2 (run ::mkdir ?e inter-target)
             d1 (run ::download ?e domain inter-target "privkey.pem")
-            d2 (run ::download ?e domain inter-target "cert.pem")
-            failure (or (failure? d1 ?e) (failure? d2 ?e) (not m1) (not m2))]
+            d2 (run ::download ?e domain inter-target "fullchain.pem")
+            d3 (run ::download ?e domain inter-target "cert.pem")
+            failure (or (failure? d1 ?e) (failure? d2 ?e) (failure? d3 ?e) (not m1) (not m2))]
         (insert! (assoc ?e :state ::downloaded :domain domain :ids [id] :dest dest :failure failure))))))
 
 (defrule deliver-host-certs
@@ -105,5 +106,6 @@
   =>
   (let [{:keys [domain dest intermediary]} ?e
         r1 (run ::upload ?e dest domain (<< "~{intermediary}/~{domain}/privkey.pem"))
-        r2 (run ::upload ?e dest domain (<< "~{intermediary}/~{domain}/cert.pem"))]
-    (insert! (assoc ?e :state ::delivered :failure (or (failure? r1 ?e) (failure? r2 ?e))))))
+        r2 (run ::upload ?e dest domain (<< "~{intermediary}/~{domain}/fullchain.pem"))
+        r3 (run ::upload ?e dest domain (<< "~{intermediary}/~{domain}/cert.pem"))]
+    (insert! (assoc ?e :state ::delivered :failure (or (failure? r1 ?e) (failure? r2 ?e) (failure? r3 ?e))))))
