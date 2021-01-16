@@ -19,8 +19,8 @@
 
                  ; re-ops
                  [re-share "0.17.0"]
-                 [re-cog "0.5.17"]
-                 [re-cipes "0.3.1"]
+                 [re-cog "0.5.18"]
+                 [re-cipes "0.3.2"]
                  [re-scan "0.2.1"]
 
                  ; Elasticsearch
