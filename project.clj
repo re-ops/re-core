@@ -19,8 +19,8 @@
 
                  ; re-ops
                  [re-share "0.17.0"]
-                 [re-cog "0.5.18"]
-                 [re-cipes "0.3.2"]
+                 [re-cog "0.5.19"]
+                 [re-cipes "0.3.3"]
                  [re-scan "0.2.1"]
 
                  ; Elasticsearch
@@ -28,7 +28,7 @@
                  [org.apache.httpcomponents/httpclient "4.5.13"]
 
                  ; Api
-                 [clj-yaml "0.4.0"]
+                 [narkisr/clj-yaml "0.7.2"]
 
                  ; digitalocean
                  [narkisr/digitalocean "1.3"]
