@@ -8,6 +8,7 @@
   (:import [re_mote.repl.base Hosts]))
 
 (defprotocol Restic
+  (init [this bckp timeout])
   (backup [this bckp timeout])
   (unlock [this bckp timeout])
   (check [this bckp timeout])
@@ -15,14 +16,16 @@
 
 (extend-type Hosts
   Restic
+  (init [this bckp timeout]
+    [this (run-hosts this shell (shell-args (restic/init bckp)) timeout)])
   (check [this bckp timeout]
-    [this (run-hosts this shell (shell-args (restic/backup bckp)) timeout)])
-  (backup [this bckp timeout]
     [this (run-hosts this shell (shell-args (restic/check bckp)) timeout)])
+  (backup [this bckp timeout]
+    [this (run-hosts this shell (shell-args (restic/backup bckp)) timeout)])
   (unlock [this bckp timeout]
     [this (run-hosts this shell (shell-args (restic/unlock bckp)) timeout)])
   (restore [this bckp dest timeout callback]
     [this (run-hosts this shell (shell-args (restic/restore bckp dest)) timeout callback)]))
 
 (defn refer-restic []
-  (require '[re-mote.zero.restic :as rst :refer (backup check restore unlock)]))
+  (require '[re-mote.zero.restic :as rst :refer (backup check restore unlock init)]))

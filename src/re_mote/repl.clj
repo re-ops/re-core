@@ -294,6 +294,14 @@
 
 ; Backup
 
+(defn init-backup
+  "Initialize a single backup:
+
+    (init-backup (hosts (matching <id>) :hostname) :<key> bs) 
+  "
+  [hs k bs]
+  (run> (init hs (bs k) [1 :minute]) | (email (<< "restic init of ~{k}"))))
+
 (defn run-backups
   ([hs bs]
    (run-backups hs bs [24 :hours]))
