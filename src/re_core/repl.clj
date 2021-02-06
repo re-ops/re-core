@@ -242,7 +242,7 @@
 
 (defn add
   "Add existing system instances:
-      (add (kvm-size 1 512) :ubuntu-16.04-desktop \"furby\" :foo); we specify an os"
+     (add kvm default-machine local large (os :ubuntu-desktop-20.04) (with-host \"foo\") :base \"Existing base instance\")"
   [base & args]
   (let [{:keys [fns total type hostname]} (sp/into-spec {} args)
         transforms [(sp/with-type type) (sp/with-host hostname)]
