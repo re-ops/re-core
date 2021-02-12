@@ -169,8 +169,7 @@
       ]
    }
 
-  :repositories  {"bintray"  "https://dl.bintray.com/content/narkisr/narkisr-jars"
-                  "sonatype" "https://oss.sonatype.org/content/repositories/releases"
+  :repositories  {"sonatype" "https://oss.sonatype.org/content/repositories/releases"
                   "libvirt-org" "https://libvirt.org/maven2"}
 
   :resource-paths  ["src/main/resources/"]
