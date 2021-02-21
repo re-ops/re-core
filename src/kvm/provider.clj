@@ -27,7 +27,9 @@
 (declare ^:dynamic *libvirt-connection*)
 
 (defn qemu-url [{:keys [host user port]}]
-  (<< "qemu+ssh://~{user}@~{host}:~{port}/system"))
+  (if (= host "localhost")
+    "qemu:///system"
+    (<< "qemu+ssh://~{user}@~{host}:~{port}/system")))
 
 (defn connection [node]
   (connect (qemu-url node)))

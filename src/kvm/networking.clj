@@ -1,7 +1,7 @@
 (ns kvm.networking
   (:require
    [re-core.specs :refer (ip?)]
-   [clojure.string :refer (split)]
+   [clojure.string :refer (split split-lines)]
    [re-share.wait :refer (wait-for)]
    [taoensso.timbre :as timbre]
    [clojure.core.strint :refer (<<)]
@@ -20,19 +20,29 @@
          (zx/xml-> root :devices :interface :source (zx/attr :bridge))
          (zx/xml-> root :devices :interface :mac (zx/attr :address)))))
 
+(defn- assert-code [code]
+  (when (= code 127)
+    (throw (ex-info "arp is missing, please install net-tools" {}))))
+
+(defn- run-arp [node nic]
+  (if (= (:host node) "localhost")
+    (let [{:keys [exit out]} (sh "arp" "-n" "-i" nic)]
+      (assert-code exit)
+      (split-lines out))
+    (let [uuid (gen-uuid)
+          code (execute (<< "arp -n -i ~{nic}") node :out-fn (collect-log uuid))]
+      (assert-code code)
+      (get-log uuid))))
+
 (defn grab-nat [c id node]
   (let [[nic mac] (first (macs c id))
-        uuid (gen-uuid)
-        code (execute (<< "arp -n -i ~{nic}") node :out-fn (collect-log uuid))]
-    (when (= code 127)
-      (throw (ex-info "arp is missing, please install net-tools" {})))
-    (let [addresses (map (fn [line] (zipmap [:address :type :hwaddress] (split line #"\s+"))) (get-log uuid))
+        out (run-arp node nic)]
+    (let [addresses (map (fn [line] (zipmap [:address :type :hwaddress] (split line #"\s+"))) out)
           mac-to-ip-match (fn [{:keys [hwaddress address]}] (and (= hwaddress mac) (ip? address)))]
       (if-let [match (first (filter mac-to-ip-match addresses))]
         (match :address)
         (do
-          (debug (<< "nat ip not found for nic: ~{nic} mac: ~{mac}"))
-          nil)))))
+          (debug (<< "nat ip not found for nic: ~{nic} mac: ~{mac}")) nil)))))
 
 (defn wait-for-nat
   "Waiting for nat cache to update"
