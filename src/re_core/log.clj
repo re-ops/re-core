@@ -1,8 +1,6 @@
 (ns re-core.log
   (:require
    [re-share.log :as log]
-   [taoensso.timbre.appenders.3rd-party.rolling :refer (rolling-appender)]
-   [taoensso.timbre.appenders.core :refer (println-appender)]
    [taoensso.timbre  :as timbre :refer (merge-config! set-level! refer-timbre)]))
 
 (refer-timbre)
@@ -18,7 +16,7 @@
     - steam collect logs
     - log level
   "
-  [& {:keys [interval level] :or {interval 10 level :info}}]
+  [& {:keys [level] :or {level :info}}]
   (let [blacklist ["net.schmizz" "org.elasticsearch" "org.apache.http" "com.hierynomus.sshj.userauth.keyprovider"]]
     (log/setup "re-core" blacklist))
   (set-level! level))

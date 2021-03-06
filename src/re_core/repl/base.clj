@@ -2,6 +2,8 @@
   "Core repl functions"
   (:require
    [re-core.model :refer (figure-virt)]
+   [re-mote.zero.management :refer (registered?)]
+   [clansi.core :refer (style)]
    [table.core :refer (table)]
    [clojure.set :refer (intersection)]))
 
@@ -29,12 +31,16 @@
 
 (defmethod pretty nil [_ _] nil)
 
+(defn system-row [[id s]]
+  (-> s
+      (assoc :id (str ".." (apply str (take-last 4 id))) :hyp (figure-virt s))
+      (assoc :registered (if (registered? (get-in s [:machine :hostname])) (style "✔" :green) (style "x" :red)))
+      (select-keys*
+       [:id] [:machine :hostname] [:machine :ip] [:type] [:machine :os] [:hyp] [:description] [:registered])))
+
 (defmethod pretty :systems [this {:keys [systems]}]
   (table
-   (map
-    (fn [[id s]]
-      (select-keys* (merge s {:id id :hypervisor (figure-virt s)})
-                    [:id] [:machine :hostname] [:type] [:machine :os] [:hypervisor] [:machine :ip] [:description])) systems) :style :borderless))
+   (map system-row systems) :style :borderless))
 
 (defmethod pretty :types [_ {:keys [types]}]
   (table
