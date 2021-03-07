@@ -18,7 +18,7 @@
                  [com.fzakaria/slf4j-timbre "0.3.20"]
 
                  ; re-ops
-                 [re-share "0.17.0"]
+                 [re-share "0.17.1"]
                  [re-cog "0.5.22"]
                  [re-cipes "0.3.7"]
                  [re-scan "0.2.1"]
