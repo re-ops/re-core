@@ -66,7 +66,7 @@
       (wait-for-status this "running" timeout)
       (debug "in running state")
       (let [ip (.ip this) flavor (get-in domain [:image :flavor])
-            {:keys [user name hostname fqdn]} domain]
+            {:keys [user hostname fqdn]} domain]
         (wait-for-ssh ip user timeout)
         ; hotpluging volumes require guest kernel to be up
         (create-volumes (c) (domain :name) volumes)
