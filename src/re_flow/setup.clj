@@ -21,6 +21,7 @@
 (derive ::cleanup :re-flow.core/state)
 (derive ::purged :re-flow.core/state)
 (derive ::registered :re-flow.core/state)
+(derive ::available :re-flow.core/state)
 (derive ::provisioned :re-flow.core/state)
 (derive ::done :re-flow.core/state)
 
@@ -39,6 +40,24 @@
   =>
   (info "creation failed due to:\n" (clojure.string/join "\n" (map :message (-> ?e :result second :results :failure)))))
 
+(defn ips-available [ids]
+  (try
+    (wait-for {:timeout [1 :minute]}
+              (fn []
+                (let [systems (-> (list (with-ids ids) :systems :print? false) second :systems)]
+                  (into systems)
+                  (every? (comp not nil? :ip  :machine second) systems)))
+              "Failed to wait for ips to become available")
+    true
+    (catch ExceptionInfo _ false)))
+
+(defrule available
+  "The ip addresses of all instances is available and ready (this can be delayed by storage flush delay)"
+  [?e <- ::created [{:keys [failure]}] (= failure false)]
+  =>
+  (let [{:keys [ids]} ?e]
+    (insert! (assoc ?e :state ::available :failure (not (ips-available ids))))))
+
 (defn registraion-successful [ids]
   (let [hs (hosts (with-ids ids) :hostname)]
     (try
@@ -51,6 +70,7 @@
 (defrule registing
   "Registering"
   [?e <- ::created [{:keys [failure]}] (= failure false)]
+  [?a <- ::available [{:keys [failure ids]}] (= failure false) (= (hash-set ids) (hash-set (?e :ids)))]
   =>
   (let [gent "/home/ronen/code/re-ops/re-gent/target/re-gent"
         {:keys [ids]} ?e]
