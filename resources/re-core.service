@@ -1,0 +1,12 @@
+[Unit]
+Description=re-core
+
+[Service]
+ExecStart=/usr/local/bin/tmx start --p re-core
+ExecStop=/usr/bin/tmux kill-session -t re-core && /usr/bin/virsh shutdown elasticsearch
+WorkingDirectory=/home/<user>
+Type=forking
+Environment=DISPLAY=:0
+
+[Install]
+WantedBy=default.target
