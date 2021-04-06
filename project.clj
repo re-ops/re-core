@@ -3,7 +3,9 @@
   :url "https://github.com/re-core-ops/re-core-core"
   :license  {:name "Apache License, Version 2.0" :url "http://www.apache.org/licenses/LICENSE-2.0.html"}
 
-  :dependencies [[org.clojure/clojure "1.10.1"]
+  :dependencies [[org.clojure/clojure "1.10.3"]
+
+                 [org.clojure/java.classpath "1.0.0"]
 
                  ; utils
                  [me.raynes/fs "1.4.6"]
@@ -13,9 +15,9 @@
                  [com.palletops/stevedore "0.8.0-beta.7"]
 
                  ; logging / profiling
-                 [com.taoensso/timbre "5.1.0"]
+                 [com.taoensso/timbre "5.1.2"]
                  [timbre-ns-pattern-level "0.1.2"]
-                 [com.fzakaria/slf4j-timbre "0.3.20"]
+                 [com.fzakaria/slf4j-timbre "0.3.21"]
 
                  ; re-ops
                  [re-share "0.17.1"]
@@ -43,7 +45,7 @@
                  [org.libvirt/libvirt "0.5.2"]
 
                  ; lxc
-                 [http-kit "2.3.0"]
+                 [http-kit "2.5.3"]
                  [less-awful-ssl "1.0.6"]
                  [org.clojure/data.json "1.0.0" ]
 
@@ -53,7 +55,7 @@
                  [com.google.guava/guava "23.0"]
                  [commons-codec "1.15"]
                  [substantiation "0.4.0"]
-                 [com.fasterxml.jackson.core/jackson-core "2.12.0"]
+                 [com.fasterxml.jackson.core/jackson-core "2.12.2"]
 
                  ; queue
                  [factual/durable-queue "0.1.6" :exclusions [byte-streams]]
@@ -87,10 +89,10 @@
                  [org.clojure/data.codec "0.1.1"]
                  [com.taoensso/nippy "2.14.0"]
                  [cheshire "5.10.0"]
-                 [com.mikesamuel/json-sanitizer "1.2.1"]
+                 [com.mikesamuel/json-sanitizer "1.2.2"]
 
                  ; remote execution
-                 [com.hierynomus/sshj "0.30.0" :exclusions [org.slf4j/slf4j-api]]
+                 [com.hierynomus/sshj "0.31.0" :exclusions [org.slf4j/slf4j-api]]
                  [org.zeromq/jeromq "0.5.2"]
 
                  ; model
@@ -104,7 +106,7 @@
                  [riemann-clojure-client "0.5.1"]
 
                  ; spec
-                 [expound "0.8.7"]
+                 [expound "0.8.9"]
                  [org.clojure/test.check "1.1.0"]
 
                  ; rules
@@ -125,7 +127,7 @@
 
   :profiles {
      :codox {
-        :dependencies [[org.clojure/tools.reader "1.3.4"]
+        :dependencies [[org.clojure/tools.reader "1.3.5"]
                        [codox-theme-rdash "0.1.2"]]
               :plugins [[lein-codox "0.10.7"]]
               :codox {:project {:name "re-core"}
