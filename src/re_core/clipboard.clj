@@ -1,7 +1,5 @@
 (ns re-core.clipboard
   "Basic clipboard reading support"
-  (:require
-   [re-share.core :refer (error-m)])
   (:import
    [java.awt.datatransfer DataFlavor StringSelection Transferable]))
 
@@ -11,6 +9,9 @@
         (.getContents nil)
         (.getTransferData (DataFlavor/stringFlavor)))))
 
-(defn set-clipboard [s]
+(defn set-clipboard
+  "Set clipboard, for example set last ip address:
+     (set-clipboard (*ip)) "
+  [s]
   (let [clipboard (.getSystemClipboard (java.awt.Toolkit/getDefaultToolkit))]
     (.setContents clipboard (StringSelection. s) nil)))
