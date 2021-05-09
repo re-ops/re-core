@@ -20,9 +20,9 @@
                  [com.fzakaria/slf4j-timbre "0.3.21"]
 
                  ; re-ops
-                 [re-share "0.17.1"]
-                 [re-cog "0.5.23"]
-                 [re-cipes "0.3.8"]
+                 [re-share "0.17.2"]
+                 [re-cog "0.6.0"]
+                 [re-cipes "0.3.9"]
                  [re-scan "0.2.1"]
 
                  ; Elasticsearch
