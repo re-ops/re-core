@@ -63,13 +63,24 @@
   [lines]
   (first (filter #(.contains % "inet") lines)))
 
-(defn public-ip
-  [c user node id & {:keys [public-nic] :or {public-nic "eth1"}}]
-  (wait-for-nat c id node [1 :minute])
-  (let [uuid (gen-uuid) nat (nat-ip c id node)
+(defn grab-public [user nat public-nic node]
+  (let [uuid (gen-uuid)
         cmd (<< "ssh ~{ignore-authenticity} ~{user}@~{nat} -C 'ifconfig ~{public-nic}'")]
     (execute cmd node :out-fn (collect-log uuid))
     (let [log (or (inet-line (get-log uuid)) "")]
-      (if-let [ip (second (re-matches #".*inet (\d+\.\d+\.\d+\.\d+).*" log))]
-        ip
-        (throw (ex-info "Failed to grab domain public IP" {:user user :node node :id id :output log}))))))
+      (when-let [ip (second (re-matches #".*inet (\d+\.\d+\.\d+\.\d+).*" log))]
+        ip))))
+
+(defn wait-for-public
+  "Waiting for public ip"
+  [user nat public-nic node timeout]
+  (wait-for {:timeout timeout :sleep [2000 :ms]}
+            (fn [] (not (nil? (grab-public user nat public-nic node))))
+            "Timed out on waiting for arp cache to update"))
+
+(defn public-ip
+  [c user node id & {:keys [public-nic] :or {public-nic "eth1"}}]
+  (wait-for-nat c id node [1 :minute])
+  (let [nat (nat-ip c id node)]
+    (wait-for-public user nat public-nic node [30 :second])
+    (grab-public user nat public-nic node)))
