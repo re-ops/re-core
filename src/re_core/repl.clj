@@ -242,7 +242,13 @@
 
 (defn add
   "Add existing system instances:
-     (add kvm default-machine local large (os :ubuntu-desktop-20.04) (with-host \"foo\") :base \"Existing base instance\")"
+
+     ; Adding an existing KVM VM:
+     (add kvm default-machine local large (os :ubuntu-desktop-20.04) (with-host \"foo\") :base \"Existing base instance\")
+
+     ; Add a physical machine:
+     (add physical (os :debian-10.0)  (machine \"re-ops\" \"local\") :base \"A basic physical instance\")
+  "
   [base & args]
   (let [{:keys [fns total type hostname]} (sp/into-spec {} args)
         transforms [(sp/with-type type) (sp/with-host hostname)]

@@ -67,7 +67,7 @@
 (s/def ::hostname (s/and string? hostname?))
 
 (defn domain? [s]
-  (re-matches #"([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\\-]*[A-Za-z0-9])" s))
+  (re-matches #"([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\\-]*(\.)?[A-Za-z0-9]*)" s))
 
 (s/def ::domain (s/and string? domain?))
 

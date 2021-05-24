@@ -107,7 +107,7 @@
 
 (def ^{:doc "Creating a ec2 VM: (create ec2 ...)"} ec2 {:aws {} :machine {}})
 
-(def ^{:doc "Adding a physical machine: (add physical  ...)"} physical {:physical {} :machine {}})
+(def ^{:doc "Adding a physical machine: (add physical  ...)"} physical {:physical {:broadcast "0.0.0.0" :mac "00:00:00:00:00:00"} :machine {}})
 
 (def ^{:doc "Creating a ec2 VM: (create ec2 ...)"} droplet {:digital-ocean {} :machine {}})
 
@@ -115,4 +115,4 @@
   [default-machine local (os :ubuntu-desktop-20.04) c4-large :disposable "A temporary sandbox"])
 
 (defn refer-system-presets []
-  (require '[re-core.presets.systems :as spc :refer [node lxc kvm droplet ec2 os ubuntu-20_04 defaults local default-machine with-host]]))
+  (require '[re-core.presets.systems :as spc :refer [node lxc kvm droplet physical ec2 os ubuntu-20_04 defaults local default-machine with-host machine]]))
