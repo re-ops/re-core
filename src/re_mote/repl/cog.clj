@@ -14,7 +14,7 @@
   (run-plan [this _ p args]))
 
 (defn purge-failing
-  "Purge failing hosts from the success list (they had previouse successes and now they failed"
+  "Purge failing hosts from the success list (they had previouse successes and now they failed)"
   [{:keys [failure] :as m}]
   (let [failing-hosts (into #{} (select [MAP-VALS ALL :host] failure))]
     (update m :success (partial filter (comp not failing-hosts :host)))))
@@ -36,10 +36,11 @@
 (defn combine-results
   "Combine current run result with the accumulated values"
   [f {:keys [hosts] :as m} {:keys [failure] :as curr-run}]
-  (let [failing (into #{} (select [MAP-VALS ALL :host] failure))]
+  (let [failing (into #{} (select [MAP-VALS ALL :host] failure))
+        failure' (transform [MAP-VALS ALL] (fn [v] (assoc v :f f)) failure)]
     (->  m
          (update :success (combine-success f curr-run))
-         (update :failure (fn [v] (merge-with into (or v {}) failure)))
+         (update :failure (fn [v] (merge-with into (or v {}) failure')))
          (assoc :hosts (filter (comp not failing) hosts))
          purge-failing)))
 
