@@ -1,6 +1,7 @@
 (ns re-core.dispoable
   "Dispoable VMs functions"
   (:require
+   [re-core.networking :refer (ips-available)]
    [clojure.core.strint :refer (<<)]
    [me.raynes.fs :as fs]
    [clojure.java.io :refer (file)]
@@ -68,6 +69,7 @@
         args dispoable-instance
         [_ m] (run (valid? systems kvm args) | (add-) | (sys/create) | (block-wait))
         {:keys [system-id]} (-> m :results :success first :args first)]
+    (ips-available [system-id])
     (spice-into (matching system-id))
     (doseq [f fs]
       (open-file (hosts (matching system-id) :ip) f))))

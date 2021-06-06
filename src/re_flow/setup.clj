@@ -6,6 +6,7 @@
    [re-share.wait :refer (wait-for)]
    [re-mote.repl :refer :all :exclude (provision)]
    [re-core.repl :refer :all]
+   [re-core.networking :refer (ips-available)]
    [re-flow.common :refer (successful-systems)]
    [clojure.core.strint :refer (<<)]
    [clara.rules :refer :all])
@@ -39,17 +40,6 @@
   [?e <- ::created [{:keys [failure result]}] (= failure true)]
   =>
   (info "creation failed due to:\n" (clojure.string/join "\n" (map :message (-> ?e :result second :results :failure)))))
-
-(defn ips-available [ids]
-  (try
-    (wait-for {:timeout [1 :minute]}
-              (fn []
-                (let [systems (-> (list (with-ids ids) :systems :print? false) second :systems)]
-                  (into systems)
-                  (every? (comp not nil? :ip  :machine second) systems)))
-              "Failed to wait for ips to become available")
-    true
-    (catch ExceptionInfo _ false)))
 
 (defrule available
   "The ip addresses of all instances is available and ready (this can be delayed by storage flush delay)"
