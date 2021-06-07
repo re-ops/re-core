@@ -7,7 +7,6 @@
    [clojure.spec.alpha :as s]
    [re-core.model :refer (figure-virt)]
    [re-core.presets.digitial :as d]
-   [re-core.presets.aws :as amz]
    [re-share.core :refer (gen-uuid)]))
 
 (defn name-gen
@@ -87,7 +86,6 @@
   (let [base (-> instance (ubuntu-20_04) (default-machine))]
     (case (figure-virt base)
       :digital-ocean (d/defaults base)
-      :aws (amz/defaults base)
       base)))
 
 (defn node
@@ -105,8 +103,6 @@
 
 (def ^{:doc "Creating a kvm VM: (create kvm ...)"} kvm {:kvm {} :machine {}})
 
-(def ^{:doc "Creating a ec2 VM: (create ec2 ...)"} ec2 {:aws {} :machine {}})
-
 (def ^{:doc "Adding a physical machine: (add physical  ...)"} physical {:physical {:broadcast "0.0.0.0" :mac "00:00:00:00:00:00"} :machine {}})
 
 (def ^{:doc "Creating a ec2 VM: (create ec2 ...)"} droplet {:digital-ocean {} :machine {}})
@@ -115,4 +111,4 @@
   [default-machine local (os :ubuntu-desktop-20.04) c4-large :disposable "A temporary sandbox"])
 
 (defn refer-system-presets []
-  (require '[re-core.presets.systems :as spc :refer [node lxc kvm droplet physical ec2 os ubuntu-20_04 defaults local default-machine with-host machine]]))
+  (require '[re-core.presets.systems :as spc :refer [node lxc kvm droplet physical os ubuntu-20_04 defaults local default-machine with-host machine]]))

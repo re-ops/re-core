@@ -17,7 +17,6 @@
    [re-core.clipboard :refer (read-clipboard set-clipboard)]
    [re-core.presets.kvm :refer (refer-kvm-presets)]
    [re-core.presets.digitial :refer (refer-digital-presets)]
-   [re-core.presets.aws :refer (refer-aws-presets)]
    [re-core.presets.systems :refer (refer-system-presets)]
    [re-core.presets.instance-types :refer (refer-instance-types)]
    [re-core.presets.types :refer (refer-type-presets)]
@@ -60,7 +59,6 @@
 (refer-zero-manage)
 (refer-zero-pipe)
 (refer-kvm-presets)
-(refer-aws-presets)
 (refer-digital-presets)
 (refer-system-presets)
 (refer-instance-types)
@@ -109,7 +107,6 @@
    're-flow.integration.certs
    're-core.integration.es.jobs
    're-core.integration.es.systems
-   're-core.test.aws
    're-core.test.kvm
    're-core.test.physical
    're-core.test.provider
@@ -122,7 +119,6 @@
 
 (defn run-tests []
   (clojure.test/run-tests
-   're-core.test.aws
    're-core.test.kvm
    're-core.test.specs
    're-core.test.physical

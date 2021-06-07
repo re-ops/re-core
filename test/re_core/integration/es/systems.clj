@@ -38,8 +38,4 @@
         {:keys [hits]} (s/query query :size 2 :from 1)]
     (is (= 1 (int (-> hits :hits count))))))
 
-(deftest aws
-  (let [query {:wildcard {:aws.endpoint "*"}} {:keys [hits]} (s/query query :size 2 :from 0)]
-    (is (= 2 (int (-> hits :hits count))))))
-
 (use-fixtures :each setup)

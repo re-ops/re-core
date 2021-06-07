@@ -29,7 +29,7 @@
 
 ; based on https://github.com/dustinkirkland/instance-type/blob/master/yaml/aws.yaml
 (def aws
-  (supports #{:lxc :aws :kvm}
+  (supports #{:lxc :kvm}
             (clojure.edn/read-string (slurp "resources/aws.edn"))))
 
 (def all (merge aws simple slugs))
@@ -43,7 +43,6 @@
                     (list 'throw (list 'ex-info (list str "Provided size " k " does not support " 'virt) {})))
               (list 'case 'virt
                     :digital-ocean (list 'assoc-in 'system [:digital-ocean :size] (v :size))
-                    :aws (list 'assoc-in 'system [:aws :instance-type] (name k))
                     (list 'update-in 'system [:machine] (list 'fn '[m] (list 'merge 'm v)))))))
 
 (defmacro types []
