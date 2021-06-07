@@ -65,7 +65,7 @@
                  [mount "0.1.16"]
 
                  [me.raynes/conch "0.8.0"]
-                 [org.clojure/core.async "1.3.610"]
+                 [org.clojure/core.async "1.3.618"]
                  [com.rpl/specter "1.1.3"]
                  [org.clojure/core.match "1.0.0"]
 
@@ -117,8 +117,7 @@
   :exclusions [org.clojure/clojure com.taoensso/timbre commons-codec prismatic/schema]
 
   :plugins  [[lein-cljfmt "0.6.8"]
-             [lein-ancient "0.6.15" :exclusions [org.clojure/clojure]]
-             [self-build "0.0.9"]
+             [lein-ancient "0.7.0" :exclusions [org.clojure/clojure]]
              [lein-tag "0.1.0"]
              [lein-set-version "0.3.0"]]
 
