@@ -70,7 +70,7 @@
         [_ m] (run (valid? systems kvm args) | (add-) | (sys/create) | (block-wait))
         {:keys [system-id]} (-> m :results :success first :args first)]
     (when-not (ips-available [system-id])
-      (throw (ex-info "failed to wait for system ip to be available") m))
+      (throw (ex-info "failed to wait for system ip to be available" m)))
     (spice-into (matching system-id))
     (doseq [f fs]
       (open-file (hosts (matching system-id) :ip) f))))
