@@ -10,7 +10,7 @@
     (wait-for {:timeout [1 :minute]}
               (fn []
                 (let [systems (-> (list (with-ids ids) :systems :print? false) second :systems)]
-                  (every? (comp not nil? :ip  :machine second) systems)))
+                  (every? (comp not nil? :ip :machine second) systems)))
               "Failed to wait for ips to become available")
     true
     (catch ExceptionInfo _ false)))
