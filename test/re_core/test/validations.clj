@@ -2,7 +2,7 @@
   (:require
    [re-core.model :refer (check-validity)]
    [re-core.fixtures.data :refer
-    (redis-type redis-ec2 redis-physical)])
+    (redis-type redis-physical)])
   (:use clojure.test)
   (:import clojure.lang.ExceptionInfo))
 

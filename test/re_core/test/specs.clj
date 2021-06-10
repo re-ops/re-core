@@ -6,7 +6,6 @@
   (:use clojure.test))
 
 (deftest legal-systems
-  (is (valid? ::core/system d/redis-ec2))
   (is (valid? ::core/system d/redis-digital))
   (is (valid? ::core/system d/redis-lxc))
   (is (valid? ::core/system d/redis-physical))
