@@ -1,6 +1,7 @@
 (ns re-mote.zero.management
   "Managing client protocol"
   (:require
+   [clojure.core.strint :refer (<<)]
    [table.core :refer (table)]
    [re-share.core :refer (error-m)]
    [re-mote.zero.results :refer (add-result)]
@@ -45,6 +46,7 @@
       [{:request "unregister"}] (unregister address)
       [{:reply "execute" :result "failed" :uuid id :error e}] (add-result hostname id e)
       [{:reply "execute" :result r :time t :uuid id}] (add-result hostname id r t)
+      [{:reply "scheduled" :result r :time t :uuid id}] (add-result hostname id r t)
       :else (do
               (error "no handling clause found for request" request)
               (fail request "no handling clause found for request")))

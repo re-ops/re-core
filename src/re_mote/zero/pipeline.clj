@@ -8,7 +8,7 @@
    [com.rpl.specter :refer (transform MAP-VALS ALL VAL)]
    [re-mote.zero.management :refer (refer-zero-manage)]
    [re-mote.zero.results :refer (refer-zero-results)]
-   [re-mote.zero.functions :refer (call)]
+   [re-mote.zero.functions :refer (call schedule)]
    [re-mote.zero.cycle :refer (ctx)]))
 
 (refer-timbre)
@@ -57,8 +57,20 @@
          uuid (call f args hosts)]
      (register-callback hosts uuid timeout callback))))
 
+(defn schedule-hosts
+  "Schedule a function f with provided args on all hosts using Re-gent and confirm registration:
+
+     ; setup a scheduled function with key :cpu-vuln that runs every 20 seconds
+     (schedule-hosts (hosts (matching (*1))  :hostname) re-cog.facts.security/cpu-vulns [] [:cpu-vulns 20])
+  "
+  [hs f args spec]
+  {:post [(valid? ::re-spec/operation-result %)]}
+  (let [hosts (into-zmq-hosts hs)
+        uuid (schedule f args spec hosts)]
+    (into-results hs hosts uuid (collect (keys hosts) uuid [10 :second]))))
+
 (defn refer-zero-pipe []
-  (require '[re-mote.zero.pipeline :as zpipe :refer (run-hosts)]))
+  (require '[re-mote.zero.pipeline :as zpipe :refer (run-hosts schedule-hosts)]))
 
 (comment
   (send- (send-socket @ctx) {:address 1234 :content {:request :execute}}))
