@@ -64,8 +64,7 @@
   []
   (check-entropy 200)
   (check-jce)
-  (setup-logging)
-  (setup-stats 10 10))
+  (setup-logging))
 
 (defn single
   "Create a single hosts instance"
