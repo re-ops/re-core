@@ -31,7 +31,7 @@
 
 (defn stamp [t]
   (fn [m]
-    (merge m {:timestamp (.getMillis (t/now)) :type t})))
+    (merge m {:timestamp (or (-> m :result :timestamp) (.getMillis (t/now))) :type t})))
 
 (defn by-hosts
   "split results by host"

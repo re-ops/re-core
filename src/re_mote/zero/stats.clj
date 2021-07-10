@@ -3,11 +3,12 @@
   (:require
    re-mote.repl.base
    [re-cog.scripts.stats :refer (net-script cpu-script free-script load-script du-script entropy-script)]
+   [re-cog.zero.scheduled :refer (get-scheduled-result)]
    [clojure.core.strint :refer (<<)]
    [clojure.string :refer (split split-lines)]
-   [re-mote.zero.pipeline :refer (run-hosts)]
+   [re-mote.zero.pipeline :refer (run-hosts schedule-hosts)]
    [taoensso.timbre :refer (refer-timbre)]
-   [com.rpl.specter :as s :refer (transform select MAP-VALS ALL ATOM keypath multi-path)]
+   [com.rpl.specter :as s :refer (transform select MAP-VALS ALL pred ATOM keypath multi-path)]
    [clj-time.core :as t]
    [clj-time.coerce :refer (to-long)]
    [re-cog.scripts.common :refer (shell-args shell)]
@@ -30,20 +31,10 @@
 
 (defn zip
   "Collecting output into a hash, must be defined outside protocoal because of var args"
-  [this {:keys [success failure] :as res} parent k & ks]
+  [this [parent k & ks] {:keys [success failure] :as res}]
   (let [by (or (first (filter fn? ks)) space)
         success' (map (partial zipped parent k (filter keyword? ks) by) success)]
     [this (assoc (assoc res :success success') :failure failure)]))
-
-(defprotocol Stats
-  (du [this] [this m])
-  (entropy [this] [this m])
-  (net [this] [this m])
-  (cpu [this] [this m])
-  (free [this] [this m])
-  (load-avg [this] [this m])
-  (collect [this m])
-  (sliding [this m f k]))
 
 (def readings (atom {}))
 
@@ -65,9 +56,6 @@
   ([nav [this readings]]
    [this (transform nav safe-dec readings)]))
 
-(defn- window [f ts]
-  (apply merge (map f (partition 3 1 ts))))
-
 (defn reset
   "reset a key in readings"
   [k]
@@ -86,47 +74,75 @@
 
 (def timeout [5 :second])
 
+(def scripts {:free free-script
+              :net net-script
+              :cpu cpu-script
+              :du du-script
+              :load-avg load-script})
+
+(defprotocol Stats
+  (du [this] [this m])
+  (entropy [this] [this m])
+  (net [this] [this m])
+  (cpu [this] [this m])
+  (free [this] [this m])
+  (load-avg [this] [this m])
+  (collect [this m])
+  (sliding [this m f k])
+  (schedule [this k n capacity]))
+
+(defn split-results [{:keys [success] :as m}]
+  (assoc m :success
+         (flatten (map (fn [{:keys [result] :as r}]
+                         (map (fn [{:keys [exit] :as v}] (assoc r :result v :code exit)) result)) success))))
+
+(defn normalize [this m & ks]
+  (->> m
+       split-results
+       (zip this ks)
+       into-dec))
+
 (extend-type Hosts
   Stats
   (du
     ([this]
-     (into-dec (multi-nav :blocks :used :available)
-               (zip this
-                    (run-hosts this shell (shell-args du-script :cached? true) timeout)
-                    :stats :du :filesystem :type :blocks :used :available :perc :mount)))
+     (into-dec
+      (multi-nav :blocks :used :available)
+      (zip this [:stats :du :filesystem :type :blocks :used :available :perc :mount]
+           (split-results (run-hosts this get-scheduled-result [:du] timeout)))))
     ([this _]
      (du this)))
 
   (entropy
     ([this]
-     (into-dec (zip this (run-hosts this shell (shell-args entropy-script :cached? true) timeout) :stats :entropy :available)))
+     (normalize this (run-hosts this get-scheduled-result [:entropy] timeout) :stats :entropy :available))
     ([this _]
      (entropy this)))
 
   (net
-    ([this _]
-     (net this))
     ([this]
-     (into-dec
-      (zip this (run-hosts this shell (shell-args net-script :cached? true) timeout)
-           :stats :net :rxpck/s :txpck/s :rxkB/s :txkB/s :rxcmp/s :txcmp/s :rxmcst/s :ifutil))))
+     (normalize this (run-hosts this get-scheduled-result [:net] timeout)
+                :stats :net :rxpck/s :txpck/s :rxkB/s :txkB/s :rxcmp/s :txcmp/s :rxmcst/s :ifutil))
+    ([this _]
+     (net this)))
+
   (cpu
     ([this]
-     (into-dec (zip this (run-hosts this shell (shell-args cpu-script :cached? true) timeout) :stats :cpu :usr :sys :idle)))
+     (normalize this (run-hosts this get-scheduled-result [:cpu] timeout) :stats :cpu :usr :sys :idle))
     ([this _]
      (cpu this)))
 
   (free
     ([this]
-     (into-dec (zip this (run-hosts this shell (shell-args free-script :cached? true) timeout) :stats :free :total :used :free :shared :buff-cache :available)))
+     (normalize this (run-hosts this get-scheduled-result [:free] timeout) :stats :free :total :used :free :shared :buff-cache :available))
     ([this _]
      (free this)))
 
   (load-avg
     ([this]
-     (into-dec (zip this (run-hosts this shell (shell-args load-script :cached? true) timeout) :stats :load :one :five :fifteen :cores)))
+     (normalize this (run-hosts this get-scheduled-result [:load-avg] timeout) :stats :load :one :five :fifteen :cores))
     ([this _]
-     (free this)))
+     (load-avg this)))
 
   (collect [this {:keys [success] :as m}]
     (doseq [{:keys [host stats]} success]
@@ -135,45 +151,15 @@
                (fn [m] (if (nil? m) (sorted-map (t/now) v) (assoc m (t/now) v))))))
     [this m])
 
-  (sliding [this {:keys [success] :as m} f fk]
-    (doseq [{:keys [host stats]} success]
-      (doseq [[k _] stats]
-        (transform [ATOM (keypath host) k]
-                   (fn [{:keys [timeseries] :as m}] (assoc m fk (window f timeseries))) readings)))
-    [this m]))
+  (schedule
+    ([this k n capacity]
+     (schedule-hosts this shell (shell-args (scripts k) :cached? true) [k n capacity]))))
 
 (defn purge [n]
   (transform [ATOM MAP-VALS MAP-VALS MAP-VALS] (partial last-n n) readings))
 
-(defn setup-stats
-  "Setup stats collection"
-  [s n]
-  (watch :stats-purge (seconds s) (fn [] (purge n))))
-
-(defn- host-values
-  [k ks {:keys [host stats]}]
-  (transform [ALL]
-             (fn [[t s]] {:x (to-long t) :y (get-in s ks) :host host})
-             (vec (get-in @readings [host (first (keys stats)) k]))))
-
-(defn single-per-host
-  "Collect a single nested reading for each host"
-  [k ks success]
-  (mapcat (partial host-values k ks) success))
-
-(defn- avg-data-point [& ks]
-  (let [[t _] (first ks) sums (apply (partial merge-with +) (map second ks))
-        vs (transform [MAP-VALS] #(with-precision 10 (/ % (count ks))) sums)]
-    (map (fn [[k v]] {:x (to-long t) :y v :c k}) vs)))
-
-(defn avg-all
-  "Average for all hosts"
-  [k success]
-  (let [r (first (keys (:stats (first success))))]
-    (apply mapcat avg-data-point (select [ATOM MAP-VALS r k] readings))))
-
 (defn refer-stats []
-  (require '[re-mote.zero.stats :as stats :refer (load-avg net cpu free du entropy collect sliding setup-stats)]))
+  (require '[re-mote.zero.stats :as stats :refer (load-avg net cpu free du entropy collect)]))
 
 (comment
   (reset! readings {}))
