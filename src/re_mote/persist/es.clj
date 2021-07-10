@@ -25,8 +25,7 @@
 
 (defprotocol Elasticsearch
   (persist
-    [this m]
-    [this m t])
+    [this m])
   (query
     [this q]))
 
@@ -58,15 +57,13 @@
 
   Elasticsearch
   (persist
-    ([this {:keys [success failure] :as m} t]
+    ([this {:keys [success failure] :as m}]
      (when-not (empty? success)
        (bulk-create (day-index :re-mote :result) success))
      (let [fail (flatten (vals failure))]
        (when-not (empty? fail)
          (bulk-create (day-index :re-mote :result) fail)))
-     [this m])
-    ([this m]
-     (persist this m :result))))
+     [this m])))
 
 (def types {:properties {:timestamp {:type "date" :format "epoch_millis"}
                          :host {:type "keyword"}
