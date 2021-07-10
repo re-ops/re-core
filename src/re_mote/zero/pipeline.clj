@@ -60,8 +60,8 @@
 (defn schedule-hosts
   "Schedule a function f with provided args on all hosts using Re-gent and confirm registration:
 
-     ; setup a scheduled function with key :cpu-vuln that runs every 20 seconds
-     (schedule-hosts (hosts (matching (*1))  :hostname) re-cog.facts.security/cpu-vulns [] [:cpu-vulns 20])
+     ; setup a scheduled function with key :cpu-vuln that runs every 20 seconds with 5 results queue capacity
+     (schedule-hosts (hosts (matching (*1))  :hostname) re-cog.facts.security/cpu-vulns [] [:cpu-vulns 20 5])
   "
   [hs f args spec]
   {:post [(valid? ::re-spec/operation-result %)]}
