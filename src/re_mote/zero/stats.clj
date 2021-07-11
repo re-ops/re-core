@@ -77,8 +77,9 @@
 (def scripts {:free free-script
               :net net-script
               :cpu cpu-script
+              :entropy entropy-script
               :du du-script
-              :load-avg load-script})
+              :load load-script})
 
 (defprotocol Stats
   (du [this] [this m])
