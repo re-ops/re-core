@@ -141,7 +141,7 @@
 
   (load-avg
     ([this]
-     (normalize this (run-hosts this get-scheduled-result [:load-avg] timeout) :stats :load :one :five :fifteen :cores))
+     (normalize this (run-hosts this get-scheduled-result [:load] timeout) :stats :load :one :five :fifteen :cores))
     ([this _]
      (load-avg this)))
 
