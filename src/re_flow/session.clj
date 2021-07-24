@@ -5,6 +5,7 @@
    re-flow.queries
    re-flow.restore
    re-flow.certs
+   re-flow.nebula
    re-flow.notification
    re-flow.disposable
    [re-cog.facts.datalog :refer (desktop?)]
@@ -22,7 +23,10 @@
 (defn initialize []
   (atom
    (mk-session
-    're-flow.queries 're-flow.setup 're-flow.restore 're-flow.certs 're-flow.notification 're-flow.disposable :fact-type-fn fact-type :cache false)))
+    're-flow.queries 're-flow.setup 're-flow.restore
+    're-flow.certs 're-flow.notification 're-flow.disposable
+    're-flow.nebula
+    :fact-type-fn fact-type :cache false)))
 
 (defstate ^{:on-reload :noop} session
   :start (initialize)

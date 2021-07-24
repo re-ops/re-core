@@ -75,7 +75,7 @@
     (insert!
      (-> ?e
          (dissoc :message :failure)
-         (assoc  :state ::domains-ready :failure (failure? r ?e))))))
+         (assoc :state ::domains-ready :failure (failure? r ?e))))))
 
 (defrule run-renewal
   "Renew the certificates"
@@ -105,7 +105,7 @@
   [?e <- ::downloaded [{:keys [failure dest ids]}] (= failure false) (not (nil? dest)) (not (empty? (filter identity ids)))]
   =>
   (let [{:keys [domain dest intermediary]} ?e
-        r1 (run ::upload ?e dest domain (<< "~{intermediary}/~{domain}/privkey.pem"))
-        r2 (run ::upload ?e dest domain (<< "~{intermediary}/~{domain}/fullchain.pem"))
-        r3 (run ::upload ?e dest domain (<< "~{intermediary}/~{domain}/cert.pem"))]
+        r1 (run ::upload ?e dest (<< "~{intermediary}/~{domain}/privkey.pem"))
+        r2 (run ::upload ?e dest (<< "~{intermediary}/~{domain}/fullchain.pem"))
+        r3 (run ::upload ?e dest (<< "~{intermediary}/~{domain}/cert.pem"))]
     (insert! (assoc ?e :state ::delivered :failure (or (failure? r1 ?e) (failure? r2 ?e) (failure? r3 ?e))))))

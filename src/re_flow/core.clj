@@ -22,6 +22,14 @@
 
 (comment
   (trigger {:state :re-flow.certs/start :flow :re-flow.certs/certs})
+  (trigger {:state :re-flow.nebula/start
+            :flow :re-flow.nebula/sign
+            :crt "/datastore/code/re-ops/re-core/certs/ca.crt"
+            :key "/datastore/code/re-ops/re-core/certs/ca.key"
+            :dest "/tmp/"
+            :range "192.168.100.0"
+            :hosts [{:name "instance-2" :groups ["servers"]}
+                    {:name "instance-1" :groups ["trusted" "laptops"]}]})
   (run-query get-provisioned)
   (run-query get-success)
   (run-query get-failures))

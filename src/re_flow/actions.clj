@@ -4,18 +4,20 @@
    [me.raynes.fs :refer (mkdir)]
    [re-mote.repl.base :refer (scp-from scp-into)]
    [re-mote.zero.certs :refer (refer-certs)]
+   [re-mote.zero.nebula :refer (refer-nebula)]
    [taoensso.timbre :refer (refer-timbre)]
    [re-flow.common :refer (run-?e run-?e-non-block results failure? successful-ids)]))
 
 (refer-timbre)
 (refer-certs)
+(refer-nebula)
 
 (defn download-cert-?e [?e [domain dest file]]
   (debug "downloading" (<< "/srv/dehydrated/certs/~{domain}/~{file}"))
   (run-?e scp-from (assoc ?e :pick-by :ip) (<< "/srv/dehydrated/certs/~{domain}/~{file}") dest))
 
-(defn upload-cert-?e [?e [dest domain file]]
-  (debug "uploading" (<< "/srv/dehydrated/certs/~{domain}/~{file}"))
+(defn upload-cert-?e [?e [dest file]]
+  (info "uploading" file "into" dest)
   (run-?e scp-into (assoc ?e :pick-by :ip) file dest))
 
 (def actions
@@ -24,7 +26,9 @@
     :re-flow.certs/renew (fn [?e [user token]] (run-?e renew ?e user token))
     :re-flow.certs/mkdir (fn [_ [dir]] (mkdir dir))
     :re-flow.certs/download download-cert-?e
-    :re-flow.certs/upload upload-cert-?e}))
+    :re-flow.certs/upload upload-cert-?e
+    :re-flow.nebula/upload upload-cert-?e
+    :re-flow.nebula/sign (fn [?e [name ip groups]] (run-?e sign- ?e name ip groups))}))
 
 (defn run
   "Run a side effect function from within a rule"
