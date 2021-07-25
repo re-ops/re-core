@@ -70,6 +70,7 @@
   "Match instances by hostname matching:
      (provision (named \"foo\"))"
   [names]
+  {:pre [(sequential? names)]}
   (fn [[_ {:keys [machine]}]] ((into #{} names) (machine :hostname))))
 
 (defn match-kv

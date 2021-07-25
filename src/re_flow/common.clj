@@ -68,7 +68,7 @@
   [f {:keys [ids] :as ?e} fact timeout pred & args]
   (apply (partial f (hosts (with-ids ids) :hostname)) (concat args [timeout (fact-callback fact pred ?e)])))
 
-(defn failure? [r ?e]
+(defn failure? [?e r]
   (not (= (seq (successful-ids r)) (seq (?e :ids)))))
 
 (comment

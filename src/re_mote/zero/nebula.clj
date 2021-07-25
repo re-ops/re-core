@@ -12,12 +12,12 @@
 (refer-base)
 
 (defprotocol Nebula
-  (sign- [this name ip groups]))
+  (sign- [this name ip groups crt key dest]))
 
 (extend-type Hosts
   Nebula
-  (sign- [this name ip groups]
-    [this (run-hosts this shell (shell-args (sign name ip (clojure.string/join "," groups))) [5 :second])]))
+  (sign- [this name ip groups crt key dest]
+    [this (run-hosts this shell (shell-args (sign name ip (clojure.string/join "," groups) crt key dest)) [5 :second])]))
 
 (defn refer-nebula []
   (require '[re-mote.zero.nebula :as neb :refer (sign-)]))

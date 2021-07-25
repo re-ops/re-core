@@ -75,29 +75,30 @@
     (insert!
      (-> ?e
          (dissoc :message :failure)
-         (assoc :state ::domains-ready :failure (failure? r ?e))))))
+         (assoc :state ::domains-ready :failure (failure? ?e r))))))
 
 (defrule run-renewal
   "Renew the certificates"
   [?e <- ::domains-ready [{:keys [failure]}] (= failure false)]
   =>
   (let [r (run ::renew ?e (?e :user) (?e :token))]
-    (insert! (assoc ?e :state ::renewed :failure (failure? r ?e)))))
+    (insert! (assoc ?e :state ::renewed :failure (failure? ?e r)))))
 
 (defrule download-certs
   "Download certs and trigger delivery for each host"
   [?e <- ::renewed [{:keys [failure]}] (= failure false)]
   =>
   (let [{:keys [intermediary domains]} ?e
-        m1 (run ::mkdir ?e intermediary)]
+        m1 (run :mkdir ?e intermediary)]
     (doseq [[domain {:keys [id dest]}] domains
             :let [inter-target (<< "~{intermediary}/~{domain}")]]
       (debug "downloading cert" domain)
-      (let [m2 (run ::mkdir ?e inter-target)
-            d1 (run ::download ?e domain inter-target "privkey.pem")
-            d2 (run ::download ?e domain inter-target "fullchain.pem")
-            d3 (run ::download ?e domain inter-target "cert.pem")
-            failure (or (failure? d1 ?e) (failure? d2 ?e) (failure? d3 ?e) (not m1) (not m2))]
+      (let [src (<< "/srv/dehydrated/certs/~{domain}")
+            m2 (run :mkdir ?e inter-target)
+            d1 (run :download ?e (<< "~{src}/privkey.pem") inter-target)
+            d2 (run :download ?e (<< "~{src}/fullchain.pem") inter-target)
+            d3 (run :download ?e (<< "~{src}/cert.pem") inter-target)
+            failure (or (failure? ?e d1) (failure? ?e d2) (failure? ?e d3) (not m1) (not m2))]
         (insert! (assoc ?e :state ::downloaded :domain domain :ids [id] :dest dest :failure failure))))))
 
 (defrule deliver-host-certs
@@ -105,7 +106,7 @@
   [?e <- ::downloaded [{:keys [failure dest ids]}] (= failure false) (not (nil? dest)) (not (empty? (filter identity ids)))]
   =>
   (let [{:keys [domain dest intermediary]} ?e
-        r1 (run ::upload ?e dest (<< "~{intermediary}/~{domain}/privkey.pem"))
-        r2 (run ::upload ?e dest (<< "~{intermediary}/~{domain}/fullchain.pem"))
-        r3 (run ::upload ?e dest (<< "~{intermediary}/~{domain}/cert.pem"))]
-    (insert! (assoc ?e :state ::delivered :failure (or (failure? r1 ?e) (failure? r2 ?e) (failure? r3 ?e))))))
+        r1 (run :upload ?e dest (<< "~{intermediary}/~{domain}/privkey.pem"))
+        r2 (run :upload ?e dest (<< "~{intermediary}/~{domain}/fullchain.pem"))
+        r3 (run :upload ?e dest (<< "~{intermediary}/~{domain}/cert.pem"))]
+    (insert! (assoc ?e :state ::delivered :failure (or (failure? ?e r1) (failure? ?e r2) (failure? ?e r3))))))
