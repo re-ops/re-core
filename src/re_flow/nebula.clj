@@ -94,7 +94,7 @@
   "Download keys for host"
   [?e <- ::signed [{:keys [flow failure]}] (= flow ::sign) (= failure false)]
   =>
-  (info "downloading certs for" (?e :hostname))
+  (debug "downloading certs for" (?e :hostname))
   (let [{:keys [intermediary hostname]} ?e
         m1 (run :mkdir ?e intermediary)
         d1 (run :download ?e (<< "~(?e :sign-dest)/~{hostname}.key") intermediary)
@@ -106,7 +106,7 @@
   "Fetch signed certs and distribute them to the hosts"
   [?e <- ::downloaded [{:keys [flow failure]}] (= failure false)]
   =>
-  (info "distributing certs to host" (?e :hostname))
+  (debug "distributing certs to host" (?e :hostname))
   (let [{:keys [hostname intermediary deploy-dest]} ?e
         r1 (run :upload ?e (<< "~{intermediary}/~{hostname}.key") (<< "~{deploy-dest}/~{hostname}.key"))
         r2 (run :upload ?e (<< "~{intermediary}/~{hostname}.crt") (<< "~{deploy-dest}/~{hostname}.crt"))

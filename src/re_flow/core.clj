@@ -29,7 +29,8 @@
             :sign-dest "/tmp/"
             :deploy-dest "/etc/nebula"
             :range "192.168.100.0"
-            :hosts [{:hostname "instance-2" :groups ["servers"]}
+            :hosts [{:hostname "lighthouse" :groups ["lighthouse"]}
+                    {:hostname "instance-2" :groups ["servers"]}
                     {:hostname "instance-1" :groups ["trusted" "laptops"]}]})
   (run-query get-provisioned)
   (run-query get-success)
