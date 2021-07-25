@@ -2,8 +2,8 @@
   "Nebula cert deployment"
   (:require
    [clojure.core.strint :refer (<<)]
-   [re-mote.zero.certs :refer (refer-certs)]
    [re-flow.actions :refer (run)]
+   [clara.rules.accumulators :as acc]
    [clojure.spec.alpha :as s]
    [expound.alpha :as expound]
    [re-core.presets.kvm :refer (refer-kvm-presets)]
@@ -67,7 +67,7 @@
   "Upload sign cert and key"
   [?e <- :re-flow.setup/provisioned [{:keys [flow failure]}] (= flow ::sign) (= failure false)]
   =>
-  (info "uploading cert and key to signing host")
+  (debug "uploading cert and key to signing host")
   (let [r1 (run :upload ?e (<< "~(?e :certs)/ca.crt") (?e :sign-dest))
         r2 (run :upload ?e (<< "~(?e :certs)/ca.key") (?e :sign-dest))]
     (insert! (assoc ?e :state ::uploaded :failure (or (failure? ?e r1) (failure? ?e r2))))))
@@ -82,7 +82,7 @@
   "Sign host keys"
   [?e <- ::uploaded [{:keys [flow failure]}] (= flow ::sign) (= failure false)]
   =>
-  (info "Signing keys")
+  (debug "signing keys")
   (let [crt (<< "~(?e :sign-dest)/ca.crt")
         key (<< "~(?e :sign-dest)/ca.key")
         signups (map (fn [m ip] (assoc m :ip ip)) (?e :hosts) (ip-range (?e :range)))]
@@ -106,9 +106,19 @@
   "Fetch signed certs and distribute them to the hosts"
   [?e <- ::downloaded [{:keys [flow failure]}] (= failure false)]
   =>
-  (debug "distributing certs to host" (?e :hostname))
+  (info "distributing certs to host" (?e :hostname))
   (let [{:keys [hostname intermediary deploy-dest]} ?e
         r1 (run :upload ?e (<< "~{intermediary}/~{hostname}.key") (<< "~{deploy-dest}/~{hostname}.key"))
         r2 (run :upload ?e (<< "~{intermediary}/~{hostname}.crt") (<< "~{deploy-dest}/~{hostname}.crt"))
         r3 (run :upload ?e (<< "~(?e :certs)/ca.crt") (<< "~{deploy-dest}/ca.crt"))]
     (insert! (assoc ?e :state ::delivered :failure (or (failure? ?e r1) (failure? ?e r2) (failure? ?e r3))))))
+
+(defrule cleanup
+  "Cleanup sign instance when done distributing"
+  [?p <- :re-flow.setup/provisioned [{:keys [flow failure]}] (= flow ::sign) (= failure false)]
+  [?e <- ::start]
+  [?d <- (acc/count) :from [::delivered]]
+  =>
+  (when (= (count (?e :hosts)) ?d)
+    (debug "cleaning up sign instance" ?p)
+    (insert! (assoc ?p :state :re-flow.setup/cleanup :re-flow.setup/purge true))))
