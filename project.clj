@@ -1,4 +1,4 @@
-(defproject re-core "0.16.0"
+(defproject re-core "0.17.0"
   :description "A launching pad for virtualized applications"
   :url "https://github.com/re-core-ops/re-core-core"
   :license  {:name "Apache License, Version 2.0" :url "http://www.apache.org/licenses/LICENSE-2.0.html"}
@@ -21,8 +21,8 @@
 
                  ; re-ops
                  [re-share "0.17.2"]
-                 [re-cog "0.6.4"]
-                 [re-cipes "0.3.9"]
+                 [re-cog "0.6.5"]
+                 [re-cipes "0.3.12"]
                  [re-scan "0.2.1"]
 
                  ; Elasticsearch
