@@ -29,3 +29,4 @@ test/resources/secret.gpg
 test/resources/public.gpg
 secrets
 keys
+certs

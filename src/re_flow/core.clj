@@ -27,7 +27,7 @@
             :certs "/datastore/code/re-ops/re-core/certs"
             :intermediary "/tmp/nebula-certs"
             :sign-dest "/tmp/"
-            :deploy-dest "/etc/nebula"
+            :deploy-dest "/usr/local/etc/nebula"
             :range "192.168.100.0"
             :hosts [{:hostname "lighthouse" :groups ["lighthouse"]}
                     {:hostname "instance-2" :groups ["servers"]}
