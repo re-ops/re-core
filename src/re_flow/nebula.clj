@@ -10,7 +10,7 @@
    [re-core.presets.instance-types :refer (refer-instance-types)]
    [re-core.presets.systems :refer (refer-system-presets materialize-preset)]
    [taoensso.timbre :refer (refer-timbre)]
-   [re-flow.common :refer (run-?e failure? successful-ids)]
+   [re-flow.common :refer (run-?e failure? into-ids)]
    [clara.rules :refer :all]))
 
 (refer-timbre)
@@ -24,7 +24,7 @@
 (derive ::signed :re-flow.core/state)
 (derive ::downloaded :re-flow.core/state)
 
-(s/def ::dest string?)
+(s/def ::sign-dest string?)
 
 (s/def ::certs string?)
 
@@ -43,7 +43,7 @@
 (s/def ::hosts (s/coll-of ::host))
 
 (s/def ::nebula
-  (s/keys :req-un [::certs ::dest ::range ::hosts ::intermediary]))
+  (s/keys :req-un [::certs ::sign-dest ::range ::hosts ::intermediary]))
 
 (def instance
   {:base kvm :args [defaults local small :nebula "Nebula signing instance"]})
@@ -68,8 +68,8 @@
   [?e <- :re-flow.setup/provisioned [{:keys [flow failure]}] (= flow ::sign) (= failure false)]
   =>
   (info "uploading cert and key to signing host")
-  (let [r1 (run :upload ?e (?e :dest) (<< "~(?e :certs)/ca.crt"))
-        r2 (run :upload ?e (?e :dest) (<< "~(?e :certs)/ca.key"))]
+  (let [r1 (run :upload ?e (<< "~(?e :certs)/ca.crt") (?e :sign-dest))
+        r2 (run :upload ?e (<< "~(?e :certs)/ca.key") (?e :sign-dest))]
     (insert! (assoc ?e :state ::uploaded :failure (or (failure? ?e r1) (failure? ?e r2))))))
 
 (defn ip-range
@@ -83,11 +83,11 @@
   [?e <- ::uploaded [{:keys [flow failure]}] (= flow ::sign) (= failure false)]
   =>
   (info "Signing keys")
-  (let [crt (<< "~(?e :dest)/ca.crt")
-        key (<< "~(?e :dest)/ca.key")
+  (let [crt (<< "~(?e :sign-dest)/ca.crt")
+        key (<< "~(?e :sign-dest)/ca.key")
         signups (map (fn [m ip] (assoc m :ip ip)) (?e :hosts) (ip-range (?e :range)))]
     (doseq [{:keys [hostname ip groups]} signups]
-      (let [r (run ::sign ?e hostname ip groups crt key (?e :dest))]
+      (let [r (run ::sign ?e hostname ip groups crt key (?e :sign-dest))]
         (insert! (assoc ?e :state ::signed :failure (failure? ?e r) :hostname hostname))))))
 
 (defrule download-nebula-keys
@@ -96,17 +96,19 @@
   =>
   (info "downloading certs for" (?e :hostname))
   (let [{:keys [intermediary hostname]} ?e
-        inter-target (<< "~{intermediary}/~{hostname}")
         m1 (run :mkdir ?e intermediary)
-        m2 (run :mkdir ?e inter-target)
-        d1 (run :download ?e (<< "~(?e :dest)/~{hostname}.key") inter-target)
-        d2 (run :download ?e (<< "~(?e :dest)/~{hostname}.crt") inter-target)
-        failure (or (failure? ?e d1) (failure? ?e d2) (not m1) (not m2))]
-    (info (failure? ?e d1) (failure? ?e d2) (not m1) (not m2))
-    (insert! (assoc ?e :state ::downloaded :failure failure))))
+        d1 (run :download ?e (<< "~(?e :sign-dest)/~{hostname}.key") intermediary)
+        d2 (run :download ?e (<< "~(?e :sign-dest)/~{hostname}.crt") intermediary)
+        failure (or (failure? ?e d1) (failure? ?e d2) (not m1))]
+    (insert! (assoc ?e :state ::downloaded :failure failure :ids (into-ids [hostname])))))
 
 (defrule distribute
   "Fetch signed certs and distribute them to the hosts"
   [?e <- ::downloaded [{:keys [flow failure]}] (= failure false)]
   =>
-  (info "distributing certs to host" (?e :hostname)))
+  (info "distributing certs to host" (?e :hostname))
+  (let [{:keys [hostname intermediary deploy-dest]} ?e
+        r1 (run :upload ?e (<< "~{intermediary}/~{hostname}.key") (<< "~{deploy-dest}/~{hostname}.key"))
+        r2 (run :upload ?e (<< "~{intermediary}/~{hostname}.crt") (<< "~{deploy-dest}/~{hostname}.crt"))
+        r3 (run :upload ?e (<< "~(?e :certs)/ca.crt") (<< "~{deploy-dest}/ca.crt"))]
+    (insert! (assoc ?e :state ::delivered :failure (or (failure? ?e r1) (failure? ?e r2) (failure? ?e r3))))))

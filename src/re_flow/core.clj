@@ -26,7 +26,8 @@
             :flow :re-flow.nebula/sign
             :certs "/datastore/code/re-ops/re-core/certs"
             :intermediary "/tmp/nebula-certs"
-            :dest "/tmp/"
+            :sign-dest "/tmp/"
+            :deploy-dest "/etc/nebula"
             :range "192.168.100.0"
             :hosts [{:hostname "instance-2" :groups ["servers"]}
                     {:hostname "instance-1" :groups ["trusted" "laptops"]}]})

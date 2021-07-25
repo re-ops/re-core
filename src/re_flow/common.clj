@@ -42,12 +42,17 @@
     (not-any? ip? addresses) named
     :else (throw (ex-info "mixed ips and hostnames list are not supported!" {:addresses addresses}))))
 
+(defn into-ids
+  "Convert ip/hostname to system id"
+  [addresses]
+  (let [systems (repl/list ((list-by-fn addresses) addresses) :systems :print? false)]
+    (into #{} (->> systems second :systems (map first)))))
+
 (defn successful-ids
   "Get successful system ids from a pipeline result by using hostnames or ip addresses"
   [result]
-  (let [addresses (successful-hosts result)
-        systems (repl/list ((list-by-fn addresses) addresses) :systems :print? false)]
-    (into #{} (->> systems second :systems (map first)))))
+  (let [addresses (successful-hosts result)]
+    (into-ids addresses)))
 
 (defn run-?e
   "Run Re-mote pipeline on system ids provided by ?e and check if all were successful"

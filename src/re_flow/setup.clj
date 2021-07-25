@@ -64,7 +64,7 @@
   =>
   (let [gent "/home/ronen/code/re-ops/re-gent/target/re-gent"
         {:keys [ids]} ?e]
-    (info "deploying agent to" ids)
+    (debug "deploying agent to" ids)
     (deploy (hosts (with-ids ids) :ip) gent)
     (insert! (assoc ?e :state ::registered :failure (not (registraion-successful ids))))))
 
@@ -76,7 +76,7 @@
   [?e <- ::registered [{:keys [failure]}] (= failure false)]
   =>
   (let [{:keys [ids]} ?e]
-    (info "provisioning" ids)
+    (debug "provisioning" ids)
     (let [provisioned (successful-systems (run-provisioning ids))]
       (doseq [id provisioned]
         (insert! (assoc ?e :state ::provisioned :failure false :id id :message (<< "instance ~{id} provisioned successfully"))))
@@ -92,5 +92,4 @@
   =>
   (let [{:keys [ids]} ?e
         purged (successful-systems (purge-instances ids))]
-    (info "purged ids include" ids "successfull purged instances include" purged)
     (insert! (assoc ?e :state ::purged :purged purged :failure (not= purged ids)))))

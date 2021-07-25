@@ -106,7 +106,7 @@
   [?e <- ::downloaded [{:keys [failure dest ids]}] (= failure false) (not (nil? dest)) (not (empty? (filter identity ids)))]
   =>
   (let [{:keys [domain dest intermediary]} ?e
-        r1 (run :upload ?e dest (<< "~{intermediary}/~{domain}/privkey.pem"))
-        r2 (run :upload ?e dest (<< "~{intermediary}/~{domain}/fullchain.pem"))
-        r3 (run :upload ?e dest (<< "~{intermediary}/~{domain}/cert.pem"))]
+        r1 (run :upload ?e (<< "~{intermediary}/~{domain}/privkey.pem") dest)
+        r2 (run :upload ?e (<< "~{intermediary}/~{domain}/fullchain.pem") dest)
+        r3 (run :upload ?e (<< "~{intermediary}/~{domain}/cert.pem") dest)]
     (insert! (assoc ?e :state ::delivered :failure (or (failure? ?e r1) (failure? ?e r2) (failure? ?e r3))))))

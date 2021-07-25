@@ -16,8 +16,8 @@
   (debug "downloading" src dest)
   (run-?e scp-from (assoc ?e :pick-by :ip) src dest))
 
-(defn upload-?e [?e [dest file]]
-  (info "uploading" file "into" dest)
+(defn upload-?e [?e [file dest]]
+  (debug "uploading" file "into" dest)
   (run-?e scp-into (assoc ?e :pick-by :ip) file dest))
 
 (defn nebula-sign-?e [?e [name ip groups crt key dest]]
