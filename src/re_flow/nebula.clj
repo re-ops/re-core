@@ -25,6 +25,7 @@
 (derive ::delivered :re-flow.core/state)
 (derive ::downloaded :re-flow.core/state)
 (derive ::restarted :re-flow.core/state)
+(derive ::done :re-flow.core/state)
 
 (s/def ::sign-dest string?)
 

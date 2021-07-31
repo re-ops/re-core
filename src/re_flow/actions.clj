@@ -24,7 +24,7 @@
 
 (defn restart-?e [?e [service]]
   (debug "restarting" service)
-  (run-?e srv/restart (assoc ?e :pick-by :ip) service))
+  (run-?e srv/restart ?e service))
 
 (defn nebula-sign-?e [?e [name ip groups crt key dest]]
   (run-?e sign- ?e name ip groups crt key dest))

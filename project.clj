@@ -29,6 +29,9 @@
                  [rubber "0.4.1"]
                  [org.apache.httpcomponents/httpclient "4.5.13"]
 
+                 ; repl
+                 [org.clojure/tools.namespace "1.1.0"]
+
                  ; Api
                  [narkisr/clj-yaml "0.7.2"]
 
