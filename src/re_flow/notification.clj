@@ -65,5 +65,5 @@
   "Email if message is present"
   [?e <- :re-flow.core/state]
   =>
-  (debug "publishing" ?e)
+  (debug "publishing" (?e :message))
   (publish-?e ?e))

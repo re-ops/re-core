@@ -22,7 +22,9 @@
 (derive ::uploaded :re-flow.core/state)
 (derive ::sign :re-flow.core/state)
 (derive ::signed :re-flow.core/state)
+(derive ::delivered :re-flow.core/state)
 (derive ::downloaded :re-flow.core/state)
+(derive ::restarted :re-flow.core/state)
 
 (s/def ::sign-dest string?)
 
@@ -36,14 +38,14 @@
 
 (s/def ::groups (s/coll-of ::group))
 
-(s/def ::host (s/keys :req-un [::hostname ::groups]))
+(s/def ::ip string?)
 
-(s/def ::range :re-core.specs/ip)
+(s/def ::host (s/keys :req-un [::hostname ::groups ::ip]))
 
 (s/def ::hosts (s/coll-of ::host))
 
 (s/def ::nebula
-  (s/keys :req-un [::certs ::sign-dest ::range ::hosts ::intermediary]))
+  (s/keys :req-un [::certs ::sign-dest ::hosts ::intermediary]))
 
 (def instance
   {:base kvm :args [defaults local small :nebula "Nebula signing instance"]})
@@ -70,13 +72,10 @@
   (debug "uploading cert and key to signing host")
   (let [r1 (run :upload ?e (<< "~(?e :certs)/ca.crt") (?e :sign-dest))
         r2 (run :upload ?e (<< "~(?e :certs)/ca.key") (?e :sign-dest))]
-    (insert! (assoc ?e :state ::uploaded :failure (or (failure? ?e r1) (failure? ?e r2))))))
-
-(defn ip-range
-  "A simplistic ip range generator we assume our range is x.x.x.0 we generate the 256 ips in that range"
-  [r]
-  (let [prefix (clojure.string/join "." (butlast (clojure.string/split r #"\.")))]
-    (map (fn [i] (<< "~{prefix}.~{i}/24")) (range 1 256))))
+    (insert!
+     (-> ?e
+         (dissoc :message :failure)
+         (assoc :state ::uploaded :failure (or (failure? ?e r1) (failure? ?e r2)))))))
 
 (defrule signup
   "Sign host keys"
@@ -84,9 +83,8 @@
   =>
   (debug "signing keys")
   (let [crt (<< "~(?e :sign-dest)/ca.crt")
-        key (<< "~(?e :sign-dest)/ca.key")
-        signups (map (fn [m ip] (assoc m :ip ip)) (?e :hosts) (ip-range (?e :range)))]
-    (doseq [{:keys [hostname ip groups]} signups]
+        key (<< "~(?e :sign-dest)/ca.key")]
+    (doseq [{:keys [hostname ip groups]} (?e :hosts)]
       (let [r (run ::sign ?e hostname ip groups crt key (?e :sign-dest))]
         (insert! (assoc ?e :state ::signed :failure (failure? ?e r) :hostname hostname))))))
 
@@ -104,7 +102,8 @@
 
 (defrule distribute
   "Fetch signed certs and distribute them to the hosts"
-  [?e <- ::downloaded [{:keys [flow failure]}] (= failure false)]
+  [?e <- ::downloaded [{:keys [failure]}] (= failure false)]
+  [?p <- :re-flow.setup/provisioned [{:keys [flow failure]}] (= flow ::sign) (= failure false)]
   =>
   (info "distributing certs to host" (?e :hostname))
   (let [{:keys [hostname intermediary deploy-dest]} ?e
@@ -113,12 +112,39 @@
         r3 (run :upload ?e (<< "~(?e :certs)/ca.crt") (<< "~{deploy-dest}/ca.crt"))]
     (insert! (assoc ?e :state ::delivered :failure (or (failure? ?e r1) (failure? ?e r2) (failure? ?e r3))))))
 
-(defrule cleanup
-  "Cleanup sign instance when done distributing"
-  [?p <- :re-flow.setup/provisioned [{:keys [flow failure]}] (= flow ::sign) (= failure false)]
-  [?e <- ::start]
+(defrule restart
+  "Restart nebula services on all signed hosts"
+  [?e <- ::delivered [{:keys [failure]}] (= failure false)]
+  [?s <- ::start]
   [?d <- (acc/count) :from [::delivered]]
   =>
-  (when (= (count (?e :hosts)) ?d)
-    (debug "cleaning up sign instance" ?p)
+  (when (= (count (?s :hosts)) ?d)
+    (info "restarting service on" (?e :ids))
+    (let [r (run :restart ?e "nebula")]
+      (insert! (assoc ?e :state ::restarted :failure (failure? ?e r))))))
+
+; Finalizing rules
+
+(defrule success
+  "Signup flow success"
+  [?e <- ::restarted [{:keys [flow failure]}] (= failure false)]
+  =>
+  (let [{:keys [ids]} ?e]
+    (insert! (assoc ?e :state ::done :message (<< "signup processes for ~{ids} was successful")))))
+
+(defrule failure
+  "Signup flow failure"
+  [?e <- ::restarted [{:keys [flow failure]}] (= failure true)]
+  =>
+  (let [{:keys [ids]} ?e]
+    (insert! (assoc ?e :state ::done :message (<< "signup processes for ~{ids} has failed")))))
+
+(defrule cleanup
+  "Cleanup sign instance when done distributing (we cleanup even on failure)"
+  [?p <- :re-flow.setup/provisioned [{:keys [flow failure]}] (= flow ::sign) (= failure false)]
+  [?s <- ::start]
+  [?d <- (acc/count) :from [::delivered]]
+  =>
+  (when (= (count (?s :hosts)) ?d)
+    (debug "cleaning up sign instance")
     (insert! (assoc ?p :state :re-flow.setup/cleanup :re-flow.setup/purge true))))

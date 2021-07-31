@@ -21,17 +21,6 @@
             (error-m e)))))))
 
 (comment
-  (trigger {:state :re-flow.certs/start :flow :re-flow.certs/certs})
-  (trigger {:state :re-flow.nebula/start
-            :flow :re-flow.nebula/sign
-            :certs "/datastore/code/re-ops/re-core/certs"
-            :intermediary "/tmp/nebula-certs"
-            :sign-dest "/tmp/"
-            :deploy-dest "/usr/local/etc/nebula"
-            :range "192.168.100.0"
-            :hosts [{:hostname "lighthouse" :groups ["lighthouse"]}
-                    {:hostname "instance-2" :groups ["servers"]}
-                    {:hostname "instance-1" :groups ["trusted" "laptops"]}]})
   (run-query get-provisioned)
   (run-query get-success)
   (run-query get-failures))
