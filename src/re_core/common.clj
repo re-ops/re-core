@@ -3,6 +3,8 @@
   (:refer-clojure :exclude [read-string])
   (:require
    pallet.stevedore.bash
+   clojure.pprint
+   clojure.stacktrace
    [clojure.core.strint :refer (<<)]
    [clojure.edn :refer (read-string)]
    [pallet.stevedore :refer  [script with-source-line-comments]]
@@ -38,3 +40,7 @@
 
 (defn stack-trace [e]
   (with-out-str (clojure.stacktrace/print-cause-trace e)))
+
+(defn pretty-string [m]
+  (with-out-str (clojure.pprint/pprint m)))
+

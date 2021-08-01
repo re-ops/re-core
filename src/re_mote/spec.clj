@@ -1,6 +1,7 @@
 (ns re-mote.spec
   "spec for results and pipelines outputs"
   (:require
+   [re-core.common :refer (pretty-string)]
    [clojure.core.strint :refer (<<)]
    [puget.printer :as puget]
    [taoensso.timbre :refer  (refer-timbre)]
@@ -147,7 +148,7 @@
 (defn valid? [s v]
   (if-not (s/valid? s v)
     (do
-      (info "value is not valid" v)
+      (info "value is not valid" (pretty-string v))
       false)
     true))
 
