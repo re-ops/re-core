@@ -42,7 +42,7 @@
   (try
     (bigdec v)
     (catch Throwable e
-      (error (<< "failed to convert {v} into big decimal") e))))
+      (error (<< "failed to convert ~{v} into big decimal") e))))
 
 (def single-nav
   [:success ALL :stats MAP-VALS MAP-VALS])
