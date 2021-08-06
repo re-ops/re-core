@@ -46,3 +46,11 @@ import_key 725F73F2BF6D0DEDAE758599DB3DCB7A484504A5
 import_key D7EAC082D28BC79233279A3206CEE45EC93B3AF9
 # serializable-fn
 import_key AF567B9777E77DDC
+# com.fasterxml.jackson.core/jackson-core 
+import_key 8A10792983023D5D14C93B488D7F1BEC1E2ECAE7
+# com.draines/postal
+import_key AE1ABF3D484C40E5CB1CDC9F57B19548756012ED
+# hiccup
+import_key 87FCFC781A1B513D
+# clojure org key
+import_key 8D06684A958AE602

@@ -132,7 +132,6 @@
                       ; not signed?
                       ; narkisr/clansi
 
-                      com.fzakaria/slf4j-timbre
 
                       ; 115E8C72AE1DFBFDD4D8786BA56A26A672B08826
                       me.raynes/fs
@@ -180,19 +179,13 @@
                       ; 26406BB1AA04110E49AA8671A82090FF7CC19136
                       io.aviso/pretty
 
-                      ; ?
+                      ; 8A10792983023D5D14C93B488D7F1BEC1E2ECAE7
                       com.fasterxml.jackson.core/jackson-core
 
-                      ;  org.eclipse.aether.resolution.ArtifactResolutionException: Could not find artifact
-                      ;; cc.qbits/knit
-                      ;; clj-time/clj-time
-                      ;; com.rpl/specter
-                      ;; fogus/minderbinder
-                      ;; fipp
-
+                      ; AE1ABF3D484C40E5CB1CDC9F57B19548756012ED
                       com.draines/postal
 
-                      ;
+                      ; 87FCFC781A1B513D
                       hiccup
 
                       ; 5CECAE951A380FC6C6982FE8361953C9DEB28012
@@ -206,6 +199,16 @@
 
                       ; AF567B9777E77DDC
                       serializable-fn
+
+                      ;  org.eclipse.aether.resolution.ArtifactResolutionException: Could not find artifact
+                      ;; cc.qbits/knit
+                      ;; clj-time/clj-time
+                      ;; com.rpl/specter
+                      ;; fogus/minderbinder
+                      ;; fipp
+
+                      ; missing key 5D699B0B82216C222C641932BB3E754DDBBA7E53
+                      ;; com.fzakaria/slf4j-timbre
 
                       ; missing key C84CF11DA459B1FC
                       ;; factual/durable-queue
