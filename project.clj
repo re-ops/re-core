@@ -68,11 +68,7 @@
 
                  [me.raynes/conch "0.8.0"]
                  [org.clojure/core.async "1.3.618"]
-                 [com.rpl/specter "1.1.3"]
                  [org.clojure/core.match "1.0.0"]
-
-                  ; persistency
-                 [org.apache.httpcomponents/httpclient "4.5.13"]
 
                   ; pretty output
                  [fipp "0.6.23"]
@@ -119,10 +115,132 @@
   :exclusions [org.clojure/clojure com.taoensso/timbre commons-codec prismatic/schema]
 
   :plugins  [[lein-cljfmt "0.6.8"]
+             [org.kipz/clj-gpg-verify "0.1.2"]
              [lein-ancient "0.7.0" :exclusions [org.clojure/clojure]]
              [lein-tag "0.1.0"]
              [lein-set-version "0.3.0"]]
 
+  :gpg-verify {:deps [re-share
+                      re-cog
+                      re-cipes
+                      rubber
+                      narkisr/clj-yaml
+                      ; 7083BA46F0B2460C
+                      narkisr/digitalocean
+                      substantiation
+
+                      ; not signed?
+                      ; narkisr/clansi
+
+                      com.fzakaria/slf4j-timbre
+
+                      ; 115E8C72AE1DFBFDD4D8786BA56A26A672B08826
+                      me.raynes/fs
+                      me.raynes/conch
+
+                      ; AFEDB040C1E8CE259F8B4B153DDA1B3EC890F586
+                      com.palletops/stevedore
+
+                      ; 0785B3EFF60B1B1BEA94E0BB7C25280EAE63EBE5
+                      org.apache.httpcomponents/httpclient
+
+                      ; FA7929F83AD44C4590F6CC6815C71C0A4E0B8EDD
+                      net.java.dev.jna/jna
+
+                      ; 1B933CE798B6985C8D79975DE1A36FB910E9E138
+                      org.libvirt/libvirt
+
+                      ; 6722D1BB1AFFC51AC43452E7161EC240CC48018B
+                      less-awful-ssl
+
+                      ; 6CA9E3B29F28FEA86750B6BE9D6465D43ACECAE0
+                      cheshire
+
+                      ; F55EF5BB19F52A250FEDC0DF39450183608E49D4
+                      com.mikesamuel/json-sanitizer
+
+                      ; 379CE192D401AB61
+                      com.hierynomus/sshj
+
+                      ; 174F88318B64CB02
+                      org.zeromq/jeromq
+
+                      ; F05B1D2EF3BED8C8E12F44EF6BEF76A7B805F61B
+                      com.brunobonacci/safely
+
+                      ; ABE9F3126BB741C1
+                      com.google.guava/guava
+
+                      ; 21939FF0CA2A6567
+                      commons-codec
+
+                      ; 148AA196DF8D6332
+                      mount
+
+                      ; 26406BB1AA04110E49AA8671A82090FF7CC19136
+                      io.aviso/pretty
+
+                      ; ?
+                      com.fasterxml.jackson.core/jackson-core
+
+                      ;  org.eclipse.aether.resolution.ArtifactResolutionException: Could not find artifact
+                      ;; cc.qbits/knit
+                      ;; clj-time/clj-time
+                      ;; com.rpl/specter
+                      ;; fogus/minderbinder
+                      ;; fipp
+
+                      com.draines/postal
+
+                      ;
+                      hiccup
+
+                      ; 5CECAE951A380FC6C6982FE8361953C9DEB28012
+                      riemann-clojure-client
+
+                      ; 725F73F2BF6D0DEDAE758599DB3DCB7A484504A5
+                      expound
+
+                      ; D7EAC082D28BC79233279A3206CEE45EC93B3AF9
+                      juxt/dirwatch
+
+                      ; AF567B9777E77DDC
+                      serializable-fn
+
+                      ; missing key C84CF11DA459B1FC
+                      ;; factual/durable-queue
+
+                      ; missing key FF4A55A40618056ABF9B04BB97235BA29C3D58B7
+                      ;; http-kit
+
+                      ; missing key 76C0DF549B548A306D7D30578B012D9684A7F626
+                      ;; com.cerner/clara-rules
+
+                      ; missing key 7B1BE8B8F8A990BEB8AECD3B592525DD66E0BF75
+                      ;; prismatic/schema
+
+                      ; missing key 327D725B7F3AA97264F3643A2C2FDC653E12F5F0
+                      ;; mvxcvi/puget
+
+                      ; missing key FF4A55A40618056ABF9B04BB97235BA29C3D58B7
+                      ;; com.taoensso/timbre
+                      ;; com.taoensso/nippy
+
+                      ; missing key C0AD8A1F364F03D61663D557CEFB17C8948BE7BB
+                      ;; rm-hull/table
+
+                      ; 8D06684A958AE602
+                      org.clojure/test.check
+                      org.clojure/data.codec
+                      org.clojure/core.async
+                      org.clojure/core.match
+                      org.clojure/data.json
+                      org.clojure/data.xml
+                      org.clojure/data.zip
+                      org.clojure/tools.namespace
+                      org.clojure/core.incubator
+                      org.clojure/java.classpath
+                      org.clojure/clojure]}
   :profiles {
      :codox {
         :dependencies [[org.clojure/tools.reader "1.3.5"]
@@ -169,8 +287,10 @@
       ]
    }
 
-  :repositories  {"sonatype" "https://oss.sonatype.org/content/repositories/releases"
-                  "libvirt-org" "https://libvirt.org/maven2"}
+  :repositories  {
+       "sonatype" {:url "https://oss.sonatype.org/content/repositories/releases"}
+       "libvirt-org" {:url "https://libvirt.org/maven2"}
+          }
 
   :resource-paths  ["src/main/resources/"]
 
@@ -188,5 +308,6 @@
     :welcome (println "Welcome to re-core!" )
     :timeout 120000
   }
+
 
 )
