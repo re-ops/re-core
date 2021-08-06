@@ -16,7 +16,6 @@
 
                  ; logging / profiling
                  [com.taoensso/timbre "5.1.2"]
-                 [timbre-ns-pattern-level "0.1.2"]
                  [com.fzakaria/slf4j-timbre "0.3.21"]
 
                  ; re-ops

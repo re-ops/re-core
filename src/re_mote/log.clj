@@ -1,7 +1,6 @@
 (ns re-mote.log
   "log collection"
   (:require
-   [timbre-ns-pattern-level :as level]
    [clojure.string :refer (join upper-case)]
    [taoensso.timbre.appenders.3rd-party.rolling :refer (rolling-appender)]
    [taoensso.timbre.appenders.core :refer (println-appender)]
