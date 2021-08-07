@@ -111,12 +111,6 @@
 
   :exclusions [org.clojure/clojure com.taoensso/timbre commons-codec prismatic/schema]
 
-  :plugins  [[lein-cljfmt "0.6.8"]
-             [org.kipz/clj-gpg-verify "0.1.2"]
-             [lein-ancient "0.7.0" :exclusions [org.clojure/clojure]]
-             [lein-tag "0.1.0"]
-             [lein-set-version "0.3.0"]]
-
   :gpg-verify {:deps [re-share
                       re-cog
                       re-cipes
@@ -240,28 +234,40 @@
                       org.clojure/core.incubator
                       org.clojure/java.classpath
                       org.clojure/clojure]}
-  :profiles {
+   :profiles {
      :codox {
-        :dependencies [[org.clojure/tools.reader "1.3.5"]
-                       [codox-theme-rdash "0.1.2"]]
-              :plugins [[lein-codox "0.10.7"]]
-              :codox {:project {:name "re-core"}
-                      :themes [:rdash]
-                      :source-paths ["src"]
-                      :source-uri "https://github.com/re-ops/re-core/blob/master/{filepath}#L{line}"
-              }
+        :dependencies [[org.clojure/tools.reader "1.3.5"] [codox-theme-rdash "0.1.2"]] :plugins [[lein-codox "0.10.7"]]
+        :codox {
+            :project {:name "re-core"}
+            :themes [:rdash]
+            :source-paths ["src"]
+            :source-uri "https://github.com/re-ops/re-core/blob/master/{filepath}#L{line}"
+        }
      }
 
      :dev {
-        :source-paths  ["dev" "test" "data"]
+        :source-paths  ["dev" "test"]
         :resource-paths  ["src/main/resources/"]
+     }
+
+     :build {
+        :source-paths  ["dev" "test"]
         :set-version {
            :updates [
              {:path "project.clj" :search-regex #"\"target\/re-core-\d+\.\d+\.\d+\.jar"}
              {:path "src/re-core/common.clj" :search-regex #"\"\d+\.\d+\.\d+\""}]}
-
+        :plugins [
+             [lein-cljfmt "0.6.8"]
+             [lein-ancient "0.7.0" :exclusions [org.clojure/clojure]]
+             [lein-tag "0.1.0"]
+             [lein-set-version "0.3.0"]
+       ]
      }
- }
+
+     :verify {
+        :plugins [[org.kipz/clj-gpg-verify "0.1.2"]]
+     }
+  }
 
 
   :jvm-opts ^:replace ["-Djava.library.path=/usr/lib:/usr/local/lib" "-Xms2g" "-Xmx2g"]
@@ -279,7 +285,7 @@
        "re-core.integration.es.systems"
       ]
       "travis" [
-        "with-profile" "test" "do" "unit," "integration," "cljfmt" "check"
+        "with-profile" "build" "do" "unit," "integration," "cljfmt" "check"
       ]
       "docs" [
          "with-profile" "codox" "do" "codox"
@@ -287,9 +293,9 @@
    }
 
   :repositories  {
-       "sonatype" {:url "https://oss.sonatype.org/content/repositories/releases"}
-       "libvirt-org" {:url "https://libvirt.org/maven2"}
-          }
+     "sonatype"    {:url "https://oss.sonatype.org/content/repositories/releases"}
+     "libvirt-org" {:url "https://libvirt.org/maven2"}
+  }
 
   :resource-paths  ["src/main/resources/"]
 
