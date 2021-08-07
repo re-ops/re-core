@@ -16,7 +16,7 @@
    [re-core.provider :refer (mappings selections transform os->template wait-for-ssh into-description)]
    [re-share.wait :refer (wait-for)]
    [kvm.sync :refer (descriptive-domains sync-node)]
-   [kvm.spice :refer (graphics remmina manager-view)]
+   [kvm.spice :refer (graphics manager-view)]
    [hypervisors.networking :refer (set-hostname ssh-able?)]
    [re-core.core :refer (Sync Vm)]
    [re-core.model :refer (translate vconstruct sconstruct hypervisor* hypervisor)])

@@ -19,7 +19,7 @@
                  [com.fzakaria/slf4j-timbre "0.3.21"]
 
                  ; re-ops
-                 [re-share "0.17.2"]
+                 [re-share "0.18.0"]
                  [re-cog "0.6.5"]
                  [re-cipes "0.3.12"]
                  [re-scan "0.2.1"]
@@ -89,9 +89,6 @@
                  ; remote execution
                  [com.hierynomus/sshj "0.31.0" :exclusions [org.slf4j/slf4j-api]]
                  [org.zeromq/jeromq "0.5.2"]
-
-                 ; model
-                 [clj-time/clj-time "0.15.2"]
 
                  ; email
                  [com.draines/postal "2.0.4"]
@@ -202,7 +199,6 @@
 
                       ;  org.eclipse.aether.resolution.ArtifactResolutionException: Could not find artifact
                       ;; cc.qbits/knit
-                      ;; clj-time/clj-time
                       ;; com.rpl/specter
                       ;; fogus/minderbinder
                       ;; fipp

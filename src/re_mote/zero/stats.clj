@@ -9,8 +9,7 @@
    [re-mote.zero.pipeline :refer (run-hosts schedule-hosts)]
    [taoensso.timbre :refer (refer-timbre)]
    [com.rpl.specter :as s :refer (transform select MAP-VALS ALL pred ATOM keypath multi-path)]
-   [clj-time.core :as t]
-   [clj-time.coerce :refer (to-long)]
+   [re-share.time :refer (local-now)]
    [re-cog.scripts.common :refer (shell-args shell)]
    [re-share.schedule :refer (watch seconds)])
   (:import re_mote.repl.base.Hosts))
@@ -149,7 +148,7 @@
     (doseq [{:keys [host stats]} success]
       (doseq [[k v] stats]
         (swap! readings update-in [host k :timeseries]
-               (fn [m] (if (nil? m) (sorted-map (t/now) v) (assoc m (t/now) v))))))
+               (fn [m] (if (nil? m) (sorted-map (local-now) v) (assoc m (local-now) v))))))
     [this m])
 
   (schedule

@@ -286,7 +286,7 @@
          (launch-ssh target private-key))))))
 
 (defn spice-into
-  "Open remote spice connection to KVM instances (using remmina spice):
+  "Open remote spice connection to KVM instances (using spice):
      (spice-into (by-type :desktop))"
   ([]
    (spice-into identity))

@@ -1,7 +1,7 @@
 (ns re-mote.persist.es
   "Persisting results into Elasticsearch"
   (:require
-   [clj-time.core :as t]
+   [re-share.time :refer (local-now to-long)]
    [com.rpl.specter :refer (transform ALL MAP-VALS multi-path)]
    [re-share.es.common :as es :refer (day-index get-es!)]
    [rubber.core :refer (create bulk-create)]
@@ -31,7 +31,7 @@
 
 (defn stamp [t]
   (fn [m]
-    (merge m {:timestamp (or (-> m :result :timestamp) (.getMillis (t/now))) :type t})))
+    (merge m {:timestamp (or (-> m :result :timestamp) (to-long (local-now))) :type t})))
 
 (defn by-hosts
   "split results by host"

@@ -1,8 +1,7 @@
 (ns re-mote.repl.zfs
   "A bunch of function for ZFS automation"
   (:require
-   [clj-time.format :as f]
-   [clj-time.local :refer [local-now]]
+   [re-share.time :refer [local-now format-time]]
    [clojure.core.strint :refer (<<)]
    [pallet.stevedore :refer (script)]
    [re-mote.repl.output :refer (refer-out)]
@@ -47,7 +46,7 @@
   (run> (exec hs (cap-with-range maximum)) | (pretty "capacity")))
 
 (defn snapshot [hs pool dataset]
-  (let [date (f/unparse (f/formatter "dd-MM-YYYY_hh:mm:ss_SS") (local-now))]
+  (let [date (format-time "dd-MM-YYYY_hh:mm:ss_SS" (local-now))]
     (run> (exec hs (<< "/sbin/zfs snapshot ~{pool}/~{dataset}@~{date}")) | (pretty "snapshot"))))
 
 (defn purge

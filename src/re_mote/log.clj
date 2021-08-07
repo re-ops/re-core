@@ -1,17 +1,18 @@
 (ns re-mote.log
   "log collection"
   (:require
+   [re-share.time :refer (local-now to-long minus)]
    [clojure.string :refer (join upper-case)]
    [taoensso.timbre.appenders.3rd-party.rolling :refer (rolling-appender)]
    [taoensso.timbre.appenders.core :refer (println-appender)]
    [clansi.core :refer (style)]
    [taoensso.timbre :refer (refer-timbre set-level! merge-config!)]
    [clojure.core.strint :refer (<<)]
-   [clj-time.core :as t]
-   [clj-time.coerce :refer [to-long]]
    [clojure.java.io :refer (reader)]
    [re-share.log :as log]
-   [re-share.schedule :refer (watch seconds)]))
+   [re-share.schedule :refer (watch seconds)])
+  (:import
+   [java.time.temporal ChronoUnit]))
 
 (refer-timbre)
 
@@ -37,7 +38,7 @@
   (fn [out host]
     (with-open [r (reader out)]
       (let [lines (doall (map (partial process-line host) (line-seq r)))]
-        (swap! logs (fn [m] (assoc m uuid  {:ts (t/now) :lines lines})))))))
+        (swap! logs (fn [m] (assoc m uuid  {:ts (local-now) :lines lines})))))))
 
 (defn get-log
   "Getting log entry and clearing it"
@@ -59,8 +60,8 @@
 (defn purge
   "Clearing dead non collected logs"
   []
-  (let [minut-ago (to-long (t/minus (t/now) (t/minutes 1)))
-        old (filter (fn [[uuid {:keys [ts]}]] (<= (to-long ts) minut-ago)) @logs)]
+  (let [minute-ago (to-long (minus (local-now) 1 ChronoUnit/MINUTES))
+        old (filter (fn [[uuid {:keys [ts]}]] (<= (to-long ts) minute-ago)) @logs)]
     (doseq [[uuid _] old]
       (trace "purged log" uuid)
       (swap! logs (fn [m] (dissoc m uuid))))
@@ -69,7 +70,7 @@
 (defn run-purge
   "Collected in memory log purge"
   [s]
-  (watch :collected-logs-purge (seconds s) (fn [] (trace "purging logs at" (t/now)) (purge))))
+  (watch :collected-logs-purge (seconds s) (fn [] (trace "purging logs at" (local-now)) (purge))))
 
 (defn setup-logging
   "Sets up logging configuration:
