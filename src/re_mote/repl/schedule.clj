@@ -1,7 +1,8 @@
 (ns re-mote.repl.schedule
   "Schedule tasks"
   (:require
-   [re-share.schedule :refer (status next-run local-str)]
+   [re-share.time :refer (local-str)]
+   [re-share.schedule :refer (status next-run)]
    [clojure.set :refer (rename-keys)]
    [clansi.core :refer (style)]
    [io.aviso.columns :refer  (format-columns write-rows)]
