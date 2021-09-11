@@ -71,11 +71,16 @@
 (defn run-provisioning [ids]
   (provision (with-ids ids)))
 
+(defn update-repo [ids]
+  (update (hosts (with-ids ids) :hostname)))
+
 (defrule provisioning
   "Provisioning"
   [?e <- ::registered [{:keys [failure]}] (= failure false)]
   =>
   (let [{:keys [ids]} ?e]
+    (debug "updating host repository" ids)
+    (update-repo ids)
     (debug "provisioning" ids)
     (let [provisioned (successful-systems (run-provisioning ids))]
       (doseq [id provisioned]
