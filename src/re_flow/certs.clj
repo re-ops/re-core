@@ -42,7 +42,7 @@
 
 (s/def ::id (s/and string? #(= (.length %) 20)))
 
-(s/def ::delivery (s/keys :req-un [::id ::dest]))
+(s/def ::delivery (s/keys :opt-un [::id ::dest]))
 
 (s/def ::domains (s/map-of ::domain ::delivery))
 
