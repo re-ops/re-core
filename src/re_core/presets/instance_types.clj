@@ -13,8 +13,9 @@
   (supports #{:lxc :kvm}
             {:tiny {:cpu 1 :ram 0.5}
              :small {:cpu 2 :ram 1}
+             :medium {:cpu 2 :ram 2}
              :large {:cpu 4 :ram 4}
-             :xlarge {:cpu 8 :ram 8}}))
+             :xlarge {:cpu 8 :ram 16}}))
 
 ; slugs
 (def slugs
