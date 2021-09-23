@@ -84,7 +84,6 @@
         {:keys [system-id]} (-> m :results :success first :args first)]
     (when-not (ips-available [system-id])
       (throw (ex-info "failed to wait for system ip to be available" m)))
-    (println (ips-available [system-id]))
     (spice-into (matching system-id))
     (browse-to (hosts (matching system-id) :ip) url)))
 

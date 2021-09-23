@@ -10,7 +10,7 @@
    [taoensso.timbre :refer (refer-timbre)]
    [re-mote.repl.base :refer (refer-base)]
    [re-mote.persist.es :refer (refer-es-persist)]
-   [re-mote.repl.desktop :refer (refer-desktop)]
+   [re-mote.repl.zero.desktop :refer (refer-desktop)]
    [re-mote.repl.zfs :refer (refer-zfs)]
    [re-mote.repl.stress :refer (refer-stress)]
    [re-mote.repl.output :refer (refer-out)]
