@@ -16,3 +16,8 @@
 
 (defn letsencrypt []
   (trigger {:state :re-flow.certs/start :flow :re-flow.certs/certs}))
+
+(defn dispose []
+  (trigger {:state :re-flow.disposable/start
+            :flow :re-flow.disposable/disposable
+            :target "https://google.com"}))

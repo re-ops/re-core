@@ -5,6 +5,7 @@
    [re-mote.repl.base :refer (scp-from scp-into)]
    [re-mote.zero.certs :refer (refer-certs)]
    [re-mote.zero.nebula :refer (refer-nebula)]
+   [re-mote.repl.desktop :refer (refer-desktop)]
    [re-mote.zero.service :refer (refer-service)]
    [taoensso.timbre :refer (refer-timbre)]
    [re-flow.common :refer (run-?e)]))
@@ -13,6 +14,7 @@
 (refer-certs)
 (refer-nebula)
 (refer-service)
+(refer-desktop)
 
 (defn download-?e [?e [src dest]]
   (debug "downloading" src dest)
@@ -29,6 +31,9 @@
 (defn nebula-sign-?e [?e [name ip groups crt key dest]]
   (run-?e sign- ?e name ip groups crt key dest))
 
+(defn browse-?e [?e [url]]
+  (run-?e browse ?e url))
+
 (def actions
   (atom
    {:re-flow.certs/set-domain (fn [?e _] (run-?e set-domains ?e (into [] (keys (?e :domains)))))
@@ -36,6 +41,7 @@
     :re-flow.nebula/sign nebula-sign-?e
     :mkdir (fn [_ [dir]] (or (mkdir dir) (exists? dir)))
     :restart restart-?e
+    :browse browse-?e
     :download download-?e
     :upload upload-?e}))
 
