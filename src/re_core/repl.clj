@@ -239,7 +239,7 @@
   (cond
     (:machine base) (create-system base args)
     (:cog base) (create-type base args)
-    :else (throw (ex-info "No macthing creation logic found" {:base base :args args}))))
+    :else (throw (ex-info "No matching creation logic found" {:base base :args args}))))
 
 (defn add
   "Add existing system instances:
