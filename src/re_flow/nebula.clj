@@ -10,7 +10,7 @@
    [re-core.presets.instance-types :refer (refer-instance-types)]
    [re-core.presets.systems :refer (refer-system-presets materialize-preset)]
    [taoensso.timbre :refer (refer-timbre)]
-   [re-flow.common :refer (run-?e failure? into-ids)]
+   [re-flow.common :refer (failure? into-ids)]
    [clara.rules :refer :all]))
 
 (refer-timbre)
