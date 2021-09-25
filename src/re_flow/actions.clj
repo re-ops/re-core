@@ -5,7 +5,7 @@
    [re-mote.repl.base :refer (scp-from scp-into)]
    [re-mote.zero.certs :refer (refer-certs)]
    [re-mote.zero.nebula :refer (refer-nebula)]
-   [re-mote.repl.desktop :refer (refer-desktop)]
+   [re-mote.repl.zero.desktop :refer (refer-desktop)]
    [re-mote.zero.service :refer (refer-service)]
    [taoensso.timbre :refer (refer-timbre)]
    [re-flow.common :refer (run-?e)]))

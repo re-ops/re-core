@@ -28,7 +28,7 @@
     ([this url]
      (browse this nil url))
     ([this _ url]
-     [this (run-hosts this shell (shell-args (fullscreen-chrome url) :wait? false))]))
+     [this (run-hosts this shell (shell-args (fullscreen-chrome url) :wait? false) [10 :second])]))
   (writer
     ([this doc]
      (writer this nil doc))

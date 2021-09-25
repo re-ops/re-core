@@ -76,7 +76,7 @@
 
 (defrule provisioning
   "Provisioning"
-  [?e <- ::registered [{:keys [failure]}] (= failure false)]
+  [?e <- ::registered [{:keys [failure provision?]}] (= failure false) (= provision? true)]
   =>
   (let [{:keys [ids]} ?e]
     (debug "updating host repository" ids)

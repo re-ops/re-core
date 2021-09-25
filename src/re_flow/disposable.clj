@@ -7,9 +7,11 @@
    [re-mote.spec :refer (valid?)]
    [clojure.spec.alpha :as s]
    [clojure.core.strint :refer (<<)]
+   [re-core.repl :refer (spice-into with-ids)]
    [re-core.presets.kvm :refer (refer-kvm-presets)]
    [re-core.presets.instance-types :refer (refer-instance-types)]
    [re-core.presets.systems :refer (refer-system-presets materialize-preset)]
+   [re-flow.common :refer (failure? into-ids)]
    [taoensso.timbre :refer (refer-timbre)]
    [clara.rules :refer :all]))
 
@@ -28,6 +30,7 @@
 (derive ::start :re-flow.core/state)
 (derive ::spec :re-flow.core/state)
 (derive ::match :re-flow.core/state)
+(derive ::opened :re-flow.core/state)
 (derive ::failed :re-flow.core/state)
 (derive ::done :re-flow.core/state)
 
@@ -54,18 +57,29 @@
   [?e <- ::spec [{:keys [failure]}] (= failure false)]
   =>
   (info "Starting to setup dispoable instance")
-  (insert! (assoc ?e :state ::match ::url? (url? (?e :target)) ::file? (fs/exists? (?e :target))))
-  (insert! (assoc ?e :state :re-flow.setup/creating :spec (instance ?e))))
+  (insert! (assoc ?e :state ::match :url? (url? (?e :target)) ::file? (fs/exists? (?e :target))))
+  (insert! (assoc ?e :state :re-flow.setup/creating :provision? false :spec (instance ?e))))
 
 (defrule open-url
+  [?e <- :re-flow.setup/registered [{:keys [flow failure]}] (= flow ::disposable) (= failure false)]
   [?t <- ::match [{:keys [url?]}] (= url? true)]
-  [?e <- :re-flow.setup/provisioned [{:keys [flow failure]}] (= flow ::disposable) (= failure false)]
   =>
-  (info "Launching browser with url")
-  (run :browse ?e (?t :target)))
+  (info "Launching browser with url" (?e :target))
+  (let [r (run :browse ?e (?e :target))]
+    (info r)
+    (insert! (assoc ?e :state ::opened :failure (failure? ?e r)))))
 
 (defrule upload-file
-  [?e <- :re-flow.setup/provisioned [{:keys [flow failure]}] (= flow ::disposable) (= failure false)]
+  [?e <- :re-flow.setup/registered [{:keys [flow failure]}] (= flow ::disposable) (= failure false)]
   [?t <- ::match [{:keys [file?]}] (= file? true)]
   =>
   (info "uploading file to target host"))
+
+(defn run-spice [ids]
+  (spice-into (with-ids ids)))
+
+(defrule opened
+  [?e <- ::opened [{:keys [failure]}] (= failure false)]
+  =>
+  (info "spice into" (?e :ids))
+  (run-spice (?e :ids)))
