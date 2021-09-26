@@ -1,7 +1,7 @@
 (ns re-mote.repl.zero.desktop
   "Desktop oriented operations"
   (:require
-   [re-cog.scripts.desktop :refer (fullscreen-chrome librewriter)]
+   [re-cog.scripts.desktop :refer (fullscreen-chrome librewriter xmonad killall xdot-key xdot-type)]
    [re-mote.zero.pipeline :refer (run-hosts)]
    [clojure.core.strint :refer (<<)]
    [re-mote.repl.base :refer (refer-base)]
@@ -20,7 +20,11 @@
     [this m url])
   (writer
     [this doc]
-    [this m doc]))
+    [this m doc])
+  (tile [this])
+  (kill [this proc])
+  (type- [this s])
+  (send-key [this ks]))
 
 (extend-type Hosts
   Desktop
@@ -33,7 +37,19 @@
     ([this doc]
      (writer this nil doc))
     ([this _ doc]
-     [this (run-hosts this shell (shell-args (librewriter doc)))])))
+     [this (run-hosts this shell (shell-args (librewriter doc)))]))
+  (tile
+    ([this]
+     [this (run-hosts this shell (shell-args xmonad :wait? false))]))
+  (kill
+    ([this proc]
+     [this (run-hosts this shell (shell-args (killall proc)))]))
+  (type-
+    ([this s]
+     [this (run-hosts this shell (shell-args (xdot-type s)))]))
+  (send-key
+    ([this ks]
+     [this (run-hosts this shell (shell-args (xdot-key ks)))])))
 
 (defn refer-desktop []
   (require '[re-mote.repl.zero.desktop :as dsk :refer (browse writer)]))
