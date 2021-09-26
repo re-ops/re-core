@@ -60,7 +60,7 @@
   [?e <- ::spec [{:keys [failure]}] (= failure false)]
   =>
   (info "starting to create system")
-  (insert! (assoc ?e :state :re-flow.setup/creating :spec (instance ?e))))
+  (insert! (assoc ?e :state :re-flow.setup/creating :spec (instance ?e) :provision? true)))
 
 (defrule check-volume
   "Check that our volume is ready and has enough capacity"

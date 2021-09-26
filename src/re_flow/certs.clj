@@ -65,7 +65,7 @@
   [?e <- ::spec [{:keys [failure]}] (= failure false)]
   =>
   (info "Starting to setup certs instance")
-  (insert! (assoc ?e :state :re-flow.setup/creating :spec instance)))
+  (insert! (assoc ?e :state :re-flow.setup/creating :spec instance :provision? true)))
 
 (defrule domains
   "Setup the domains we will generate certs for"
