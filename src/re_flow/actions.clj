@@ -34,6 +34,9 @@
 (defn browse-?e [?e [url]]
   (run-?e browse ?e url))
 
+(defn write-?e [?e [url]]
+  (run-?e writer ?e url))
+
 (def actions
   (atom
    {:re-flow.certs/set-domain (fn [?e _] (run-?e set-domains ?e (into [] (keys (?e :domains)))))
@@ -42,6 +45,7 @@
     :mkdir (fn [_ [dir]] (or (mkdir dir) (exists? dir)))
     :restart restart-?e
     :browse browse-?e
+    :writer write-?e
     :download download-?e
     :upload upload-?e}))
 

@@ -17,7 +17,14 @@
 (defn letsencrypt []
   (trigger {:state :re-flow.certs/start :flow :re-flow.certs/certs}))
 
-(defn dispose []
+(defn disposable-url []
   (trigger {:state :re-flow.disposable/start
             :flow :re-flow.disposable/disposable
             :target "https://google.com"}))
+
+(def home (System/getProperty "user.home"))
+
+(defn disposable-file [f]
+  (trigger {:state :re-flow.disposable/start
+            :flow :re-flow.disposable/disposable
+            :target f}))
