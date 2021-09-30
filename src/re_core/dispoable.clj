@@ -23,8 +23,8 @@
 
 (def downloads (<< "~{home}/Downloads"))
 
-(def pdfs
-  (.getPathMatcher (java.nio.file.FileSystems/getDefault) "glob:*.{pdf}"))
+(defn glob [g]
+  (.getPathMatcher (java.nio.file.FileSystems/getDefault) (str "glob:*.{" g "}")))
 
 (defn files [root matcher]
   (->> (file root)
@@ -55,10 +55,10 @@
 
 (defn disposable
   "Open a file/url in a dispoable VM, make sure to have a disposable type before using this function"
-  [root & m]
+  [root & {:keys [ext] :or {ext "pdf"} :as m}]
   {:pre [(t/exists? "disposable")]}
   (cond
-    (fs/directory? root) (doseq [file (pick-files root pdfs)]
+    (fs/directory? root) (doseq [file (pick-files root (glob ext))]
                            (trigger {:state :re-flow.disposable/start
                                      :flow :re-flow.disposable/disposable
                                      :target file}))
