@@ -37,6 +37,15 @@
 (defn write-?e [?e [url]]
   (run-?e writer ?e url))
 
+(defn type-?e [?e [s]]
+  (run-?e type- ?e s))
+
+(defn send-key-?e [?e [ks]]
+  (run-?e send-key ?e ks))
+
+(defn tile-?e [?e []]
+  (run-?e tile ?e))
+
 (def actions
   (atom
    {:re-flow.certs/set-domain (fn [?e _] (run-?e set-domains ?e (into [] (keys (?e :domains)))))
@@ -44,10 +53,14 @@
     :re-flow.nebula/sign nebula-sign-?e
     :mkdir (fn [_ [dir]] (or (mkdir dir) (exists? dir)))
     :restart restart-?e
+    :download download-?e
+    :upload upload-?e
+    ; UI actions
+    :tile tile-?e
     :browse browse-?e
     :writer write-?e
-    :download download-?e
-    :upload upload-?e}))
+    :type type-?e
+    :send-key send-key-?e}))
 
 (defn run
   "Run a side effect function from within a rule"

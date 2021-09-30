@@ -37,7 +37,7 @@
     ([this doc]
      (writer this nil doc))
     ([this _ doc]
-     [this (run-hosts this shell (shell-args (librewriter doc)))]))
+     [this (run-hosts this shell (shell-args (librewriter doc) :wait? false))]))
   (tile
     ([this]
      [this (run-hosts this shell (shell-args xmonad :wait? false))]))
@@ -52,7 +52,7 @@
      [this (run-hosts this shell (shell-args (xdot-key ks)))])))
 
 (defn refer-desktop []
-  (require '[re-mote.repl.zero.desktop :as dsk :refer (browse writer)]))
+  (require '[re-mote.repl.zero.desktop :as dsk :refer (browse writer type- send-key tile)]))
 
 (comment
   (shell-args (fullscreen-chrome "http://google.com") :wait? false :cached? false))

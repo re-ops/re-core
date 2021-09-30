@@ -22,9 +22,14 @@
             :flow :re-flow.disposable/disposable
             :target "https://google.com"}))
 
-(def home (System/getProperty "user.home"))
-
 (defn disposable-file [f]
   (trigger {:state :re-flow.disposable/start
             :flow :re-flow.disposable/disposable
             :target f}))
+
+(defn dashboard [f id]
+  (trigger
+   (merge (clojure.edn/read-string (slurp f))
+          {:state :re-flow.dashboard/start
+           :flow :re-flow.dashboard/dashboard
+           :id id})))
