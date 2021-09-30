@@ -1,5 +1,5 @@
 (ns re-flow.disposable
-  "Disposable flows"
+  "Disposable flow"
   (:require
    [clojure.java.io :refer (file)]
    [expound.alpha :as expound]
@@ -64,7 +64,7 @@
 
 (defrule open-url
   [?e <- :re-flow.setup/registered [{:keys [flow failure]}] (= flow ::disposable) (= failure false)]
-  [?t <- ::match [{:keys [url?]}] (= url? true)]
+  [?t <- ::match [{:keys [url? target]}] (= url? true) (= target (?e :target))]
   =>
   (info "Launching browser with url" (?e :target))
   (let [r (run :browse ?e (?e :target))]
@@ -78,7 +78,7 @@
 
 (defrule upload-file
   [?e <- :re-flow.setup/registered [{:keys [flow failure]}] (= flow ::disposable) (= failure false)]
-  [?t <- ::match [{:keys [file?]}] (= file? true)]
+  [?t <- ::match [{:keys [file? target]}] (= file? true) (= target (?e :target))]
   =>
   (let [{:keys [target]} ?e
         base (fs/base-name target)
