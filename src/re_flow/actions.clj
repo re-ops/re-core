@@ -65,6 +65,7 @@
 (defn run
   "Run a side effect function from within a rule"
   [action ?e & args]
+  {:pre [(contains? ?e :state)]}
   (if (not (@actions action))
     (do
       (error "failed to find" action) true)

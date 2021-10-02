@@ -1,5 +1,5 @@
 (ns re-flow.dashboard
-  "Dashboard flow"
+  "Tilled Dashboard flow"
   (:require
    [clojure.java.io :refer (file)]
    [expound.alpha :as expound]
@@ -87,18 +87,20 @@
 
 (defrule launch
   "Launch a site (open + login)"
-  [?e <- ::open [{:keys [url login]}] (= login true)]
+  [?e <- ::open [{:keys [login]}] (= login true)]
   =>
   (info "Launching browser with url" (?e :url))
   (let [r0 (run :tile ?e)
         r1 (run :browse ?e (?e :url))
-        r2 (run-auth ?e)]
-    (insert! (assoc ?e :state ::opened :failure (or r2 (failure? ?e r1) (failure? ?e r0))))))
+        r2 (run-auth ?e)
+        r3 (run :send-key ?e [:alt :shift (str (?e :screen))])]
+    (insert! (assoc ?e :state ::opened :failure (or r2 (failure? ?e r3) (failure? ?e r1) (failure? ?e r0))))))
 
 (defrule open
   "Open a site (no login)"
   [?e <- ::open [{:keys [url login]}] (= login false)]
   =>
   (info "Open browser with url" (?e :url))
-  (let [r (run :browse ?e (?e :url))]
-    (insert! (assoc ?e :state ::opened :failure (failure? ?e r)))))
+  (let [r1 (run :browse ?e (?e :url))
+        r2 (run :send-key ?e [:alt :shift (str (?e :screen))])]
+    (insert! (assoc ?e :state ::opened :failure (or (failure? ?e r1) (failure? ?e r2))))))
