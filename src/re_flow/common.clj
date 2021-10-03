@@ -1,6 +1,7 @@
 (ns re-flow.common
   "common flow functions"
   (:require
+   [re-mote.spec :refer (valid?)]
    [re-core.specs :refer (ip?)]
    [re-share.core :refer (gen-uuid)]
    [re-core.queue :refer [enqueue]]
@@ -43,8 +44,9 @@
     :else (throw (ex-info "mixed ips and hostnames list are not supported!" {:addresses addresses}))))
 
 (defn into-ids
-  "Convert ip/hostname to system id"
+  "Convert ip/hostname to system id (fail if non found)"
   [addresses]
+  {:post [(= (count addresses) (count %))]}
   (let [systems (repl/list ((list-by-fn addresses) addresses) :systems :print? false)]
     (into #{} (->> systems second :systems (map first)))))
 
@@ -74,7 +76,14 @@
   (apply (partial f (hosts (with-ids ids) :hostname)) (concat args [timeout (fact-callback fact pred ?e)])))
 
 (defn failure? [?e r]
-  (not (= (seq (successful-ids r)) (seq (?e :ids)))))
+  "Either we got no successful hosts or that not all of the hosts were successful"
+  {:pre [(valid? :re-mote.spec/pipeline r)]}
+  (or (empty? (successful-hosts r)) (not (= (seq (successful-ids r)) (seq (?e :ids))))))
 
-(comment
-  (enqueue :re-flow.session/facts {:tid "1234" :args [[{:state :re-flow.restore/restored :timeout true :failure false}]]}))
+(defn with-fails [?e rs]
+  {:pre [(vector? rs)]}
+  (try
+    (let [failures (get (group-by (partial failure? ?e) rs) true [])]
+      (assoc ?e :failure (not (empty? failures)) :failures failures))
+    (catch Throwable e
+      (assoc ?e :failure true :failures {:exception e}))))
