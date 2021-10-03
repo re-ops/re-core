@@ -18,7 +18,14 @@
 
 (refer-timbre)
 
+(defn check-type [{:keys [state type]}]
+  (cond
+    (isa? state :re-flow.core/state) true
+    (isa? type :re-flow.session/type) true
+    :else (do (error "fact state/type doesn't match any valid option!" state type) false)))
+
 (defn fact-type [fact]
+  {:pre [(check-type fact)]}
   (or (:state fact) (:type fact)))
 
 (defn initialize []
