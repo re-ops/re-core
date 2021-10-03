@@ -31,6 +31,9 @@
 (defn nebula-sign-?e [?e [name ip groups crt key dest]]
   (run-?e sign- ?e name ip groups crt key dest))
 
+(defn kill-?e [?e [p]]
+  (run-?e kill- ?e p))
+
 (defn browse-?e [?e [url]]
   (run-?e browse ?e url))
 
@@ -43,7 +46,7 @@
 (defn send-key-?e [?e [ks]]
   (run-?e send-key ?e ks))
 
-(defn tile-?e [?e []]
+(defn tile-?e [?e _]
   (run-?e tile ?e))
 
 (def actions
@@ -55,6 +58,7 @@
     :restart restart-?e
     :download download-?e
     :upload upload-?e
+    :kill kill-?e
     ; UI actions
     :tile tile-?e
     :browse browse-?e
