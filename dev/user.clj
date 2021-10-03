@@ -6,8 +6,10 @@
    [clojure.tools.namespace.repl :refer (refresh refresh-all)]
    ; Re-flow
    [re-flow.core :refer (trigger)]
+   [re-flow.demo :refer :all]
    [re-flow.common :refer (create-fact)]
-   [re-flow.session :refer (session facts-updater)]
+   [re-flow.session :refer (session facts-updater run-query)]
+   [re-flow.queries :refer :all]
    [re-flow.pubsub :refer (pubsub)]
    [re-flow.file-watcher :refer (watchers)]
    ; Re-core
