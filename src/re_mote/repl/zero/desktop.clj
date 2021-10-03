@@ -22,7 +22,7 @@
     [this doc]
     [this m doc])
   (tile [this])
-  (kill [this proc])
+  (kill- [this proc])
   (type- [this s])
   (send-key [this ks]))
 
@@ -40,8 +40,8 @@
      [this (run-hosts this shell (shell-args (librewriter doc) :wait? false))]))
   (tile
     ([this]
-     [this (run-hosts this shell (shell-args xmonad :wait? false))]))
-  (kill
+     [this (run-hosts this shell (shell-args (xmonad) :wait? false))]))
+  (kill-
     ([this proc]
      [this (run-hosts this shell (shell-args (killall proc)))]))
   (type-
@@ -52,7 +52,7 @@
      [this (run-hosts this shell (shell-args (xdot-key ks)))])))
 
 (defn refer-desktop []
-  (require '[re-mote.repl.zero.desktop :as dsk :refer (browse writer type- send-key tile)]))
+  (require '[re-mote.repl.zero.desktop :as dsk :refer (browse writer type- send-key tile kill-)]))
 
 (comment
   (shell-args (fullscreen-chrome "http://google.com") :wait? false :cached? false))
