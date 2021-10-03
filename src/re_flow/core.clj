@@ -17,7 +17,7 @@
         (try
           (update- facts)
           (debug "Finished firing rules")
-          (catch Exception e
+          (catch Throwable e
             (error-m e)))))))
 
 (comment
