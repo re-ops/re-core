@@ -18,3 +18,7 @@
   []
   [?p <- :re-flow.setup/provisioned])
 
+(defquery get-all
+  "Get all facts"
+  []
+  [?p <- :re-flow.core/state])
