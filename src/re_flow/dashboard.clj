@@ -1,11 +1,8 @@
 (ns re-flow.dashboard
   "Tilled Dashboard flow"
   (:require
-   [clojure.java.io :refer (file)]
    [expound.alpha :as expound]
    [re-flow.actions :refer (run)]
-   [me.raynes.fs :as fs]
-   [re-mote.spec :refer (valid?)]
    [clojure.spec.alpha :as s]
    [clojure.core.strint :refer (<<)]
    [re-core.repl :refer (spice-into with-ids)]

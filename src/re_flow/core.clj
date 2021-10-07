@@ -2,8 +2,7 @@
   (:require
    [re-share.core :refer (gen-uuid)]
    [re-share.core :refer (error-m)]
-   [re-flow.session :refer (update- run-query)]
-   [re-flow.queries :refer :all]
+   [re-flow.session :refer (update-)]
    [taoensso.timbre :refer (refer-timbre)]
    [clara.rules :refer :all]))
 
@@ -19,8 +18,3 @@
           (debug "Finished firing rules")
           (catch Throwable e
             (error-m e)))))))
-
-(comment
-  (run-query get-provisioned)
-  (run-query get-success)
-  (run-query get-failures))

@@ -1,6 +1,8 @@
 (ns re-mote.zero.management
   "Managing client protocol"
   (:require
+   [re-share.core :refer (gen-uuid)]
+   [re-core.queue :refer [enqueue]]
    [clojure.core.strint :refer (<<)]
    [table.core :refer (table)]
    [re-share.core :refer (error-m)]
@@ -36,11 +38,17 @@
   (debug "unregister" hostname uid)
   (swap! zmq-hosts dissoc hostname))
 
+(defn react-to [request address]
+  (match [request]
+    [{:request _}] (enqueue :re-flow.session/facts {:tid (gen-uuid) :args [[(merge request address {:state :re-flow.react/request})]]})
+    :else nil))
+
 (defn process
   "Process a message from a client"
   [{:keys [hostname] :as address} request]
   (try
     (debug "got" address (with-out-str (clojure.pprint/pprint request)))
+    (react-to request address)
     (match [request]
       [{:request "register"}] (register address)
       [{:request "unregister"}] (unregister address)

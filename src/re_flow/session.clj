@@ -9,6 +9,7 @@
    re-flow.notification
    re-flow.disposable
    re-flow.dashboard
+   re-flow.react
    [re-cog.facts.datalog :refer (desktop?)]
    [taoensso.timbre :refer (refer-timbre)]
    [mount.core :as mount :refer (defstate)]
@@ -33,7 +34,7 @@
    (mk-session
     're-flow.queries 're-flow.setup 're-flow.restore
     're-flow.certs 're-flow.notification 're-flow.disposable
-    're-flow.nebula 're-flow.dashboard
+    're-flow.nebula 're-flow.dashboard 're-flow.react
     :fact-type-fn fact-type :cache false)))
 
 (defstate ^{:on-reload :noop} session
