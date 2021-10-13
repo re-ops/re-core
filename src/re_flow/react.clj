@@ -1,6 +1,8 @@
 (ns re-flow.react
   "Reacting to agent status changes per host"
   (:require
+   [es.systems :as sys]
+   [re-flow.common :refer (into-ids)]
    [expound.alpha :as expound]
    [clojure.spec.alpha :as s]
    [clojure.core.strint :refer (<<)]
@@ -10,16 +12,21 @@
 (refer-timbre)
 
 (derive ::request :re-flow.core/state)
+(derive ::typed :re-flow.core/state)
 (derive ::down :re-flow.core/state)
+
+(defn enrich [?e id]
+  (assoc ?e :system (sys/get id)))
 
 (defrule request
   "Processing incoming requests (registration, un-registration)"
   [?e <- ::request]
   =>
-  (info "Reacing to" ?e))
+  (let [id (first (into-ids [(?e :hostname)]))]
+    (insert! (assoc (enrich ?e id) :state ::typed :id id))))
 
 (defrule instance-down
   "Instance went down"
   [?e <- ::down]
   =>
-  (info "Reacting to instance down" ?e))
+  (info "Reacting to instance going down" ?e))

@@ -1,6 +1,8 @@
 (ns re-flow.dashboard
   "Tilled Dashboard flow"
   (:require
+   [re-mote.repl.zero.desktop :refer (cycle-screens)]
+   [re-core.repl :refer (hosts matching)]
    [expound.alpha :as expound]
    [re-flow.actions :refer (run)]
    [clojure.spec.alpha :as s]
@@ -128,3 +130,9 @@
   (info "Failed to launch dashboard!")
   (insert! (assoc ?e :state ::failed :failure true)))
 
+(defrule start-dash-cycle
+  "Trigger dashboard cycle"
+  [?e <- :re-flow.react/typed [{:keys [system]}] (= (system :type) :dashboard)]
+  =>
+  (info "starting dashboard")
+  (cycle-screens (hosts (matching (?e :id)) :hostname) 5 20 (keyword "dashboard" (-> ?e :system :machine :hostname))))
