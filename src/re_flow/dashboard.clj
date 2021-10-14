@@ -1,6 +1,7 @@
 (ns re-flow.dashboard
   "Tilled Dashboard flow"
   (:require
+   [re-share.config.core :refer (get!)]
    [re-mote.repl.zero.desktop :refer (cycle-screens)]
    [re-core.repl :refer (hosts matching)]
    [expound.alpha :as expound]
@@ -120,7 +121,9 @@
   "Dashboard setup is done"
   [?e <- ::opened [{:keys [failure sites]}] (= failure false) (= (empty? sites) true)]
   =>
-  (info "Dashboard setup is done")
+  (info "Dashboard setup is done setting up cycle")
+  (cycle-screens
+   (hosts (matching (?e :id)) :hostname) 5 20 (keyword "dashboard" (-> ?e :system :machine :hostname)))
   (insert! (assoc ?e :state ::done :site nil :sites [])))
 
 (defrule halt
@@ -130,9 +133,11 @@
   (info "Failed to launch dashboard!")
   (insert! (assoc ?e :state ::failed :failure true)))
 
-(defrule start-dash-cycle
+(defrule dashboard-bootstrap
   "Trigger dashboard cycle"
   [?e <- :re-flow.react/typed [{:keys [system]}] (= (system :type) :dashboard)]
   =>
-  (info "starting dashboard")
-  (cycle-screens (hosts (matching (?e :id)) :hostname) 5 20 (keyword "dashboard" (-> ?e :system :machine :hostname))))
+  (let [sites (clojure.edn/read-string (slurp (get! :sites)))
+        r (run :kill ?e "chrome")]
+    (insert!
+     (merge sites (assoc ?e :state ::start)))))
