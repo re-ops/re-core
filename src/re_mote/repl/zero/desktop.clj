@@ -1,7 +1,7 @@
 (ns re-mote.repl.zero.desktop
   "Desktop oriented operations"
   (:require
-   [re-share.schedule :refer (watch seconds)]
+   [re-share.schedule :refer (watch seconds halt!)]
    [re-cog.scripts.desktop :refer (fullscreen-chrome librewriter xmonad killall xdot-key xdot-type)]
    [re-mote.zero.pipeline :refer (run-hosts)]
    [clojure.core.strint :refer (<<)]
@@ -60,6 +60,9 @@
                (debug "switching to screen" i)
                (send-key hosts [:alt i])
                (swap! c inc))))))
+
+(defn halt-cycle [k]
+  (halt! k))
 
 (defn refer-desktop []
   (require '[re-mote.repl.zero.desktop :as dsk :refer (browse writer type- send-key tile kill-)]))

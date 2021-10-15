@@ -14,6 +14,7 @@
 (derive ::request :re-flow.core/state)
 (derive ::typed :re-flow.core/state)
 (derive ::down :re-flow.core/state)
+(derive ::cleanup :re-flow.core/state)
 
 (defn enrich [?e id]
   (assoc ?e :system (sys/get id)))
@@ -23,10 +24,12 @@
   [?e <- ::request]
   =>
   (let [id (first (into-ids [(?e :hostname)]))]
-    (insert! (assoc (enrich ?e id) :state ::typed :id id))))
+    (insert! (assoc (enrich ?e id) :state ::typed :ids [id]))))
 
 (defrule instance-down
   "Instance went down"
   [?e <- ::down]
   =>
-  (info "Reacting to instance going down" ?e))
+  (info "Reacting to instance going down" ?e)
+  #_(let [id (first (into-ids [(?e :hostname)]))]
+      (insert! (assoc (enrich ?e id) :state ::cleanup :ids [id]))))

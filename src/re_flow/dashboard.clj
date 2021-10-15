@@ -2,7 +2,7 @@
   "Tilled Dashboard flow"
   (:require
    [re-share.config.core :refer (get!)]
-   [re-mote.repl.zero.desktop :refer (cycle-screens)]
+   [re-mote.repl.zero.desktop :refer (cycle-screens halt-cycle)]
    [re-core.repl :refer (hosts matching)]
    [expound.alpha :as expound]
    [re-flow.actions :refer (run)]
@@ -12,7 +12,7 @@
    [re-core.presets.kvm :refer (refer-kvm-presets)]
    [re-core.presets.instance-types :refer (refer-instance-types)]
    [re-core.presets.systems :refer (refer-system-presets)]
-   [re-flow.common :refer (into-ids with-fails)]
+   [re-flow.common :refer (into-ids with-fails failure?)]
    [taoensso.timbre :refer (refer-timbre)]
    [clara.rules :refer :all]))
 
@@ -24,7 +24,7 @@
 
 (s/def ::password string?)
 
-(s/def ::id string?)
+(s/def ::ids (s/coll-of string?))
 
 (s/def ::screen number?)
 
@@ -39,7 +39,7 @@
 (s/def ::sites (s/coll-of ::site :kind vector?))
 
 (s/def ::dashboard
-  (s/keys :req-un [::sites ::id]))
+  (s/keys :req-un [::sites ::ids]))
 
 (derive ::start :re-flow.core/state)
 (derive ::spec :re-flow.core/state)
@@ -51,21 +51,22 @@
 
 (defrule check
   "Check that the fact is matching the ::dashboard spec"
-  [?e <- ::start]
+  [?e <- ::start [{:keys [failure]}] (or (nil? failure) (= failure false))]
   =>
   (let [failed? (not (s/valid? ::dashboard ?e))]
     (when failed?
       (info (expound/expound-str ::dashboard ?e)))
-    (insert! (assoc ?e :state ::spec :ids [(?e :id)] :failure failed? :message (when failed? "Failed to validate dashboard spec")))))
+    (insert! (assoc ?e :state ::spec :failure failed? :message (when failed? "Failed to validate dashboard spec")))))
 
 (defrule start
   "Triggering dashboard start"
   [?e <- ::spec [{:keys [failure]}] (= failure false)]
   =>
   (info "Starting to setup dashboard")
-  (let [r (run :tile ?e)]
+  (let [r (run :tile ?e)
+        sites (into [] (reverse (?e :sites)))]
     (insert!
-     (with-fails (assoc ?e :state ::open :site (peek (?e :sites)) :sites (pop (?e :sites))) [r]))))
+     (with-fails (assoc ?e :state ::open :sites sites :site (peek sites) :sites (pop sites)) [r]))))
 
 (defn run-wait [k ?e arg t]
   (let [r (run k ?e arg)]
@@ -117,13 +118,16 @@
   (info "Opening next site")
   (insert! (assoc ?e :state ::open :site (peek (?e :sites)) :sites (pop (?e :sites)))))
 
+(defn cycle-key [?e]
+  (keyword "dashboard" (-> ?e :system :machine :hostname)))
+
 (defrule done
   "Dashboard setup is done"
   [?e <- ::opened [{:keys [failure sites]}] (= failure false) (= (empty? sites) true)]
   =>
   (info "Dashboard setup is done setting up cycle")
   (cycle-screens
-   (hosts (matching (?e :id)) :hostname) 5 20 (keyword "dashboard" (-> ?e :system :machine :hostname)))
+   (hosts (with-ids (?e :ids)) :hostname) 5 20 (cycle-key ?e))
   (insert! (assoc ?e :state ::done :site nil :sites [])))
 
 (defrule halt
@@ -143,4 +147,10 @@
         ; clearing existing passwords cache
         r2 (run :rmdir ?e (<< "/home/~{user}/.config/google-chrome/Default"))]
     (insert!
-     (merge sites (assoc ?e :state ::start)))))
+     (merge sites (assoc ?e :state ::start :failure (failure? ?e r2))))))
+
+(defrule dashboard-teardown
+  "Trigger dashboard cycle"
+  [?e <- :re-flow.react/cleanup [{:keys [system]}] (= (system :type) :dashboard)]
+  =>
+  (halt-cycle (cycle-key ?e)))
