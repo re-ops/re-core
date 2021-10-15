@@ -56,7 +56,8 @@
   (let [dir (get! :re-core :queue-dir)]
     (reset! run true)
     (mkdir dir)
-    (reset! q (queues dir {:complete? (fn [_] true)}))))
+    (reset! q (queues dir {:complete? (fn [_] true)}))
+    (info "queue is up")))
 
 (defn- stop- []
   (reset! run false)
