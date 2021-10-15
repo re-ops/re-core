@@ -7,7 +7,7 @@
    [re-mote.zero.management :as mgmt]
    [re-mote.zero.callback :as clb]
    [re-mote.zero.results :as res]
-   [re-mote.zero.events :refer (handle)]
+   [re-mote.zero.events :refer (handle watch-misses)]
    [re-mote.zero.server :as srv]
    [re-share.zero.events :as evn]
    [re-mote.zero.send :as snd]
@@ -29,7 +29,8 @@
   (wrk/start @ctx 4)
   (enable-waits)
   (clb/callback-watch)
-  (res/prune-watch))
+  (res/prune-watch)
+  (watch-misses))
 
 (defn stop []
   (stop-waits)
