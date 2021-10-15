@@ -29,8 +29,14 @@
   {:pre [(check-type fact)]}
   (or (:state fact) (:type fact)))
 
-(defn initialize []
-  (atom
+(defn populate-system-facts
+  "Adding system information facts on initialize"
+  [s]
+  (info "adding system facts")
+  (fire-rules (insert-all s [{:type ::system :desktop (desktop?)}])))
+
+(defn create-session []
+  (populate-system-facts
    (mk-session
     're-flow.queries 're-flow.setup 're-flow.restore
     're-flow.certs 're-flow.notification 're-flow.disposable
@@ -38,7 +44,7 @@
     :fact-type-fn fact-type :cache false)))
 
 (defstate ^{:on-reload :noop} session
-  :start (initialize)
+  :start (atom (create-session))
   :stop (reset! session nil))
 
 (defn update- [facts]
@@ -46,19 +52,10 @@
 
 (derive ::system :re-flow.session/type)
 
-(defn populate-system-facts
-  "Adding system information facts on initialize"
-  []
-  (info "adding system facts")
-  (update-
-   [{:type ::system :desktop (desktop?)}]))
-
-(defn start-
-  "A worker for processing fact results from async processes"
+(defn create-update-workers
+  "A worker pool for processing fact results from async processes"
   []
   (let [e (executor :fixed {:num-threads 20})]
-    (populate-system-facts)
-    (info "starting facts processor")
     (knit/future
       (process
        (fn [facts]
@@ -66,15 +63,21 @@
          (update- facts)
          {:facts facts})
        ::facts) {:executor e})
+    (info "re-flow facts processor is ready")
     e))
 
-(defn stop- [e]
+(defn halt-executor [e]
   (when e
-    (.shutdown e)))
+    (.shutdownNow e)
+    (try
+      (.awaitTermination e 1000 java.util.concurrent.TimeUnit/NANOSECONDS)
+      (info "Fact update executor pool has been shutdown")
+      (catch java.lang.InterruptedException e
+        (error e)))))
 
-(defstate facts-updater
-  :start (start-)
-  :stop (stop- facts-updater))
+(defstate fact-update-workers
+  :start (create-update-workers)
+  :stop (halt-executor fact-update-workers))
 
 (defn run-query [q]
   (query @session q))

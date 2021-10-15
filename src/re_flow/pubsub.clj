@@ -1,5 +1,5 @@
 (ns re-flow.pubsub
-  "In memory pubsub to rules firing"
+  "In memory pubsub channels for rules firing"
   (:require
    [taoensso.timbre :refer (info)]
    [mount.core :as mount :refer (defstate)]
@@ -13,20 +13,20 @@
     {:input input
      :pub (pub input :state)}))
 
-(defstate ^{:on-reload :noop} pubsub
+(defstate ^{:on-reload :noop} rules-pubsub
   :start (initialize)
-  :stop (close! (pubsub :input)))
+  :stop (close! (rules-pubsub :input)))
 
 (defn publish-?e
   "Publish an ?e"
   [?e]
   {:pre [(isa? (?e :state) :re-flow.core/state)]}
-  (>!! (pubsub :input) ?e))
+  (>!! (rules-pubsub :input) ?e))
 
 (defn subscribe-?e
   "Subsribe to ?e with state"
   [state c]
-  (sub (pubsub :pub) state c) c)
+  (sub (rules-pubsub :pub) state c) c)
 
 (comment
   (publish-?e {:state :re-flow.certs/copied})

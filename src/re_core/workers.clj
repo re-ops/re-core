@@ -28,7 +28,12 @@
 
 (defn stop- []
   (when @e
-    (.shutdown @e)
+    (.shutdownNow @e)
+    (try
+      (.awaitTermination @e 1000 java.util.concurrent.TimeUnit/NANOSECONDS)
+      (info "Workers executor pool has been shutdown")
+      (catch java.lang.InterruptedException e
+        (error e)))
     (reset! e nil)))
 
 (defstate workers
