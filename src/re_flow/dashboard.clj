@@ -138,6 +138,9 @@
   [?e <- :re-flow.react/typed [{:keys [system]}] (= (system :type) :dashboard)]
   =>
   (let [sites (clojure.edn/read-string (slurp (get! :sites)))
-        r (run :kill ?e "chrome")]
+        user (-> ?e :system :machine :user)
+        _ (run :kill ?e "chrome")
+        ; clearing existing passwords cache
+        r2 (run :rmdir ?e (<< "/home/~{user}/.config/google-chrome/Default"))]
     (insert!
      (merge sites (assoc ?e :state ::start)))))

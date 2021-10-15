@@ -5,6 +5,7 @@
    [re-mote.repl.base :refer (scp-from scp-into)]
    [re-mote.zero.certs :refer (refer-certs)]
    [re-mote.zero.nebula :refer (refer-nebula)]
+   [re-mote.zero.filesystem :refer (rmdir)]
    [re-mote.repl.zero.desktop :refer (refer-desktop)]
    [re-mote.zero.service :refer (refer-service)]
    [taoensso.timbre :refer (refer-timbre)]
@@ -49,12 +50,16 @@
 (defn tile-?e [?e _]
   (run-?e tile ?e))
 
+(defn rmdir-?e [?e [d]]
+  (run-?e rmdir ?e d))
+
 (def actions
   (atom
    {:re-flow.certs/set-domain (fn [?e _] (run-?e set-domains ?e (into [] (keys (?e :domains)))))
     :re-flow.certs/renew (fn [?e [user token]] (run-?e renew ?e user token))
     :re-flow.nebula/sign nebula-sign-?e
     :mkdir (fn [_ [dir]] (or (mkdir dir) (exists? dir)))
+    :rmdir rmdir-?e
     :restart restart-?e
     :download download-?e
     :upload upload-?e
