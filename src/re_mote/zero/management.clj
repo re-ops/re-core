@@ -48,7 +48,6 @@
   [{:keys [hostname] :as address} request]
   (try
     (debug "got" address (with-out-str (clojure.pprint/pprint request)))
-    (react-to request address)
     (match [request]
       [{:request "register"}] (register address)
       [{:request "unregister"}] (unregister address)
@@ -58,6 +57,7 @@
       :else (do
               (error "no handling clause found for request" request)
               (fail request "no handling clause found for request")))
+    (react-to request address)
     (catch Exception e
       (fail request e)
       (error-m e))))
