@@ -143,7 +143,7 @@
   =>
   (let [user (-> ?e :system :machine :user)]
     (insert!
-     {:state ::cache :path (<< "/home/~{user}/snap/chromium/Default")})))
+     {:state ::cache :path (<< "/home/~{user}/snap/chromium/common/chromium/Default")})))
 
 (defrule chrome-cache
   [?e <- :re-flow.react/typed [{:keys [system]}] (= (system :type) :dashboard) (= (-> system :machine :os) :ubuntu-desktop-20.04)]
