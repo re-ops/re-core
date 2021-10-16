@@ -43,6 +43,7 @@
 
 (derive ::start :re-flow.core/state)
 (derive ::spec :re-flow.core/state)
+(derive ::cache :re-flow.core/state)
 (derive ::launch :re-flow.core/state)
 (derive ::open :re-flow.core/state)
 (derive ::opened :re-flow.core/state)
@@ -137,15 +138,30 @@
   (info "Failed to launch dashboard!")
   (insert! (assoc ?e :state ::failed :failure true)))
 
+(defrule chromium-cache
+  [?e <- :re-flow.react/typed [{:keys [system]}] (= (system :type) :dashboard) (= (-> system :machine :os) :debian-10.0)]
+  =>
+  (let [user (-> ?e :system :machine :user)]
+    (insert!
+     {:state ::cache :path (<< "/home/~{user}/snap/chromium/Default")})))
+
+(defrule chrome-cache
+  [?e <- :re-flow.react/typed [{:keys [system]}] (= (system :type) :dashboard) (= (-> system :machine :os) :ubuntu-desktop-20.04)]
+  =>
+  (let [user (-> ?e :system :machine :user)]
+    (insert!
+     {:state ::cache :path (<< "/home/~{user}/.config/google-chrome/Default")})))
+
 (defrule dashboard-bootstrap
   "Trigger dashboard cycle"
   [?e <- :re-flow.react/typed [{:keys [system]}] (= (system :type) :dashboard)]
+  [?c <- ::cache]
   =>
   (let [sites (clojure.edn/read-string (slurp (get! :sites)))
         user (-> ?e :system :machine :user)
         _ (run :kill ?e "chrome")
         ; clearing existing passwords cache
-        r2 (run :rmdir ?e (<< "/home/~{user}/.config/google-chrome/Default"))]
+        r2 (run :rmdir ?e (?c :path))]
     (insert!
      (merge sites (assoc ?e :state ::start :failure (failure? ?e r2))))))
 
