@@ -14,7 +14,7 @@
   (info host "went down!")
   (when-let [address ((all-hosts) host)]
     (unregister address)
-    (enqueue :re-flow.session/facts {:tid (gen-uuid) :args [[{:host host :state :re-flow.react/down}]]})))
+    (enqueue :re-flow.session/facts {:tid (gen-uuid) :args [[{:hostname host :state :re-flow.react/down}]]})))
 
 (def ^{:doc "hosts to missing counts"} misses (atom {}))
 

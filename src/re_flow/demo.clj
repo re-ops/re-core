@@ -31,5 +31,7 @@
   (trigger
    (merge (clojure.edn/read-string (slurp f))
           {:state :re-flow.dashboard/start
+           ; required to handle reactive bootstrap
+           :failure false
            :flow :re-flow.dashboard/dashboard
            :id id})))

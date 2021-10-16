@@ -59,7 +59,7 @@
     (knit/future
       (process
        (fn [facts]
-         (info "updating facts" facts)
+         (debug "updating facts" facts)
          (update- facts)
          {:facts facts})
        ::facts) {:executor e})

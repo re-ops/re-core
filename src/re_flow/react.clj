@@ -23,6 +23,7 @@
   "Processing incoming requests (registration, un-registration)"
   [?e <- ::request]
   =>
+  (debug "Reacting to instance state change" ?e)
   (let [id (first (into-ids [(?e :hostname)]))]
     (insert! (assoc (enrich ?e id) :state ::typed :ids [id]))))
 
@@ -30,6 +31,6 @@
   "Instance went down"
   [?e <- ::down]
   =>
-  (info "Reacting to instance going down" ?e)
-  #_(let [id (first (into-ids [(?e :hostname)]))]
-      (insert! (assoc (enrich ?e id) :state ::cleanup :ids [id]))))
+  (debug "Reacting to instance going down" ?e)
+  (let [id (first (into-ids [(?e :hostname)]))]
+    (insert! (assoc (enrich ?e id) :state ::cleanup :ids [id]))))
