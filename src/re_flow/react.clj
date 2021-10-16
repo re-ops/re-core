@@ -19,13 +19,21 @@
 (defn enrich [?e id]
   (assoc ?e :system (sys/get id)))
 
-(defrule request
-  "Processing incoming requests (registration, un-registration)"
-  [?e <- ::request]
+(defrule register
+  "Processing registration requests"
+  [?e <- ::request [{:keys [request]}] (= request "register")]
   =>
-  (debug "Reacting to instance state change" ?e)
+  (debug "Reacting to instance registration" ?e)
   (let [id (first (into-ids [(?e :hostname)]))]
     (insert! (assoc (enrich ?e id) :state ::typed :ids [id]))))
+
+(defrule unregister
+  "Processing incoming un-registration requests"
+  [?e <- ::request [{:keys [request]}] (= request "unregister")]
+  =>
+  (debug "Reacting to instance un-registration" ?e)
+  (let [id (first (into-ids [(?e :hostname)]))]
+    (insert! (assoc (enrich ?e id) :state ::cleanup :ids [id]))))
 
 (defrule instance-down
   "Instance went down"
