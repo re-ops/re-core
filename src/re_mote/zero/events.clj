@@ -22,7 +22,7 @@
   (let [hosts (all-hosts)
         uuid (call ping [] hosts)
         hosts-ks (into #{} (keys hosts))]
-    (Thread/sleep 1000)
+    (Thread/sleep 2000)
     (let [absentees (missing-results hosts-ks uuid)]
       (doseq [absent absentees]
         (swap! misses update absent (fnil inc 0)))
@@ -33,7 +33,7 @@
   (trace e-type (bean event))
   (when (= e-type :disconnected)))
 
-(def threshold 3)
+(def threshold 4)
 
 (defn cleanup []
   (ping-check)
