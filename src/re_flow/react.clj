@@ -1,6 +1,7 @@
 (ns re-flow.react
   "Reacting to agent status changes per host"
   (:require
+   [re-share.core :refer (gen-uuid)]
    [es.systems :as sys]
    [re-flow.common :refer (into-ids)]
    [expound.alpha :as expound]
@@ -23,9 +24,10 @@
   "Processing registration requests"
   [?e <- ::request [{:keys [request]}] (= request "register")]
   =>
-  (debug "Reacting to instance registration" ?e)
-  (let [id (first (into-ids [(?e :hostname)]))]
-    (insert! (assoc (enrich ?e id) :state ::typed :ids [id]))))
+  (let [uuid (gen-uuid)]
+    (debug "Reacting to instance registration")
+    (let [id (first (into-ids [(?e :hostname)]))]
+      (insert! (assoc (enrich ?e id) :state ::typed :ids [id] :uuid uuid)))))
 
 (defrule unregister
   "Processing incoming un-registration requests"

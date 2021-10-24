@@ -92,7 +92,7 @@
   "Launch a site (open + login)"
   [?e <- ::open [{:keys [site failure]}] (= (site :login) true) (= failure false)]
   =>
-  (info "Launching browser with url" (-> ?e :site :url))
+  (debug "Launching browser with url" (-> ?e :site :url))
   (let [{:keys [site]} ?e
         r1 (run :browse ?e (site :url))
         r2 (run-auth ?e)
@@ -106,7 +106,7 @@
   =>
   (let [{:keys [site]} ?e
         {:keys [url auth screen]} site]
-    (info "Open browser with url" url)
+    (debug "Open browser with url" url)
     (let [r1 (run :browse ?e url)
           r2 (run :send-key ?e [:alt :shift (str screen)])
           ?e' (with-fails (assoc ?e :state ::opened) [r1 r2])]
@@ -116,7 +116,7 @@
   "We open the next website if available"
   [?e <- ::opened [{:keys [failure sites]}] (= failure false) (= (empty? sites) false)]
   =>
-  (info "Opening next site")
+  (debug "Opening next site")
   (insert! (assoc ?e :state ::open :site (peek (?e :sites)) :sites (pop (?e :sites)))))
 
 (defn cycle-key [?e]
@@ -143,19 +143,21 @@
   =>
   (let [user (-> ?e :system :machine :user)]
     (insert!
-     {:state ::cache :path (<< "/home/~{user}/snap/chromium/common/chromium/Default")})))
+     {:state ::cache :path (<< "/home/~{user}/snap/chromium/common/chromium/Default") :uuid (?e :uuid)})))
 
 (defrule chrome-cache
   [?e <- :re-flow.react/typed [{:keys [system]}] (= (system :type) :dashboard) (= (-> system :machine :os) :ubuntu-desktop-20.04)]
   =>
   (let [user (-> ?e :system :machine :user)]
     (insert!
-     {:state ::cache :path (<< "/home/~{user}/.config/google-chrome/Default")})))
+     {:state ::cache :path (<< "/home/~{user}/.config/google-chrome/Default") :uuid (?e :uuid)})))
 
 (defrule dashboard-bootstrap
   "Trigger dashboard cycle"
   [?e <- :re-flow.react/typed [{:keys [system]}] (= (system :type) :dashboard)]
-  [?c <- ::cache]
+  [?c <- ::cache [{:keys [uuid]}] (= (?e :uuid) uuid)]
+  [:not [:exists [::failed [{:keys [uuid]}] (= (?e :uuid) uuid)]]]
+  [:not [:exists [::done [{:keys [uuid]}] (= (?e :uuid) uuid)]]]
   =>
   (let [sites (clojure.edn/read-string (slurp (get! :sites)))
         user (-> ?e :system :machine :user)
