@@ -48,6 +48,7 @@
    ; Re-mote components
    [re-mote.zero.cycle :refer (zero)]
    [re-mote.persist.es :as mote-es :refer (elastic)]
+   [re-core.persistency.xtdb :as xtdb]
    [re-ops.config.core :as conf]
    [re-share.config.secret :refer (load-secrets)]
    [re-share.zero.keys :as k]
@@ -83,7 +84,7 @@
   (setup-logging)
   (disable-coloring)
   (k/create-server-keys ".curve")
-  (mount/start #'queue #'elastic #'session #'fact-update-workers #'rules-pubsub  #'workers #'zero #'riemann #'watchers)
+  (mount/start #'queue #'xtdb/node #'elastic #'session #'fact-update-workers #'rules-pubsub  #'workers #'zero #'riemann #'watchers)
   (mote-es/initialize)
   (core-es/initialize))
 

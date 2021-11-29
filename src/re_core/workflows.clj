@@ -12,7 +12,7 @@
    [re-core.repl.systems :as sys]
    [es.types :as t]
    [re-mote.repl :as mote]
-   [es.systems :as s]
+   [re-core.persistency.systems :as s]
    [re-core.model :refer (vconstruct)]
    [taoensso.timbre :refer (refer-timbre)]
    [com.rpl.specter :refer (transform select ALL)]
@@ -32,13 +32,13 @@
   "Asserts that a VM is running"
   [vm]
   (assert (= (.status vm) "running")) ; might not match all providers
-  )
+)
 
 (defn not-running!
   "Assert that a vm is not running"
   [vm]
   (assert (not (= (.status vm) "running"))) ; might not match all providers
-  )
+)
 
 (defn reload
   "Reloads a machine if one already exists, will distroy the old one"

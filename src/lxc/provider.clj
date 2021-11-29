@@ -10,7 +10,7 @@
    [clojure.spec.alpha :refer (valid?)]
    [clojure.core.incubator :refer (dissoc-in)]
    [lxc.spec :as spec]
-   [es.systems :as s :refer (update-ip)]))
+   [re-core.persistency.systems :as s :refer (update-ip)]))
 
 (timbre/refer-timbre)
 

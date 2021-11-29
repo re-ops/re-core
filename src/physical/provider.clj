@@ -5,15 +5,12 @@
    * status will use ssh to try and see if the machine is running"
   (:refer-clojure :exclude [sync])
   (:require
-   [es.systems :as s]
    [physical.validations :refer (validate-provider)]
    [re-core.provider :refer (wait-for-ssh mappings)]
    [re-share.wait :refer (wait-for)]
    [re-core.common :refer (bash-)]
-   [clojure.core.strint :refer (<<)]
    [re-mote.ssh.transport :refer (ssh-up? execute)]
    [re-mote.repl :refer (host-scan port-scan deploy)]
-   [re-mote.zero.facts :refer (os-info)]
    [re-core.core :refer (Sync Vm)]
    [physical.wol :refer (wol)]
    [re-core.model :refer (translate vconstruct sconstruct)]

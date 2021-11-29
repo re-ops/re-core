@@ -11,7 +11,7 @@
    [re-core.queue :as q]
    [re-share.core :refer (gen-uuid)]
    [taoensso.timbre :refer  (refer-timbre)]
-   [es.systems :as s]
+   [re-core.persistency.systems :as s]
    [es.jobs :as es]
    [com.rpl.specter :refer [transform ALL multi-path select MAP-VALS nthpath]]
    [re-core.repl.base :as base :refer [Repl Report select-keys* pretty]]

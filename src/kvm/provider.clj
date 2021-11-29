@@ -12,7 +12,7 @@
    [kvm.common :refer (connect get-domain state domain-list)]
    [kvm.networking :refer (public-ip nat-ip)]
    [taoensso.timbre :as timbre]
-   [es.systems :as s]
+   [re-core.persistency.systems :as s]
    [re-core.provider :refer (mappings selections transform os->template wait-for-ssh into-description)]
    [re-share.wait :refer (wait-for)]
    [kvm.sync :refer (descriptive-domains sync-node)]

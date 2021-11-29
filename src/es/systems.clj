@@ -2,12 +2,11 @@
   "Systems indexing/searching"
   (:refer-clojure :exclude [get partial])
   (:require
-   [com.rpl.specter :refer [select must transform ALL multi-path]]
+   [com.rpl.specter :refer [must transform ALL multi-path]]
    [rubber.core :as z]
    [es.common :refer (index)]
    [rubber.node :refer (connection)]
    [qbits.spandex :as s]
-   [clojure.core.strint :refer (<<)]
    [taoensso.timbre :refer (refer-timbre)]
    [re-core.model :as model]))
 
@@ -83,12 +82,6 @@
    (-> (get id)
        (assoc-in [:machine :hostname] hostname)
        (model/clone spec))))
-
-(defn query
-  "basic query string"
-  [query & {:keys [from size] :or {size 100 from 0}}]
-  (:body
-   (s/request (connection) {:url [(index :system) :_search] :method :get :body {:from from :size size :query query}})))
 
 (defn system-val
   "grabbing instance id of spec"

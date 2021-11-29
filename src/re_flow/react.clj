@@ -2,11 +2,8 @@
   "Reacting to agent status changes per host"
   (:require
    [re-share.core :refer (gen-uuid)]
-   [es.systems :as sys]
+   [re-core.persistency.systems :as sys]
    [re-flow.common :refer (into-ids)]
-   [expound.alpha :as expound]
-   [clojure.spec.alpha :as s]
-   [clojure.core.strint :refer (<<)]
    [taoensso.timbre :refer (refer-timbre)]
    [clara.rules :refer :all]))
 

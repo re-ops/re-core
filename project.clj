@@ -28,6 +28,10 @@
                  [rubber "0.4.1"]
                  [org.apache.httpcomponents/httpclient "4.5.13"]
 
+                 ; XTDB
+                 [com.xtdb/xtdb-core "1.19.0"]
+                 [com.xtdb/xtdb-rocksdb "1.19.0"]
+
                  ; repl
                  [org.clojure/tools.namespace "1.1.0"]
 
