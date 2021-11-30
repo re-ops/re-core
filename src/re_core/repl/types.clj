@@ -2,7 +2,7 @@
   "Types repl functions"
   (:require
    [clansi.core :refer  (style)]
-   [es.types :as t]
+   [re-core.persistency.types :as t]
    [re-core.repl.base :refer [Repl Report]])
   (:import
    [re_core.repl.base Types]))

@@ -4,7 +4,6 @@
   (:require
    [re-core.model :refer (figure-virt)]
    [re-core.repl.terminal :refer (launch-ssh)]
-   [es.history :refer (refer-history)]
    [clojure.core.strint :refer  (<<)]
    [re-core.repl.base :refer (refer-base)]
    [re-core.repl.systems :refer (refer-systems)]
@@ -18,7 +17,6 @@
 
 (refer-base)
 (refer-systems)
-(refer-history)
 (refer-types)
 
 (def systems (Systems.))

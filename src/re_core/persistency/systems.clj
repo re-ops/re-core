@@ -1,21 +1,13 @@
 (ns re-core.persistency.systems
   (:require
-   [re-cog.facts.datalog :refer (flatten-keys join-keys fact-pairs)]
    [xtdb.api :as xt]
    [re-share.core :refer (gen-uuid)]
    [re-core.model :as model]
    [taoensso.timbre :refer (refer-timbre)]
-   [re-core.persistency.xtdb :refer [node]]))
+   [re-core.persistency.xtdb :refer [node]]
+   [re-core.persistency.common :refer [unflatten flatten-]]))
 
 (refer-timbre)
-
-(defn unflatten [m]
-  (reduce
-   (fn [m [k v]]
-     (assoc-in m (mapv keyword (clojure.string/split (subs (str k) 1) #"\/")) v)) {} m))
-
-(defn flatten- [m]
-  (into {} (map first (map join-keys (flatten-keys m)))))
 
 (defn get-system-by-host
   "Search for a system using its hostname"
@@ -88,7 +80,7 @@
   "return all existing systems"
   []
   (map (fn [[m]] [(:xt/id m) (unflatten (dissoc m :xt/id))])
-       (xt/q (xt/db node) '{:find [(pull ?system [*])] :where [[?system :type _]]})))
+       (xt/q (xt/db node) '{:find [(pull ?system [*])] :where [[?system :machine/cpu _]]})))
 
 (defn update-ip
   "updates public ip address in the machine persisted data"

@@ -12,7 +12,7 @@
    [re-share.core :refer (gen-uuid)]
    [taoensso.timbre :refer  (refer-timbre)]
    [re-core.persistency.systems :as s]
-   [es.jobs :as es]
+   [re-core.persistency.jobs :as js]
    [com.rpl.specter :refer [transform ALL multi-path select MAP-VALS nthpath]]
    [re-core.repl.base :as base :refer [Repl Report select-keys* pretty]]
    [re-core.repl.results :as r])
@@ -113,7 +113,7 @@
      (map (fn [a] (schedule-job topic (f a))) args))))
 
 (defn result [{:keys [job]}]
-  (merge (es/get (job :tid)) job))
+  (merge (js/get (job :tid)) job))
 
 (defn add-results
   "Add the job result from ES"

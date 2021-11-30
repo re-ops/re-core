@@ -18,7 +18,7 @@
    [re-core.dispoable :refer :all]
    [re-core.clipboard :refer (read-clipboard set-clipboard)]
    [re-core.presets.kvm :refer (refer-kvm-presets)]
-   [re-core.presets.digitial :refer (refer-digital-presets)]
+   [re-core.presets.digital :refer (refer-digital-presets)]
    [re-core.presets.systems :refer (refer-system-presets)]
    [re-core.presets.instance-types :refer (refer-instance-types)]
    [re-core.presets.types :refer (refer-type-presets)]
@@ -28,26 +28,23 @@
    [mount.core :as mount]
    [re-core.queue :refer (queue)]
    [re-core.workers :refer (workers)]
-   [es.common :as core-es]
    ; Utilities
-   [es.history :refer (refer-history)]
    [re-core.repl.fixtures :refer :all]
    [me.raynes.fs :refer (extension file?)]
    ; Logging
    [re-share.log :refer (redirect-output debug-on debug-off)]
    [re-core.log :refer (setup-logging disable-coloring)]
-   ; Elasticsearch
-   [rubber.core :refer :all :exclude (clear get create call)]
    ; Re-mote
    [re-mote.repl :refer :all :exclude (provision)]
    [re-mote.repl.base :refer (sync-)]
    [re-mote.repl.stress :refer (refer-stress)]
    [re-mote.zero.management :refer (refer-zero-manage)]
    [re-mote.zero.pipeline :refer (refer-zero-pipe)]
-   [re-mote.log :refer (log-hosts)]
    ; Re-mote components
    [re-mote.zero.cycle :refer (zero)]
+   ; Metrics persistency
    [re-mote.persist.es :as mote-es :refer (elastic)]
+   ; System persistency
    [re-core.persistency.xtdb :as xtdb]
    [re-ops.config.core :as conf]
    [re-share.config.secret :refer (load-secrets)]
@@ -58,7 +55,6 @@
    [clojure.test])
   (:import re_mote.repl.base.Hosts))
 
-(refer-history)
 (refer-zero-manage)
 (refer-zero-pipe)
 (refer-kvm-presets)
@@ -84,9 +80,11 @@
   (setup-logging)
   (disable-coloring)
   (k/create-server-keys ".curve")
-  (mount/start #'queue #'xtdb/node #'elastic #'session #'fact-update-workers #'rules-pubsub  #'workers #'zero #'riemann #'watchers)
-  (mote-es/initialize)
-  (core-es/initialize))
+  (mount/start #'queue #'xtdb/node #'session #'fact-update-workers #'rules-pubsub  #'workers #'zero #'watchers))
+
+(defn start-metrics []
+  (mount/start #'elastic #'riemann)
+  (mote-es/initialize))
 
 (defn stop
   "Shuts down and destroys the current development system."
@@ -140,24 +138,8 @@
   []
   (clojure.test/run-tests
    're-core.features.lxc
-   ;; 're-core.features.ec2
    ;; 're-core.features.digital
    ))
-
-(defn es-switch
-  "Switch ES connection"
-  [k {:keys [re-core] :as s}]
-  (let [{:keys [es]} re-core]
-    (.stop es)
-    (prefix-switch k)
-    (.setup es)
-    (.start es)
-    s))
-
-(defn switch-
-  "Starts the current development system."
-  [k]
-  (alter-var-root #'system (partial es-switch k)))
 
 (defn history
   ([]

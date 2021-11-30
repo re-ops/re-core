@@ -1,10 +1,8 @@
 (ns re-core.specs
   (:require
    [me.raynes.fs :as fs]
-   [es.types :as es]
-   [clojure.core.strint :refer (<<)]
+   [re-core.persistency.types :as es]
    [clojure.spec.alpha :as s]
-   [re-share.spec :as re-ops :refer (file-path?)]
    [re-core.presets.instance-types :as types]
    [re-core.model :refer (figure-virt)]))
 

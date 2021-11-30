@@ -4,7 +4,7 @@
    [re-core.common :refer (stack-trace)]
    [re-share.config.core :refer (get!)]
    [me.raynes.fs :refer (mkdir)]
-   [es.jobs :as jobs]
+   [re-core.persistency.jobs :as jobs]
    [taoensso.timbre :refer (refer-timbre)]
    [mount.core :as mount :refer (defstate)]
    [durable-queue :refer (take! put! complete! queues) :as dq]))

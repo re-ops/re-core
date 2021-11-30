@@ -10,9 +10,9 @@
    ; cloning
    [re-share.core :refer (error-m)]
    [re-core.repl.systems :as sys]
-   [es.types :as t]
    [re-mote.repl :as mote]
    [re-core.persistency.systems :as s]
+   [re-core.persistency.types :as t]
    [re-core.model :refer (vconstruct)]
    [taoensso.timbre :refer (refer-timbre)]
    [com.rpl.specter :refer (transform select ALL)]

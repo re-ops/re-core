@@ -1,7 +1,7 @@
 (ns re-core.repl.fixtures
   (:require
    [clojure.core.strint :refer (<<)]
-   [es.types :as t]
+   [re-core.persistency.types :as t]
    [re-core.common :refer (slurp-edn)]))
 
 (def host (.getHostName (java.net.InetAddress/getLocalHost)))

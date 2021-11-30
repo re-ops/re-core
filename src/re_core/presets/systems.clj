@@ -6,7 +6,7 @@
    [re-core.presets.instance-types :refer (c1-medium c4-large)]
    [clojure.spec.alpha :as s]
    [re-core.model :refer (figure-virt)]
-   [re-core.presets.digitial :as d]
+   [re-core.presets.digital :as d]
    [re-share.core :refer (gen-uuid)]))
 
 (defn name-gen

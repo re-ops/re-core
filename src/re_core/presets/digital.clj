@@ -1,4 +1,4 @@
-(ns re-core.presets.digitial
+(ns re-core.presets.digital
   "Digitalocean presets")
 
 (defn region [r]
@@ -30,4 +30,4 @@
 (def lon1 (region "lon1"))
 
 (defn refer-digital-presets []
-  (require '[re-core.presets.digitial :as dig :refer [sgp1 lon1 nyc1 nyc2 nyc3 tor1 sfo1 sfo2]]))
+  (require '[re-core.presets.digital :as dig :refer [sgp1 lon1 nyc1 nyc2 nyc3 tor1 sfo1 sfo2]]))

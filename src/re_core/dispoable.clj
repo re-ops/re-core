@@ -1,16 +1,13 @@
 (ns re-core.dispoable
   "Dispoable VMs functions"
   (:require
-   [re-core.networking :refer (ips-available)]
    [clojure.core.strint :refer (<<)]
    [me.raynes.fs :as fs]
    [clojure.java.io :refer (file)]
    [re-core.repl :refer (spice-into matching systems hosts destroy typed)]
    [re-core.repl.systems :as sys :refer (refer-systems)]
    [re-core.repl.base :refer (refer-base)]
-   [es.types :as t]
-   [re-core.presets.systems :refer (dispoable-instance kvm)]
-   [re-mote.repl :refer (open-file browse-to)]
+   [re-core.persistency.types :as t]
    [re-flow.core :refer (trigger)])
   (:import
    [re_mote.repl.base Hosts]
