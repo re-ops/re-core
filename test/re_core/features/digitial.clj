@@ -1,13 +1,11 @@
 (ns re-core.features.digitial
   "digital ocean support"
   (:require
-   [es.systems :as s]
    [rubber.node :refer (stop)]
-   [re-core.fixtures.data :refer (redis-type)]
+   [re-core.fixtures.data :refer (redis-type redis-digital)]
    [re-core.integration.es.common :refer (populate-system)]
    [re-core.features.common :as common :refer (spec get-spec)]
-   [re-core.workflows :as wf]
-   [re-core.fixtures.data :refer [redis-digital]])
+   [re-core.workflows :as wf])
   (:use clojure.test))
 
 (defn add-system [f]

@@ -5,8 +5,8 @@
   (:use clojure.test))
 
 (def expected-domain
-  {:user "re-ops" :name "red1" :hostname "red1" :cpu 4 :ram 1
-   :image {:flavor :debian :template "ubuntu-18.04.2"}})
+  {:user "re-ops" :name "red1" :hostname "red1" :fqdn "red1.local" :cpu 4 :ram 1
+   :image {:flavor :debian :template "ubuntu-server-20.04_corretto-8"}})
 
 (deftest kvm-sanity
   (testing "legal instance spec"

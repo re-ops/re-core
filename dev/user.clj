@@ -106,8 +106,6 @@
 (defn require-tests []
   (require
    're-flow.integration.certs
-   're-core.integration.es.jobs
-   're-core.integration.es.systems
    're-core.test.kvm
    're-core.test.physical
    're-core.test.provider
@@ -115,8 +113,7 @@
    're-core.features.digitial
    're-core.test.specs
    're-core.features.kvm
-   're-core.features.lxc
-   're-core.features.ec2))
+   're-core.features.lxc))
 
 (defn run-tests []
   (clojure.test/run-tests
@@ -126,18 +123,12 @@
    're-core.test.provider
    're-core.test.validations))
 
-(defn run-integration
-  "run integration tests"
-  []
-  (clojure.test/run-tests
-   're-core.integration.es.jobs
-   're-core.integration.es.systems))
-
 (defn run-provider
   "run provider tests"
   []
   (clojure.test/run-tests
-   're-core.features.lxc
+   're-core.features.kvm
+   ;; 're-core.features.lxc
    ;; 're-core.features.digital
    ))
 

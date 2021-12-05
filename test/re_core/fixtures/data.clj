@@ -1,36 +1,41 @@
 (ns re-core.fixtures.data
-  "Systems")
+  (:require
+   [re-cipes.profiles]))
 
 (def redis-kvm
   {:machine {:hostname "red1" :user "re-ops" :domain "local"
-             :os :ubuntu-18.04.2 :cpu 4 :ram 1}
+             :os :ubuntu-20.04 :cpu 4 :ram 1}
    :kvm {:node :localhost}
-   :type :redis})
+   :type :redis
+   :description "redis kvm instance"})
 
 (def redis-lxc
   {:machine {:hostname "red1" :user "root" :domain "local"
-             :os :ubuntu-18.04.2 :cpu 4 :ram 1}
+             :os :ubuntu-20.04 :cpu 4 :ram 1}
    :lxc {:node :localhost}
-   :type :redis})
+   :type :redis
+   :description "redis lxc system"})
 
 (def redis-digital
   {:machine {:hostname "red1" :user "root"
-             :domain "local" :os :ubuntu-18.04.2}
+             :domain "local" :os :ubuntu-20.04}
    :digital-ocean {:region "lon1" :size "512mb"
                    :private_networking false}
-   :type :redis})
+   :type :redis
+   :description "redis digital system"})
 
 (def redis-physical
   {:machine {:hostname "red1" :user "ubuntu"  :ip "1.2.3.4"
-             :domain "local" :os :ubuntu-18.04.2}
+             :domain "local" :os :ubuntu-20.04}
    :physical {:mac "9a:07:e4:bc:79:df"
               :broadcast "192.168.0.255"}
-   :type :redis})
+   :type :redis
+   :description "A Physical redis system"})
 
 (def redis-type
-  {:puppet {:src "/home/ronen/code/boxes/redis-sandbox/"
-            :tar "http://dl.bintray.com/content/narkisr/boxes/redis-sandbox-0.5.2.tar.gz"
-            :args []}
+  {:cog {:plan re-cipes.profiles/base
+         :src "/home/ronen/code/re-ops/re-cipes/resources"
+         :args []}
 
    :description "Redis Database"
    :type :redis})

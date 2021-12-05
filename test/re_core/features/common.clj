@@ -1,12 +1,13 @@
 (ns re-core.features.common
   "Common testing workflows fns"
   (:require
-   [es.systems :as s]
+   [re-core.persistency.systems :as s]
    ; setup
+   [re-ops.config.core :as conf]
    [mount.core :as mount]
    [re-core.queue :refer (queue)]
    [re-core.workers :refer (workers)]
-   [re-share.config.core :as conf]))
+   [re-core.persistency.xtdb :as xtdb]))
 
 (defn spec
   ([] (spec {}))
@@ -18,6 +19,8 @@
 (defn setup
   "Fixtures setup for provisioning tests"
   [f]
-  (mount/start #'queue #'workers)
+  (conf/load-config)
+  (mount/start #'xtdb/node #'queue #'workers)
+  (Thread/sleep 1000)
   (f)
   (mount/stop))
