@@ -1,7 +1,11 @@
 (ns re-core.persistency.dump
   (:require
+   [re-share.core :refer (gen-uuid)]
+   [taoensso.timbre :refer (refer-timbre)]
    [re-core.persistency.types :as t]
    [re-core.persistency.systems :as s]))
+
+(refer-timbre)
 
 (defn dump []
   (let [systems (list identity :systems :print? false)
@@ -12,7 +16,7 @@
 (defn restore []
   (let [systems (clojure.edn/read-string (slurp "systems.edn"))
         types (clojure.edn/read-string (slurp "types.edn"))]
-    (doseq [[id s] systems]
-      (s/create s id))
-    (doseq [[_ t] types]
-      (t/create t))))
+    (doseq [[_ s] systems]
+      (s/create s (gen-uuid)))
+    (doseq [[id t] types]
+      (t/create (assoc t :type id)))))
