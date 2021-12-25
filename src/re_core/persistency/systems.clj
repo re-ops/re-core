@@ -80,7 +80,7 @@
   "return all existing systems"
   []
   (map (fn [[m]] [(:xt/id m) (unflatten (dissoc m :xt/id))])
-       (xt/q (xt/db node) '{:find [(pull ?system [*])] :where [[?system :machine/cpu _]]})))
+       (xt/q (xt/db node) '{:find [(pull ?system [*])] :where [[?system :machine/hostname _]]})))
 
 (defn update-ip
   "updates public ip address in the machine persisted data"
