@@ -73,20 +73,26 @@
   (let [r (run k ?e arg)]
     (Thread/sleep t) r))
 
-(defn actions [{:keys [user password]}]
-  [[:type user 500]
-   [:send-key [:tab] 500]
-   [:type password 500]
-   [:send-key [:tab] 500]
-   [:send-key [:return] 1000]])
+(defn submit [type]
+  (let [suffix [[:send-key [:tab] 500] [:send-key [:return] 1000]]]
+    (if (= type :kibana)
+      (apply conj [[:send-key [:tab] 500]] suffix)
+      suffix)))
+
+(defn actions [{:keys [user password]} type]
+  (apply conj
+         [[:type user 500]
+          [:send-key [:tab] 500]
+          [:type password 500]]
+         (submit type)))
 
 (defn run-auth
   "Run all auth steps, return false if any step failed"
   [{:keys [site] :as ?e}]
-  (let [{:keys [auth sleep]} site]
+  (let [{:keys [auth sleep type]} site]
     (Thread/sleep (* 1000 sleep))
     (mapv
-     (fn [[k arg t]] (run-wait k ?e arg t)) (actions auth))))
+     (fn [[k arg t]] (run-wait k ?e arg t)) (actions auth type))))
 
 (defrule launch
   "Launch a site (open + login)"
