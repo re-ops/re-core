@@ -194,7 +194,7 @@
    * into-hostnames - A function that maps result Hosts ips into hostnames
   "
   [hs into-hostnames {:keys [src plan args]}]
-  {:pre [src plan args]}
+  {:pre [src plan]}
   (let [dest (<< "/tmp/~(fs/base-name src)")]
     (run> (rm hs dest "-rf") | (sync- src dest) | (pick successful) | (convert into-hostnames) | (run-plan plan args))))
 
