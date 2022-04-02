@@ -40,7 +40,7 @@
 
 (s/def ::dest string?)
 
-(s/def ::id (s/and string? #(= (.length %) 20)))
+(s/def ::id (s/and string? #(= (.length %) 32)))
 
 (s/def ::delivery (s/keys :opt-un [::id ::dest]))
 
