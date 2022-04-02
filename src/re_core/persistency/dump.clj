@@ -3,9 +3,8 @@
    [re-share.core :refer (gen-uuid)]
    [taoensso.timbre :refer (refer-timbre)]
    [re-core.persistency.types :as t]
-   [re-core.persistency.systems :as s]))
-
-(refer-timbre)
+   [re-core.persistency.systems :as s]
+   [re-core.repl :refer (list)]))
 
 (defn dump []
   (let [systems (list identity :systems :print? false)
