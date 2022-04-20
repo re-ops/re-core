@@ -1,6 +1,8 @@
 (ns re-flow.pubsub
   "In memory pubsub channels for rules firing"
   (:require
+   [re-share.core :refer (gen-uuid)]
+   [re-core.queue :refer [enqueue]]
    [taoensso.timbre :refer (info)]
    [mount.core :as mount :refer (defstate)]
    [taoensso.timbre :refer (refer-timbre)]
@@ -16,6 +18,9 @@
 (defstate ^{:on-reload :noop} rules-pubsub
   :start (initialize)
   :stop (close! (rules-pubsub :input)))
+
+(defn publish-fact [?e]
+  (enqueue :re-flow.session/facts {:tid (gen-uuid) :args [[?e]]}))
 
 (defn publish-?e
   "Publish an ?e"

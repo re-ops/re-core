@@ -1,7 +1,7 @@
 (ns re-flow.notification
   "Notification rules"
   (:require
-   [re-flow.pubsub :refer (publish-?e)]
+   [re-flow.pubsub :refer (publish-?e publish-fact)]
    [clojure.core.strint :refer (<<)]
    [clara.rules :refer :all]
    [clojure.java.shell :refer (sh)]
@@ -10,60 +10,49 @@
 
 (refer-timbre)
 
+(derive ::notify :re-flow.core/state)
+
 (defn notify [m]
   (sh "notify-send" "-t" "5000" m))
 
-(defrule failure-osd
-  "Notify using OSD on all errors if running in a desktop machine and message is present"
-  [?e <- :re-flow.core/state (= true (this :failure)) (not (nil? (this :message)))]
+(defrule default-failure-message
+  "Format failure notification if no message/subject were provided"
+  [?e <- :re-flow.core/state (= true (this :failure)) (nil? (this :message)) (nil? (this :subject))]
+  [:re-flow.session/type (= true (this :desktop))]
+  =>
+  (let [{:keys [flow state]} ?e]
+    (insert! (assoc ?e :state ::notify :message (<< "Flow ~{flow} failed in ~{state} step") :subject (<< "Flow ~{flow} has failed")))))
+
+(defrule osd-notify
+  "Notify using OSD on desktop systems"
+  [?e <- :re-flow.core/state (not (nil? (this :message)))]
   [:re-flow.session/type (= true (this :desktop))]
   =>
   (let [{:keys [message]} ?e]
     (notify message)))
 
-(defrule default-failure-osd
-  "A catch all osd notification is message is missing"
-  [?e <- :re-flow.core/state (= true (this :failure)) (nil? (this :message))]
-  [:re-flow.session/type (= true (this :desktop))]
+(defrule email-notify
+  "A catch all failure notification email if no message is present"
+  [?e <- :re-flow.core/state (not (nil? (this :message))) (not (nil? (this :subject)))]
+  [:re-flow.session/type (= false (this :desktop)) (= true (this :smtp))]
   =>
-  (let [{:keys [flow state]} ?e]
-    (notify (<< "Flow ~{flow} failed in ~{state} step"))))
+  (let [{:keys [subject message]} ?e]
+    (send-email subject (tofrom) message)))
 
-(defrule success-osd
-  "Notify OSD if message is present"
-  [?e <- :re-flow.core/state (= false (this :failure)) (not (nil? (this :message)))]
-  [:re-flow.session/type (= true (this :desktop))]
+(defrule log-fallback
+  "Log fallback if headless and smtp isn't configured"
+  [?e <- :re-flow.core/state (not (nil? (this :message)))]
+  [:re-flow.session/type (= false (this :desktop)) (= false (this :smtp))]
   =>
-  (let [{:keys [flow message]} ?e]
-    (notify message)))
+  (let [{:keys [message]} ?e]
+    (info message)))
 
-(defrule default-failure-email
-  "A catch all failure notification email if not message is present"
-  [?e <- :re-flow.core/state (= true (this :failure)) (nil? (this :message))]
-  [:re-flow.session/type (= false (this :desktop))]
-  =>
-  (let [{:keys [flow state]} ?e]
-    (send-email (<< "Flow ~{flow} has failed") (tofrom) (<< "Flow ~{flow} failed in ~{state} step"))))
+#_(defrule notify-promise
+    "Triggering notification rules using core.async channels for any ?e containing a message"
+    [?e <- :re-flow.core/state]
+    =>
+    (debug "publishing" (?e :message))
+    (publish-?e ?e))
 
-(defrule message-failure-email
-  "Notify using email using message"
-  [?e <- :re-flow.core/state (= true (this :failure)) (not (nil? (this :message)))]
-  [:re-flow.session/type (= false (this :desktop))]
-  =>
-  (let [{:keys [flow state message]} ?e]
-    (send-email (<< "Flow ~{flow} has failed") (tofrom) message)))
-
-(defrule success-email-notify
-  "Email if message is present"
-  [?e <- :re-flow.core/state (= false (this :failure)) (not (nil? (this :message)))]
-  [:re-flow.session/type (= false (this :desktop))]
-  =>
-  (let [{:keys [flow message]} ?e]
-    (send-email (<< "Flow ~{flow} result") (tofrom) message)))
-
-(defrule notify-promise
-  "Email if message is present"
-  [?e <- :re-flow.core/state]
-  =>
-  (debug "publishing" (?e :message))
-  (publish-?e ?e))
+(comment
+  (publish-fact {:state ::notify :subject "Running  results" :message "hello" :failure false}))

@@ -33,7 +33,8 @@
   "Adding system information facts on initialize"
   [s]
   (info "adding system facts")
-  (fire-rules (insert-all s [{:type ::system :desktop (desktop?)}])))
+  (fire-rules (insert-all s [{:type ::system :desktop (desktop?)}
+                             {:type ::system :smtp (not (nil? (re-share.config.core/get* :smtp)))}])))
 
 (defn create-session []
   (populate-system-facts
@@ -84,9 +85,4 @@
 
 (comment
   (update-
-   [{:state :re-flow.setup/provisioned :flow :re-flow.restore/restore :failure false :timeout true}])
-  (update-
-   [{:state :re-flow.certs/spec :flow :re-flow.certs/certs :failure true :message "bla"}])
-  (update-
-   [{:state :re-flow.restore/partitioned :failure false}
-    {:state :re-flow.restore/mounted :failure false}]))
+   [{:state :re-flow.notification/notify :failure true :timeout true}]))
