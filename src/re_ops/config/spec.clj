@@ -19,6 +19,9 @@
 (s/def ::password
   (s/and string? complex?))
 
+(s/def ::pass
+  (s/and string? complex?))
+
 (s/def ::index string?)
 
 (s/def ::elasticsearch (s/keys :req-un [::index]))
@@ -46,7 +49,13 @@
 
 (s/def :shared/email (s/keys :req-un [:shared/to :shared/from]))
 
-(s/def ::shared (s/keys :req-un [:shared/elasticsearch :shared/ssh :shared/pgp :shared/email]))
+(s/def ::user string?)
+
+(s/def ::ssl (comp not nil?))
+
+(s/def :shared/smtp (s/keys :req-un [:re-ops/host ::user ::ssl ::pass]))
+
+(s/def ::shared (s/keys :req-un [:shared/ssh :shared/pgp] :opt-un [:shared/elasticsearch :shared/email :shared/smtp]))
 
 ; Re-mote
 (s/def ::re-mote (s/keys :req-un [::elasticsearch]))
