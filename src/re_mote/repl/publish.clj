@@ -1,23 +1,23 @@
 (ns re-mote.repl.publish
+  "Notification pipeline publishing"
   (:require
-   ; publishing
    [re-mote.publish.email :refer (send-email tofrom)]
    [re-mote.publish.riemann :refer (send-event into-events)]
-   [re-share.config.core :as conf]
    [clojure.java.io :refer (file)]
    [clojure.core.strint :refer (<<)]
    [taoensso.timbre :refer (refer-timbre)]
    [re-share.core :refer (gen-uuid)]
+   [re-flow.pubsub :refer (publish-fact)]
    [re-mote.log :refer (get-logs)]
-   [re-mote.repl.base :refer (refer-base)]
    [hiccup.core :refer [html]]
-   [hiccup.page :refer [html5 include-js include-css]])
+   [hiccup.page :refer [html5 include-js include-css]]
+   re-mote.repl.base)
   (:import [re_mote.repl.base Hosts]))
 
 (refer-timbre)
 
 (defprotocol Publishing
-  (email [this m desc])
+  (notify [this m desc])
   (riemann [this m]))
 
 (defn save-fails [{:keys [failure]}]
@@ -55,8 +55,9 @@
 
 (extend-type Hosts
   Publishing
-  (email [this m desc]
-    (send-email (<< "Running ~{desc} results") (tofrom) (template m) (attachments m))
+  (notify
+    [this m desc]
+    (publish-fact {:state :re-flow.notification/notify :subject (<< "Running ~{desc} results") :message (template m)})
     [this m])
 
   (riemann [this {:keys [success failure] :as m}]
@@ -69,4 +70,4 @@
     [this m]))
 
 (defn refer-publish []
-  (require '[re-mote.repl.publish :as pub :refer (email riemann)]))
+  (require '[re-mote.repl.publish :as pub :refer (notify riemann)]))

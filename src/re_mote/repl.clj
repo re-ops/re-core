@@ -169,14 +169,14 @@
      (update hs)
   "
   [hs]
-  (run (zpkg/update hs) | (email "package update") | (enrich "update") | (persist)))
+  (run (zpkg/update hs) | (notify "package update") | (enrich "update")))
 
 (defn ^{:category :packaging} upgrade
   "Run package update followed by an upgrade on hosts that were updated successfully:
      (upgrade hs)
     "
   [hs]
-  (run (zpkg/update hs) | (pick successful) |  (zpkg/upgrade) | (pretty "upgrade") | (email "package upgrade") | (enrich "upgrade") | (persist)))
+  (run (zpkg/update hs) | (pick successful) |  (zpkg/upgrade) | (pretty "upgrade") | (notify "package upgrade") | (enrich "upgrade")))
 
 (defn ^{:category :packaging} install
   "Install a package on hosts:
@@ -300,28 +300,28 @@
   "
   [hs k bs]
   {:pre [(keyword? k) (map? bs)]}
-  (run (init hs (bs k) [1 :minute]) | (email (<< "restic init of ~{k}"))))
+  (run (init hs (bs k) [1 :minute]) | (notify (<< "restic init of ~{k}"))))
 
 (defn run-backups
   ([hs bs]
    (run-backups hs bs [24 :hours]))
   ([hs bs t]
    (doseq [[k b] bs]
-     (run (backup hs b t) | (email (<< "restic backup of ~{k}"))))))
+     (run (backup hs b t) | (notify (<< "restic backup of ~{k}"))))))
 
 (defn check-backups
   ([hs bs]
    (check-backups hs bs [2 :hours]))
   ([hs bs t]
    (doseq [[k b] bs]
-     (run (check hs b t) | (email (<< "restic check of ~{k}"))))))
+     (run (check hs b t) | (notify (<< "restic check of ~{k}"))))))
 
 (defn unlock-backups
   ([hs bs]
    (unlock-backups hs bs [1 :minutes]))
   ([hs bs t]
    (doseq [[k b] bs]
-     (run (unlock hs b t) | (email (<< "restic unlocking of ~{k}"))))))
+     (run (unlock hs b t) | (notify (<< "restic unlocking of ~{k}"))))))
 
 ; Certs
 

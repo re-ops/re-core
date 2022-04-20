@@ -4,11 +4,7 @@
    [re-share.schedule :refer (watch seconds halt!)]
    [re-cog.scripts.desktop :refer (fullscreen-chrome librewriter xmonad killall xdot-key xdot-type)]
    [re-mote.zero.pipeline :refer (run-hosts)]
-   [clojure.core.strint :refer (<<)]
-   [re-mote.repl.base :refer (refer-base)]
-   [re-mote.repl.publish :refer (email)]
    [re-cog.scripts.common :refer (shell-args shell)]
-   [pallet.stevedore :refer (script)]
    [taoensso.timbre :refer (refer-timbre)]
    re-mote.repl.base)
   (:import [re_mote.repl.base Hosts]))
