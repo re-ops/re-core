@@ -34,7 +34,7 @@
   [s]
   (info "adding system facts")
   (fire-rules (insert-all s [{:type ::system :desktop (desktop?)}
-                             {:type ::system :smtp (not (nil? (re-share.config.core/get* :smtp)))}])))
+                             {:type ::system :smtp (not (nil? (re-share.config.core/get* :shared :smtp)))}])))
 
 (defn create-session []
   (populate-system-facts
