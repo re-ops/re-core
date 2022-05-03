@@ -34,7 +34,8 @@
 (defrule email-notify
   "A catch all failure notification email if no message is present"
   [?e <- :re-flow.core/state (not (nil? (this :message))) (not (nil? (this :subject)))]
-  [:re-flow.session/type (= false (this :desktop)) (= true (this :smtp))]
+  [:re-flow.session/type (= false (this :desktop))]
+  [:re-flow.session/type (= true (this :smtp))]
   =>
   (let [{:keys [subject message]} ?e]
     (send-email subject (tofrom) message)))
@@ -42,7 +43,8 @@
 (defrule log-fallback
   "Log fallback if headless and smtp isn't configured"
   [?e <- :re-flow.core/state (not (nil? (this :message)))]
-  [:re-flow.session/type (= false (this :desktop)) (= false (this :smtp))]
+  [:re-flow.session/type (= false (this :desktop))]
+  [:re-flow.session/type (= false (this :smtp))]
   =>
   (let [{:keys [message]} ?e]
     (info message)))
