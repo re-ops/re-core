@@ -1,0 +1,52 @@
+{
+  :riemann {
+   :host "127.0.0.1"
+   :port 5555
+   :to ""
+  }
+
+  :re-mote {
+    :port 9000
+  }
+
+  :re-core {
+    :queue-dir "/tmp/re-core-queue/"
+
+    :port 8082
+    :https-port 8443
+
+    :log {
+      :level :info
+      :path "re-core.log"
+    }
+
+    :hypervisor #profile {
+      :dev {
+
+        :kvm {
+          :nodes {
+            :localhost {
+              :username "re-ops" :host "localhost" :port 22
+              :pools {
+                 :default {:path "/var/lib/libvirt/images/"}
+              }
+            }
+          }
+          :ostemplates {
+            :ubuntu-20.04 {:template "ubuntu-20.04_corretto-8" :flavor :debian}
+          }
+        }
+       }
+    }
+
+  }
+
+
+  :shared {
+    :watch []
+    :ssh {
+      :private-key-path "/home/ronen/.ssh/id_rsa"
+    }
+  }
+}
+

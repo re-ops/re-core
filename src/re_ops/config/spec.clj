@@ -55,10 +55,10 @@
 
 (s/def :shared/smtp (s/keys :req-un [:re-ops/host ::user ::ssl ::pass]))
 
-(s/def ::shared (s/keys :req-un [:shared/ssh :shared/pgp] :opt-un [:shared/elasticsearch :shared/email :shared/smtp]))
+(s/def ::shared (s/keys :req-un [:shared/ssh] :opt-un [:shared/elasticsearch :shared/email :shared/smtp :shared/pgp]))
 
 ; Re-mote
-(s/def ::re-mote (s/keys :req-un [::elasticsearch]))
+(s/def ::re-mote (s/keys :opt-un [::elasticsearch]))
 
 ; Re-core
 (s/def ::username string?)
@@ -86,7 +86,7 @@
 
 (s/def :re-core/queue-dir string?)
 
-(s/def ::re-core (s/keys :req-un [::elasticsearch :re-core/hypervisor :re-core/queue-dir]))
+(s/def ::re-core (s/keys :req-un [:re-core/hypervisor :re-core/queue-dir] :opt-un [::elasticsearch]))
 
 ; Combined
 (s/def ::config (s/keys :req-un [::re-mote ::re-core ::shared]))

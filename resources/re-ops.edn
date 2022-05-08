@@ -87,6 +87,7 @@
   :secrets #include #join "/tmp/secrets.edn"
 
   :shared {
+    :watch []
     :elasticsearch {
       :default {
         :hosts ["https://localhost:9200"]

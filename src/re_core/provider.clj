@@ -93,7 +93,7 @@
   (int (* 1024 units)))
 
 (defn into-description
-  "Create a description string from system, the string is base64 encoded and encrypted"
+  "Create a description string from system, the string is base64 encoded and encrypted (can be used for future sync operations into re-core)."
   [system]
   (encode
    (encrypt
