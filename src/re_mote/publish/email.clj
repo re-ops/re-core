@@ -11,13 +11,11 @@
   []
   (merge (conf/get! :shared :email)))
 
-(defn send-email
-  ([subject address body]
-   (send-email subject address body nil))
-  ([subject address body attachments]
-   (let [body' (if-not attachments {:body body} {:body (into [:alternative {:type "text/html" :content body}] attachments)})
-         message (merge address {:subject subject} body')]
-     (send-message (conf/get! :shared :smtp) message))))
+(defn send-html-email
+  "Send HTML format email"
+  [subject address msg]
+  (let [body {:body [{:type "text/html" :content msg}]}]
+    (send-message (conf/get! :shared :smtp) (merge address {:subject subject} body))))
 
 (comment
-  (send-email "foo" (tofrom)))
+  (send-html-email "foo" (tofrom)))

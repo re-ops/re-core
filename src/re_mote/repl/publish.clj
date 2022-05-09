@@ -1,7 +1,7 @@
 (ns re-mote.repl.publish
   "Notification pipeline publishing"
   (:require
-   [re-mote.publish.email :refer (send-email tofrom)]
+   [re-mote.publish.email :refer (send-html-email tofrom)]
    [re-mote.publish.riemann :refer (send-event into-events)]
    [clojure.java.io :refer (file)]
    [clojure.core.strint :refer (<<)]

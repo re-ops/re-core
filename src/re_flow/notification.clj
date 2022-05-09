@@ -5,7 +5,7 @@
    [clojure.core.strint :refer (<<)]
    [clara.rules :refer :all]
    [clojure.java.shell :refer (sh)]
-   [re-mote.publish.email :refer (send-email tofrom)]
+   [re-mote.publish.email :refer (send-html-email tofrom)]
    [taoensso.timbre :refer (refer-timbre)]))
 
 (refer-timbre)
@@ -38,7 +38,7 @@
   [:re-flow.session/type (= true (this :smtp))]
   =>
   (let [{:keys [subject message]} ?e]
-    (send-email subject (tofrom) message)))
+    (send-html-email subject (tofrom) message)))
 
 (defrule log-fallback
   "Log fallback if headless and smtp isn't configured"
