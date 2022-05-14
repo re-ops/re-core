@@ -22,6 +22,7 @@
    [re-core.presets.systems :refer (refer-system-presets)]
    [re-core.presets.instance-types :refer (refer-instance-types)]
    [re-core.presets.types :refer (refer-type-presets)]
+   [re-core.repl.selection :refer (all-instances registered-instances)]
    ; profiles
    [re-cipes.profiles]
    ; Re-core components
