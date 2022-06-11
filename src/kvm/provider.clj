@@ -106,7 +106,7 @@
 
   (ip [this]
     (with-connection
-      (if (= (:host node) "localhost")
+      (if (#{"localhost" "192.168.122.1"} (:host node))
         ; in case that the node is local host we can't ssh to our public ip!
         (nat-ip (c) (domain :name) node)
         (public-ip (c) (domain :user) node (domain :name)))))
