@@ -21,6 +21,7 @@
    [re-mote.zero.devices :refer (refer-devices)]
    [re-mote.zero.stats :refer (refer-stats)]
    [re-mote.zero.certs :refer (refer-certs)]
+   [re-mote.zero.scp :refer (refer-zero-scp)]
    [re-mote.zero.security :refer (refer-security)]
    [re-mote.zero.sensors :refer (refer-zero-sensors)]
    [re-mote.repl.re-gent :refer (refer-regent)]
@@ -45,6 +46,7 @@
 (refer-security)
 (refer-zero-sensors)
 (refer-pkg)
+(refer-zero-scp)
 (refer-zero-pkg)
 (refer-spec)
 (refer-zfs)
@@ -247,9 +249,14 @@
 (defn copy-from
   "Copy a file from remote hosts locally:
     (copy-from (hosts (matching  \"foo\") :ip) \"/home/re-ops/bar\" \"/tmp/1\")
+
+   Copy a file from remote hosts to a set of remote hosts:
+    (copy-from (hosts (matching  \"foo\") :ip) \"/home/re-ops/bar\" (hosts (matching  \"bar\") :hostname) \"/tmp/1\")
   "
-  [hs src dest]
-  (run (scp-from hs src dest) | (pretty "file downloaded")))
+  ([hs src dest]
+   (run (scp-from hs src dest) | (pretty "file downloaded")))
+  ([hs-src src hs-dst dest recursive?]
+   (run (z-scp/scp-from hs-dst dest hs-src src recursive?) | (pretty "file downloaded"))))
 
 (defn copy-from-to
   "Copy a file from a single host and then copy it into other set of remote hosts (file distribution)

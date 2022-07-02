@@ -103,7 +103,7 @@
         dest (<< "~{user}@~{host}:~{target}")]
     (script ("rsync" "--delete" ~opts  ~src  ~dest))))
 
-(defn- merge-results [[_ {:keys [success failure] :as res}] m]
+(defn merge-results [[_ {:keys [success failure] :as res}] m]
   (-> m
       (dissoc-in [:failure -1])
       (clojure.core/update :success (partial into success))
