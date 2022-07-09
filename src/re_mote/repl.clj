@@ -256,7 +256,7 @@
   ([hs src dest]
    (run (scp-from hs src dest) | (pretty "file downloaded")))
   ([hs-src src hs-dst dest recursive?]
-   (run (z-scp/scp-from hs-dst dest hs-src src recursive?) | (pretty "file downloaded"))))
+   (run> (z-scp/scp-from hs-dst dest hs-src src recursive?) | (pretty "file downloaded"))))
 
 (defn copy-from-to
   "Copy a file from a single host and then copy it into other set of remote hosts (file distribution)
