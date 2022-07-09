@@ -20,7 +20,7 @@
   (scp-from [this target hs-src src recursive?]
     (let [{:keys [auth hosts]} hs-src
           {:keys [user]} auth
-          results (map #(run-hosts this shell (shell-args (s/scp-from user % src target recursive?))) hosts)]
+          results (map #(run-hosts this shell (shell-args (s/scp-from user % src target recursive?)) [360 :second]) hosts)]
       [this (reduce merge-results {} results)])))
 
 (defn refer-zero-scp []
