@@ -8,6 +8,7 @@
    [re-mote.ssh.pipeline :refer (run-hosts upload-hosts download-hosts)]
    [re-mote.spec :refer (pipeline!)]
    [re-cog.scripts.common :refer (bind-bash)]
+   [re-cog.scripts.file :as fs]
    [pallet.stevedore :refer (script)]))
 
 (require '[re-cog.scripts.common :refer (shell-args)])
@@ -60,7 +61,8 @@
   (ls [this target flags])
   (grep [this expr flags])
   (mkdir [this folder flags])
-  (cp [this src dest flags]))
+  (cp [this src dest flags])
+  (purge [this n dest]))
 
 (defprotocol Tracing
   (ping [this target]))
@@ -158,6 +160,9 @@
   (nohup [this cmd]
     (exec this (<< "nohup sh -c '~{cmd} &' &>/dev/null")))
 
+  (purge [this n dest]
+    [this (run-hosts this (fs/purge n dest))])
+
   (null [this m]
     [this {}])
 
@@ -203,4 +208,3 @@
   (require '[re-mote.repl.base :as base :refer
              (run> run | initialize pick successful ping ls convert exec scp-into
                    scp-from extract rm nohup mkdir sync- sync-2 downgrade null)]))
-
