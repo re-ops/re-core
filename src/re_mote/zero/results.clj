@@ -70,9 +70,9 @@
   (map first (filter (fn [[_ ts]] (every? (fn [t] (> curr t)) ts)) (all-ttl))))
 
 (defn prune []
-  (debug "running result prunning")
+  (trace "running result prunning")
   (doseq [uuid (expired (curr-time))]
-    (debug uuid "have expired ttl and will be cleared")
+    (trace uuid "have expired ttl and will be cleared")
     (clear-results uuid)))
 
 (defn prune-watch

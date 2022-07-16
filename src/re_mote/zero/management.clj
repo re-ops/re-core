@@ -47,7 +47,7 @@
   "Process a message from a client"
   [{:keys [hostname] :as address} request]
   (try
-    (debug "got" address (with-out-str (clojure.pprint/pprint request)))
+    (trace "got" address (with-out-str (clojure.pprint/pprint request)))
     (match [request]
       [{:request "register"}] (register address)
       [{:request "unregister"}] (unregister address)

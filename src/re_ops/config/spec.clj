@@ -20,7 +20,7 @@
   (s/and string? complex?))
 
 (s/def ::pass
-  (s/and string? complex?))
+  (s/and string?))
 
 (s/def ::index string?)
 
