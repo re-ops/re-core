@@ -32,7 +32,7 @@
 (derive ::done :re-flow.core/state)
 
 (defn instance [{:keys [::size ::key]}]
-  {:base kvm :args [defaults local c1-medium :restore (<< "restoring ~{key}") (kvm-volume size :restore)]})
+  {:base kvm :args [defaults (local) c1-medium :restore (<< "restoring ~{key}") (kvm-volume size :restore)]})
 
 (s/def ::backups string?)
 

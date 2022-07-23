@@ -48,7 +48,7 @@
 (s/def ::nebula
   (s/keys :req-un [::certs ::sign-dest ::hosts ::intermediary]))
 
-(def instance
+(defn instance []
   {:base kvm :args [defaults local small :nebula "Nebula signing instance"]})
 
 (defrule check
@@ -64,7 +64,7 @@
   [?e <- ::spec [{:keys [failure]}] (= failure false)]
   =>
   (info "Starting to setup sign instance")
-  (insert! (assoc ?e :state :re-flow.setup/creating :spec instance :provision? true)))
+  (insert! (assoc ?e :state :re-flow.setup/creating :spec (instance) :provision? true)))
 
 (defrule upload-cert
   "Upload sign cert and key"

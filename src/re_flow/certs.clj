@@ -49,8 +49,8 @@
 (s/def ::certs
   (s/keys :req-un [::domains ::user ::token ::intermediary]))
 
-(def instance
-  {:base kvm :args [defaults local small :letsencrypt "letsencrypt cert generation and distribution"]})
+(defn instance []
+  {:base kvm :args [defaults (local) small :letsencrypt "letsencrypt cert generation and distribution"]})
 
 (defrule check
   "Check that the fact is matching the ::certs spec"
@@ -65,7 +65,7 @@
   [?e <- ::spec [{:keys [failure]}] (= failure false)]
   =>
   (info "Starting to setup certs instance")
-  (insert! (assoc ?e :state :re-flow.setup/creating :spec instance :provision? true)))
+  (insert! (assoc ?e :state :re-flow.setup/creating :spec (instance) :provision? true)))
 
 (defrule domains
   "Setup the domains we will generate certs for"

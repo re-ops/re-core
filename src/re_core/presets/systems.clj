@@ -1,6 +1,7 @@
 (ns re-core.presets.systems
   "Common preset functions"
   (:require
+   [re-share.config.core :as c]
    [expound.alpha :as expound]
    [re-core.specs :as core]
    [re-core.presets.instance-types :refer (c1-medium c4-large)]
@@ -83,7 +84,7 @@
 (defn defaults
   "Applying default setting for our preset check the matching aws/defaults and digital-ocean/defaults for details per hypervisor information"
   [instance]
-  (let [base (-> instance (ubuntu-20_04) (default-machine))]
+  (let [base (-> instance (ubuntu-20_04) default-machine)]
     (case (figure-virt base)
       :digital-ocean (d/defaults base)
       base)))
@@ -97,7 +98,10 @@
   (fn [instance]
     (assoc-in instance [(figure-virt instance) :node] n)))
 
-(def ^{:doc "Selecting localhost hypervisor node"} local (node :localhost))
+(defn local
+  "Selecting localhost hypervisor node"
+  []
+  (node (c/get! :shared :presets :default :node)))
 
 (def ^{:doc "Creating an lxc container (create lxc ...)"} lxc {:lxc {} :machine {}})
 
@@ -107,8 +111,8 @@
 
 (def ^{:doc "Creating a ec2 VM: (create ec2 ...)"} droplet {:digital-ocean {} :machine {}})
 
-(def dispoable-instance
-  [default-machine local (os :ubuntu-desktop-20.04) c4-large :disposable "A temporary sandbox"])
+(defn dispoable-instance []
+  [default-machine (local) (os :ubuntu-desktop-20.04) c4-large :disposable "A temporary sandbox"])
 
 (defn refer-system-presets []
   (require '[re-core.presets.systems :as spc :refer [node lxc kvm droplet physical os ubuntu-20_04 defaults local default-machine with-host machine]]))
