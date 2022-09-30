@@ -52,7 +52,9 @@
 (def safe (comp safe-output sh))
 
 (defprotocol Shell
-  (exec [this script])
+  (exec
+    [this script]
+    [this m script])
   (nohup [this script])
   (null [this m])
   (rm
@@ -154,7 +156,7 @@
   (rm [this _ target flags]
     (rm this target flags))
 
-  (exec [this script]
+  (exec [this _ script]
     [this (run-hosts this script)])
 
   (nohup [this cmd]

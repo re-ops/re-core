@@ -237,6 +237,12 @@
   [hs {:keys [repo remote branch]}]
   (run (git/pull hs repo remote branch) | (pretty "git pull")))
 
+(defn grant
+  ""
+  [hs]
+  (let [hs' (assoc-in hs [:auth :user] "grant")]
+    (run (scp-into hs' "/tmp/re-ops" "/tmp/re-ops") | (exec "cp /tmp/re-ops /etc/sudoers.d/re-ops") | (pretty "grant done"))))
+
 ; Basic tasks
 
 (defn copy-to
