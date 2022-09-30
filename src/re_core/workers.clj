@@ -26,17 +26,18 @@
   (reset! e (executor :fixed {:num-threads 20}))
   (setup-workers))
 
-(defn stop- []
-  (when @e
-    (.shutdownNow @e)
+(defn stop- [pool]
+  (when pool
+    (.shutdownNow pool)
     (try
-      (.awaitTermination @e 1000 java.util.concurrent.TimeUnit/NANOSECONDS)
+      (.awaitTermination pool 1000 java.util.concurrent.TimeUnit/NANOSECONDS)
       (info "Workers executor pool has been shutdown")
       (catch java.lang.InterruptedException e
-        (error e)))
-    (reset! e nil)))
+        (error e)))))
 
 (defstate workers
   :start (start-)
-  :stop (stop-))
+  :stop (when @e
+          (stop- @e)
+          (reset! e nil)))
 
