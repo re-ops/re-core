@@ -22,7 +22,7 @@
   (let [hosts (all-hosts)
         uuid (call ping [] hosts)
         hosts-ks (into #{} (keys hosts))]
-    (Thread/sleep 2000)
+    (Thread/sleep 3000)
     (let [absentees (missing-results hosts-ks uuid)]
       (doseq [absent absentees]
         (swap! misses update absent (fnil inc 0)))
