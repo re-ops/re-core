@@ -39,7 +39,7 @@
     (when-let [msg (ZMsg/recvMsg socket ZMQ/DONTWAIT)]
       (let [address (unpack msg) content (decode msg)
             {:keys [hostname uid] :as m} address]
-        (debug "got message from" hostname "uid" uid)
+        (trace "got message from" hostname "uid" uid)
         (when-let [reply (:reply (process m content))]
           (send- socket address reply))
         true))
