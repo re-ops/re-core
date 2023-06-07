@@ -44,4 +44,4 @@
 (defn watch-misses
   "Track misses and take hosts with multiple misses down"
   []
-  (watch :track-zero-connectivity (seconds 1) cleanup))
+  (watch :track-zero-connectivity (seconds 5) cleanup))
