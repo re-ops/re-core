@@ -1,0 +1,6 @@
+{:test {:dest "re-ops@localhost:/home/re-ops/backup"
+            :src "/home/re-ops/source"
+            :pass "1234"
+            :id "empty"
+            :key "empty"
+            :type "sftp"}}

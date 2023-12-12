@@ -12,6 +12,10 @@
     }
   }
 
+  :re-gent {
+    :bin "/home/re-ops/re-ops/re-gent/target/re-gent"
+  }
+
   :re-core {
     :queue-dir "/tmp/re-core-queue/"
 

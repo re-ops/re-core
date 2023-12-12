@@ -1,6 +1,7 @@
 (ns re-flow.setup
   "Setting up a machine from creation to agent deployment and provisioning so its ready to be used"
   (:require
+   [re-share.config.core :refer (get!)]
    [taoensso.timbre :refer (refer-timbre)]
    [re-mote.zero.management :refer (registered?)]
    [re-share.wait :refer (wait-for)]
@@ -62,7 +63,7 @@
   [?e <- ::created [{:keys [failure]}] (= failure false)]
   [?a <- ::available [{:keys [failure ids]}] (= failure false) (= (hash-set ids) (hash-set (?e :ids)))]
   =>
-  (let [gent "/home/ronen/code/re-ops/re-gent/target/re-gent"
+  (let [gent (get! :re-gent :bin)
         {:keys [ids]} ?e]
     (debug "deploying agent to" ids)
     (deploy (hosts (with-ids ids) :ip) gent)

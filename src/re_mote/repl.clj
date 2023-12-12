@@ -305,7 +305,7 @@
 
     (init-backup (hosts (matching <id>) :hostname) :<key> bs)
   "
-  [hs k bs]
+  [hs bs k]
   {:pre [(keyword? k) (map? bs)]}
   (run (init hs (bs k) [1 :minute]) | (notify (<< "restic init of ~{k}"))))
 
@@ -314,7 +314,7 @@
    (run-backups hs bs [24 :hours]))
   ([hs bs t]
    (doseq [[k b] bs]
-     (run (backup hs b t) | (notify (<< "restic backup of ~{k}"))))))
+     (run> (backup hs b t) | (notify (<< "restic backup of ~{k}"))))))
 
 (defn check-backups
   ([hs bs]
