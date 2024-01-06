@@ -1,0 +1,275 @@
+diff --git a/dev/user.clj b/dev/user.clj
+index 6f645276..6ca556c0 100644
+--- a/dev/user.clj
++++ b/dev/user.clj
+@@ -41,6 +41,9 @@
+    [re-mote.repl.stress :refer (refer-stress)]
+    [re-mote.zero.management :refer (refer-zero-manage)]
+    [re-mote.zero.pipeline :refer (refer-zero-pipe)]
++   ; Re-view
++   [re-view.xtdb :as view-xtdb]
++   [re-view.core :refer [watch-events]]
+    ; Re-mote components
+    [re-mote.zero.cycle :refer (zero)]
+    ; Metrics persistency
+@@ -76,7 +79,7 @@
+ (defn start-
+   "Starts the current development system."
+   []
+-  (load-secrets "secrets" "/tmp/secrets.edn" "keys/secret.gpg")
++  #_(load-secrets "secrets" "/tmp/secrets.edn" "keys/secret.gpg")
+   (conf/load-config)
+   (setup-logging)
+   (disable-coloring)
+@@ -87,6 +90,10 @@
+   (mount/start #'elastic #'riemann)
+   (mote-es/initialize))
+ 
++(defn start-view []
++  (mount/start #'view-xtdb/client)
++  (watch-events))
++
+ (defn stop
+   "Shuts down and destroys the current development system."
+   []
+diff --git a/local/re_view/registry.clj b/local/re_view/registry.clj
+new file mode 100644
+index 00000000..5417c676
+--- /dev/null
++++ b/local/re_view/registry.clj
+@@ -0,0 +1,18 @@
++(ns re-view.registry
++  (:require
++   [clojure.core.strint :refer (<<)]
++   [taoensso.timbre :refer (refer-timbre)]
++   [clara.rules :refer :all]))
++
++(refer-timbre)
++
++(derive ::change-state :re-flow.core/state)
++
++; Re-core basic actions
++(defrule change-instance-state
++  "Start an instance"
++  [?e <- ::change-state [{:keys [state]}] (= state :running)]
++  =>
++  (let [{:keys [id state]} (?e :args)]
++    (info (<< "Changing instance ~{id} state into ~{state}"))))
++
+diff --git a/project.clj b/project.clj
+index eedafad6..d7319ddf 100644
+--- a/project.clj
++++ b/project.clj
+@@ -20,7 +20,7 @@
+ 
+                  ; re-ops
+                  [re-share "0.18.0"]
+-                 [re-cog "0.6.6"]
++                 [re-cog "0.6.7"]
+                  [re-cipes "0.3.15"]
+                  [re-scan "0.2.1"]
+ 
+@@ -31,6 +31,7 @@
+                  ; XTDB
+                  [com.xtdb/xtdb-core "1.19.0"]
+                  [com.xtdb/xtdb-rocksdb "1.19.0"]
++                 [com.xtdb/xtdb-http-client "1.19.0"]
+ 
+                  ; repl
+                  [org.clojure/tools.namespace "1.1.0"]
+@@ -250,7 +251,7 @@
+      }
+ 
+      :dev {
+-        :source-paths  ["src" "dev" "test"]
++        :source-paths  ["src" "dev" "test" "local"]
+         :resource-paths  ["src/main/resources/"]
+      }
+ 
+@@ -303,7 +304,7 @@
+ 
+   :resource-paths  ["src/main/resources/"]
+ 
+-  :source-paths  ["src" "dev"]
++  :source-paths  ["src" "dev" "local"]
+ 
+   :target-path "target/"
+ 
+diff --git a/resources/re-ops.edn b/resources/re-ops.edn
+index c3816f31..c60b7ea0 100644
+--- a/resources/re-ops.edn
++++ b/resources/re-ops.edn
+@@ -91,6 +91,7 @@
+   :secrets #include #join "/tmp/secrets.edn"
+ 
+   :shared {
++    :xtdb-uri "http://localhost:3000"
+     :watch []
+     :elasticsearch {
+       :default {
+diff --git a/src/re_flow/session.clj b/src/re_flow/session.clj
+index fca436c1..6714b87b 100644
+--- a/src/re_flow/session.clj
++++ b/src/re_flow/session.clj
+@@ -10,6 +10,8 @@
+    re-flow.disposable
+    re-flow.dashboard
+    re-flow.react
++   re-flow.view
++   re-view.registry
+    [re-cog.facts.datalog :refer (desktop?)]
+    [taoensso.timbre :refer (refer-timbre)]
+    [mount.core :as mount :refer (defstate)]
+@@ -42,6 +44,7 @@
+     're-flow.queries 're-flow.setup 're-flow.restore
+     're-flow.certs 're-flow.notification 're-flow.disposable
+     're-flow.nebula 're-flow.dashboard 're-flow.react
++    're-flow.view 're-view.registry
+     :fact-type-fn fact-type :cache false)))
+ 
+ (defstate ^{:on-reload :noop} session
+diff --git a/src/re_flow/view.clj b/src/re_flow/view.clj
+new file mode 100644
+index 00000000..3feb09db
+--- /dev/null
++++ b/src/re_flow/view.clj
+@@ -0,0 +1,57 @@
++(ns re-flow.view
++  "Re-view processing flow:
++    * Trigger a flow based on pending actions found
++    * Track the execution of the flow
++    * Update the view back with the flow restults
++  "
++  (:require
++   [taoensso.timbre :refer (refer-timbre)]
++   [re-mote.spec :refer (valid?)]
++   [clojure.spec.alpha :as s]
++   [expound.alpha :as expound]
++   [clojure.edn :as edn]
++   [clojure.core.strint :refer (<<)]
++   [taoensso.timbre :refer (refer-timbre)]
++   #_[re-view.core :refer (mark-running)]
++   [re-flow.common :refer (run-?e run-?e-non-block results successful-ids)]
++   [clara.rules :refer :all]))
++
++(refer-timbre)
++
++(derive ::start :re-flow.core/state)
++(derive ::spec :re-flow.core/state)
++(derive ::run :re-flow.core/state)
++(derive ::timedout :re-flow.core/state)
++(derive ::failed :re-flow.core/state)
++(derive ::done :re-flow.core/state)
++
++(def a-system? #{:re-bot :re-core})
++
++(s/def :re-view.task/source (s/and keyword? a-system?))
++
++(s/def :re-view.task/target (s/and keyword? a-system?))
++
++(s/def :re-view.task/status (s/and keyword? #{:pending :running :done :failed :timedout}))
++
++(s/def :re-view.task/action keyword?)
++
++(s/def :re-view.task/args map?)
++
++(s/def ::action
++  (s/keys :req [:re-view.task/source :re-view.task/target :re-view.task/action :re-view.task/args :re-view.task/status]))
++
++(defrule check
++  "Check that the fact is matching the ::restore spec"
++  [?e <- ::start]
++  =>
++  (let [failed? (not (s/valid? ::action ?e))]
++    (info (expound/expound-str ::action ?e))
++    (insert! (assoc ?e :state ::spec :failure failed? :message (when failed? "Failed to validate view action spec")))))
++
++(defrule trigger
++  "Triggering pending actions"
++  [?e <- ::spec [{:keys [failure]}] (= failure false) (= (get ?e :re-view.task/status) :pending)]
++  =>
++  (info "Triggering action" ?e)
++  #_(mark-running (:xt/id ?e))
++  #_(insert! (assoc ?e :state (keyword "re-view.registry" action) :re-view.task/status :running)))
+diff --git a/src/re_view/core.clj b/src/re_view/core.clj
+new file mode 100644
+index 00000000..1bdcd5f4
+--- /dev/null
++++ b/src/re_view/core.clj
+@@ -0,0 +1,44 @@
++(ns re-view.core
++  "Viewing and reacting to the state of the world"
++  (:require
++   [re-flow.pubsub :refer [publish-fact]]
++   [taoensso.timbre :refer (refer-timbre)]
++   [re-share.schedule :refer (watch seconds)]
++   [re-view.xtdb :as xtdb :refer [query submit entity]]))
++
++(refer-timbre)
++
++(defn pending-actions []
++  (query '{:find [(pull e [*])] :where [[e :re-view.task/action _]
++                                        [e :re-view.task/target :re-core]
++                                        [e :re-view.task/status :pending]]}))
++(defn running-actions []
++  (query '{:find [(pull e [*])] :where [[e :re-view.task/action _]
++                                        [e :re-view.task/target :re-core]
++                                        [e :re-view.task/status :running]]}))
++
++(defn mark-running [id]
++  (let [e (entity id)]
++    (submit [[:xtbd.api/put (assoc e :re-view.task/status :running)]])))
++
++(defn watch-events []
++  (watch :pending-actions (seconds 10)
++         (fn []
++           (let [ps (pending-actions)]
++             (doseq [[p] ps]
++               (info (assoc p :state :re-flow.view/start))
++               (publish-fact (assoc p :state :re-flow.view/start)))))))
++
++(comment
++  (pending-actions)
++  (running-actions)
++  (mark-running 12)
++  (entity 12)
++  ; insert a fact on a pending action
++  (submit [[:xtdb.api/put
++            {:xt/id 13
++             :re-view.task/source :re-bot
++             :re-view.task/target :re-core
++             :re-view.task/action :stop
++             :re-view.task/args {:id "d8ee"}
++             :re-view.task/status :pending}]]))
+diff --git a/src/re_view/xtdb.clj b/src/re_view/xtdb.clj
+new file mode 100644
+index 00000000..98837684
+--- /dev/null
++++ b/src/re_view/xtdb.clj
+@@ -0,0 +1,26 @@
++(ns re-view.xtdb
++  (:require
++   [xtdb.api :as xtdb]
++   [mount.core :refer [defstate]]
++   [re-share.config.core :refer [get!]]))
++
++(defn connect
++  "Connect to a xtdb database."
++  [uri]
++  (xtdb/new-api-client uri))
++
++(defn into-db [c]
++  (xtdb/db c))
++
++(defstate client :start (connect (get! :shared :xtdb-uri)))
++
++(defn query
++  "Query a xtdb database."
++  [query]
++  (xtdb/q (into-db client) query))
++
++(defn submit [tx]
++  (xtdb/submit-tx client tx))
++
++(defn entity [eid]
++  (xtdb/entity (into-db client) eid))

@@ -91,6 +91,7 @@
   :secrets #include #join "/tmp/secrets.edn"
 
   :shared {
+    :xtdb-uri "http://localhost:3000"
     :watch []
     :elasticsearch {
       :default {

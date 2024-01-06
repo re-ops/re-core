@@ -31,6 +31,7 @@
                  ; XTDB
                  [com.xtdb/xtdb-core "1.19.0"]
                  [com.xtdb/xtdb-rocksdb "1.19.0"]
+                 [com.xtdb/xtdb-http-client "1.19.0"]
 
                  ; repl
                  [org.clojure/tools.namespace "1.1.0"]
@@ -250,7 +251,7 @@
      }
 
      :dev {
-        :source-paths  ["src" "dev" "test"]
+        :source-paths  ["src" "dev" "test" "local"]
         :resource-paths  ["src/main/resources/"]
      }
 
@@ -303,7 +304,7 @@
 
   :resource-paths  ["src/main/resources/"]
 
-  :source-paths  ["src" "dev"]
+  :source-paths  ["src" "dev" "local"]
 
   :target-path "target/"
 

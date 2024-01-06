@@ -41,6 +41,9 @@
    [re-mote.repl.stress :refer (refer-stress)]
    [re-mote.zero.management :refer (refer-zero-manage)]
    [re-mote.zero.pipeline :refer (refer-zero-pipe)]
+   ; Re-view
+   [re-view.xtdb :as view-xtdb]
+   [re-view.core :refer [watch-events]]
    ; Re-mote components
    [re-mote.zero.cycle :refer (zero)]
    ; Metrics persistency
@@ -76,7 +79,7 @@
 (defn start-
   "Starts the current development system."
   []
-  (load-secrets "secrets" "/tmp/secrets.edn" "keys/secret.gpg")
+  #_(load-secrets "secrets" "/tmp/secrets.edn" "keys/secret.gpg")
   (conf/load-config)
   (setup-logging)
   (disable-coloring)
@@ -86,6 +89,10 @@
 (defn start-metrics []
   (mount/start #'elastic #'riemann)
   (mote-es/initialize))
+
+(defn start-view []
+  (mount/start #'view-xtdb/client)
+  (watch-events))
 
 (defn stop
   "Shuts down and destroys the current development system."
