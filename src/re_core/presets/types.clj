@@ -6,11 +6,10 @@
   (:require
    [expound.alpha :as expound]
    [clojure.spec.alpha :as s]
+   [re-share.config.core :refer (get!)]
    [re-core.specs :as core]
    [clojure.core.strint :refer (<<)]
    [re-core.repl.types :refer (prefix-key)]))
-
-(def home (System/getProperty "user.home"))
 
 (def cog {:cog {:args []}})
 
@@ -21,7 +20,7 @@
 
 (defn default-src
   [instance]
-  ((src (<< "~{home}/code/re-ops/re-cipes/resources/")) instance))
+  ((src (get! :re-gent :resources)) instance))
 
 (defn args
   "Set script arguments"
