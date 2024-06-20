@@ -33,8 +33,7 @@
    :description "A Physical redis system"})
 
 (def redis-type
-  {:cog {:plan re-cipes.profiles/base
-         :src "/home/ronen/code/re-ops/re-cipes/resources"
+  {:cog {:src "/home/ronen/code/re-ops/re-cipes/resources"
          :args []}
 
    :description "Redis Database"
