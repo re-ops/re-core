@@ -53,7 +53,7 @@
   [:re-flow.session/type (= true (this :desktop))]
   =>
   (let [{:keys [message]} ?e]
-    (notify message)))
+    (notify (template message))))
 
 (defrule email-notify
   "A catch all failure notification email if no message is present"

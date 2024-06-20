@@ -17,7 +17,7 @@
     - log level
   "
   [& {:keys [level] :or {level :info}}]
-  (let [blacklist ["net.schmizz" "org.elasticsearch" "org.apache.http" "com.hierynomus.sshj.userauth.keyprovider" "xtdb.system" "xtdb.query" "xtdb.tx"]]
+  (let [blacklist ["net.schmizz" "org.elasticsearch" "org.apache.http" "com.hierynomus.sshj.userauth.keyprovider" "xtdb.system" "xtdb.query" "xtdb.tx" "xtdb.memory"]]
     (log/setup "re-core" blacklist))
   (set-level! level))
 
