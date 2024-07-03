@@ -62,7 +62,7 @@
         output-spec {:print-specs? false :show-valid-values? false}]
     (update-in by-valid [false]
                (fn [failures]
-                 (map (fn [m] {:message (expound/expound-str ::core/system m output-spec) :args [m]}) failures)))))
+                 (map (fn [m] {:message (expound/expound-str ::core/system m) :args [m]}) failures)))))
 
 (defn os
   "Set the os version"
