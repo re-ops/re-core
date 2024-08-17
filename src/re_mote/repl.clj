@@ -197,7 +197,8 @@
   "
   [hs into-hostnames {:keys [src plan args]}]
   {:pre [src plan]}
-  (let [dest (<< "/tmp/~(fs/base-name src)")]
+  (let [dest (<< "/tmp/~(fs/base-name src)/")]
+    (assert (clojure.string/ends-with? src "/"))
     (run> (rm hs dest "-rf") | (sync- src dest) | (pick successful) | (convert into-hostnames) | (run-plan plan args))))
 
 ; Re-gent
