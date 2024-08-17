@@ -93,7 +93,7 @@
   [?e <- ::restored [{timeout :timeout failure :failure :or {timeout false failure false}}] (and (= timeout false) (= failure false))]
   =>
   (let [{:keys [::key]} ?e]
-    (insert! (-> ?e (dissoc :timeout) (assoc :state ::done :message (<< "Restoration of ~{key} was successful"))))
+    (insert! (-> ?e (dissoc :timeout) (assoc :state ::done :message {:success (<< "Restoration of ~{key} was successful")} :subject "Restoration result")))
     (insert! (assoc ?e :state :re-flow.setup/cleanup))
     (info (<< "restoration of ~{key} was successful"))))
 
@@ -102,7 +102,7 @@
   [?e <- ::restored [{:keys [failure timeout]}] (= failure true) (= timeout false)]
   =>
   (let [{:keys [::key]} ?e]
-    (insert! (assoc ?e :state ::failed :message (<< "Restoration of ~{key} failed!")))
+    (insert! (assoc ?e :state ::failed :message {:failure (<< "Restoration of ~{key} failed!")} :subject "Restoration result"))
     (info (<< "restoration of ~{key} failed!"))))
 
 (defrule restoration-timeout
@@ -110,5 +110,5 @@
   [?e <- ::restored [{:keys [timeout failure]}] (= failure true) (= timeout true)]
   =>
   (let [{:keys [::key]} ?e]
-    (insert! (assoc ?e :state ::timedout :message (<< "Restoration of ~{key} has timed out")))
+    (insert! (assoc ?e :state ::timedout :message {:failure (<< "Restoration of ~{key} has timed out")} :subject "Restoration result"))
     (info (<< "restoration of ~{key} has timed out"))))
