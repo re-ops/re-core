@@ -31,3 +31,5 @@ secrets
 keys
 certs
 data
+.lsp
+.clj-kondo
