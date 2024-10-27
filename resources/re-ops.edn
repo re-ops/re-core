@@ -14,7 +14,7 @@
 
   :re-gent {
     :bin "/home/re-ops/re-ops/re-gent/target/re-gent"
-    :resources "/home/re-ops/re-ops/re-cipes/resources/"
+    :resources "/home/re-ops/re-cipes/resources/"
   }
 
   :re-core {
