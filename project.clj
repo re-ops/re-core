@@ -91,7 +91,7 @@
                  [com.mikesamuel/json-sanitizer "1.2.2"]
 
                  ; remote execution
-                 [com.hierynomus/sshj "0.31.0" :exclusions [org.slf4j/slf4j-api]]
+                 [com.hierynomus/sshj "0.38.0" :exclusions [org.slf4j/slf4j-api]]
                  [org.zeromq/jeromq "0.5.2"]
 
                  ; email
@@ -111,6 +111,7 @@
 
                  ; folder watch
                  [juxt/dirwatch "0.2.5"]
+
                ]
 
   :exclusions [org.clojure/clojure com.taoensso/timbre commons-codec prismatic/schema]
