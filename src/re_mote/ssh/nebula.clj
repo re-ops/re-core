@@ -23,8 +23,11 @@
     stop-cpu-profile - Stops a cpu profile and writes output to the previously provided file
     version - Prints the currently running version of nebula"
   (:require
+   [cheshire.core :refer (parse-string)]
+   [re-mote.zero.pipeline :refer (run-hosts)]
    [re-mote.repl.output :refer (refer-out)]
-   [re-mote.repl.base :refer (refer-base)]))
+   [re-mote.repl.base :refer (refer-base)])
+  (:import [com.google.json JsonSanitizer]))
 
 (refer-base)
 (refer-out)
@@ -35,11 +38,38 @@
                 :query-lighthouse :reload :save-heap-profile :save-mutex-profile
                 :start-cpu-profile :stop-cpu-profile :version})
 
+(defn parse
+  [s]
+  (parse-string (JsonSanitizer/sanitize s) true))
+
+(defn into-m
+  "Convert nebula output into json"
+  [[_ {:keys [success]}]]
+  (into {} (map (juxt :host (comp parse :out :result)) success)))
+
 (defn run-nebula
-  ([hs cmd] 
+  ([hs cmd]
    {:pre [(contains? commands cmd)]}
    (run-nebula hs cmd []))
   ([hs cmd args]
    (if (empty? args)
      (run> (exec hs (name cmd)) | (pretty (name cmd)))
      (run> (exec hs (str (name cmd) " " (clojure.string/join " " args))) | (pretty (name cmd))))))
+
+(defn list-hostmap [hs]
+  (into-m (run-nebula hs :list-hostmap ["-json"])))
+
+(defn list-pending-hostmap [hs]
+  (into-m (run-nebula hs :list-pending-hostmap ["-json"])))
+
+(defn list-lighthouse-addrmap [hs]
+  (into-m (run-nebula hs :list-lighthouse-addrmap ["-json"])))
+
+(defn device-info [hs]
+  (into-m (run-nebula hs :device-info ["-json"])))
+
+(defn query-lighthouse [hs ip]
+  (into-m (run-nebula hs :query-lighthouse [ip "-json"])))
+
+(defn help [hs cmd]
+  (run-nebula hs :help [cmd]))
