@@ -19,7 +19,7 @@
                  [com.fzakaria/slf4j-timbre "0.3.21"]
 
                  ; re-ops
-                 [re-share "0.18.0"]
+                 [re-share "0.18.0" :exclusions [byte-streams primitive-math]]
                  [re-cog "0.6.7"]
                  [re-cipes "0.3.15"]
                  [re-scan "0.2.1"]
@@ -61,7 +61,7 @@
                  [com.fasterxml.jackson.core/jackson-core "2.12.2"]
 
                  ; queue
-                 [factual/durable-queue "0.1.6" :exclusions [byte-streams]]
+                 [org.clj-commons/durable-queue "0.1.7"]
                  [cc.qbits/knit "1.0.0"]
 
                  ; timeunits
@@ -86,12 +86,12 @@
                  ; serialization
                  [serializable-fn "1.1.4"]
                  [org.clojure/data.codec "0.1.1"]
-                 [com.taoensso/nippy "2.14.0"]
+                 [com.taoensso/nippy "2.15.3"]
                  [cheshire "5.10.0"]
                  [com.mikesamuel/json-sanitizer "1.2.2"]
 
                  ; remote execution
-                 [com.hierynomus/sshj "0.31.0" :exclusions [org.slf4j/slf4j-api]]
+                 [com.hierynomus/sshj "0.38.0" :exclusions [org.slf4j/slf4j-api]]
                  [org.zeromq/jeromq "0.5.2"]
 
                  ; email
@@ -111,9 +111,9 @@
 
                  ; folder watch
                  [juxt/dirwatch "0.2.5"]
+
                ]
 
-  :exclusions [org.clojure/clojure com.taoensso/timbre commons-codec prismatic/schema]
 
   :gpg-verify {:deps [re-share
                       re-cog
