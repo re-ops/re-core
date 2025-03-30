@@ -5,15 +5,19 @@
    [re-core.specs :refer (ip?)]
    [re-share.core :refer (gen-uuid)]
    [re-core.queue :refer [enqueue]]
-   [re-core.repl :refer (hosts with-ids)]
+   [re-core.repl :refer (hosts with-ids named with-ips matching) :as repl]
    [taoensso.timbre :refer (refer-timbre)]
-   [re-core.repl :refer (named with-ips) :as repl]
    [com.rpl.specter :refer [select ALL keypath]]))
 
 (refer-timbre)
 
 (defn create-fact [base & args]
   {:state :re-flow.setup/creating :spec {:base base :args args} :provision? true})
+
+(defn destroy-fact 
+  "Partial id would work as well"
+  [& ids]
+  {:state :re-flow.setup/destroy :ids ids :re-flow.setup/force true})
 
 (defn successful-systems
   "Get the successful system ids from a Re-core pipeline result"

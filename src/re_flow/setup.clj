@@ -20,8 +20,8 @@
 
 (derive ::creating :re-flow.core/state)
 (derive ::created :re-flow.core/state)
-(derive ::cleanup :re-flow.core/state)
-(derive ::purged :re-flow.core/state)
+(derive ::destroy :re-flow.core/state)
+(derive ::destroyed :re-flow.core/state)
 (derive ::registered :re-flow.core/state)
 (derive ::available :re-flow.core/state)
 (derive ::provisioned :re-flow.core/state)
@@ -89,13 +89,14 @@
       (doseq [id (filter (comp not (into #{} provisioned)) ids)]
         (insert! (assoc ?e :state ::provisioned :failure true :id id :message (<< "instance ~{id} failed to provision")))))))
 
-(defn purge-instances [ids]
-  (destroy (with-ids ids) {:force true}))
+(defn destroy-instances [ids]
+  (destroy (match-one-of ids) {:force true}))
 
-(defrule cleanup
-  "Cleanup instance"
-  [?e <- ::cleanup [{:keys [::purge]}] (= purge true)]
+(defrule purge
+  "Destroy instance"
+  [?e <- ::destroy [{:keys [::force]}] (= force true)]
   =>
-  (let [{:keys [ids]} ?e
-        purged (successful-systems (purge-instances ids))]
-    (insert! (assoc ?e :state ::purged :purged purged :failure (not= purged ids)))))
+  (let [{:keys [ids]} ?e]
+    (info "destroying instances" ids)
+    (let [destroyed (successful-systems (destroy-instances ids))]
+      (insert! (assoc ?e :state ::destroyed :destroyed destroyed :failure (not= destroyed ids))))))

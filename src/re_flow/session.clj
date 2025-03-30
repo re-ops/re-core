@@ -15,6 +15,7 @@
    [mount.core :as mount :refer (defstate)]
    [clara.rules :refer :all]
    [qbits.knit :refer (executor) :as knit]
+   [re-flow.hooks :as hooks]
    [re-core.queue :refer (process)]))
 
 (refer-timbre)
@@ -38,11 +39,11 @@
 
 (defn create-session []
   (populate-system-facts
-   (mk-session
-    're-flow.queries 're-flow.setup 're-flow.restore
+   (hooks/create-session-with-hooks
+    ['re-flow.queries 're-flow.setup 're-flow.restore
     're-flow.certs 're-flow.notification 're-flow.disposable
-    're-flow.nebula 're-flow.dashboard 're-flow.react
-    :fact-type-fn fact-type :cache false)))
+    're-flow.nebula 're-flow.dashboard 're-flow.react]
+    {:fact-type-fn fact-type :cache false})))
 
 (defstate ^{:on-reload :noop} session
   :start (atom (create-session))

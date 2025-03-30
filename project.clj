@@ -250,7 +250,7 @@
      }
 
      :dev {
-        :source-paths  ["src" "dev" "test"]
+        :source-paths  ["src" "dev" "test" "hooks"]
         :resource-paths  ["src/main/resources/"]
      }
 
@@ -303,7 +303,7 @@
 
   :resource-paths  ["src/main/resources/"]
 
-  :source-paths  ["src" "dev"]
+  :source-paths  ["src" "dev" "hooks"]
 
   :target-path "target/"
 

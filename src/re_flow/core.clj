@@ -10,7 +10,7 @@
 
 (defn trigger [& facts]
   (future
-    (info "Triggering the following flows" (mapv :flow facts))
+    (info "Triggering the following flows" (mapv :state facts))
     (with-open [file (clojure.java.io/writer (java.io.File/createTempFile "flow-" ".out"))]
       (binding [*out* file]
         (try

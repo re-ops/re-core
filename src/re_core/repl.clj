@@ -64,6 +64,9 @@
   {:pre [(not (clojure.string/blank? part))]}
   (fn [[id _]] (.contains id part)))
 
+(defn match-one-of [ids]
+  (fn [[id _]] (some (fn [part] (.contains id part)) ids)))
+
 (defn named
   "Match instances by hostname matching:
      (provision (named \"foo\"))"
