@@ -88,6 +88,12 @@
   (when (exists? system-id)
     (partial system-id {:machine {:ip ip}})))
 
+(defn update-adapters
+  "updates network adapter devices"
+  [system-id as]
+  (when (exists? system-id)
+    (partial system-id {:machine {:adapters as}})))
+
 (comment
   (def redis-lxc
     {:machine {:hostname "red1" :user "root" :domain "local"

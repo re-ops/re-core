@@ -9,7 +9,8 @@
   (start [this] "Starts an existing VM only if its not running, ssh should be up")
   (stop [this]  "Stops a VM only if it exists and running")
   (status [this] "Returns vm status (values defere between providers) false if it does not exists")
-  (ip [this] "Instance IP address"))
+  (ip [this] "Instance IP address")
+  (adapters [this] "Instance network adapter"))
 
 (defprotocol Sync
   "Sync an hypervisor into re-core systems"

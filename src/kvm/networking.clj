@@ -10,15 +10,9 @@
    [re-share.core :refer (gen-uuid)]
    [clojure.java.shell :refer (sh)]
    [clojure.data.zip.xml :as zx]
-   [kvm.common :refer (connect domain-zip)]))
+   [kvm.common :refer (domain-zip)]))
 
 (timbre/refer-timbre)
-
-(defn macs [c id]
-  (let [root (domain-zip c id)]
-    (map vector
-         (zx/xml-> root :devices :interface :source (zx/attr :bridge))
-         (zx/xml-> root :devices :interface :mac (zx/attr :address)))))
 
 (defn- assert-code [code]
   (when (= code 127)
@@ -84,3 +78,33 @@
   (let [nat (nat-ip c id node)]
     (wait-for-public user nat public-nic node [30 :second])
     (grab-public user nat public-nic node)))
+
+(defn bridges [c id]
+  "Extract bridge interfaces from domain XML"
+  (let [root (domain-zip c id)]
+    (map (fn [bridge mac target-dev network portid]
+           {:type "network"
+            :bridge bridge
+            :mac mac
+            :target-dev target-dev
+            :network network
+            :portid portid})
+         (zx/xml-> root :devices :interface (zx/attr= :type "network") :source (zx/attr :bridge))
+         (zx/xml-> root :devices :interface (zx/attr= :type "network") :mac (zx/attr :address))
+         (zx/xml-> root :devices :interface (zx/attr= :type "network") :target (zx/attr :dev))
+         (zx/xml-> root :devices :interface (zx/attr= :type "network") :source (zx/attr :network))
+         (zx/xml-> root :devices :interface (zx/attr= :type "network") :source (zx/attr :portid)))))
+
+(defn macvtaps [c id]
+  "Extract macvtap interfaces from domain XML"
+  (let [root (domain-zip c id)]
+    (map (fn [device mac target-dev mode]
+           {:type "direct"
+            :device device
+            :mac mac
+            :target-dev target-dev
+            :mode mode})
+         (zx/xml-> root :devices :interface (zx/attr= :type "direct") :source (zx/attr :dev))
+         (zx/xml-> root :devices :interface (zx/attr= :type "direct") :mac (zx/attr :address))
+         (zx/xml-> root :devices :interface (zx/attr= :type "direct") :target (zx/attr :dev))
+         (zx/xml-> root :devices :interface (zx/attr= :type "direct") :source (zx/attr :mode)))))

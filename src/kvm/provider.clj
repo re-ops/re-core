@@ -4,19 +4,19 @@
   (:require
    [clojure.core.strint :refer (<<)]
    [re-share.config.core :refer (get!)]
-   [com.rpl.specter :as spec :refer  (MAP-VALS ALL ATOM keypath)]
+   [com.rpl.specter :as spec :refer  (ALL keypath)]
    [clojure.core.incubator :refer (dissoc-in)]
    [kvm.validations :refer (provider-validation)]
    [kvm.clone :refer (clone-domain)]
    [kvm.volumes :refer (clear-volumes create-volumes)]
    [kvm.common :refer (connect get-domain state domain-list)]
-   [kvm.networking :refer (public-ip nat-ip)]
+   [kvm.networking :refer (public-ip nat-ip bridges macvtaps)]
    [taoensso.timbre :as timbre]
    [re-core.persistency.systems :as s]
    [re-core.provider :refer (mappings selections transform os->template wait-for-ssh into-description)]
    [re-share.wait :refer (wait-for)]
-   [kvm.sync :refer (descriptive-domains sync-node)]
-   [kvm.spice :refer (graphics manager-view)]
+   [kvm.sync :refer (sync-node)]
+   [kvm.spice :refer (manager-view)]
    [hypervisors.networking :refer (set-hostname ssh-able?)]
    [re-core.core :refer (Sync Vm)]
    [re-core.model :refer (translate vconstruct sconstruct hypervisor* hypervisor)])
@@ -65,7 +65,9 @@
       (debug "clone done")
       (wait-for-status this "running" timeout)
       (debug "in running state")
-      (let [ip (.ip this) flavor (get-in domain [:image :flavor])
+      (let [ip (.ip this)
+            as (.adapters this)
+            flavor (get-in domain [:image :flavor])
             {:keys [user hostname fqdn]} domain]
         (wait-for-ssh ip user timeout)
         ; hotpluging volumes require guest kernel to be up
@@ -73,6 +75,7 @@
         (debug "volumes created")
         (set-hostname hostname fqdn {:user user :host ip :ssh-key (key-)} flavor)
         (s/update-ip system-id ip)
+        (s/update-adapters system-id as)
         this)))
 
   (delete [this]
@@ -110,6 +113,12 @@
         ; in case that the node is local host we can't ssh to our public ip!
         (nat-ip (c) (domain :name) node)
         (public-ip (c) (domain :user) node (domain :name)))))
+
+  (adapters [this]
+    (with-connection
+      (concat
+       (kvm.networking/macvtaps (c) (domain :name))
+       (kvm.networking/bridges (c) (domain :name)))))
 
   Spicy
   (open-spice [this]
