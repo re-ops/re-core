@@ -14,7 +14,12 @@
 (defn create-fact [base & args]
   {:state :re-flow.setup/creating :spec {:base base :args args} :provision? true})
 
-(defn destroy-fact 
+(defn destroy-fact
+  "Partial id would work as well"
+  [& ids]
+  {:state :re-flow.setup/destroy :ids ids :re-flow.setup/force false})
+
+(defn forced-destroy-fact
   "Partial id would work as well"
   [& ids]
   {:state :re-flow.setup/destroy :ids ids :re-flow.setup/force true})

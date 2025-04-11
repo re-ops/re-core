@@ -28,15 +28,45 @@
       (assert-code code)
       (get-log uuid))))
 
+(defn bridges [c id]
+  "Extract bridge interfaces from domain XML"
+  (let [root (domain-zip c id)]
+    (map (fn [bridge mac target-dev network portid]
+           {:type "network"
+            :bridge bridge
+            :mac mac
+            :target-dev target-dev
+            :network network
+            :portid portid})
+         (zx/xml-> root :devices :interface (zx/attr= :type "network") :source (zx/attr :bridge))
+         (zx/xml-> root :devices :interface (zx/attr= :type "network") :mac (zx/attr :address))
+         (zx/xml-> root :devices :interface (zx/attr= :type "network") :target (zx/attr :dev))
+         (zx/xml-> root :devices :interface (zx/attr= :type "network") :source (zx/attr :network))
+         (zx/xml-> root :devices :interface (zx/attr= :type "network") :source (zx/attr :portid)))))
+
+(defn macvtaps [c id]
+  "Extract macvtap interfaces from domain XML"
+  (let [root (domain-zip c id)]
+    (map (fn [device mac target-dev mode]
+           {:type "direct"
+            :device device
+            :mac mac
+            :target-dev target-dev
+            :mode mode})
+         (zx/xml-> root :devices :interface (zx/attr= :type "direct") :source (zx/attr :dev))
+         (zx/xml-> root :devices :interface (zx/attr= :type "direct") :mac (zx/attr :address))
+         (zx/xml-> root :devices :interface (zx/attr= :type "direct") :target (zx/attr :dev))
+         (zx/xml-> root :devices :interface (zx/attr= :type "direct") :source (zx/attr :mode)))))
+
 (defn grab-nat [c id node]
-  (let [[nic mac] (first (macs c id))
-        out (run-arp node nic)]
+  (let [{:keys [bridge mac]} (first (bridges c id))
+        out (run-arp node bridge)]
     (let [addresses (map (fn [line] (zipmap [:address :type :hwaddress] (split line #"\s+"))) out)
           mac-to-ip-match (fn [{:keys [hwaddress address]}] (and (= hwaddress mac) (ip? address)))]
       (if-let [match (first (filter mac-to-ip-match addresses))]
         (match :address)
         (do
-          (debug (<< "nat ip not found for nic: ~{nic} mac: ~{mac}")) nil)))))
+          (debug (<< "nat ip not found for target device: ~{bridge} mac: ~{mac}")) nil)))))
 
 (defn wait-for-nat
   "Waiting for nat cache to update"
@@ -79,32 +109,3 @@
     (wait-for-public user nat public-nic node [30 :second])
     (grab-public user nat public-nic node)))
 
-(defn bridges [c id]
-  "Extract bridge interfaces from domain XML"
-  (let [root (domain-zip c id)]
-    (map (fn [bridge mac target-dev network portid]
-           {:type "network"
-            :bridge bridge
-            :mac mac
-            :target-dev target-dev
-            :network network
-            :portid portid})
-         (zx/xml-> root :devices :interface (zx/attr= :type "network") :source (zx/attr :bridge))
-         (zx/xml-> root :devices :interface (zx/attr= :type "network") :mac (zx/attr :address))
-         (zx/xml-> root :devices :interface (zx/attr= :type "network") :target (zx/attr :dev))
-         (zx/xml-> root :devices :interface (zx/attr= :type "network") :source (zx/attr :network))
-         (zx/xml-> root :devices :interface (zx/attr= :type "network") :source (zx/attr :portid)))))
-
-(defn macvtaps [c id]
-  "Extract macvtap interfaces from domain XML"
-  (let [root (domain-zip c id)]
-    (map (fn [device mac target-dev mode]
-           {:type "direct"
-            :device device
-            :mac mac
-            :target-dev target-dev
-            :mode mode})
-         (zx/xml-> root :devices :interface (zx/attr= :type "direct") :source (zx/attr :dev))
-         (zx/xml-> root :devices :interface (zx/attr= :type "direct") :mac (zx/attr :address))
-         (zx/xml-> root :devices :interface (zx/attr= :type "direct") :target (zx/attr :dev))
-         (zx/xml-> root :devices :interface (zx/attr= :type "direct") :source (zx/attr :mode)))))
