@@ -70,7 +70,7 @@
   (fn [instance]
     (assoc-in instance [:machine :os] k)))
 
-(def ubuntu-20_04 (os :ubuntu-20.04))
+(def ubuntu-22_04 (os :ubuntu-22.04))
 
 (defn machine
   "A base machine template with only user and domain populated"
@@ -84,7 +84,7 @@
 (defn defaults
   "Applying default setting for our preset check the matching aws/defaults and digital-ocean/defaults for details per hypervisor information"
   [instance]
-  (let [base (-> instance (ubuntu-20_04) default-machine)]
+  (let [base (-> instance (ubuntu-22_04) default-machine)]
     (case (figure-virt base)
       :digital-ocean (d/defaults base)
       base)))
@@ -112,7 +112,7 @@
 (def ^{:doc "Creating a ec2 VM: (create ec2 ...)"} droplet {:digital-ocean {} :machine {}})
 
 (defn dispoable-instance []
-  [default-machine (local) (os :ubuntu-desktop-20.04) c4-large :disposable "A temporary sandbox"])
+  [default-machine (local) (os :ubuntu-desktop-22.04) c4-large :disposable "A temporary sandbox"])
 
 (defn refer-system-presets []
-  (require '[re-core.presets.systems :as spc :refer [node lxc kvm droplet physical os ubuntu-20_04 defaults local default-machine with-host machine]]))
+  (require '[re-core.presets.systems :as spc :refer [node lxc kvm droplet physical os ubuntu-22_04 defaults local default-machine with-host machine]]))
